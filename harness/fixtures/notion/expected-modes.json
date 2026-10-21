@@ -1,0 +1,2086 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-notion-fixture.ts",
+ "search": {
+  "config": {
+   "schemaVersion": 1,
+   "value": {}
+  },
+  "report": {
+   "runId": "run-1",
+   "sourceInstanceId": "notion-synthetic",
+   "status": "succeeded_with_rejections",
+   "pagesApplied": 8,
+   "upserted": 6,
+   "deleted": 1,
+   "unchanged": 0,
+   "rejected": 1,
+   "errorCount": 0
+  },
+  "run": {
+   "status": "succeeded_with_rejections",
+   "errorKind": null,
+   "errorSummary": null
+  },
+  "checkpoint": {
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active"
+    }
+   },
+   "revision": 8
+  },
+  "rejections": [
+   {
+    "failureKind": "unsupported_item",
+    "message": "Notion object is not shared with the integration (commonly the original of a synced_block, or a link to a database/page outside the shared scope): Notion API error: object_not_found",
+    "providerLocator": {
+     "workKind": "block_children",
+     "blockId": "page-s2",
+     "operation": "notion.blocks.children.list"
+    },
+    "observedAt": "2026-10-15T00:00:00.000Z"
+   }
+  ],
+  "pages": [
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-s1"
+     },
+     {
+      "type": "upsert",
+      "externalId": "page-s2"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2",
+      "pendingBlockParents": [
+       {
+        "blockId": "page-s1"
+       },
+       {
+        "blockId": "page-s2"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-toggle"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2",
+      "pendingBlockParents": [
+       {
+        "blockId": "page-s1",
+        "cursor": "cur-s1-2"
+       },
+       {
+        "blockId": "page-s2"
+       },
+       {
+        "blockId": "blk-s1-toggle"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-para"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2",
+      "pendingBlockParents": [
+       {
+        "blockId": "page-s2"
+       },
+       {
+        "blockId": "blk-s1-toggle"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [
+     {
+      "providerLocator": {
+       "workKind": "block_children",
+       "blockId": "page-s2",
+       "operation": "notion.blocks.children.list"
+      },
+      "observedAt": "2026-10-15T00:00:00.000Z",
+      "failureKind": "unsupported_item",
+      "message": "Notion object is not shared with the integration (commonly the original of a synced_block, or a link to a database/page outside the shared scope): Notion API error: object_not_found"
+     }
+    ],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2",
+      "pendingBlockParents": [
+       {
+        "blockId": "blk-s1-toggle"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-item"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-s3"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "pendingBlockParents": [
+       {
+        "blockId": "page-s3"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "trash"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "page-s-old",
+      "sourceVersion": "trashed:2026-09-30T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.page-state.v1",
+       "position": "2026-09-30T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-30T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active"
+     }
+    }
+   }
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\"},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s1/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s1/children",
+    "params": {
+     "page_size": "100",
+     "start_cursor": "cur-s1-2"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s2/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/blk-s1-toggle/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\"},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100,\"start_cursor\":\"cur-search-2\"}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s3/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\",\"in_trash\":true},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100}"
+   }
+  ],
+  "tombstones": [
+   "page-s-old"
+  ],
+  "activeExternalIds": [
+   "block:blk-s1-item",
+   "block:blk-s1-para",
+   "block:blk-s1-toggle",
+   "page-s1",
+   "page-s2",
+   "page-s3"
+  ]
+ },
+ "searchResumeV1": {
+  "config": {
+   "schemaVersion": 1,
+   "value": {}
+  },
+  "checkpointBefore": {
+   "schemaVersion": 1,
+   "value": {
+    "phase": "active",
+    "cursor": "cur-search-2"
+   }
+  },
+  "report": {
+   "runId": "run-1",
+   "sourceInstanceId": "notion-synthetic",
+   "status": "succeeded",
+   "pagesApplied": 3,
+   "upserted": 1,
+   "deleted": 1,
+   "unchanged": 0,
+   "rejected": 0,
+   "errorCount": 0
+  },
+  "run": {
+   "status": "succeeded",
+   "errorKind": null,
+   "errorSummary": null
+  },
+  "checkpoint": {
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active"
+    }
+   },
+   "revision": 4
+  },
+  "rejections": [],
+  "pages": [
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-s3"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "pendingBlockParents": [
+       {
+        "blockId": "page-s3"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "trash"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "page-s-old",
+      "sourceVersion": "trashed:2026-09-30T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.page-state.v1",
+       "position": "2026-09-30T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-30T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active"
+     }
+    }
+   }
+  ],
+  "requests": [
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\"},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100,\"start_cursor\":\"cur-search-2\"}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s3/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\",\"in_trash\":true},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100}"
+   }
+  ]
+ },
+ "searchResumeV2": {
+  "config": {
+   "schemaVersion": 1,
+   "value": {}
+  },
+  "checkpointBefore": {
+   "schemaVersion": 2,
+   "value": {
+    "phase": "active",
+    "searchCursor": "cur-search-2",
+    "pendingBlockParents": [
+     {
+      "blockId": "page-s1",
+      "cursor": "cur-s1-2"
+     },
+     {
+      "blockId": "blk-s1-toggle"
+     }
+    ]
+   }
+  },
+  "report": {
+   "runId": "run-1",
+   "sourceInstanceId": "notion-synthetic",
+   "status": "succeeded",
+   "pagesApplied": 5,
+   "upserted": 3,
+   "deleted": 1,
+   "unchanged": 0,
+   "rejected": 0,
+   "errorCount": 0
+  },
+  "run": {
+   "status": "succeeded",
+   "errorKind": null,
+   "errorSummary": null
+  },
+  "checkpoint": {
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active"
+    }
+   },
+   "revision": 6
+  },
+  "rejections": [],
+  "pages": [
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-para"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2",
+      "pendingBlockParents": [
+       {
+        "blockId": "blk-s1-toggle"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-item"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-s3"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active",
+      "pendingBlockParents": [
+       {
+        "blockId": "page-s3"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "trash"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "page-s-old",
+      "sourceVersion": "trashed:2026-09-30T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.page-state.v1",
+       "position": "2026-09-30T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-30T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 2,
+     "value": {
+      "phase": "active"
+     }
+    }
+   }
+  ],
+  "requests": [
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s1/children",
+    "params": {
+     "page_size": "100",
+     "start_cursor": "cur-s1-2"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/blk-s1-toggle/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\"},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100,\"start_cursor\":\"cur-search-2\"}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s3/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\",\"in_trash\":true},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100}"
+   }
+  ]
+ },
+ "discover": {
+  "config": {
+   "schemaVersion": 1,
+   "value": {
+    "rootPageIds": [
+     "root-wiki",
+     "root-retro",
+     "root-archive"
+    ],
+    "discoverSharedPages": true
+   }
+  },
+  "report": {
+   "runId": "run-1",
+   "sourceInstanceId": "notion-synthetic",
+   "status": "succeeded_with_rejections",
+   "pagesApplied": 30,
+   "upserted": 32,
+   "deleted": 6,
+   "unchanged": 0,
+   "rejected": 2,
+   "errorCount": 0
+  },
+  "run": {
+   "status": "succeeded_with_rejections",
+   "errorKind": null,
+   "errorSummary": null
+  },
+  "checkpoint": {
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro",
+      "root-archive"
+     ],
+     "discoverSharedPages": true,
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-archive"
+      }
+     ]
+    }
+   },
+   "revision": 30
+  },
+  "rejections": [
+   {
+    "failureKind": "unsupported_item",
+    "message": "Notion object is not shared with the integration (commonly the original of a synced_block, or a link to a database/page outside the shared scope): Notion API error: object_not_found",
+    "providerLocator": {
+     "workKind": "block_children",
+     "blockId": "blk-wiki-synced",
+     "operation": "notion.blocks.children.list"
+    },
+    "observedAt": "2026-10-15T00:00:00.000Z"
+   },
+   {
+    "failureKind": "unsupported_item",
+    "message": "Notion object is not shared with the integration (commonly the original of a synced_block, or a link to a database/page outside the shared scope): Notion API error: object_not_found",
+    "providerLocator": {
+     "workKind": "block_children",
+     "blockId": "page-s2",
+     "operation": "notion.blocks.children.list"
+    },
+    "observedAt": "2026-10-15T00:00:00.000Z"
+   }
+  ],
+  "pages": [
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "root-wiki"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "page",
+        "pageId": "root-retro"
+       },
+       {
+        "kind": "page",
+        "pageId": "root-archive"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "root-wiki"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "root-retro"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "page",
+        "pageId": "root-archive"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "root-wiki"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "root-retro"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "root-archive",
+      "sourceVersion": "trashed:2026-09-20T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.page-state.v1",
+       "position": "2026-09-20T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-20T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "root-wiki"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "root-retro"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-wiki-heading"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:blk-wiki-toggle"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:page-onboarding"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "root-wiki",
+        "cursor": "cur-wiki-2"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "root-retro"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-toggle"
+       },
+       {
+        "kind": "page",
+        "pageId": "page-onboarding"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-wiki-todo"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:db-tasks"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:db-old"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:blk-wiki-synced"
+     },
+     {
+      "type": "delete",
+      "externalId": "block:blk-wiki-trashed",
+      "sourceVersion": "trashed:2026-09-01T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.block-state.v1",
+       "position": "2026-09-01T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-01T00:00:00.000Z"
+     },
+     {
+      "type": "delete",
+      "externalId": "block:page-trashed-child",
+      "sourceVersion": "trashed:2026-09-01T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.block-state.v1",
+       "position": "2026-09-01T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-01T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "root-retro"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-toggle"
+       },
+       {
+        "kind": "page",
+        "pageId": "page-onboarding"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-tasks"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-old"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-synced"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-retro-code"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:blk-retro-bullet"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:blk-retro-done"
+     },
+     {
+      "type": "upsert",
+      "externalId": "block:blk-retro-link"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-toggle"
+       },
+       {
+        "kind": "page",
+        "pageId": "page-onboarding"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-tasks"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-old"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-synced"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-retro-bullet"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-toggle-sev1"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "page",
+        "pageId": "page-onboarding"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-tasks"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-old"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-synced"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-retro-bullet"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-onboarding"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "database",
+        "databaseId": "db-tasks"
+       },
+       {
+        "kind": "database",
+        "databaseId": "db-old"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-synced"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-retro-bullet"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "page-onboarding"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "database:db-tasks"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "database",
+        "databaseId": "db-old"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-synced"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-retro-bullet"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "page-onboarding"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-tasks"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-archived"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "database:db-old",
+      "sourceVersion": "trashed:2026-09-02T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.database-state.v1",
+       "position": "2026-09-02T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-02T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "blk-wiki-synced"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-retro-bullet"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "page-onboarding"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-tasks"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-archived"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [
+     {
+      "providerLocator": {
+       "workKind": "block_children",
+       "blockId": "blk-wiki-synced",
+       "operation": "notion.blocks.children.list"
+      },
+      "observedAt": "2026-10-15T00:00:00.000Z",
+      "failureKind": "unsupported_item",
+      "message": "Notion object is not shared with the integration (commonly the original of a synced_block, or a link to a database/page outside the shared scope): Notion API error: object_not_found"
+     }
+    ],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "blk-retro-bullet"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "page-onboarding"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-tasks"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-archived"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-retro-numbered"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "page-onboarding"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-tasks"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-archived"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-onboarding-para"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-tasks"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-archived"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "data-source:ds-tasks"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-archived"
+       },
+       {
+        "kind": "data_source_rows",
+        "dataSourceId": "ds-tasks",
+        "phase": "active"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "data-source:ds-archived",
+      "sourceVersion": "trashed:2026-09-03T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.data-source-state.v1",
+       "position": "2026-09-03T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-03T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "data_source_rows",
+        "dataSourceId": "ds-tasks",
+        "phase": "active"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "row-alert"
+     },
+     {
+      "type": "upsert",
+      "externalId": "row-runbook"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "data_source_rows",
+        "dataSourceId": "ds-tasks",
+        "phase": "active",
+        "cursor": "cur-rows-2"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "row-alert"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "row-runbook"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "row-drill"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "row-alert"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "row-runbook"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "row-drill"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-sub"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-row-alert"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "row-runbook"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "row-drill"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-sub"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-row-runbook"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "row-drill"
+       },
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-sub"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-row-drill"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "data_source",
+        "dataSourceId": "ds-sub"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "data-source:ds-sub"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "data_source_rows",
+        "dataSourceId": "ds-sub",
+        "phase": "active"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [],
+      "searchPhase": "active"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-s1"
+     },
+     {
+      "type": "upsert",
+      "externalId": "page-s2"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "page-s1"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "page-s2"
+       }
+      ],
+      "searchPhase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-toggle"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "page-s1",
+        "cursor": "cur-s1-2"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "page-s2"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-s1-toggle"
+       }
+      ],
+      "searchPhase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-para"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "page-s2"
+       },
+       {
+        "kind": "block_children",
+        "blockId": "blk-s1-toggle"
+       }
+      ],
+      "searchPhase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [
+     {
+      "providerLocator": {
+       "workKind": "block_children",
+       "blockId": "page-s2",
+       "operation": "notion.blocks.children.list"
+      },
+      "observedAt": "2026-10-15T00:00:00.000Z",
+      "failureKind": "unsupported_item",
+      "message": "Notion object is not shared with the integration (commonly the original of a synced_block, or a link to a database/page outside the shared scope): Notion API error: object_not_found"
+     }
+    ],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "blk-s1-toggle"
+       }
+      ],
+      "searchPhase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "block:blk-s1-item"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [],
+      "searchPhase": "active",
+      "searchCursor": "cur-search-2"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "upsert",
+      "externalId": "page-s3"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [
+       {
+        "kind": "block_children",
+        "blockId": "page-s3"
+       }
+      ],
+      "searchPhase": "trash"
+     }
+    }
+   },
+   {
+    "mutations": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "discovery",
+      "pendingWork": [],
+      "searchPhase": "trash"
+     }
+    }
+   },
+   {
+    "mutations": [
+     {
+      "type": "delete",
+      "externalId": "page-s-old",
+      "sourceVersion": "trashed:2026-09-30T00:00:00.000Z",
+      "sourceOrder": {
+       "scheme": "notion.page-state.v1",
+       "position": "2026-09-30T00:00:00.000Z"
+      },
+      "occurredAt": "2026-09-30T00:00:00.000Z"
+     }
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 3,
+     "value": {
+      "mode": "roots",
+      "rootPageIds": [
+       "root-wiki",
+       "root-retro",
+       "root-archive"
+      ],
+      "discoverSharedPages": true,
+      "stage": "traversal",
+      "pendingWork": [
+       {
+        "kind": "page",
+        "pageId": "root-wiki"
+       },
+       {
+        "kind": "page",
+        "pageId": "root-retro"
+       },
+       {
+        "kind": "page",
+        "pageId": "root-archive"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "requests": [
+   {
+    "method": "GET",
+    "path": "/v1/pages/root-wiki",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/pages/root-retro",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/pages/root-retro",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/pages/root-archive",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/root-wiki/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/root-wiki/children",
+    "params": {
+     "page_size": "100",
+     "start_cursor": "cur-wiki-2"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/root-retro/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/blk-wiki-toggle/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/pages/page-onboarding",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/databases/db-tasks",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/databases/db-old",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/blk-wiki-synced/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/blk-retro-bullet/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-onboarding/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/data_sources/ds-tasks",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/data_sources/ds-archived",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/data_sources/ds-tasks/query",
+    "params": {},
+    "body": "{\"page_size\":100}"
+   },
+   {
+    "method": "POST",
+    "path": "/v1/data_sources/ds-tasks/query",
+    "params": {},
+    "body": "{\"page_size\":100,\"start_cursor\":\"cur-rows-2\"}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/row-alert/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/row-runbook/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/row-drill/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/data_sources/ds-sub",
+    "params": {},
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/data_sources/ds-sub/query",
+    "params": {},
+    "body": "{\"page_size\":100}"
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\"},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s1/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s1/children",
+    "params": {
+     "page_size": "100",
+     "start_cursor": "cur-s1-2"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s2/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/blk-s1-toggle/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\"},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100,\"start_cursor\":\"cur-search-2\"}"
+   },
+   {
+    "method": "GET",
+    "path": "/v1/blocks/page-s3/children",
+    "params": {
+     "page_size": "100"
+    },
+    "body": null
+   },
+   {
+    "method": "POST",
+    "path": "/v1/search",
+    "params": {},
+    "body": "{\"filter\":{\"property\":\"object\",\"value\":\"page\",\"in_trash\":true},\"sort\":{\"direction\":\"descending\",\"timestamp\":\"last_edited_time\"},\"page_size\":100}"
+   }
+  ],
+  "tombstones": [
+   "block:blk-wiki-trashed",
+   "block:page-trashed-child",
+   "data-source:ds-archived",
+   "database:db-old",
+   "page-s-old",
+   "root-archive"
+  ],
+  "activeExternalIds": [
+   "block:blk-onboarding-para",
+   "block:blk-retro-bullet",
+   "block:blk-retro-code",
+   "block:blk-retro-done",
+   "block:blk-retro-link",
+   "block:blk-retro-numbered",
+   "block:blk-row-alert",
+   "block:blk-row-drill",
+   "block:blk-row-runbook",
+   "block:blk-s1-item",
+   "block:blk-s1-para",
+   "block:blk-s1-toggle",
+   "block:blk-toggle-sev1",
+   "block:blk-wiki-heading",
+   "block:blk-wiki-synced",
+   "block:blk-wiki-todo",
+   "block:blk-wiki-toggle",
+   "block:db-old",
+   "block:db-tasks",
+   "block:page-onboarding",
+   "data-source:ds-sub",
+   "data-source:ds-tasks",
+   "database:db-tasks",
+   "page-onboarding",
+   "page-s1",
+   "page-s2",
+   "page-s3",
+   "root-retro",
+   "root-wiki",
+   "row-alert",
+   "row-drill",
+   "row-runbook"
+  ]
+ }
+}

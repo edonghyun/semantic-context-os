@@ -1,0 +1,301 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-ops-fixture.ts",
+ "now": "2026-10-16T01:02:03.456Z",
+ "cases": [
+  {
+   "label": "기본 limit(5)에서 후보 7개",
+   "query": "결제 정책",
+   "limit": null,
+   "candidates": [
+    {
+     "documentId": "doc-0",
+     "baseScore": 0.9
+    },
+    {
+     "documentId": "doc-1",
+     "baseScore": 0.85
+    },
+    {
+     "documentId": "doc-2",
+     "baseScore": 0.8
+    },
+    {
+     "documentId": "doc-3",
+     "baseScore": 0.75
+    },
+    {
+     "documentId": "doc-4",
+     "baseScore": 0.7
+    },
+    {
+     "documentId": "doc-5",
+     "baseScore": 0.65
+    },
+    {
+     "documentId": "doc-6",
+     "baseScore": 0.6
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "doc-0",
+     "score": 0.9
+    },
+    {
+     "documentId": "doc-1",
+     "score": 0.85
+    },
+    {
+     "documentId": "doc-2",
+     "score": 0.8
+    },
+    {
+     "documentId": "doc-3",
+     "score": 0.75
+    },
+    {
+     "documentId": "doc-4",
+     "score": 0.7
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"결제 정책\",\"topDocumentIds\":[\"doc-0\",\"doc-1\",\"doc-2\",\"doc-3\",\"doc-4\"],\"topScore\":0.9}\n"
+  },
+  {
+   "label": "limit 3이면 상위 문서도 3개",
+   "query": "온콜 교대",
+   "limit": 3,
+   "candidates": [
+    {
+     "documentId": "doc-0",
+     "baseScore": 0.9
+    },
+    {
+     "documentId": "doc-1",
+     "baseScore": 0.85
+    },
+    {
+     "documentId": "doc-2",
+     "baseScore": 0.8
+    },
+    {
+     "documentId": "doc-3",
+     "baseScore": 0.75
+    },
+    {
+     "documentId": "doc-4",
+     "baseScore": 0.7
+    },
+    {
+     "documentId": "doc-5",
+     "baseScore": 0.65
+    },
+    {
+     "documentId": "doc-6",
+     "baseScore": 0.6
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "doc-0",
+     "score": 0.9
+    },
+    {
+     "documentId": "doc-1",
+     "score": 0.85
+    },
+    {
+     "documentId": "doc-2",
+     "score": 0.8
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"온콜 교대\",\"topDocumentIds\":[\"doc-0\",\"doc-1\",\"doc-2\"],\"topScore\":0.9}\n"
+  },
+  {
+   "label": "limit 10이어도 상위 문서는 5개",
+   "query": "배포 절차",
+   "limit": 10,
+   "candidates": [
+    {
+     "documentId": "doc-0",
+     "baseScore": 0.9
+    },
+    {
+     "documentId": "doc-1",
+     "baseScore": 0.85
+    },
+    {
+     "documentId": "doc-2",
+     "baseScore": 0.8
+    },
+    {
+     "documentId": "doc-3",
+     "baseScore": 0.75
+    },
+    {
+     "documentId": "doc-4",
+     "baseScore": 0.7
+    },
+    {
+     "documentId": "doc-5",
+     "baseScore": 0.65
+    },
+    {
+     "documentId": "doc-6",
+     "baseScore": 0.6
+    },
+    {
+     "documentId": "doc-7",
+     "baseScore": 0.55
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "doc-0",
+     "score": 0.9
+    },
+    {
+     "documentId": "doc-1",
+     "score": 0.85
+    },
+    {
+     "documentId": "doc-2",
+     "score": 0.8
+    },
+    {
+     "documentId": "doc-3",
+     "score": 0.75
+    },
+    {
+     "documentId": "doc-4",
+     "score": 0.7
+    },
+    {
+     "documentId": "doc-5",
+     "score": 0.65
+    },
+    {
+     "documentId": "doc-6",
+     "score": 0.6
+    },
+    {
+     "documentId": "doc-7",
+     "score": 0.55
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"배포 절차\",\"topDocumentIds\":[\"doc-0\",\"doc-1\",\"doc-2\",\"doc-3\",\"doc-4\"],\"topScore\":0.9}\n"
+  },
+  {
+   "label": "결과 없음",
+   "query": "없는 주제",
+   "limit": null,
+   "candidates": [],
+   "hits": [],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"없는 주제\",\"topDocumentIds\":[],\"topScore\":0}\n"
+  },
+  {
+   "label": "점수 반올림(셋째 자리)과 정수 점수",
+   "query": "q",
+   "limit": null,
+   "candidates": [
+    {
+     "documentId": "a",
+     "baseScore": 1
+    },
+    {
+     "documentId": "b",
+     "baseScore": 0.81249
+    },
+    {
+     "documentId": "c",
+     "baseScore": 0.0005
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "a",
+     "score": 1
+    },
+    {
+     "documentId": "b",
+     "score": 0.812
+    },
+    {
+     "documentId": "c",
+     "score": 0.001
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"q\",\"topDocumentIds\":[\"a\",\"b\",\"c\"],\"topScore\":1}\n"
+  },
+  {
+   "label": "같은 문서의 유닛 여럿",
+   "query": "q",
+   "limit": null,
+   "candidates": [
+    {
+     "documentId": "d",
+     "baseScore": 0.7
+    },
+    {
+     "documentId": "d",
+     "baseScore": 0.6
+    },
+    {
+     "documentId": "e",
+     "baseScore": 0.5
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "d",
+     "score": 0.7
+    },
+    {
+     "documentId": "d",
+     "score": 0.6
+    },
+    {
+     "documentId": "e",
+     "score": 0.5
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"q\",\"topDocumentIds\":[\"d\",\"d\",\"e\"],\"topScore\":0.7}\n"
+  },
+  {
+   "label": "따옴표·역슬래시·개행·제어 문자·이모지 질의",
+   "query": "say \"hi\" \\ path\nnext\ttab \u0001 🚀 한글",
+   "limit": null,
+   "candidates": [
+    {
+     "documentId": "doc-0",
+     "baseScore": 0.9
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "doc-0",
+     "score": 0.9
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"say \\\"hi\\\" \\\\ path\\nnext\\ttab \\u0001 🚀 한글\",\"topDocumentIds\":[\"doc-0\"],\"topScore\":0.9}\n"
+  },
+  {
+   "label": "홀로 남은 서로게이트 질의",
+   "query": "broken \ud800 end",
+   "limit": null,
+   "candidates": [
+    {
+     "documentId": "doc-0",
+     "baseScore": 0.9
+    }
+   ],
+   "hits": [
+    {
+     "documentId": "doc-0",
+     "score": 0.9
+    }
+   ],
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"query\":\"broken \\ud800 end\",\"topDocumentIds\":[\"doc-0\"],\"topScore\":0.9}\n"
+  }
+ ]
+}

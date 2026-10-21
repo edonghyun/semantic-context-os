@@ -1,0 +1,116 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-ops-fixture.ts",
+ "now": "2026-10-16T01:02:03.456Z",
+ "cases": [
+  {
+   "label": "run 실패",
+   "entry": {
+    "level": "error",
+    "event": "collection.run.failed",
+    "sourceInstanceId": "jira-main",
+    "runId": "run-7",
+    "detail": {
+     "status": "failed",
+     "errorKind": "dependency_unavailable",
+     "errorSummary": "jira.read: dependency_unavailable — Jira request failed (HTTP 503)"
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"error\",\"event\":\"collection.run.failed\",\"sourceInstanceId\":\"jira-main\",\"runId\":\"run-7\",\"detail\":{\"status\":\"failed\",\"errorKind\":\"dependency_unavailable\",\"errorSummary\":\"jira.read: dependency_unavailable — Jira request failed (HTTP 503)\"}}"
+  },
+  {
+   "label": "run 취소",
+   "entry": {
+    "level": "info",
+    "event": "collection.run.cancelled",
+    "sourceInstanceId": "slack-main",
+    "runId": "run-8",
+    "detail": {
+     "status": "cancelled"
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"info\",\"event\":\"collection.run.cancelled\",\"sourceInstanceId\":\"slack-main\",\"runId\":\"run-8\",\"detail\":{\"status\":\"cancelled\"}}"
+  },
+  {
+   "label": "항목 거부(공급자 위치 객체)",
+   "entry": {
+    "level": "warn",
+    "event": "collection.item.rejected",
+    "sourceInstanceId": "jira-main",
+    "runId": "run-7",
+    "detail": {
+     "failureKind": "unsupported_item",
+     "message": "Jira resource unavailable",
+     "providerLocator": {
+      "kind": "components",
+      "id": "10001",
+      "start": 0
+     }
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"warn\",\"event\":\"collection.item.rejected\",\"sourceInstanceId\":\"jira-main\",\"runId\":\"run-7\",\"detail\":{\"failureKind\":\"unsupported_item\",\"message\":\"Jira resource unavailable\",\"providerLocator\":{\"kind\":\"components\",\"id\":\"10001\",\"start\":0}}}"
+  },
+  {
+   "label": "소스 오류(run 전)",
+   "entry": {
+    "level": "error",
+    "event": "supervisor.source.error",
+    "sourceInstanceId": "tiro-meetings",
+    "detail": {
+     "message": "credentials: invalid_configuration — env:TIRO_KEY is not set"
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"error\",\"event\":\"supervisor.source.error\",\"sourceInstanceId\":\"tiro-meetings\",\"detail\":{\"message\":\"credentials: invalid_configuration — env:TIRO_KEY is not set\"}}"
+  },
+  {
+   "label": "스냅샷 run(detail 없음)",
+   "entry": {
+    "level": "info",
+    "event": "collection.run.snapshot",
+    "sourceInstanceId": "notion-main"
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"info\",\"event\":\"collection.run.snapshot\",\"sourceInstanceId\":\"notion-main\"}"
+  },
+  {
+   "label": "heartbeat 지연(수)",
+   "entry": {
+    "level": "warn",
+    "event": "lease.heartbeat.slow",
+    "sourceInstanceId": "drive-main",
+    "detail": {
+     "elapsedMs": 61234
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"warn\",\"event\":\"lease.heartbeat.slow\",\"sourceInstanceId\":\"drive-main\",\"detail\":{\"elapsedMs\":61234}}"
+  },
+  {
+   "label": "정비 완료(중첩 객체 — Java DaemonMaintenance의 detail 모양)",
+   "entry": {
+    "level": "info",
+    "event": "maintenance.sweep.completed",
+    "detail": {
+     "blob": {
+      "scanned": 120,
+      "deleted": 3,
+      "retainedByReference": 110,
+      "retainedByGrace": 7,
+      "bytesFreed": 1048576
+     },
+     "changesPruned": 0
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"info\",\"event\":\"maintenance.sweep.completed\",\"detail\":{\"blob\":{\"scanned\":120,\"deleted\":3,\"retainedByReference\":110,\"retainedByGrace\":7,\"bytesFreed\":1048576},\"changesPruned\":0}}"
+  },
+  {
+   "label": "정비 실패",
+   "entry": {
+    "level": "error",
+    "event": "maintenance.sweep.failed",
+    "detail": {
+     "message": "blob \"sha256/ab\" missing\nretry later"
+    }
+   },
+   "line": "{\"ts\":\"2026-10-16T01:02:03.456Z\",\"level\":\"error\",\"event\":\"maintenance.sweep.failed\",\"detail\":{\"message\":\"blob \\\"sha256/ab\\\" missing\\nretry later\"}}"
+  }
+ ]
+}

@@ -1,0 +1,73 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-tiro-fixture.ts",
+ "documents": [
+  {
+   "sourceId": "tiro-synthetic",
+   "documentId": "note:n-alpha",
+   "title": "결제 장애 회고",
+   "body": "# 결제 장애 회고\n\n회의 일시: 2026-10-01T01:00:00Z\n\n## AI 요약\n- 원인: 커넥션 풀 고갈\n- 대응: 풀 크기 상향\n\n## 회의록\n결정: 풀 크기 상향\n\n후속: 알림 추가\n\n## 전사 원문\n[2026-10-01T01:00:05Z]\n민수: DB 커넥션 풀이 고갈됐다\nSPEAKER_1: 풀 크기를 올리고 알림을 추가하자\n\n따옴표 \"인용\"\t탭\u0001제어 문자와 🚀 이모지\n\n[2026-10-01T01:10:00Z]\n재발 방지 대책은 다음 주까지 정리한다\n\n전사 제한: 1개 문단은 Tiro에서 잠겨 있어 제외됨.",
+   "uri": "https://tiro.ooo/n/n-alpha",
+   "createdAt": "2026-10-01T01:00:00Z",
+   "updatedAt": "2026-10-03T09:00:00Z",
+   "metadata": {
+    "sourceInstanceId": "tiro-synthetic",
+    "resourceType": "tiro.note",
+    "lockedParagraphs": 1,
+    "unavailableResources": []
+   }
+  },
+  {
+   "sourceId": "tiro-synthetic",
+   "documentId": "note:n-beta",
+   "title": "온보딩 절차 논의",
+   "body": "# 온보딩 절차 논의\n\n접근 제한으로 제외된 내용: AI 요약, 회의 문서\n\n## 전사 원문\n계정 발급 뒤 권한 신청 순서로 진행한다",
+   "uri": "https://tiro.ooo/n/n-beta",
+   "createdAt": "2026-10-01T01:00:00Z",
+   "updatedAt": "2026-10-01T02:00:00Z",
+   "metadata": {
+    "sourceInstanceId": "tiro-synthetic",
+    "resourceType": "tiro.note",
+    "lockedParagraphs": 0,
+    "unavailableResources": [
+     "summaries",
+     "documents"
+    ]
+   }
+  },
+  {
+   "sourceId": "tiro-synthetic",
+   "documentId": "note:n-delta",
+   "title": "보안 점검 회의",
+   "body": "# 보안 점검 회의\n\n접근 제한으로 제외된 내용: AI 요약\n\n회의 일시: 2026-10-01T01:00:00Z\n\n## 전사 원문\n접근 권한은 분기마다 다시 확인한다",
+   "uri": "https://tiro.ooo/n/n-delta",
+   "createdAt": "2026-10-01T01:00:00Z",
+   "updatedAt": "2026-10-01T02:00:00Z",
+   "metadata": {
+    "sourceInstanceId": "tiro-synthetic",
+    "resourceType": "tiro.note",
+    "lockedParagraphs": 0,
+    "unavailableResources": [
+     "summaries"
+    ]
+   }
+  },
+  {
+   "sourceId": "tiro-synthetic",
+   "documentId": "note:n-gamma",
+   "title": "정산 배치 점검",
+   "body": "# 정산 배치 점검\n\n접근 제한으로 제외된 내용: 전사 원문\n\n회의 일시: 2026-10-01T01:00:00Z\n\n## AI 요약\n스냅샷 보관 기간은 30일\n\n## AI 회의 문서\n정산 배치는 매일 02시",
+   "uri": "tiro://note:n-gamma",
+   "createdAt": "2026-10-01T01:00:00Z",
+   "updatedAt": "2026-10-01T02:00:00Z",
+   "metadata": {
+    "sourceInstanceId": "tiro-synthetic",
+    "resourceType": "tiro.note",
+    "lockedParagraphs": 0,
+    "unavailableResources": [
+     "paragraphs"
+    ]
+   }
+  }
+ ]
+}

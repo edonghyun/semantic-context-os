@@ -1,0 +1,382 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-tiro-fixture.ts",
+ "now": "2026-10-15T00:00:00.000Z",
+ "token": "tiro-synthetic-key",
+ "config": {
+  "workspaceGuid": "ws-synthetic",
+  "folderId": "folder-1"
+ },
+ "listPages": [
+  {
+   "content": [
+    {
+     "guid": "n-alpha",
+     "title": "목록 제목은 쓰지 않는다"
+    },
+    {
+     "guid": "n-beta"
+    },
+    {
+     "guid": "n-locked"
+    }
+   ],
+   "nextCursor": "page:1"
+  },
+  {
+   "content": [
+    {
+     "guid": "n-gamma"
+    },
+    {
+     "guid": "n-delta"
+    },
+    {
+     "guid": "n-gone"
+    }
+   ],
+   "nextCursor": null
+  }
+ ],
+ "removedBeforeSecondRun": [
+  "n-gamma"
+ ],
+ "notes": {
+  "n-alpha": {
+   "detail": {
+    "guid": "n-alpha",
+    "workspaceGuid": "ws-synthetic",
+    "title": "결제 장애 회고",
+    "createdAt": "2026-10-01T01:00:00Z",
+    "updatedAt": "2026-10-01T02:00:00Z",
+    "sourceType": "recording",
+    "recordingStartAt": "2026-10-01T01:00:00Z",
+    "recordingDurationSeconds": 1800,
+    "webUrl": "https://tiro.ooo/n/n-alpha",
+    "collaborators": [
+     {
+      "email": "private@example.test",
+      "role": "editor"
+     }
+    ],
+    "participants": [
+     {
+      "name": "참석자",
+      "email": null
+     }
+    ],
+    "metrics": {
+     "ratio": 0.1,
+     "tiny": 1e-7,
+     "big": 1e+21,
+     "whole": 2,
+     "negative": -3.5
+    }
+   },
+   "paragraphs": {
+    "pages": [
+     {
+      "content": [
+       {
+        "uuid": "p-1",
+        "locked": false,
+        "timeFrom": "2026-10-01T01:00:05Z",
+        "transcript": {
+         "type": "text/plain",
+         "content": "화자 정보가 있으면 쓰지 않는 전사"
+        },
+        "diarizedSegments": [
+         {
+          "speaker": {
+           "label": "SPEAKER_0",
+           "personName": "민수"
+          },
+          "content": "DB 커넥션 풀이 고갈됐다"
+         },
+         {
+          "speaker": {
+           "label": "SPEAKER_1",
+           "personName": null
+          },
+          "content": "풀 크기를 올리고 알림을 추가하자"
+         }
+        ]
+       },
+       {
+        "uuid": "p-2",
+        "locked": false,
+        "transcript": {
+         "type": "text/plain",
+         "content": "따옴표 \"인용\"\t탭\u0001제어 문자와 🚀 이모지"
+        }
+       }
+      ],
+      "nextCursor": "page:1"
+     },
+     {
+      "content": [
+       {
+        "uuid": "p-3",
+        "locked": true,
+        "transcript": {
+         "type": "text/plain",
+         "content": "MASKED"
+        }
+       },
+       {
+        "uuid": "p-4",
+        "locked": false,
+        "transcript": null,
+        "diarizedSegments": null
+       },
+       {
+        "uuid": "p-5",
+        "locked": false,
+        "timeFrom": "2026-10-01T01:10:00Z",
+        "transcript": {
+         "type": "text/plain",
+         "content": "재발 방지 대책은 다음 주까지 정리한다"
+        }
+       }
+      ],
+      "nextCursor": null
+     }
+    ]
+   },
+   "summaries": {
+    "listing": {
+     "content": [
+      {
+       "id": 7,
+       "locale": "ko"
+      }
+     ],
+     "totalSize": 1
+    },
+    "details": {
+     "7": {
+      "id": 7,
+      "noteGuid": "n-alpha",
+      "content": {
+       "type": "text/markdown",
+       "content": "- 원인: 커넥션 풀 고갈\n- 대응: 풀 크기 상향"
+      },
+      "updatedAt": "2026-10-03T09:00:00Z"
+     }
+    }
+   },
+   "documents": {
+    "listing": {
+     "content": [
+      {
+       "id": 11
+      }
+     ],
+     "totalSize": 1
+    },
+    "details": {
+     "11": {
+      "id": 11,
+      "noteGuid": "n-alpha",
+      "template": {
+       "id": 3,
+       "title": "회의록"
+      },
+      "sections": [
+       {
+        "templateSectionId": 1,
+        "content": {
+         "type": "text/markdown",
+         "content": "결정: 풀 크기 상향"
+        }
+       },
+       {
+        "templateSectionId": 2,
+        "content": {
+         "type": "text/markdown",
+         "content": ""
+        }
+       },
+       {
+        "templateSectionId": 3,
+        "content": {
+         "type": "text/markdown",
+         "content": "후속: 알림 추가"
+        }
+       }
+      ],
+      "truncated": false,
+      "updatedAt": "2026-10-02T09:00:00Z"
+     }
+    }
+   }
+  },
+  "n-beta": {
+   "detail": {
+    "guid": "n-beta",
+    "workspaceGuid": "ws-synthetic",
+    "title": "온보딩 절차 논의",
+    "createdAt": "2026-10-01T01:00:00Z",
+    "updatedAt": "2026-10-01T02:00:00Z",
+    "sourceType": "recording",
+    "recordingStartAt": null,
+    "recordingDurationSeconds": 1800,
+    "webUrl": "https://tiro.ooo/n/n-beta",
+    "collaborators": [
+     {
+      "email": "private@example.test",
+      "role": "editor"
+     }
+    ],
+    "participants": [
+     {
+      "name": "참석자",
+      "email": null
+     }
+    ]
+   },
+   "paragraphs": {
+    "pages": [
+     {
+      "content": [
+       {
+        "uuid": "b-1",
+        "locked": false,
+        "transcript": {
+         "type": "text/plain",
+         "content": "계정 발급 뒤 권한 신청 순서로 진행한다"
+        }
+       }
+      ],
+      "nextCursor": null
+     }
+    ]
+   },
+   "summaries": {
+    "status": 403
+   },
+   "documents": {
+    "status": 403
+   }
+  },
+  "n-gamma": {
+   "detail": {
+    "guid": "n-gamma",
+    "workspaceGuid": "ws-synthetic",
+    "title": "정산 배치 점검",
+    "createdAt": "2026-10-01T01:00:00Z",
+    "updatedAt": "2026-10-01T02:00:00Z",
+    "sourceType": "recording",
+    "recordingStartAt": "2026-10-01T01:00:00Z",
+    "recordingDurationSeconds": 1800,
+    "webUrl": "https://example.test/n-gamma",
+    "collaborators": [
+     {
+      "email": "private@example.test",
+      "role": "editor"
+     }
+    ],
+    "participants": [
+     {
+      "name": "참석자",
+      "email": null
+     }
+    ]
+   },
+   "paragraphs": {
+    "status": 404
+   },
+   "summaries": {
+    "listing": {
+     "content": [
+      {
+       "id": 21
+      }
+     ],
+     "totalSize": 1
+    },
+    "details": {
+     "21": {
+      "id": 21,
+      "noteGuid": "n-gamma",
+      "content": {
+       "type": "text/markdown",
+       "content": "스냅샷 보관 기간은 30일"
+      }
+     }
+    }
+   },
+   "documents": {
+    "listing": {
+     "content": [
+      {
+       "id": 31
+      }
+     ],
+     "totalSize": 1
+    },
+    "details": {
+     "31": {
+      "id": 31,
+      "noteGuid": "n-gamma",
+      "template": null,
+      "sections": [
+       {
+        "templateSectionId": 1,
+        "content": {
+         "type": "text/markdown",
+         "content": "정산 배치는 매일 02시"
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  "n-locked": {
+   "detail": {
+    "status": 403
+   }
+  },
+  "n-delta": {
+   "detail": {
+    "rawJson": "{\"guid\":\"n-delta\",\"workspaceGuid\":\"ws-synthetic\",\"title\":\"보안 점검 회의\",\"createdAt\":\"2026-10-01T01:00:00Z\",\"updatedAt\":\"2026-10-01T02:00:00Z\",\"sourceType\":\"recording\",\"recordingStartAt\":\"2026-10-01T01:00:00Z\",\"recordingDurationSeconds\":1800,\"webUrl\":\"https://tiro.ooo/n/n-delta\",\"collaborators\":[{\"email\":\"private@example.test\",\"role\":\"editor\"}],\"participants\":[{\"name\":\"참석자\",\"email\":null}],\"appFields\":{\"b\":\"둘\",\"10\":\"십\",\"a\":{\"z\":0,\"2\":\"이\",\"1\":\"일\"},\"01\":\"앞 0\"}}"
+   },
+   "paragraphs": {
+    "pages": [
+     {
+      "content": [
+       {
+        "uuid": "d-1",
+        "locked": false,
+        "transcript": {
+         "type": "text/plain",
+         "content": "접근 권한은 분기마다 다시 확인한다"
+        }
+       }
+      ],
+      "nextCursor": null
+     }
+    ]
+   },
+   "summaries": {
+    "listing": {
+     "content": [
+      {
+       "id": 41
+      }
+     ],
+     "totalSize": 1
+    },
+    "details": {}
+   },
+   "documents": {
+    "listing": {
+     "content": [],
+     "totalSize": 0
+    },
+    "details": {}
+   }
+  }
+ }
+}

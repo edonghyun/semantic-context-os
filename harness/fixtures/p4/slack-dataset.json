@@ -1,0 +1,124 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-p4-fixture.ts",
+ "now": "2026-10-14T00:00:00.000Z",
+ "token": "xoxb-synthetic-token",
+ "conversationsPageSize": 1,
+ "channels": [
+  "C0000000001",
+  "C0000000002"
+ ],
+ "history": {
+  "C0000000001": {
+   "pages": [
+    {
+     "messages": [
+      {
+       "type": "message",
+       "user": "U01",
+       "text": "배포 *장애* 회고: 원인은 <https://example.test/deploy|배포 절차> 누락",
+       "ts": "1760400300.000000"
+      },
+      {
+       "type": "message",
+       "user": "U02",
+       "text": "스레드 시작: 결제 장애 원인 공유",
+       "ts": "1760400100.000000",
+       "thread_ts": "1760400100.000000",
+       "reply_count": 2
+      },
+      {
+       "type": "message",
+       "user": "U03",
+       "text": "",
+       "ts": "1760400050.000000"
+      }
+     ],
+     "nextCursor": "page:1"
+    },
+    {
+     "messages": [
+      {
+       "type": "message",
+       "user": "U01",
+       "text": "온보딩 절차 정리 `계정 발급` → 권한 신청",
+       "ts": "1760400010.000000",
+       "edited": {
+        "user": "U01",
+        "ts": "1760400400.000000"
+       }
+      },
+      {
+       "type": "message",
+       "user": "U04",
+       "text": "<@U01> :+1: 좋아요",
+       "ts": "1760400005.000000"
+      }
+     ]
+    }
+   ],
+   "threads": {
+    "1760400100.000000": {
+     "pages": [
+      {
+       "messages": [
+        {
+         "type": "message",
+         "user": "U02",
+         "text": "스레드 시작: 결제 장애 원인 공유",
+         "ts": "1760400100.000000",
+         "thread_ts": "1760400100.000000",
+         "reply_count": 2
+        },
+        {
+         "type": "message",
+         "user": "U05",
+         "text": "DB 커넥션 풀 고갈이 원인",
+         "ts": "1760400120.000000",
+         "thread_ts": "1760400100.000000"
+        }
+       ],
+       "nextCursor": "page:1"
+      },
+      {
+       "messages": [
+        {
+         "type": "message",
+         "user": "U02",
+         "text": "대응: 풀 크기 상향과 알림 추가",
+         "ts": "1760400130.000000",
+         "thread_ts": "1760400100.000000"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "C0000000002": {
+   "pages": [
+    {
+     "messages": [
+      {
+       "type": "message",
+       "user": "U06",
+       "text": "정산 배치가 ```SELECT *\nFROM x``` 로 느려짐",
+       "ts": "1760486410.000000"
+      },
+      {
+       "type": "bot_message",
+       "text": "no ts here"
+      },
+      {
+       "type": "message",
+       "user": "U07",
+       "text": "스냅샷 보관 기간은 30일",
+       "ts": "1760486420.000000"
+      }
+     ]
+    }
+   ],
+   "threads": {}
+  }
+ }
+}

@@ -1,0 +1,20 @@
+# `daemon` 명령(조립 루트가 프로필 daemon을 켠다): Actuator health/readiness/metrics를 로컬 HTTP로만 노출한다(ADR-0020 §3).
+# 포트 0이면 임의 포트(프로세스 테스트) — 실제 포트는 io.scos 로그 "daemon http port=N"에 남는다.
+# 웹 유형(servlet)은 ScosApplication.main이 정한다 — 프로필 yml의 spring.main.web-application-type은 기동 순서상 효력이 없다.
+server:
+  address: 127.0.0.1
+  port: ${SCOS_DAEMON_PORT:8081}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+      group:
+        # readiness = Boot readinessState + 첫 사이클 완료(DaemonReadinessIndicator) — 첫 사이클 전 503
+        readiness:
+          include: readinessState,daemonReadiness

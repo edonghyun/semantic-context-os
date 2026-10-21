@@ -1,0 +1,282 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-jira-fixture.ts",
+ "scenarios": [
+  {
+   "failure": {
+    "name": "이슈 40002가 계속 503",
+    "pathPrefix": "/rest/api/3/issue/40002",
+    "status": 503
+   },
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "jira-synthetic",
+    "status": "partially_succeeded",
+    "pagesApplied": 5,
+    "upserted": 5,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "run": {
+    "status": "partially_succeeded",
+    "errorCount": 1,
+    "errorKind": "dependency_unavailable"
+   },
+   "checkpoint": {
+    "checkpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "issue",
+        "id": "40001"
+       },
+       {
+        "kind": "issue",
+        "id": "40002"
+       },
+       {
+        "kind": "issue",
+        "id": "40003"
+       },
+       {
+        "kind": "issue",
+        "id": "40006"
+       },
+       {
+        "kind": "issue",
+        "id": "40007"
+       },
+       {
+        "kind": "issues",
+        "id": "10000",
+        "cursor": "tok-page-2"
+       },
+       {
+        "kind": "projects",
+        "start": 1
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": []
+     }
+    },
+    "revision": 5
+   },
+   "failedRequests": 5,
+   "activeExternalIds": [
+    "component:20000",
+    "field:customfield_10010",
+    "field:summary",
+    "project:10000",
+    "version:30000"
+   ]
+  },
+  {
+   "failure": {
+    "name": "필드 목록이 계속 429",
+    "pathPrefix": "/rest/api/3/field",
+    "status": 429,
+    "headers": {
+     "retry-after": "1"
+    }
+   },
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "jira-synthetic",
+    "status": "failed",
+    "pagesApplied": 0,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "run": {
+    "status": "failed",
+    "errorCount": 1,
+    "errorKind": "rate_limited"
+   },
+   "checkpoint": {
+    "checkpoint": null,
+    "revision": 0
+   },
+   "failedRequests": 5,
+   "activeExternalIds": []
+  },
+  {
+   "failure": {
+    "name": "모든 요청이 401",
+    "pathPrefix": "/rest/",
+    "status": 401
+   },
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "jira-synthetic",
+    "status": "failed",
+    "pagesApplied": 0,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "run": {
+    "status": "failed",
+    "errorCount": 1,
+    "errorKind": "authentication_failed"
+   },
+   "checkpoint": {
+    "checkpoint": null,
+    "revision": 0
+   },
+   "failedRequests": 1,
+   "activeExternalIds": []
+  },
+  {
+   "failure": {
+    "name": "PAY 이슈 검색이 400",
+    "pathPrefix": "/rest/api/3/search/jql",
+    "status": 400
+   },
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "jira-synthetic",
+    "status": "partially_succeeded",
+    "pagesApplied": 4,
+    "upserted": 5,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "run": {
+    "status": "partially_succeeded",
+    "errorCount": 1,
+    "errorKind": "invalid_provider_response"
+   },
+   "checkpoint": {
+    "checkpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "issues",
+        "id": "10000"
+       },
+       {
+        "kind": "projects",
+        "start": 1
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": []
+     }
+    },
+    "revision": 4
+   },
+   "failedRequests": 1,
+   "activeExternalIds": [
+    "component:20000",
+    "field:customfield_10010",
+    "field:summary",
+    "project:10000",
+    "version:30000"
+   ]
+  },
+  {
+   "failure": {
+    "name": "첨부 50001 원본이 계속 500",
+    "pathPrefix": "/rest/api/3/attachment/content/50001",
+    "status": 500
+   },
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "jira-synthetic",
+    "status": "partially_succeeded",
+    "pagesApplied": 6,
+    "upserted": 8,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 1,
+    "errorCount": 1
+   },
+   "run": {
+    "status": "partially_succeeded",
+    "errorCount": 1,
+    "errorKind": "dependency_unavailable"
+   },
+   "checkpoint": {
+    "checkpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "attachment",
+        "id": "50001",
+        "key": "PAY-1",
+        "size": 38
+       },
+       {
+        "kind": "issue",
+        "id": "40007"
+       },
+       {
+        "kind": "issues",
+        "id": "10000",
+        "cursor": "tok-page-2"
+       },
+       {
+        "kind": "projects",
+        "start": 1
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": []
+     }
+    },
+    "revision": 6
+   },
+   "failedRequests": 5,
+   "activeExternalIds": [
+    "component:20000",
+    "field:customfield_10010",
+    "field:summary",
+    "issue:40001",
+    "issue:40002",
+    "issue:40006",
+    "project:10000",
+    "version:30000"
+   ]
+  }
+ ]
+}

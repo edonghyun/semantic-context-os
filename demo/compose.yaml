@@ -1,0 +1,74 @@
+# SCOS local demo: PostgreSQL 17 + pgvector, a keyless hashing embedder, and the SCOS server (built from this repo).
+# No ports are published to the host; the MCP server talks stdio through `docker compose run`. See demo/README.md.
+name: scos-demo
+
+x-scos-env: &scos-env
+  SCOS_DB_URL: jdbc:postgresql://db:5432/scos
+  SCOS_DB_USER: scos
+  SCOS_DB_PASSWORD: scos
+  # The server only speaks the Gemini embedding API today. The demo points it at the local hashing embedder;
+  # the key is a placeholder that never leaves the compose network.
+  SCOS_GEMINI_BASE_URL: http://embedder:8000
+  GEMINI_API_KEY: demo-placeholder-not-a-key
+  SCOS_RERANK_PROVIDER: none
+  SCOS_SPACE_ID: demo
+
+services:
+  db:
+    # Same image (digest pinned) as the backend tests; the server checks PostgreSQL 17.11 / pgvector 0.8.7 at startup.
+    image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    environment:
+      POSTGRES_DB: scos
+      POSTGRES_USER: scos
+      POSTGRES_PASSWORD: scos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "scos", "-d", "scos"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  embedder:
+    image: python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+    command: ["python", "/embedder/hashing_embedder.py", "--port", "8000"]
+    volumes:
+      - ./embedder:/embedder:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # One-shot: adds embeddings to the demo corpus (scos import stores vectors, it does not compute them).
+  corpus:
+    image: python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+    profiles: [tools]
+    command: ["python", "/embedder/embed_units.py", "http://embedder:8000", "/corpus/units.json", "/work/units.embedded.json"]
+    volumes:
+      - ./embedder:/embedder:ro
+      - ./corpus:/corpus:ro
+      - work:/work
+    depends_on:
+      embedder:
+        condition: service_healthy
+
+  # The SCOS server CLI: `run --rm scos import …` loads data, `run --rm -T scos mcp` serves MCP over stdio.
+  scos:
+    build:
+      context: ..
+      dockerfile: demo/Dockerfile
+    image: scos-demo-server:local
+    profiles: [tools]
+    environment: *scos-env
+    volumes:
+      - work:/work:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      embedder:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  work:

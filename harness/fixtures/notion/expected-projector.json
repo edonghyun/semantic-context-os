@@ -1,0 +1,1990 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-notion-fixture.ts",
+ "cases": [
+  {
+   "label": "제목 없는 페이지는 자리표시 제목",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-untitled"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-untitled"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": []
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:b1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-untitled"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "본문만 있다",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "본문만 있다",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-untitled": [
+     "p-untitled",
+     "block:b1"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-untitled",
+     "uri": "https://www.notion.so/p-untitled",
+     "title": "(제목 없음)",
+     "body": "본문만 있다",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-untitled"
+     }
+    }
+   ]
+  },
+  {
+   "label": "제목도 본문도 없으면 건너뛴다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-empty"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-empty"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": []
+        }
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-empty": [
+     "p-empty"
+    ]
+   },
+   "documents": [
+    {
+     "documentId": "p-empty",
+     "skipped": true
+    }
+   ]
+  },
+  {
+   "label": "본문 없이 제목만",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-title"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-title"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "제목만",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "제목만",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-title": [
+     "p-title"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-title",
+     "uri": "https://www.notion.so/p-title",
+     "title": "제목만",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-title"
+     }
+    }
+   ]
+  },
+  {
+   "label": "uri는 url → publicUrl → notion://",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-url"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-url"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "url",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "url",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-public"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "publicUrl": "https://synthetic.notion.site/p-public"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "publicUrl",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "publicUrl",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-none"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": 7
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "없음",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "없음",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-url": [
+     "p-url"
+    ],
+    "p-public": [
+     "p-public"
+    ],
+    "p-none": [
+     "p-none"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-none",
+     "uri": "notion://p-none",
+     "title": "없음",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-none"
+     }
+    },
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-public",
+     "uri": "https://synthetic.notion.site/p-public",
+     "title": "publicUrl",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-public"
+     }
+    },
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-url",
+     "uri": "https://www.notion.so/p-url",
+     "title": "url",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-url"
+     }
+    }
+   ]
+  },
+  {
+   "label": "생성시각이 없으면 observedAt",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-observed"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": null,
+     "sourceUpdatedAt": null,
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-observed"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "관찰 시각",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "관찰 시각",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-observed": [
+     "p-observed"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-observed",
+     "uri": "https://www.notion.so/p-observed",
+     "title": "관찰 시각",
+     "body": "",
+     "createdAt": "2026-10-15T00:00:00.000Z",
+     "updatedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "수정시각은 페이지와 블록 가운데 최댓값",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-max"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-max"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "최댓값",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "최댓값",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:m1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-09-30T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-max"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "늦게 고친 블록",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "늦게 고친 블록",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:m22"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:03.000Z",
+     "sourceUpdatedAt": "2026-08-05T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-max"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "일찍 고친 블록",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "일찍 고친 블록",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-max": [
+     "p-max",
+     "block:m1",
+     "block:m22"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-max",
+     "uri": "https://www.notion.so/p-max",
+     "title": "최댓값",
+     "body": "늦게 고친 블록\n\n일찍 고친 블록",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-09-30T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-max"
+     }
+    }
+   ]
+  },
+  {
+   "label": "하위 페이지 블록은 하위 페이지 문서로",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-parent"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-parent"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "부모",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "부모",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:p-child"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:07.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "child_page",
+      "parentBlockId": "p-parent"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "child_page": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-child"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-child"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "하위",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "하위",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:c1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-child"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "하위 본문",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "하위 본문",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:c22"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:03.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "c1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "하위 중첩",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "하위 중첩",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-parent": [
+     "p-parent",
+     "block:p-child"
+    ],
+    "p-child": [
+     "p-child",
+     "block:c1",
+     "block:c22"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-child",
+     "uri": "https://www.notion.so/p-child",
+     "title": "하위",
+     "body": "하위 본문\n\n  하위 중첩",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-child"
+     }
+    },
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-parent",
+     "uri": "https://www.notion.so/p-parent",
+     "title": "부모",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-parent"
+     }
+    }
+   ]
+  },
+  {
+   "label": "database 행은 자기 문서이고 container는 문서가 아니다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "row-1"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/row-1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "행",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "행",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:r1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "row-1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "행 본문",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "행 본문",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "database:db-1"
+     },
+     "resourceType": "notion.database",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {},
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "database",
+       "id": "db-1"
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "data-source:ds-1"
+     },
+     "resourceType": "notion.data_source",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {},
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "database",
+       "id": "ds-1"
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:x1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "database:db-1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "container 소속",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "container 소속",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "row-1": [
+     "row-1",
+     "block:r1"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "row-1",
+     "uri": "https://www.notion.so/row-1",
+     "title": "행",
+     "body": "행 본문",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "row-1"
+     }
+    }
+   ]
+  },
+  {
+   "label": "부모 페이지가 없는(휴지통·미수집) 블록은 버린다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-live"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-live"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "살아 있음",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "살아 있음",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:g1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-trashed"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "휴지통 페이지의 블록",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "휴지통 페이지의 블록",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:g22"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:03.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "g1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "그 아래",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "그 아래",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:g333"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:04.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "nowhere"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "고아",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "고아",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-live": [
+     "p-live"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-live",
+     "uri": "https://www.notion.so/p-live",
+     "title": "살아 있음",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-live"
+     }
+    }
+   ]
+  },
+  {
+   "label": "블록 순환은 문서에 넣지 않는다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-cycle"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-cycle"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "순환 옆",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "순환 옆",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:y1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "y22"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "순환 하나",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "순환 하나",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:y22"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:03.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "y1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "순환 둘",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "순환 둘",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-cycle": [
+     "p-cycle"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-cycle",
+     "uri": "https://www.notion.so/p-cycle",
+     "title": "순환 옆",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-cycle"
+     }
+    }
+   ]
+  },
+  {
+   "label": "페이지가 아닌 문서 id는 건너뛴다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-x"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-x"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "x",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "x",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:b9"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-x"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "본문",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "본문",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-x": [
+     "p-x",
+     "block:b9"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-x",
+     "uri": "https://www.notion.so/p-x",
+     "title": "x",
+     "body": "본문",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-x"
+     }
+    },
+    {
+     "documentId": "block:b9",
+     "skipped": true
+    },
+    {
+     "documentId": "없는 문서",
+     "skipped": true
+    }
+   ]
+  },
+  {
+   "label": "block: 접두 id의 페이지도 조상 페이지다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:odd"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/block:odd"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "접두 페이지",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "접두 페이지",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:o1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "odd"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "접두 페이지 아래",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "접두 페이지 아래",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "block:odd": [
+     "block:odd",
+     "block:o1"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "block:odd",
+     "uri": "https://www.notion.so/block:odd",
+     "title": "접두 페이지",
+     "body": "",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "block:odd"
+     }
+    }
+   ]
+  },
+  {
+   "label": "수정시각이 없는 블록은 최댓값에서 뺀다",
+   "whole": false,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-nt"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": null,
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-nt"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "수정시각",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "수정시각",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:nt1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:03.000Z",
+     "sourceUpdatedAt": null,
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-nt"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "시각 없음",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "시각 없음",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:nt22"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:04.000Z",
+     "sourceUpdatedAt": "2026-08-03T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-nt"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "시각 있음",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "시각 있음",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-nt": [
+     "p-nt",
+     "block:nt1",
+     "block:nt22"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-nt",
+     "uri": "https://www.notion.so/p-nt",
+     "title": "수정시각",
+     "body": "시각 없음\n\n시각 있음",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-03T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-nt"
+     }
+    }
+   ]
+  },
+  {
+   "label": "투영은 페이지와 블록 원본만 본다",
+   "whole": true,
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "p-all"
+     },
+     "resourceType": "notion.page",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "url": "https://www.notion.so/p-all"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "page",
+       "properties": {
+        "이름": {
+         "type": "title",
+         "title": [
+          {
+           "type": "text",
+           "text": {
+            "content": "전체 목록",
+            "link": null
+           },
+           "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+           },
+           "plain_text": "전체 목록",
+           "href": null
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "block:a1"
+     },
+     "resourceType": "notion.block",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:02.000Z",
+     "sourceUpdatedAt": "2026-08-02T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {
+      "type": "paragraph",
+      "parentBlockId": "p-all"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "paragraph": {
+        "rich_text": [
+         {
+          "type": "text",
+          "text": {
+           "content": "블록",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "블록",
+          "href": null
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "notion-synthetic",
+      "externalId": "database:db-late"
+     },
+     "resourceType": "notion.database",
+     "sourceVersion": "v",
+     "sourceCreatedAt": "2026-08-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-12-31T00:00:00.000Z",
+     "observedAt": "2026-10-15T00:00:00.000Z",
+     "metadata": {},
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "object": "database",
+       "id": "db-late"
+      }
+     }
+    }
+   ],
+   "groups": {
+    "p-all": [
+     "p-all",
+     "block:a1"
+    ]
+   },
+   "documents": [
+    {
+     "sourceId": "notion-synthetic",
+     "documentId": "p-all",
+     "uri": "https://www.notion.so/p-all",
+     "title": "전체 목록",
+     "body": "블록",
+     "createdAt": "2026-08-01T00:00:00.000Z",
+     "updatedAt": "2026-08-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "notion-synthetic",
+      "resourceType": "notion.page",
+      "pageId": "p-all"
+     }
+    }
+   ]
+  }
+ ]
+}

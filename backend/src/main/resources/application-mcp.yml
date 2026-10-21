@@ -1,0 +1,6 @@
+# `mcp` 명령(조립 루트가 프로필 mcp를 켠다): 스키마를 바꾸지 않고(Flyway validate만 — McpRuntimeConfiguration) 읽기 전용 연결만 쓴다(CONTRACTS A6, ADR-0005, 리뷰 I-1).
+spring:
+  datasource:
+    hikari:
+      read-only: true
+      connection-init-sql: SET default_transaction_read_only = on

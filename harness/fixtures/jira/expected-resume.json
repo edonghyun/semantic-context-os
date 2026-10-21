@@ -1,0 +1,2306 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-jira-fixture.ts",
+ "crashAt": {
+  "path": "/rest/api/3/issue/40005",
+  "params": {
+   "fields": "*all",
+   "expand": "names,changelog"
+  }
+ },
+ "firstRun": {
+  "report": {
+   "runId": "run-1",
+   "sourceInstanceId": "jira-synthetic",
+   "status": "partially_succeeded",
+   "pagesApplied": 9,
+   "upserted": 10,
+   "deleted": 0,
+   "unchanged": 0,
+   "rejected": 1,
+   "errorCount": 1
+  },
+  "checkpoint": {
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "siteUrl": "https://synthetic.atlassian.net",
+     "pending": [
+      {
+       "kind": "issue",
+       "id": "40004"
+      },
+      {
+       "kind": "issue",
+       "id": "40005"
+      },
+      {
+       "kind": "projects",
+       "start": 1
+      },
+      {
+       "kind": "boards"
+      },
+      {
+       "kind": "filters"
+      },
+      {
+       "kind": "dashboards"
+      }
+     ],
+     "downloadedAttachments": [
+      "50001"
+     ]
+    }
+   },
+   "revision": 9
+  },
+  "activeExternalIds": [
+   "attachment:50001",
+   "component:20000",
+   "field:customfield_10010",
+   "field:summary",
+   "issue:40001",
+   "issue:40002",
+   "issue:40006",
+   "issue:40007",
+   "project:10000",
+   "version:30000"
+  ],
+  "requests": [
+   {
+    "path": "/rest/api/3/field",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/field",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/project/search",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0",
+     "expand": "description"
+    }
+   },
+   {
+    "path": "/rest/api/3/project/10000/components",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/project/10000/versions",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/search/jql",
+    "params": {
+     "maxResults": "50",
+     "jql": "project = 10000 ORDER BY id ASC",
+     "fields": "summary"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40001",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40002",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40003",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40006",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40001/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/issue/40002/comment",
+    "params": {
+     "maxResults": "100",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40003/comment",
+    "params": {
+     "maxResults": "100",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40006/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/issue/40002/comment",
+    "params": {
+     "maxResults": "100",
+     "startAt": "2"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40002/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/issue/40002/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/attachment/content/50001",
+    "params": {
+     "redirect": "false"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40007",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40007/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/search/jql",
+    "params": {
+     "maxResults": "50",
+     "jql": "project = 10000 ORDER BY id ASC",
+     "fields": "summary",
+     "nextPageToken": "tok-page-2"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40004",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40005",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40004/remotelink",
+    "params": {}
+   }
+  ]
+ },
+ "secondRun": {
+  "report": {
+   "runId": "run-2",
+   "sourceInstanceId": "jira-synthetic",
+   "status": "succeeded_with_rejections",
+   "pagesApplied": 12,
+   "upserted": 12,
+   "deleted": 0,
+   "unchanged": 0,
+   "rejected": 3,
+   "errorCount": 0
+  },
+  "checkpoint": {
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "siteUrl": "https://synthetic.atlassian.net",
+     "pending": [],
+     "downloadedAttachments": [
+      "50001",
+      "50002"
+     ]
+    }
+   },
+   "revision": 21
+  },
+  "rejections": [
+   {
+    "failureKind": "unsupported_item",
+    "message": "Jira resource unavailable to this account or API; coverage is incomplete",
+    "providerLocator": {
+     "kind": "issue",
+     "id": "40005",
+     "start": 0
+    }
+   },
+   {
+    "failureKind": "unsupported_item",
+    "message": "Attachment exceeds the 50 MiB raw capture limit; original not downloaded",
+    "providerLocator": {
+     "kind": "attachment",
+     "id": "50003",
+     "start": 0
+    }
+   },
+   {
+    "failureKind": "unsupported_item",
+    "message": "Jira resource unavailable to this account or API; coverage is incomplete",
+    "providerLocator": {
+     "kind": "components",
+     "id": "10001",
+     "start": 0
+    }
+   }
+  ],
+  "pages": [
+   {
+    "upserted": [
+     "issue:40004"
+    ],
+    "rejections": [
+     {
+      "providerLocator": {
+       "kind": "issue",
+       "id": "40005",
+       "start": 0
+      },
+      "observedAt": "2026-10-15T00:00:00.000Z",
+      "failureKind": "unsupported_item",
+      "message": "Jira resource unavailable to this account or API; coverage is incomplete"
+     }
+    ],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "attachment",
+        "id": "50002",
+        "key": "PAY-4",
+        "size": 16
+       },
+       {
+        "kind": "attachment",
+        "id": "50003",
+        "key": "PAY-4",
+        "size": 62914560
+       },
+       {
+        "kind": "projects",
+        "start": 1
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "attachment:50002"
+    ],
+    "rejections": [
+     {
+      "providerLocator": {
+       "kind": "attachment",
+       "id": "50003",
+       "start": 0
+      },
+      "observedAt": "2026-10-15T00:00:00.000Z",
+      "failureKind": "unsupported_item",
+      "message": "Attachment exceeds the 50 MiB raw capture limit; original not downloaded"
+     }
+    ],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "projects",
+        "start": 1
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "project:10001"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "components",
+        "id": "10001"
+       },
+       {
+        "kind": "versions",
+        "id": "10001"
+       },
+       {
+        "kind": "issues",
+        "id": "10001"
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [],
+    "rejections": [
+     {
+      "providerLocator": {
+       "kind": "components",
+       "id": "10001",
+       "start": 0
+      },
+      "observedAt": "2026-10-15T00:00:00.000Z",
+      "failureKind": "unsupported_item",
+      "message": "Jira resource unavailable to this account or API; coverage is incomplete"
+     }
+    ],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "versions",
+        "id": "10001"
+       },
+       {
+        "kind": "issues",
+        "id": "10001"
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "issues",
+        "id": "10001"
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "issue",
+        "id": "40010"
+       },
+       {
+        "kind": "issue",
+        "id": "40011"
+       },
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "issue:40010",
+     "issue:40011"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "boards"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "board:9",
+     "board:10",
+     "board:11"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "sprints",
+        "id": "9"
+       },
+       {
+        "kind": "sprints",
+        "id": "11"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "sprint:301"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "sprints",
+        "id": "11"
+       },
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "sprint:302"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "filters"
+       },
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "filter:10100"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [
+       {
+        "kind": "dashboards"
+       }
+      ],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   },
+   {
+    "upserted": [
+     "dashboard:10200"
+    ],
+    "rejections": [],
+    "nextCheckpoint": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "pending": [],
+      "downloadedAttachments": [
+       "50001",
+       "50002"
+      ]
+     }
+    }
+   }
+  ],
+  "requests": [
+   {
+    "path": "/rest/api/3/issue/40004",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40005",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40004/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/attachment/content/50002",
+    "params": {
+     "redirect": "false"
+    }
+   },
+   {
+    "path": "/rest/api/3/project/search",
+    "params": {
+     "maxResults": "50",
+     "startAt": "1",
+     "expand": "description"
+    }
+   },
+   {
+    "path": "/rest/api/3/project/10001/components",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/project/10001/versions",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/search/jql",
+    "params": {
+     "maxResults": "50",
+     "jql": "project = 10001 ORDER BY id ASC",
+     "fields": "summary"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40010",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40011",
+    "params": {
+     "fields": "*all",
+     "expand": "names,changelog"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40010/worklog",
+    "params": {
+     "maxResults": "100",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/issue/40011/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/api/3/issue/40010/remotelink",
+    "params": {}
+   },
+   {
+    "path": "/rest/agile/1.0/board",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/agile/1.0/board/9/sprint",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/agile/1.0/board/11/sprint",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   },
+   {
+    "path": "/rest/api/3/filter/search",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0",
+     "expand": "description,jql"
+    }
+   },
+   {
+    "path": "/rest/api/3/dashboard",
+    "params": {
+     "maxResults": "50",
+     "startAt": "0"
+    }
+   }
+  ]
+ },
+ "items": [
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "attachment:50001"
+   },
+   "resourceType": "jira.attachment",
+   "sourceVersion": "dec1e1c1a99f1ecbba5cafbc262b737c4269cbf44ee7d5b41d63da76ada275c0",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "issueKey": "PAY-1",
+    "extraction": "not_extracted"
+   },
+   "content": {
+    "storage": "blob",
+    "mediaType": "text/plain",
+    "blobKey": "sha256/dec1e1c1a99f1ecbba5cafbc262b737c4269cbf44ee7d5b41d63da76ada275c0",
+    "sha256": "dec1e1c1a99f1ecbba5cafbc262b737c4269cbf44ee7d5b41d63da76ada275c0",
+    "size": 38
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "attachment:50002"
+   },
+   "resourceType": "jira.attachment",
+   "sourceVersion": "02a3e298f1533f62558c58e4c70edcab9af5a50d62d925fd5390942020fb0fb8",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "issueKey": "PAY-4",
+    "extraction": "not_extracted"
+   },
+   "content": {
+    "storage": "blob",
+    "mediaType": "image/png",
+    "blobKey": "sha256/02a3e298f1533f62558c58e4c70edcab9af5a50d62d925fd5390942020fb0fb8",
+    "sha256": "02a3e298f1533f62558c58e4c70edcab9af5a50d62d925fd5390942020fb0fb8",
+    "size": 16
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "board:10"
+   },
+   "resourceType": "jira.board",
+   "sourceVersion": "471f9f222d614c6fa92322d63c47882fea354148c91db72f17c056e1a87f2b4b",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": 10,
+     "name": "OPS 칸반",
+     "type": "kanban"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "board:11"
+   },
+   "resourceType": "jira.board",
+   "sourceVersion": "fc22f3cd21dc9cb91143993bb2218c9dfd6aa65deb4a9100b57297f7456a5aa4",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": 11,
+     "name": "OPS 팀 관리 보드",
+     "type": "simple"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "board:9"
+   },
+   "resourceType": "jira.board",
+   "sourceVersion": "0db91bfef145a123ddf1990155f015fc79c0cc7ffce9f89370f4427e821b18d3",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": 9,
+     "name": "PAY 스크럼",
+     "type": "scrum",
+     "location": {
+      "projectId": 10000,
+      "displayName": "결제 플랫폼 (PAY)"
+     }
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "component:20000"
+   },
+   "resourceType": "jira.component",
+   "sourceVersion": "338260ca1c2cfb960b8df3f27e6fae9699be99cf04d5fddabea411acd2cd9aa0",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "20000",
+     "name": "결제 API",
+     "description": "외부 결제 요청",
+     "lead": {
+      "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-리드",
+      "accountId": "acct-리드",
+      "emailAddress": "리드@example.test",
+      "avatarUrls": {
+       "48x48": "https://example.test/avatar.png"
+      },
+      "displayName": "리드",
+      "active": true
+     }
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "dashboard:10200"
+   },
+   "resourceType": "jira.dashboard",
+   "sourceVersion": "4d25638812028aa0b3a8e21f8ea930c3db874abd30bc81b2df9ba682da25bf06",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "10200",
+     "name": "운영 대시보드",
+     "isFavourite": true,
+     "popularity": 3
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "field:customfield_10010"
+   },
+   "resourceType": "jira.field",
+   "sourceVersion": "00bf6c2649b1706c15c873dd2c64c86ed59a3ed25c8a42b4fad9f5c9d0a59c03",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "customfield_10010",
+     "name": "Story Points",
+     "custom": true,
+     "schema": {
+      "type": "number"
+     }
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "field:summary"
+   },
+   "resourceType": "jira.field",
+   "sourceVersion": "a025efeb4f3a8cef2c572e6f840a1a1b8ed111838457948cef3f576500c8ca51",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "summary",
+     "name": "Summary",
+     "custom": false
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "filter:10100"
+   },
+   "resourceType": "jira.filter",
+   "sourceVersion": "a325cfd8ad66078a6269d9e5bb8af099ff99c275773bcc1410c19ecec13852ee",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "10100",
+     "name": "열린 결제 장애",
+     "description": "PAY 장애 중 미해결",
+     "jql": "project = PAY AND status != Done",
+     "owner": {
+      "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-필터주인",
+      "accountId": "acct-필터주인",
+      "emailAddress": "필터주인@example.test",
+      "avatarUrls": {
+       "48x48": "https://example.test/avatar.png"
+      },
+      "displayName": "필터주인",
+      "active": true
+     }
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40001"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "f68a6f418befad072a5552452dd498696d1324aa8e740ddb32db29ea3a28961a",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-1",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "40001",
+     "key": "PAY-1",
+     "self": "https://synthetic.atlassian.net/rest/api/3/issue/40001",
+     "fields": {
+      "summary": "결제 승인 지연 장애",
+      "created": "2026-10-01T09:00:00.000+0900",
+      "updated": "2026-10-02T09:00:00.000+0900",
+      "comment": {
+       "startAt": 0,
+       "maxResults": 50,
+       "total": 1,
+       "comments": [
+        {
+         "id": "60001",
+         "author": {
+          "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-검토자",
+          "accountId": "acct-검토자",
+          "emailAddress": "검토자@example.test",
+          "avatarUrls": {
+           "48x48": "https://example.test/avatar.png"
+          },
+          "displayName": "검토자",
+          "active": true
+         },
+         "body": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "재현 절차를 추가했다."
+             }
+            ]
+           }
+          ]
+         },
+         "created": "2026-10-01T10:00:00.000+0900",
+         "updated": "2026-10-01T10:00:00.000+0900"
+        }
+       ]
+      },
+      "worklog": {
+       "startAt": 0,
+       "maxResults": 20,
+       "total": 1,
+       "worklogs": [
+        {
+         "id": "70001",
+         "author": {
+          "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-담당자",
+          "accountId": "acct-담당자",
+          "emailAddress": "담당자@example.test",
+          "avatarUrls": {
+           "48x48": "https://example.test/avatar.png"
+          },
+          "displayName": "담당자",
+          "active": true
+         },
+         "timeSpent": "2h",
+         "comment": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "원인 분석"
+             }
+            ]
+           }
+          ]
+         }
+        }
+       ]
+      },
+      "watches": {
+       "watchCount": 1
+      },
+      "votes": {
+       "votes": 0
+      },
+      "progress": {
+       "progress": 0,
+       "total": 0
+      },
+      "description": {
+       "type": "doc",
+       "version": 1,
+       "content": [
+        {
+         "type": "heading",
+         "attrs": {
+          "level": 2
+         },
+         "content": [
+          {
+           "type": "text",
+           "text": "결제 "
+          },
+          {
+           "type": "text",
+           "text": "장애",
+           "marks": [
+            {
+             "type": "strong"
+            }
+           ]
+          },
+          {
+           "type": "text",
+           "text": " 개요"
+          }
+         ]
+        },
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "원인은 "
+          },
+          {
+           "type": "text",
+           "text": "배포 절차",
+           "marks": [
+            {
+             "type": "link",
+             "attrs": {
+              "href": "https://example.test/deploy"
+             }
+            }
+           ]
+          },
+          {
+           "type": "text",
+           "text": " 누락이다. 내부 링크 "
+          },
+          {
+           "type": "text",
+           "text": "열기",
+           "marks": [
+            {
+             "type": "link",
+             "attrs": {
+              "href": "javascript:alert(1)"
+             }
+            }
+           ]
+          },
+          {
+           "type": "text",
+           "text": "는 링크로 쓰지 않는다."
+          },
+          {
+           "type": "hardBreak"
+          },
+          {
+           "type": "text",
+           "text": "담당 "
+          },
+          {
+           "type": "mention",
+           "attrs": {
+            "id": "acct-1",
+            "text": "@운영 담당"
+           }
+          },
+          {
+           "type": "text",
+           "text": " "
+          },
+          {
+           "type": "emoji",
+           "attrs": {
+            "shortName": ":fire:",
+            "text": "🔥"
+           }
+          },
+          {
+           "type": "emoji",
+           "attrs": {
+            "shortName": ":warning:"
+           }
+          }
+         ]
+        },
+        {
+         "type": "bulletList",
+         "content": [
+          {
+           "type": "listItem",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "커넥션 풀 고갈"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "listItem",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "알림 누락"
+              }
+             ]
+            },
+            {
+             "type": "bulletList",
+             "content": [
+              {
+               "type": "listItem",
+               "content": [
+                {
+                 "type": "paragraph",
+                 "content": [
+                  {
+                   "type": "text",
+                   "text": "중첩 항목"
+                  }
+                 ]
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "orderedList",
+         "attrs": {
+          "order": 1
+         },
+         "content": [
+          {
+           "type": "listItem",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "감지"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "listItem",
+           "content": [
+            {
+             "type": "paragraph",
+             "content": [
+              {
+               "type": "text",
+               "text": "복구"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "table",
+         "content": [
+          {
+           "type": "tableRow",
+           "content": [
+            {
+             "type": "tableHeader",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "지표"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "tableHeader",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "값"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "type": "tableRow",
+           "content": [
+            {
+             "type": "tableCell",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "오류율"
+                }
+               ]
+              }
+             ]
+            },
+            {
+             "type": "tableCell",
+             "content": [
+              {
+               "type": "paragraph",
+               "content": [
+                {
+                 "type": "text",
+                 "text": "12%"
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "codeBlock",
+         "attrs": {
+          "language": "sql"
+         },
+         "content": [
+          {
+           "type": "text",
+           "text": "SELECT count(*)\nFROM payments;"
+          }
+         ]
+        },
+        {
+         "type": "panel",
+         "attrs": {
+          "panelType": "info"
+         },
+         "content": [
+          {
+           "type": "paragraph",
+           "content": [
+            {
+             "type": "text",
+             "text": "재발 방지 대책은 아래 링크"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "inlineCard",
+           "attrs": {
+            "url": "https://example.test/runbook"
+           }
+          }
+         ]
+        },
+        {
+         "type": "blockCard",
+         "attrs": {
+          "url": "https://example.test/postmortem"
+         }
+        },
+        {
+         "type": "rule"
+        },
+        {
+         "type": "paragraph",
+         "content": []
+        },
+        {
+         "type": "mediaSingle",
+         "content": [
+          {
+           "type": "media",
+           "attrs": {
+            "id": "media-1",
+            "type": "file",
+            "collection": "jira"
+           }
+          }
+         ]
+        }
+       ]
+      },
+      "status": {
+       "self": "https://synthetic.atlassian.net/rest/api/3/status/3",
+       "id": "3",
+       "name": "진행 중"
+      },
+      "priority": {
+       "id": "2",
+       "name": "High",
+       "iconUrl": "https://example.test/high.svg"
+      },
+      "assignee": {
+       "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-담당자",
+       "accountId": "acct-담당자",
+       "emailAddress": "담당자@example.test",
+       "avatarUrls": {
+        "48x48": "https://example.test/avatar.png"
+       },
+       "displayName": "담당자",
+       "active": true
+      },
+      "labels": [
+       "incident",
+       "payments"
+      ],
+      "customfield_10010": 5,
+      "customfield_10011": [
+       {
+        "id": 301,
+        "name": "Sprint 8"
+       }
+      ],
+      "resolution": null,
+      "attachment": [
+       {
+        "id": "50001",
+        "filename": "error-log.txt",
+        "mimeType": "text/plain",
+        "size": 38,
+        "created": "2026-10-01T11:00:00.000+0900"
+       }
+      ]
+     },
+     "names": {
+      "summary": "Summary",
+      "description": "Description",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "labels": "Labels",
+      "customfield_10010": "Story Points",
+      "customfield_10011": "Sprint",
+      "created": "Created",
+      "updated": "Updated"
+     },
+     "changelog": [
+      {
+       "id": "80001",
+       "author": {
+        "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-담당자",
+        "accountId": "acct-담당자",
+        "emailAddress": "담당자@example.test",
+        "avatarUrls": {
+         "48x48": "https://example.test/avatar.png"
+        },
+        "displayName": "담당자",
+        "active": true
+       },
+       "created": "2026-10-01T12:00:00.000+0900",
+       "items": [
+        {
+         "field": "status",
+         "fromString": "할 일",
+         "toString": "진행 중"
+        }
+       ]
+      }
+     ],
+     "comments": [
+      {
+       "id": "60001",
+       "author": {
+        "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-검토자",
+        "accountId": "acct-검토자",
+        "emailAddress": "검토자@example.test",
+        "avatarUrls": {
+         "48x48": "https://example.test/avatar.png"
+        },
+        "displayName": "검토자",
+        "active": true
+       },
+       "body": {
+        "type": "doc",
+        "version": 1,
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "재현 절차를 추가했다."
+           }
+          ]
+         }
+        ]
+       },
+       "created": "2026-10-01T10:00:00.000+0900",
+       "updated": "2026-10-01T10:00:00.000+0900"
+      }
+     ],
+     "worklogs": [
+      {
+       "id": "70001",
+       "author": {
+        "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-담당자",
+        "accountId": "acct-담당자",
+        "emailAddress": "담당자@example.test",
+        "avatarUrls": {
+         "48x48": "https://example.test/avatar.png"
+        },
+        "displayName": "담당자",
+        "active": true
+       },
+       "timeSpent": "2h",
+       "comment": {
+        "type": "doc",
+        "version": 1,
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "원인 분석"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ],
+     "remoteLinks": [
+      {
+       "id": 1,
+       "self": "https://example.test/x",
+       "object": {
+        "url": "https://example.test/runbook",
+        "title": "결제 런북"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40002"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "46416e215971bed2b5b41d2b9d041809856522ebe144a3030aa39526c34483dd",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-2",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "40002",
+     "key": "PAY-2",
+     "self": "https://synthetic.atlassian.net/rest/api/3/issue/40002",
+     "fields": {
+      "summary": "정산 배치 지연",
+      "created": "2026-10-01T09:00:00.000+0900",
+      "updated": "2026-10-02T09:00:00.000+0900",
+      "comment": {
+       "startAt": 0,
+       "maxResults": 1,
+       "total": 3,
+       "comments": [
+        {
+         "id": "60011",
+         "author": {
+          "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-가",
+          "accountId": "acct-가",
+          "emailAddress": "가@example.test",
+          "avatarUrls": {
+           "48x48": "https://example.test/avatar.png"
+          },
+          "displayName": "가",
+          "active": true
+         },
+         "body": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "첫 댓글"
+             }
+            ]
+           }
+          ]
+         },
+         "created": "2026-10-01T10:00:00.000+0900",
+         "updated": "2026-10-01T10:00:00.000+0900"
+        }
+       ]
+      },
+      "worklog": {
+       "startAt": 0,
+       "maxResults": 20,
+       "total": 0,
+       "worklogs": []
+      },
+      "watches": {
+       "watchCount": 1
+      },
+      "votes": {
+       "votes": 0
+      },
+      "progress": {
+       "progress": 0,
+       "total": 0
+      }
+     },
+     "names": {
+      "summary": "Summary",
+      "description": "Description",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "labels": "Labels",
+      "customfield_10010": "Story Points",
+      "customfield_10011": "Sprint",
+      "created": "Created",
+      "updated": "Updated"
+     },
+     "changelog": [],
+     "comments": [
+      {
+       "id": "60011",
+       "author": {
+        "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-가",
+        "accountId": "acct-가",
+        "emailAddress": "가@example.test",
+        "avatarUrls": {
+         "48x48": "https://example.test/avatar.png"
+        },
+        "displayName": "가",
+        "active": true
+       },
+       "body": {
+        "type": "doc",
+        "version": 1,
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "첫 댓글"
+           }
+          ]
+         }
+        ]
+       },
+       "created": "2026-10-01T10:00:00.000+0900",
+       "updated": "2026-10-01T10:00:00.000+0900"
+      },
+      {
+       "id": "60012",
+       "author": {
+        "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-나",
+        "accountId": "acct-나",
+        "emailAddress": "나@example.test",
+        "avatarUrls": {
+         "48x48": "https://example.test/avatar.png"
+        },
+        "displayName": "나",
+        "active": true
+       },
+       "body": {
+        "type": "doc",
+        "version": 1,
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "둘째 댓글"
+           }
+          ]
+         }
+        ]
+       },
+       "created": "2026-10-01T10:05:00.000+0900",
+       "updated": "2026-10-01T10:05:00.000+0900"
+      },
+      {
+       "id": "60013",
+       "author": {
+        "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-다",
+        "accountId": "acct-다",
+        "emailAddress": "다@example.test",
+        "avatarUrls": {
+         "48x48": "https://example.test/avatar.png"
+        },
+        "displayName": "다",
+        "active": true
+       },
+       "body": "평문 댓글(ADF 아님)",
+       "created": "2026-10-01T10:10:00.000+0900",
+       "updated": "2026-10-01T10:10:00.000+0900"
+      }
+     ],
+     "worklogs": [],
+     "remoteLinks": []
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40004"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "bc2589c2444d3a7694afe909c84721ff479a24bca8ef8a7c93a51e180c5038c3",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-4",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "40004",
+     "key": "PAY-4",
+     "self": "https://synthetic.atlassian.net/rest/api/3/issue/40004",
+     "fields": {
+      "summary": "영수증 이미지 깨짐",
+      "created": "2026-10-01T09:00:00.000+0900",
+      "updated": "2026-10-02T09:00:00.000+0900",
+      "comment": {
+       "startAt": 0,
+       "maxResults": 50,
+       "total": 0,
+       "comments": []
+      },
+      "worklog": {
+       "startAt": 0,
+       "maxResults": 20,
+       "total": 0,
+       "worklogs": []
+      },
+      "watches": {
+       "watchCount": 1
+      },
+      "votes": {
+       "votes": 0
+      },
+      "progress": {
+       "progress": 0,
+       "total": 0
+      },
+      "attachment": [
+       {
+        "id": "50002",
+        "filename": "receipt.png",
+        "mimeType": "image/png",
+        "size": 16
+       },
+       {
+        "id": "50003",
+        "filename": "dump.bin",
+        "mimeType": "application/octet-stream",
+        "size": 62914560
+       }
+      ]
+     },
+     "names": {
+      "summary": "Summary",
+      "description": "Description",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "labels": "Labels",
+      "customfield_10010": "Story Points",
+      "customfield_10011": "Sprint",
+      "created": "Created",
+      "updated": "Updated"
+     },
+     "changelog": [],
+     "comments": [],
+     "worklogs": [],
+     "remoteLinks": []
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40006"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "eb69e6027f355388a7ea5b8dd47fe770592de967a9a878bf94dd03f28b721dc6",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-6",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "40006",
+     "key": "PAY-6",
+     "self": "https://synthetic.atlassian.net/rest/api/3/issue/40006",
+     "fields": {
+      "summary": "후속 작업 PAY-6",
+      "created": "2026-10-01T09:00:00.000+0900",
+      "updated": "2026-10-02T09:00:00.000+0900",
+      "comment": {
+       "startAt": 0,
+       "maxResults": 50,
+       "total": 0,
+       "comments": []
+      },
+      "worklog": {
+       "startAt": 0,
+       "maxResults": 20,
+       "total": 0,
+       "worklogs": []
+      },
+      "watches": {
+       "watchCount": 1
+      },
+      "votes": {
+       "votes": 0
+      },
+      "progress": {
+       "progress": 0,
+       "total": 0
+      },
+      "status": {
+       "name": "할 일"
+      }
+     },
+     "names": {
+      "summary": "Summary",
+      "description": "Description",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "labels": "Labels",
+      "customfield_10010": "Story Points",
+      "customfield_10011": "Sprint",
+      "created": "Created",
+      "updated": "Updated"
+     },
+     "changelog": [],
+     "comments": [],
+     "worklogs": [],
+     "remoteLinks": []
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40007"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "377f79bc8ea1bbd14ff4c14c17a850d50f1898507083b3da6b52cae1f5878991",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-7",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "40007",
+     "key": "PAY-7",
+     "self": "https://synthetic.atlassian.net/rest/api/3/issue/40007",
+     "fields": {
+      "summary": "후속 작업 PAY-7",
+      "created": "2026-10-01T09:00:00.000+0900",
+      "updated": "2026-10-02T09:00:00.000+0900",
+      "comment": {
+       "startAt": 0,
+       "maxResults": 50,
+       "total": 0,
+       "comments": []
+      },
+      "worklog": {
+       "startAt": 0,
+       "maxResults": 20,
+       "total": 0,
+       "worklogs": []
+      },
+      "watches": {
+       "watchCount": 1
+      },
+      "votes": {
+       "votes": 0
+      },
+      "progress": {
+       "progress": 0,
+       "total": 0
+      },
+      "status": {
+       "name": "할 일"
+      },
+      "customfield_10020": {
+       "10": 2,
+       "b": "앱 값",
+       "a": {
+        "1": 2,
+        "2": 1,
+        "z": 0
+       },
+       "big": 123456789012345680,
+       "exp": 1e+21,
+       "neg": 0
+      }
+     },
+     "names": {
+      "summary": "Summary",
+      "description": "Description",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "labels": "Labels",
+      "customfield_10010": "Story Points",
+      "customfield_10011": "Sprint",
+      "created": "Created",
+      "updated": "Updated"
+     },
+     "changelog": [],
+     "comments": [],
+     "worklogs": [],
+     "remoteLinks": []
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40010"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "624112e4b38cbdd4be47f16456e5cb88e3d4f89b5d064f844b2e5cd9a9cb4f13",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/OPS-1",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "40010",
+     "key": "OPS-1",
+     "self": "https://synthetic.atlassian.net/rest/api/3/issue/40010",
+     "fields": {
+      "summary": "온콜 교대 정리",
+      "created": "2026-10-01T09:00:00.000+0900",
+      "updated": "2026-10-02T09:00:00.000+0900",
+      "comment": {
+       "startAt": 0,
+       "maxResults": 50,
+       "total": 0,
+       "comments": []
+      },
+      "worklog": {
+       "startAt": 0,
+       "maxResults": 1,
+       "total": 2,
+       "worklogs": [
+        {
+         "id": "70011",
+         "timeSpent": "1h"
+        }
+       ]
+      },
+      "watches": {
+       "watchCount": 1
+      },
+      "votes": {
+       "votes": 0
+      },
+      "progress": {
+       "progress": 0,
+       "total": 0
+      },
+      "description": {
+       "type": "doc",
+       "version": 1,
+       "content": [
+        {
+         "type": "paragraph",
+         "content": [
+          {
+           "type": "text",
+           "text": "교대 시각은 "
+          },
+          {
+           "type": "text",
+           "text": "09:00",
+           "marks": [
+            {
+             "type": "code"
+            }
+           ]
+          },
+          {
+           "type": "text",
+           "text": "이다."
+          }
+         ]
+        }
+       ]
+      },
+      "customfield_10010": 1.5,
+      "labels": []
+     },
+     "names": {
+      "summary": "Summary",
+      "description": "Description",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "labels": "Labels",
+      "customfield_10010": "Story Points",
+      "customfield_10011": "Sprint",
+      "created": "Created",
+      "updated": "Updated"
+     },
+     "changelog": [],
+     "comments": [],
+     "worklogs": [
+      {
+       "id": "70011",
+       "timeSpent": "1h"
+      },
+      {
+       "id": "70012",
+       "timeSpent": "30m",
+       "comment": {
+        "type": "doc",
+        "version": 1,
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "인수인계"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ],
+     "remoteLinks": []
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "issue:40011"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "de66f63501d43d116ac0ba414e8e06803b1eb1004c8a1849b8f704da2e274820",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/OPS-2",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "blob",
+    "mediaType": "application/json",
+    "blobKey": "sha256/de66f63501d43d116ac0ba414e8e06803b1eb1004c8a1849b8f704da2e274820",
+    "sha256": "de66f63501d43d116ac0ba414e8e06803b1eb1004c8a1849b8f704da2e274820",
+    "size": 164711
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "project:10000"
+   },
+   "resourceType": "jira.project",
+   "sourceVersion": "8d2f92c60b7980f27db109dcefd80be6f7ef3f9ed0ee55f55a30888d31cb3a87",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "10000",
+     "key": "PAY",
+     "name": "결제 플랫폼",
+     "description": "결제·정산 시스템",
+     "projectTypeKey": "software",
+     "self": "https://synthetic.atlassian.net/rest/api/3/project/10000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "project:10001"
+   },
+   "resourceType": "jira.project",
+   "sourceVersion": "be4831cd2ae1ca0bfdd1f553ea879773b92616efbd6cc90fc3710f8ebeadbf84",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "10001",
+     "key": "OPS",
+     "name": "운영",
+     "description": "",
+     "projectTypeKey": "business"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "sprint:301"
+   },
+   "resourceType": "jira.sprint",
+   "sourceVersion": "55d9a3d1c244aa5794eddee7dac1feb6ae379a2c96630d8413e5f99e56180eb4",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": 301,
+     "name": "Sprint 8",
+     "state": "active",
+     "goal": "장애 재발 방지"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "sprint:302"
+   },
+   "resourceType": "jira.sprint",
+   "sourceVersion": "0e12f017b307aaef15a42ce88da603e4be6ce195b83dbc58aedfc6d537898eb2",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": 302,
+     "name": "OPS 주간",
+     "state": "closed"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "jira-synthetic",
+    "externalId": "version:30000"
+   },
+   "resourceType": "jira.version",
+   "sourceVersion": "35e974a56ec2ad28a53b34289b49b4a3a2d58c065c40671f73b8f79cea280097",
+   "observedAt": "2026-10-15T00:00:00.000Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net",
+    "attachmentExtraction": "not_extracted"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "30000",
+     "name": "v1.0",
+     "released": true,
+     "releaseDate": "2026-09-30"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,383 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-ops-fixture.ts",
+ "scenario": {
+  "now": "2026-10-16T01:02:03.456Z",
+  "sources": [
+   {
+    "id": "slack-main",
+    "kind": "slack",
+    "displayName": "Slack 공개",
+    "enabled": true,
+    "config": {
+     "schemaVersion": 1,
+     "value": {
+      "conversationTypes": [
+       "public_channel"
+      ],
+      "channelIds": [
+       "C0000000001"
+      ],
+      "historySince": "2025-10-14T00:00:00Z"
+     }
+    },
+    "credentialRef": "env:SLACK_TOKEN"
+   },
+   {
+    "id": "jira-main",
+    "kind": "jira",
+    "displayName": "Jira",
+    "enabled": true,
+    "config": {
+     "schemaVersion": 1,
+     "value": {
+      "siteUrl": "https://synthetic.atlassian.net",
+      "email": "ops@example.test",
+      "downloadAttachments": true
+     }
+    },
+    "credentialRef": "file:/run/secrets/jira"
+   },
+   {
+    "id": "tiro-main",
+    "kind": "tiro",
+    "displayName": "Tiro",
+    "enabled": false,
+    "config": {
+     "schemaVersion": 1,
+     "value": {
+      "workspaceGuid": "ws",
+      "folderId": "folder"
+     }
+    },
+    "credentialRef": "env:TIRO_KEY"
+   },
+   {
+    "id": "notion-roots",
+    "kind": "notion",
+    "displayName": "Notion roots",
+    "enabled": true,
+    "config": {
+     "schemaVersion": 1,
+     "value": {
+      "rootPageIds": [
+       "root-a",
+       "root-b",
+       "root-c"
+      ]
+     }
+    },
+    "credentialRef": "env:NOTION_TOKEN"
+   },
+   {
+    "id": "notion-search",
+    "kind": "notion",
+    "displayName": "Notion search",
+    "enabled": true,
+    "config": {
+     "schemaVersion": 1,
+     "value": {}
+    },
+    "credentialRef": "env:NOTION_TOKEN"
+   },
+   {
+    "id": "drive-main",
+    "kind": "google-drive",
+    "displayName": "Google Drive",
+    "enabled": true,
+    "config": {
+     "schemaVersion": 1,
+     "value": {
+      "accountEmail": "ops@example.test",
+      "downloadBinaries": true
+     }
+    },
+    "credentialRef": "file:/run/secrets/google-drive.json"
+   },
+   {
+    "id": "notion-discover",
+    "kind": "notion",
+    "displayName": "Notion discover",
+    "enabled": false,
+    "config": {
+     "schemaVersion": 1,
+     "value": {
+      "rootPageIds": [
+       "root-a"
+      ],
+      "discoverSharedPages": true
+     }
+    },
+    "credentialRef": "env:NOTION_TOKEN"
+   }
+  ],
+  "issue1": {
+   "key": {
+    "sourceInstanceId": "jira-main",
+    "externalId": "issue:1"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "v1",
+   "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+   "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+   "observedAt": "2026-10-16T01:02:03.456Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-1"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "1",
+     "key": "PAY-1",
+     "fields": {
+      "summary": "결제 지연"
+     }
+    }
+   }
+  },
+  "issue2": {
+   "key": {
+    "sourceInstanceId": "jira-main",
+    "externalId": "issue:2"
+   },
+   "resourceType": "jira.issue",
+   "sourceVersion": "v2",
+   "observedAt": "2026-10-16T01:02:03.456Z",
+   "metadata": {
+    "url": "https://synthetic.atlassian.net/browse/PAY-2"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "id": "2",
+     "key": "PAY-2"
+    }
+   }
+  },
+  "rejection": {
+   "providerLocator": {
+    "kind": "components",
+    "id": "10001",
+    "start": 0
+   },
+   "observedAt": "2026-10-16T01:02:03.456Z",
+   "failureKind": "unsupported_item",
+   "message": "Jira resource unavailable to this account or API; coverage is incomplete"
+  },
+  "failure": {
+   "operation": "jira.read",
+   "kind": "dependency_unavailable",
+   "message": "Jira request failed (HTTP 503)"
+  },
+  "message": {
+   "key": {
+    "sourceInstanceId": "slack-main",
+    "externalId": "C0000000001:1760400100.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400100.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400100000000"
+   },
+   "observedAt": "2026-10-16T01:02:03.456Z",
+   "metadata": {
+    "channelId": "C0000000001"
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "ts": "1760400100.000000",
+     "text": "배포 끝"
+    }
+   }
+  },
+  "lease": {
+   "sourceInstanceId": "tiro-main",
+   "ownerId": "other-worker",
+   "ttlMs": 315360000000
+  }
+ },
+ "cases": [
+  {
+   "args": [
+    "source",
+    "list"
+   ],
+   "output": [
+    "[\n  {\n    \"id\": \"drive-main\",\n    \"kind\": \"google-drive\",\n    \"displayName\": \"Google Drive\",\n    \"enabled\": true,\n    \"collectionCoverage\": \"incremental\",\n    \"deletionDetection\": \"provider_events\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\"\n  },\n  {\n    \"id\": \"jira-main\",\n    \"kind\": \"jira\",\n    \"displayName\": \"Jira\",\n    \"enabled\": true,\n    \"collectionCoverage\": \"incremental\",\n    \"deletionDetection\": \"none\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\"\n  },\n  {\n    \"id\": \"notion-discover\",\n    \"kind\": \"notion\",\n    \"displayName\": \"Notion discover\",\n    \"enabled\": false,\n    \"collectionCoverage\": \"incremental\",\n    \"deletionDetection\": \"none\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\"\n  },\n  {\n    \"id\": \"notion-roots\",\n    \"kind\": \"notion\",\n    \"displayName\": \"Notion roots\",\n    \"enabled\": true,\n    \"collectionCoverage\": \"complete_snapshot\",\n    \"deletionDetection\": \"complete_snapshot\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\"\n  },\n  {\n    \"id\": \"notion-search\",\n    \"kind\": \"notion\",\n    \"displayName\": \"Notion search\",\n    \"enabled\": true,\n    \"collectionCoverage\": \"incremental\",\n    \"deletionDetection\": \"none\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\"\n  },\n  {\n    \"id\": \"slack-main\",\n    \"kind\": \"slack\",\n    \"displayName\": \"Slack 공개\",\n    \"enabled\": true,\n    \"collectionCoverage\": \"incremental\",\n    \"deletionDetection\": \"none\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\",\n    \"slackSelection\": {\n      \"conversationTypes\": [\n        \"public_channel\"\n      ],\n      \"channelIds\": [\n        \"C0000000001\"\n      ],\n      \"history\": {\n        \"since\": \"2025-10-14T00:00:00.000Z\"\n      }\n    }\n  },\n  {\n    \"id\": \"tiro-main\",\n    \"kind\": \"tiro\",\n    \"displayName\": \"Tiro\",\n    \"enabled\": false,\n    \"collectionCoverage\": \"complete_snapshot\",\n    \"deletionDetection\": \"complete_snapshot\",\n    \"updatedAt\": \"2026-10-16T01:02:03.456Z\"\n  }\n]"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "status",
+    "jira-main"
+   ],
+   "output": [
+    "{\n  \"sourceInstanceId\": \"jira-main\",\n  \"enabled\": true,\n  \"running\": false,\n  \"currentItemCount\": 1,\n  \"tombstoneCount\": 1,\n  \"recentFailureCount\": 1,\n  \"events\": {\n    \"pendingCount\": 0,\n    \"processingCount\": 0,\n    \"rejectedCount\": 0\n  },\n  \"lastAttemptAt\": \"2026-10-16T01:02:03.456Z\",\n  \"lastRunStatus\": \"failed\",\n  \"lastRunErrorKind\": \"dependency_unavailable\",\n  \"lastRunErrorSummary\": \"Jira request failed (HTTP 503)\",\n  \"lastSuccessAt\": \"2026-10-16T01:02:03.456Z\"\n}"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "status",
+    "slack-main"
+   ],
+   "output": [
+    "{\n  \"sourceInstanceId\": \"slack-main\",\n  \"enabled\": true,\n  \"running\": false,\n  \"currentItemCount\": 1,\n  \"tombstoneCount\": 0,\n  \"recentFailureCount\": 0,\n  \"events\": {\n    \"pendingCount\": 0,\n    \"processingCount\": 0,\n    \"rejectedCount\": 0\n  },\n  \"lastCompleteSnapshotAt\": \"2026-10-16T01:02:03.456Z\",\n  \"lastCompleteSnapshotDeletionCount\": 0,\n  \"lastAttemptAt\": \"2026-10-16T01:02:03.456Z\",\n  \"lastRunStatus\": \"succeeded\",\n  \"lastSuccessAt\": \"2026-10-16T01:02:03.456Z\"\n}"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "status",
+    "tiro-main"
+   ],
+   "output": [
+    "{\n  \"sourceInstanceId\": \"tiro-main\",\n  \"enabled\": false,\n  \"running\": false,\n  \"currentItemCount\": 0,\n  \"tombstoneCount\": 0,\n  \"recentFailureCount\": 0,\n  \"events\": {\n    \"pendingCount\": 0,\n    \"processingCount\": 0,\n    \"rejectedCount\": 0\n  },\n  \"activeLeaseExpiresAt\": \"2036-10-13T01:02:03.456Z\"\n}"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "status",
+    "missing"
+   ],
+   "output": [
+    "null"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "status",
+    "notion-roots"
+   ],
+   "output": [
+    "{\n  \"sourceInstanceId\": \"notion-roots\",\n  \"enabled\": true,\n  \"running\": false,\n  \"currentItemCount\": 0,\n  \"tombstoneCount\": 0,\n  \"recentFailureCount\": 0,\n  \"events\": {\n    \"pendingCount\": 0,\n    \"processingCount\": 0,\n    \"rejectedCount\": 0\n  }\n}"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "status",
+    "drive-main"
+   ],
+   "output": [
+    "{\n  \"sourceInstanceId\": \"drive-main\",\n  \"enabled\": true,\n  \"running\": false,\n  \"currentItemCount\": 0,\n  \"tombstoneCount\": 0,\n  \"recentFailureCount\": 0,\n  \"events\": {\n    \"pendingCount\": 0,\n    \"processingCount\": 0,\n    \"rejectedCount\": 0\n  }\n}"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "rejections",
+    "jira-main"
+   ],
+   "output": [
+    "{\"runId\":\"run-1\",\"capturedAt\":\"2026-10-16T01:02:03.456Z\",\"rejection\":{\"providerLocator\":{\"kind\":\"components\",\"id\":\"10001\",\"start\":0},\"observedAt\":\"2026-10-16T01:02:03.456Z\",\"failureKind\":\"unsupported_item\",\"message\":\"Jira resource unavailable to this account or API; coverage is incomplete\"}}"
+   ]
+  },
+  {
+   "args": [
+    "source",
+    "rejections",
+    "slack-main"
+   ],
+   "output": []
+  },
+  {
+   "args": [
+    "raw",
+    "list"
+   ],
+   "output": [
+    "{\n  \"items\": [\n    {\n      \"state\": \"active\",\n      \"item\": {\n        \"key\": {\n          \"sourceInstanceId\": \"jira-main\",\n          \"externalId\": \"issue:1\"\n        },\n        \"resourceType\": \"jira.issue\",\n        \"sourceVersion\": \"v1\",\n        \"sourceCreatedAt\": \"2026-10-01T09:00:00.000+0900\",\n        \"sourceUpdatedAt\": \"2026-10-02T09:00:00.000+0900\",\n        \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n        \"metadata\": {\n          \"url\": \"https://synthetic.atlassian.net/browse/PAY-1\"\n        },\n        \"content\": {\n          \"storage\": \"inline\",\n          \"mediaType\": \"application/json\",\n          \"value\": {\n            \"id\": \"1\",\n            \"key\": \"PAY-1\",\n            \"fields\": {\n              \"summary\": \"결제 지연\"\n            }\n          }\n        }\n      }\n    },\n    {\n      \"state\": \"deleted\",\n      \"key\": {\n        \"sourceInstanceId\": \"jira-main\",\n        \"externalId\": \"issue:2\"\n      },\n      \"resourceType\": \"jira.issue\",\n      \"lastSourceVersion\": \"v2\",\n      \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n      \"deletedAt\": \"2026-10-16T01:02:03.456Z\"\n    },\n    {\n      \"state\": \"active\",\n      \"item\": {\n        \"key\": {\n          \"sourceInstanceId\": \"slack-main\",\n          \"externalId\": \"C0000000001:1760400100.000000\"\n        },\n        \"resourceType\": \"slack.message\",\n        \"sourceVersion\": \"1760400100.000000\",\n        \"sourceOrder\": {\n          \"scheme\": \"slack.message-state.v1\",\n          \"position\": \"00000000001760400100000000\"\n        },\n        \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n        \"metadata\": {\n          \"channelId\": \"C0000000001\"\n        },\n        \"content\": {\n          \"storage\": \"inline\",\n          \"mediaType\": \"application/json\",\n          \"value\": {\n            \"ts\": \"1760400100.000000\",\n            \"text\": \"배포 끝\"\n          }\n        }\n      }\n    }\n  ]\n}"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "list",
+    "--limit",
+    "1"
+   ],
+   "output": [
+    "{\n  \"items\": [\n    {\n      \"state\": \"active\",\n      \"item\": {\n        \"key\": {\n          \"sourceInstanceId\": \"jira-main\",\n          \"externalId\": \"issue:1\"\n        },\n        \"resourceType\": \"jira.issue\",\n        \"sourceVersion\": \"v1\",\n        \"sourceCreatedAt\": \"2026-10-01T09:00:00.000+0900\",\n        \"sourceUpdatedAt\": \"2026-10-02T09:00:00.000+0900\",\n        \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n        \"metadata\": {\n          \"url\": \"https://synthetic.atlassian.net/browse/PAY-1\"\n        },\n        \"content\": {\n          \"storage\": \"inline\",\n          \"mediaType\": \"application/json\",\n          \"value\": {\n            \"id\": \"1\",\n            \"key\": \"PAY-1\",\n            \"fields\": {\n              \"summary\": \"결제 지연\"\n            }\n          }\n        }\n      }\n    }\n  ],\n  \"nextCursor\": \"WyIyMDI2LTEwLTE2VDAxOjAyOjAzLjQ1NloiLCJqaXJhLW1haW4iLCJpc3N1ZToxIl0\"\n}"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "list",
+    "--source",
+    "jira-main",
+    "--state",
+    "deleted"
+   ],
+   "output": [
+    "{\n  \"items\": [\n    {\n      \"state\": \"deleted\",\n      \"key\": {\n        \"sourceInstanceId\": \"jira-main\",\n        \"externalId\": \"issue:2\"\n      },\n      \"resourceType\": \"jira.issue\",\n      \"lastSourceVersion\": \"v2\",\n      \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n      \"deletedAt\": \"2026-10-16T01:02:03.456Z\"\n    }\n  ]\n}"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "list",
+    "--type",
+    "slack.message"
+   ],
+   "output": [
+    "{\n  \"items\": [\n    {\n      \"state\": \"active\",\n      \"item\": {\n        \"key\": {\n          \"sourceInstanceId\": \"slack-main\",\n          \"externalId\": \"C0000000001:1760400100.000000\"\n        },\n        \"resourceType\": \"slack.message\",\n        \"sourceVersion\": \"1760400100.000000\",\n        \"sourceOrder\": {\n          \"scheme\": \"slack.message-state.v1\",\n          \"position\": \"00000000001760400100000000\"\n        },\n        \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n        \"metadata\": {\n          \"channelId\": \"C0000000001\"\n        },\n        \"content\": {\n          \"storage\": \"inline\",\n          \"mediaType\": \"application/json\",\n          \"value\": {\n            \"ts\": \"1760400100.000000\",\n            \"text\": \"배포 끝\"\n          }\n        }\n      }\n    }\n  ]\n}"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "get",
+    "jira-main",
+    "issue:1"
+   ],
+   "output": [
+    "{\n  \"state\": \"active\",\n  \"item\": {\n    \"key\": {\n      \"sourceInstanceId\": \"jira-main\",\n      \"externalId\": \"issue:1\"\n    },\n    \"resourceType\": \"jira.issue\",\n    \"sourceVersion\": \"v1\",\n    \"sourceCreatedAt\": \"2026-10-01T09:00:00.000+0900\",\n    \"sourceUpdatedAt\": \"2026-10-02T09:00:00.000+0900\",\n    \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n    \"metadata\": {\n      \"url\": \"https://synthetic.atlassian.net/browse/PAY-1\"\n    },\n    \"content\": {\n      \"storage\": \"inline\",\n      \"mediaType\": \"application/json\",\n      \"value\": {\n        \"id\": \"1\",\n        \"key\": \"PAY-1\",\n        \"fields\": {\n          \"summary\": \"결제 지연\"\n        }\n      }\n    }\n  }\n}"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "get",
+    "jira-main",
+    "issue:2"
+   ],
+   "output": [
+    "{\n  \"state\": \"deleted\",\n  \"key\": {\n    \"sourceInstanceId\": \"jira-main\",\n    \"externalId\": \"issue:2\"\n  },\n  \"resourceType\": \"jira.issue\",\n  \"lastSourceVersion\": \"v2\",\n  \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n  \"deletedAt\": \"2026-10-16T01:02:03.456Z\"\n}"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "get",
+    "jira-main",
+    "missing"
+   ],
+   "output": [
+    "null"
+   ]
+  },
+  {
+   "args": [
+    "raw",
+    "list",
+    "--limit",
+    "1",
+    "--cursor",
+    "WyIyMDI2LTEwLTE2VDAxOjAyOjAzLjQ1NloiLCJqaXJhLW1haW4iLCJpc3N1ZToxIl0"
+   ],
+   "output": [
+    "{\n  \"items\": [\n    {\n      \"state\": \"deleted\",\n      \"key\": {\n        \"sourceInstanceId\": \"jira-main\",\n        \"externalId\": \"issue:2\"\n      },\n      \"resourceType\": \"jira.issue\",\n      \"lastSourceVersion\": \"v2\",\n      \"observedAt\": \"2026-10-16T01:02:03.456Z\",\n      \"deletedAt\": \"2026-10-16T01:02:03.456Z\"\n    }\n  ],\n  \"nextCursor\": \"WyIyMDI2LTEwLTE2VDAxOjAyOjAzLjQ1NloiLCJqaXJhLW1haW4iLCJpc3N1ZToyIl0\"\n}"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,984 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-jira-fixture.ts",
+ "cases": [
+  {
+   "label": "이슈 key 없음",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:1"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "1",
+      "fields": {
+       "summary": "요약",
+       "created": "c",
+       "status": {
+        "name": "열림"
+       }
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:1",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "undefined: 요약",
+    "body": "# undefined: 요약\n\ncreated: c\n\nstatus: 열림",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "이슈 key가 수",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:2"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "2",
+      "key": 7,
+      "fields": {
+       "summary": "요약",
+       "created": "c",
+       "status": {
+        "name": "열림"
+       }
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:2",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "7: 요약",
+    "body": "# 7: 요약\n\ncreated: c\n\nstatus: 열림",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "이슈 key가 null",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:3"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "3",
+      "key": null,
+      "fields": {
+       "summary": "요약",
+       "created": "c",
+       "status": {
+        "name": "열림"
+       }
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:3",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "null: 요약",
+    "body": "# null: 요약\n\ncreated: c\n\nstatus: 열림",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "이슈 fields 없음",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:4"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "4",
+      "key": "X-4"
+     }
+    }
+   },
+   "document": null
+  },
+  {
+   "label": "이슈 fields가 배열",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:5"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "5",
+      "key": "X-5",
+      "fields": []
+     }
+    }
+   },
+   "document": null
+  },
+  {
+   "label": "내용이 배열",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:6"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": [
+      {
+       "name": "x"
+      }
+     ]
+    }
+   },
+   "document": null
+  },
+  {
+   "label": "내용이 문자열",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:7"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": "평문"
+    }
+   },
+   "document": null
+  },
+  {
+   "label": "내용이 null",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:8"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": null
+    }
+   },
+   "document": null
+  },
+  {
+   "label": "첨부 원본은 투영하지 않는다",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "attachment:9"
+    },
+    "resourceType": "jira.attachment",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "9"
+     }
+    }
+   },
+   "document": null
+  },
+  {
+   "label": "metadata.url 없음",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:10"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {},
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "10",
+      "name": "프로젝트"
+     }
+    }
+   },
+   "document": {
+    "documentId": "project:10",
+    "sourceId": "jira-synthetic",
+    "uri": "jira://jira-synthetic/project:10",
+    "title": "프로젝트",
+    "body": "# 프로젝트\n\nid: 10\n\nname: 프로젝트",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "metadata.url이 문자열 아님",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:11"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": 5
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "11",
+      "name": "프로젝트"
+     }
+    }
+   },
+   "document": {
+    "documentId": "project:11",
+    "sourceId": "jira-synthetic",
+    "uri": "jira://jira-synthetic/project:11",
+    "title": "프로젝트",
+    "body": "# 프로젝트\n\nid: 11\n\nname: 프로젝트",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "공급자 시각 없음(관측 시각)",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:12"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": null,
+    "sourceUpdatedAt": null,
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "12",
+      "name": "프로젝트"
+     }
+    }
+   },
+   "document": {
+    "documentId": "project:12",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "프로젝트",
+    "body": "# 프로젝트\n\nid: 12\n\nname: 프로젝트",
+    "createdAt": "2026-10-15T00:00:00.000Z",
+    "updatedAt": "2026-10-15T00:00:00.000Z"
+   }
+  },
+  {
+   "label": "name이 null이면 title",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "board:13"
+    },
+    "resourceType": "jira.board",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": 13,
+      "name": null,
+      "title": "보드 제목"
+     }
+    }
+   },
+   "document": {
+    "documentId": "board:13",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "보드 제목",
+    "body": "# 보드 제목\n\nid: 13\n\ntitle: 보드 제목",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "name·title 없으면 문서 id",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "board:14"
+    },
+    "resourceType": "jira.board",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": 14,
+      "type": "kanban"
+     }
+    }
+   },
+   "document": {
+    "documentId": "board:14",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "board:14",
+    "body": "# board:14\n\nid: 14\n\ntype: kanban",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "name이 빈 문자열이면 문서 id",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "board:15"
+    },
+    "resourceType": "jira.board",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": 15,
+      "name": "",
+      "title": "안 씀"
+     }
+    }
+   },
+   "document": {
+    "documentId": "board:15",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "board:15",
+    "body": "# board:15\n\nid: 15\n\ntitle: 안 씀",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "name이 객체",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "board:16"
+    },
+    "resourceType": "jira.board",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": 16,
+      "name": {
+       "displayName": "표시 이름"
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "board:16",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "표시 이름",
+    "body": "# 표시 이름\n\nid: 16\n\nname: 표시 이름",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "names의 값이 문자열 아님",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:17"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "17",
+      "key": "X-17",
+      "fields": {
+       "summary": "s",
+       "customfield_1": "값"
+      },
+      "names": {
+       "customfield_1": 5
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:17",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-17: s",
+    "body": "# X-17: s\n\ncustomfield_1: 값",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "names가 없음",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:18"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "18",
+      "key": "X-18",
+      "fields": {
+       "summary": "s",
+       "customfield_1": "값"
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:18",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-18: s",
+    "body": "# X-18: s\n\ncustomfield_1: 값",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "건너뛰는 필드(집계·자식)",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:19"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "19",
+      "key": "X-19",
+      "fields": {
+       "summary": "s",
+       "comment": {
+        "comments": [
+         {
+          "body": "c"
+         }
+        ]
+       },
+       "worklog": {
+        "worklogs": []
+       },
+       "watches": {
+        "watchCount": 2
+       },
+       "votes": {
+        "votes": 1
+       },
+       "progress": {
+        "progress": 1
+       },
+       "aggregateprogress": {
+        "progress": 2
+       },
+       "labels": [
+        "a"
+       ]
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:19",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-19: s",
+    "body": "# X-19: s\n\nlabels: a",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "첨부가 배열 아님",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:20"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "20",
+      "key": "X-20",
+      "fields": {
+       "summary": "s",
+       "attachment": {
+        "filename": "a"
+       }
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:20",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-20: s",
+    "body": "# X-20: s",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "첨부 원소가 객체 아님·필드 빠짐",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:21"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "21",
+      "key": "X-21",
+      "fields": {
+       "summary": "s",
+       "attachment": [
+        "a.txt",
+        null,
+        {
+         "filename": "b.txt"
+        },
+        {
+         "filename": "c.png",
+         "mimeType": "image/png",
+         "size": 0
+        }
+       ]
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:21",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-21: s",
+    "body": "# X-21: s\n\n## 첨부파일 (본문 미추출)\n\nb.txt (,  bytes)\n\nc.png (image/png, 0 bytes)",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "빈 첨부 배열",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:22"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "22",
+      "key": "X-22",
+      "fields": {
+       "summary": "s",
+       "attachment": []
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:22",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-22: s",
+    "body": "# X-22: s\n\n## 첨부파일 (본문 미추출)",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "이슈 상세 섹션(댓글·변경 이력·작업 기록·관련 링크)",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "issue:23"
+    },
+    "resourceType": "jira.issue",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "23",
+      "key": "X-23",
+      "fields": {
+       "summary": "s"
+      },
+      "comments": [
+       {
+        "body": "첫 댓글"
+       }
+      ],
+      "changelog": {
+       "histories": []
+      },
+      "worklogs": [],
+      "remoteLinks": [
+       {
+        "object": {
+         "title": "링크"
+        }
+       }
+      ]
+     }
+    }
+   },
+   "document": {
+    "documentId": "issue:23",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "X-23: s",
+    "body": "# X-23: s\n\n## 댓글\nbody: 첫 댓글\n\n## 관련 링크\nobject: 링크",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "이슈가 아닌 원본의 names도 표시 이름으로 쓴다",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:25"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "25",
+      "name": "프로젝트",
+      "lead": "리드",
+      "names": {
+       "lead": "책임자"
+      }
+     }
+    }
+   },
+   "document": {
+    "documentId": "project:25",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "프로젝트",
+    "body": "# 프로젝트\n\nid: 25\n\nname: 프로젝트\n\n책임자: 리드\n\nnames: lead: 책임자",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  },
+  {
+   "label": "프로젝트는 fields가 내용 자체",
+   "item": {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:24"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "24",
+      "key": "P",
+      "name": "프로젝트",
+      "description": "설명",
+      "lead": {
+       "displayName": "리드",
+       "accountId": "a"
+      },
+      "self": "https://x"
+     }
+    }
+   },
+   "document": {
+    "documentId": "project:24",
+    "sourceId": "jira-synthetic",
+    "uri": "https://synthetic.atlassian.net/browse/X-1",
+    "title": "프로젝트",
+    "body": "# 프로젝트\n\nid: 24\n\nkey: P\n\nname: 프로젝트\n\ndescription: 설명\n\nlead: 리드\n\nself: https://x",
+    "createdAt": "2026-10-01T09:00:00.000+0900",
+    "updatedAt": "2026-10-02T09:00:00.000+0900"
+   }
+  }
+ ],
+ "grouping": {
+  "resourceTypes": [
+   "jira.issue",
+   "jira.attachment",
+   "jira.field",
+   "jira.project",
+   "slack.message",
+   "jiraissue",
+   "jira.sprint"
+  ],
+  "documentIds": [
+   "jira.issue:0",
+   "jira.project:3",
+   "jira.sprint:6"
+  ]
+ },
+ "duplicateExternalId": {
+  "items": [
+   {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:26"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "26",
+      "name": "먼저 온 이름"
+     }
+    }
+   },
+   {
+    "key": {
+     "sourceInstanceId": "jira-synthetic",
+     "externalId": "project:26"
+    },
+    "resourceType": "jira.project",
+    "sourceVersion": "v",
+    "observedAt": "2026-10-15T00:00:00.000Z",
+    "sourceCreatedAt": "2026-10-01T09:00:00.000+0900",
+    "sourceUpdatedAt": "2026-10-02T09:00:00.000+0900",
+    "metadata": {
+     "url": "https://synthetic.atlassian.net/browse/X-1"
+    },
+    "content": {
+     "storage": "inline",
+     "mediaType": "application/json",
+     "value": {
+      "id": "26",
+      "name": "나중 온 이름"
+     }
+    }
+   }
+  ],
+  "title": "나중 온 이름"
+ }
+}

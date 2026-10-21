@@ -1,0 +1,2757 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-google-drive-fixture.ts",
+ "units": [
+  {
+   "id": "e3b0f4e13e42dd3f",
+   "partition": "/knowledge",
+   "title": "짧은 메모.txt",
+   "content": "# 짧은 메모.txt\n\n파일 형식: text/plain\n\n상위 폴더 ID: root-folder\n\n짧은 본문 �",
+   "contentHash": "3d59afe52e0cb942d8408ea893e1a2cdf72bc6cef9d344df7a12edf53f592af7",
+   "tokens": 31,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-comments-1",
+    "uri": "https://drive.google.com/file/d/big-comments-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "63c1d81cb54647ca",
+   "partition": "/knowledge",
+   "title": "짧은 메모.txt > 댓글 (part 2)",
+   "content": "작성자 bc2: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "contentHash": "360f86bef4404b80f5710aebcc255a6622ed8cc910d0015f531a30837dd01ec2",
+   "tokens": 319,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-comments-1",
+    "uri": "https://drive.google.com/file/d/big-comments-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9af381b7ce987250",
+   "partition": "/knowledge",
+   "title": "짧은 메모.txt > 댓글 (part 3)",
+   "content": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "contentHash": "4f6a64ea0497d7703a28a482e51b378003b6f7b4739169d6d95aaa0b31e8c1b2",
+   "tokens": 314,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-comments-1",
+    "uri": "https://drive.google.com/file/d/big-comments-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d61a1b302041d806",
+   "partition": "/knowledge",
+   "title": "긴 문서 (part 1)",
+   "content": "# 긴 문서\n\n파일 형식: application/vnd.google-apps.document\n\n상위 폴더 ID: root-folder",
+   "contentHash": "cf56e5ff198d39051afc4d93dcafaef763bac6730b4aaf8c9efb65532710415f",
+   "tokens": 25,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-doc-1",
+    "uri": "https://drive.google.com/file/d/big-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e547e4be2e1ed9bc",
+   "partition": "/knowledge",
+   "title": "긴 문서 (part 2)",
+   "content": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+   "contentHash": "ad78c4079f6c16452b7a33483cef4d22143665356dde50587d5843bbf144c822",
+   "tokens": 500,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-doc-1",
+    "uri": "https://drive.google.com/file/d/big-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "5eb995faf548d7ec",
+   "partition": "/knowledge",
+   "title": "긴 문서 > 댓글",
+   "content": "## 댓글\n\n작성자 bc1: 유지할 댓글",
+   "contentHash": "0d4a9c5c0d75c0f179c3ba170587927ed8cb1c4cc82ba39ba03b10d8e70a97e3",
+   "tokens": 11,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-doc-1",
+    "uri": "https://drive.google.com/file/d/big-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9f4c81d254a08fa9",
+   "partition": "/knowledge",
+   "title": "설명이 긴 폴더 (part 2)",
+   "content": "설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명",
+   "contentHash": "20962dc105c918afa3afe371b57a61f1806357e2210d19922d688ed49d520164",
+   "tokens": 450,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-meta-1",
+    "uri": "https://drive.google.com/file/d/big-meta-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "179210b365be0faf",
+   "partition": "/knowledge",
+   "title": "설명이 긴 폴더 (part 6)",
+   "content": "파일 형식: application/vnd.google-apps.folder\n\n상위 폴더 ID: root-folder",
+   "contentHash": "18fdbe0af3609be5b48eaeb5bfe7b8d94e32ca7d904cd2febb64ed6a5ac2beac",
+   "tokens": 20,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:big-meta-1",
+    "uri": "https://drive.google.com/file/d/big-meta-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e2c9a7db2a4a8f3d",
+   "partition": "/knowledge",
+   "title": "덤프.bin",
+   "content": "# 덤프.bin\n\n파일 형식: application/octet-stream\n\n상위 폴더 ID: root-folder",
+   "contentHash": "4736b03308ba64712695d48fad9d4a0a8b6dc93750e647f24292d53886851b46",
+   "tokens": 23,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:blob-1",
+    "uri": "https://drive.google.com/file/d/blob-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f46fee46a7030fc1",
+   "partition": "/knowledge",
+   "title": "덤프.bin > 수집 제한",
+   "content": "## 수집 제한\nBinary original stored; body/OCR not extracted",
+   "contentHash": "95f9455dcbe4e8c1ecd75c3232659daf36eecaa641aba494db43d7d243f09655",
+   "tokens": 14,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:blob-1",
+    "uri": "https://drive.google.com/file/d/blob-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "a40413c3e67f66be",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고",
+   "content": "# 결제 장애 회고\n\n파일 형식: application/vnd.google-apps.document\n\n상위 폴더 ID: root-folder",
+   "contentHash": "1854f5087a166d3544c9dd079f4b438eccd67e1964447229a726d6ec801c315e",
+   "tokens": 27,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:doc-1",
+    "uri": "https://docs.google.com/document/d/doc-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "82d991574018117e",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > 요약",
+   "content": "## 요약\n\n결제 승인 지연 회고\n[런북 링크](https://example.test/runbook)\n- 원인: 배포 절차 누락\n[설계 문서](https://docs.google.com/document/d/design) 검토자 검토 담당\n지표 | 값\n오류율 | 12%\n목차 항목",
+   "contentHash": "c9e6c5a4900de080255d5f721822a42cf73351facaf026bd56acc3783639b18e",
+   "tokens": 73,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:doc-1",
+    "uri": "https://docs.google.com/document/d/doc-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "dea7fc7020daa234",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > 요약 > 머리말",
+   "content": "### 머리말\n머리말 문구",
+   "contentHash": "fa4d77193e3f5aea0a0ef6f23eda885825750cc2f3479428804cb6998f7fb811",
+   "tokens": 10,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:doc-1",
+    "uri": "https://docs.google.com/document/d/doc-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 3,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "00eade1fb84f57b4",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > 요약 > 꼬리말",
+   "content": "### 꼬리말\n꼬리말 문구",
+   "contentHash": "9746532d7d3fec0d708bbb19089c89b61c199286ca418c23a0fe90e5ad915e97",
+   "tokens": 12,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:doc-1",
+    "uri": "https://docs.google.com/document/d/doc-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 3,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "03193e64e7f2b023",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > 댓글",
+   "content": "## 댓글\n\n작성자 c1: 재현 절차를 추가했다\n\n  ↳ 답글 r1: 확인했다\n\n  ↳ 답글 r2: 반영했다\n\n작성자 c3: 답글이 실린 댓글",
+   "contentHash": "bf5514504627f360c73638e741e6acf83a902a56008cc6f2182bdeca61f2386e",
+   "tokens": 50,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:doc-1",
+    "uri": "https://docs.google.com/document/d/doc-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2ff7fe7a2f9f92b0",
+   "partition": "/knowledge",
+   "title": "프로젝트",
+   "content": "# 프로젝트\n\n프로젝트 자료 모음\n\n파일 형식: application/vnd.google-apps.folder\n\n상위 폴더 ID: root-folder",
+   "contentHash": "e36f52f6df118cf30cd3f8a5aa4bd97562c04f1d71e385ce678124a2768de9b2",
+   "tokens": 29,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:folder-1",
+    "uri": "https://drive.google.com/file/d/folder-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "7295578282600ade",
+   "partition": "/knowledge",
+   "title": "설문",
+   "content": "# 설문\n\n파일 형식: application/vnd.google-apps.form\n\n상위 폴더 ID: root-folder",
+   "contentHash": "5e66465121545310d801a2d8e099a3a85756ed5831ef3bc037c44931831bd5df",
+   "tokens": 24,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:form-1",
+    "uri": "https://drive.google.com/file/d/form-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b5faa3bd1aa382cd",
+   "partition": "/knowledge",
+   "title": "설문 > 수집 제한",
+   "content": "## 수집 제한\ncontent: Workspace format has no content extractor",
+   "contentHash": "02f5ef344cb6be9d65a73225987d496ba2d7ef350d2109447f2eb27cc5522d94",
+   "tokens": 13,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:form-1",
+    "uri": "https://drive.google.com/file/d/form-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "480179fcf291691c",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록",
+   "content": "# 연간 운영 기록\n\n파일 형식: application/vnd.google-apps.document\n\n상위 폴더 ID: root-folder",
+   "contentHash": "75b569e41ac9cdf4b367ea5b4869bea73a08536c84a1c94cea63a5ce846dd085",
+   "tokens": 26,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0038d683b7068bdc",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 2)",
+   "content": "상반기 기록 1: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "3a544f07f3538862d7921fa1f57dc74f4509ca5a8bec2a9ea4a90ae9388775ad",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d4812748bcd00618",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 3)",
+   "content": "리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다.\n",
+   "contentHash": "57483fe2777558ca78889cac3bc5240eca6f675714aa681f7a13128e07926c9b",
+   "tokens": 453,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "dd3e79f06c60081a",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 4)",
+   "content": "상반기 기록 2: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "344d814d5ad6e97311f1b854095659f187f2d7a31ee4f2d32b0bb0267c1fe732",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "544f27bf1e6ed35c",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 6)",
+   "content": "상반기 기록 3: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "8d78f06708924a491cfae0788441c888a2f735af4b10e442464ff8d0e49416cf",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "678976be5a34d9ba",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 8)",
+   "content": "상반기 기록 4: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "269d4147834c7d29947d347417d854c93a8cb5bb9d07e2c0deca313b5005463d",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e3da82ac72e9f267",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 10)",
+   "content": "상반기 기록 5: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "2fa9beb86499683753597e918f921640b3f70df3bdcda2ece5ed0975626e344c",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "630b8bf95a5c86dc",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 12)",
+   "content": "상반기 기록 6: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "106a3ea15ba07f7e084dc6a979eb4bd6efaefcafeef7a98fa4272dd9ac2f1220",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "bd8b15066fe8d014",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 14)",
+   "content": "상반기 기록 7: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "c3050472a33f65c45eab23e3a2334025eccd14851fc4739815961fb74343973b",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "654e80c84874a689",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 16)",
+   "content": "상반기 기록 8: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "5cd259a553781e681c30d693a4f49330f21bdec7fb4653c25d4943fc4fbf7725",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9fc1d4cf948d6978",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 18)",
+   "content": "상반기 기록 9: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "2726a237192d754bf181e20e3fd07df55689d5f685dcdc5f1686631899e69f73",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "8ed5f75947537be2",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 20)",
+   "content": "상반기 기록 10: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 ",
+   "contentHash": "dbcf0e95372ec300ce632d3974d495d08ef43899c8d003ad7ccf1dca7eb57712",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "23f317b24a320a6b",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 21)",
+   "content": "정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다.\n",
+   "contentHash": "c3be126f606d4e14a35e7745462ace9e46df283003c067a34d0e689640540d91",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "444ceacaf17aeff1",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 22)",
+   "content": "상반기 기록 11: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 ",
+   "contentHash": "71320ee3adcaf83e2ce59482d2469a519bffba02242317171d32fa8ab4bdd682",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d9eeda4a4bcddeb9",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 24)",
+   "content": "상반기 기록 12: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 ",
+   "contentHash": "f912d9de28606a69f5cce1430a8910dce9d1bc6d143d24f26104678d14f6cd98",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e728d1be9c55ac2a",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 상반기 (part 25)",
+   "content": "정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다.",
+   "contentHash": "7c33d3b075c57ab4f82b3d14a14c2b12e2880f59da2a39b35a18139456e788a2",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9f793ed033f6ae60",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 2)",
+   "content": "하반기 기록 1: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "b443564e8a27f28959f7bba930eab404d0cee95a236fa46f7a1d43353195610b",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c807584ba7a2dc5b",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 4)",
+   "content": "하반기 기록 2: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "f21a81795f2e63551f2b01c44f57973ee1708bd53d5849577f524363a7d9a3c1",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "fe0af1d2d77661cb",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 6)",
+   "content": "하반기 기록 3: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "49e61b3104a60c127d020b79175db165972f5be9de1179433684a01129fde751",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "26d4ddad813a6065",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 8)",
+   "content": "하반기 기록 4: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "a9b87a71fefe5ca92b0a0d85b3fec1a34e0c67ff2bc25e59f10fde2bed93c32f",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b53d03c62843c549",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 10)",
+   "content": "하반기 기록 5: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "a9ab7ee17ad911d2dee56ef5620c06f08a6b7ccb233d895f316e37f2fcc79237",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "cc050f8c0ba0fcf1",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 12)",
+   "content": "하반기 기록 6: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "2896c938994ae0058dbc2e9627cf4bad1221be7c05bff479220d03a883d26e81",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c2ca273d9d84a59a",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 14)",
+   "content": "하반기 기록 7: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "298f3805bf721d27c7d6c5ee362a84d9155cd909bb33690d9fa00ec7af38ef6f",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b5ceb23094e80ff3",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 16)",
+   "content": "하반기 기록 8: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "66fa83aecf75d2247d9680337d181d26652ab7cfcec8c54d7f78b17f020c7427",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0108a2c6590eb30a",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 18)",
+   "content": "하반기 기록 9: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정",
+   "contentHash": "8272b2e3f267d4316515bc150cff7bc58b97c6ce0cbf7c35e35727ea5ba3b8dc",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "5d4ed24a99948734",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 20)",
+   "content": "하반기 기록 10: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 ",
+   "contentHash": "09c34c9dfbf9b2b9bf823ac1a985510d92fcc18758a5b8586eb715f1b48396f0",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "fae26270689bb311",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 22)",
+   "content": "하반기 기록 11: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 ",
+   "contentHash": "6de926ca454ecb35a9bedcac1c33d6eeb855b770817993bbacf49807141eae2e",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "281f5bc78a247e37",
+   "partition": "/knowledge",
+   "title": "연간 운영 기록 > 하반기 (part 24)",
+   "content": "하반기 기록 12: 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 정리한다. 결제 승인 지연의 원인과 조치를 ",
+   "contentHash": "ff53a60ed5983fe9a9d4623ad5cf76767ab1ba7fc24a4fc74bccd64640884938",
+   "tokens": 454,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:huge-doc-1",
+    "uri": "https://drive.google.com/file/d/huge-doc-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "12d5620711245777",
+   "partition": "/knowledge",
+   "title": "설정.json",
+   "content": "# 설정.json\n\n파일 형식: application/json\n\n상위 폴더 ID: root-folder\n\n{\"b\":1,\"10\":2}",
+   "contentHash": "0533497a6687f7c8832d040ec40ce2780cadd0f018a58451f174da32610028e0",
+   "tokens": 30,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:json-1",
+    "uri": "https://drive.google.com/file/d/json-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "449dd96e590733db",
+   "partition": "/knowledge",
+   "title": "녹화.mp4",
+   "content": "# 녹화.mp4\n\n파일 형식: video/mp4\n\n상위 폴더 ID: root-folder",
+   "contentHash": "99ab768e3cc24e1b93473b886de2eef161c64aeabba3a23d611eefcb98f60ec9",
+   "tokens": 24,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:large-1",
+    "uri": "https://drive.google.com/file/d/large-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "afeb6e796f00c49b",
+   "partition": "/knowledge",
+   "title": "녹화.mp4 > 수집 제한",
+   "content": "## 수집 제한\ncontent: Original exceeds the 50 MiB capture limit",
+   "contentHash": "1a3bb8c0e387f75685be48fd8af4dc800c12fafcaab065f8df5e1165bab22548",
+   "tokens": 16,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:large-1",
+    "uri": "https://drive.google.com/file/d/large-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "373b7946937baf8c",
+   "partition": "/knowledge",
+   "title": "계약서.pdf",
+   "content": "# 계약서.pdf\n\n파일 형식: application/pdf\n\n상위 폴더 ID: root-folder",
+   "contentHash": "fdcc8a47083e7517c06eece2fae48d91ff5ef1a904686d2943b184226ce6625e",
+   "tokens": 21,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:pdf-1",
+    "uri": "https://drive.google.com/file/d/pdf-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "170a0c5137ee455c",
+   "partition": "/knowledge",
+   "title": "계약서.pdf > 수집 제한",
+   "content": "## 수집 제한\nBinary original stored; body/OCR not extracted\ncomments: Google API request failed (HTTP 403)",
+   "contentHash": "afdb4f37e501f2882a71d35be8c6f4eafd78d3ee80e92dceaf350931abaa4ea9",
+   "tokens": 26,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:pdf-1",
+    "uri": "https://drive.google.com/file/d/pdf-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9d281cfc631e02ac",
+   "partition": "/knowledge",
+   "title": "기밀.pdf",
+   "content": "# 기밀.pdf\n\n파일 형식: application/pdf\n\n상위 폴더 ID: root-folder",
+   "contentHash": "cc3a7edc6b951df7337b2ad68c00d66300dc3638c6d9d1bbee62ef8bb70ec743",
+   "tokens": 21,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:restricted-1",
+    "uri": "https://drive.google.com/file/d/restricted-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e94b4d20d774c7bd",
+   "partition": "/knowledge",
+   "title": "기밀.pdf > 수집 제한",
+   "content": "## 수집 제한\ncontent: File content copying/downloading is restricted",
+   "contentHash": "5dd4ce8ef71fb59cfa32c3a421b6e678bdbad28ea5140ec6bd980bf859f242d0",
+   "tokens": 14,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:restricted-1",
+    "uri": "https://drive.google.com/file/d/restricted-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "86c8ba6276e5be3c",
+   "partition": "/knowledge",
+   "title": "분기 계획",
+   "content": "# 분기 계획\n\n파일 형식: application/vnd.google-apps.spreadsheet\n\n상위 폴더 ID: root-folder",
+   "contentHash": "700196b76eac8c9240af2992eda557d03fd7cbfdf2976914d3a63b9404068bb4",
+   "tokens": 27,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-1",
+    "uri": "https://docs.google.com/spreadsheets/d/sheet-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "3de468455f46d99c",
+   "partition": "/knowledge",
+   "title": "분기 계획 > Plan's Q4",
+   "content": "## Plan's Q4\nA1: 항목 | B1: 금액\nA2: 서버 | B2: 1,200\nA3: 합계 | B3: 1,200 (수식: =SUM(B2:B2)) (메모: 자동 계산)\nB5: 예산표 (https://example.test/budget)",
+   "contentHash": "3885b29af4d71c828eb5d6c93dc53e99a66e1ff65dd5a10d338903c5a352a0e7",
+   "tokens": 76,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-1",
+    "uri": "https://docs.google.com/spreadsheets/d/sheet-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "301c1f1e3531474e",
+   "partition": "/knowledge",
+   "title": "분기 계획 > Plan's Q4",
+   "content": "## Plan's Q4\nCW1: 오른쪽 끝 메모 (메모: 열 CW)",
+   "contentHash": "3ae68e9a4ee7e2bab9d38255660ba88f0a759074302f06665cc2f9d17ba671c0",
+   "tokens": 21,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-1",
+    "uri": "https://docs.google.com/spreadsheets/d/sheet-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "cc1757d8bdcdbd96",
+   "partition": "/knowledge",
+   "title": "분기 계획 > Plan's Q4",
+   "content": "## Plan's Q4\nA101: 101행",
+   "contentHash": "d7b590c841f60ac0f6e17477130a903b520be0d0a349a661094a388b2a251791",
+   "tokens": 12,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-1",
+    "uri": "https://docs.google.com/spreadsheets/d/sheet-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "bd9ba3dd9b422965",
+   "partition": "/knowledge",
+   "title": "분기 계획 > 수집 제한",
+   "content": "## 수집 제한\nsheets: Non-grid sheets retain metadata only",
+   "contentHash": "9ee7c5a21f7259c654ed8de1b64eda92cd0e96eb7b11c53184cbf95d48c22ff3",
+   "tokens": 14,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-1",
+    "uri": "https://docs.google.com/spreadsheets/d/sheet-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "965770d4377362dd",
+   "partition": "/knowledge",
+   "title": "접속 로그",
+   "content": "# 접속 로그\n\n파일 형식: application/vnd.google-apps.spreadsheet\n\n상위 폴더 ID: root-folder",
+   "contentHash": "cfea579ca1f9eb461274ab9d69eea2f64ba7904d8990a5a8e7d009400c212c3c",
+   "tokens": 27,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-2",
+    "uri": "https://drive.google.com/file/d/sheet-2",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "ecce20ae88f4c8dd",
+   "partition": "/knowledge",
+   "title": "접속 로그 > 수집 제한",
+   "content": "## 수집 제한\n시트 범위 3개 미수집 또는 버전 불일치",
+   "contentHash": "eac3af0504ceebafb7a25bec6ee256bffd3df8109913b46ac040f118b528a996",
+   "tokens": 21,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-2",
+    "uri": "https://drive.google.com/file/d/sheet-2",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "60c9e1852bef7085",
+   "partition": "/knowledge",
+   "title": "거래 원장",
+   "content": "# 거래 원장\n\n파일 형식: application/vnd.google-apps.spreadsheet\n\n상위 폴더 ID: root-folder",
+   "contentHash": "ac7df16876e1fcd66a1e1a4d41eb90f7d9d0532e40792c02e554488fb2c2fe60",
+   "tokens": 27,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e02d6417d40a1d8b",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 1)",
+   "content": "## 원장\nA1: 1행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B1: 1행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메",
+   "contentHash": "93587e06fb5fe56269edae25a2f2bd7c4fee971da84ae1d37b73cba78d007962",
+   "tokens": 423,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "bf3caccf803e76f8",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 2)",
+   "content": "모  | C1: 1행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D1: 1행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "eb1073446d2f77f29a2c086794b3934a3ebac4781ee2f2074847c26bc0a133c2",
+   "tokens": 424,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "bce99772c91480d4",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 3)",
+   "content": "A2: 2행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B2: 2행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "7ac947acd9315ea7c5cd875803d536ded819ef8d5dfcc9f5369133f097e53e8b",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "8ba1fbe60d3ab0e0",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 4)",
+   "content": "| C2: 2행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D2: 2행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "1e05d152a43648fd502b007ad97c3317c641a9fab45b366b95c7c4a2812b97f9",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "4c035882515999ef",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 5)",
+   "content": "A3: 3행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B3: 3행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "8348508d66d7899d51a55258e03f68053d939bdd9165d093422fc06a88bd9185",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "980d2cef4432286c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 6)",
+   "content": "| C3: 3행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D3: 3행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "948a473f98df04e57e6cb746cc53945a57b568fc8291693814589d57a7b0bed6",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f8553f7d3dad9383",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 7)",
+   "content": "A4: 4행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B4: 4행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "ac7d25c7405a655bd9188a763125b125f0949579debbb23cdb33e11cbd5b0203",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "20b9ba4ecf93a4b9",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 8)",
+   "content": "| C4: 4행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D4: 4행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "a0d1b464d730576cff878a9a3219992802ed95f5bcf453237cb049ca7c871d91",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2b603559277fcd7d",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 9)",
+   "content": "A5: 5행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B5: 5행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "6578076aa740c3df3446780b3399d56c7646d82716362a4644a145e6fe59eebf",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "eb9e2059a93aec4d",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 10)",
+   "content": "| C5: 5행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D5: 5행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "58e34d784c25042e4e8be489af49ec422f59a398e9340ffcc3452250d339e9a2",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "8f91491cef6b78ac",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 11)",
+   "content": "A6: 6행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B6: 6행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "0f325669f505109477a9ce27f2b230451349866ccb9b3bb50752aad64956dec6",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0f95987e3c2646d9",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 12)",
+   "content": "| C6: 6행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D6: 6행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "1ab8b0f461d00821c429cf76070da688e070038b40055af37c01653fc3ee2d16",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0595451658d7f4ab",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 13)",
+   "content": "A7: 7행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B7: 7행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "430f482750abcc4be3aa2bee9800d3dcc286f95c95798d826d50654d7f62f1c8",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "cf9296fdf95c214b",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 14)",
+   "content": "| C7: 7행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D7: 7행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "e49e0e331ecb843c00f3e9090cf7463be8d311951b5aa1e31e5221b6d7ddf38c",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "328d19db89bf6735",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 15)",
+   "content": "A8: 8행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B8: 8행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "49d93538310b7dd15a733c95bc2cb90fd8fe7d3a6a08c30ea38c5f5d9f6fc9f8",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f82e7d7472bf1d1c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 16)",
+   "content": "| C8: 8행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D8: 8행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "17b751251e7388e4580f1703f308f35be8c63cb1af15aa219f7f5b720b9e9665",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "368dbe35fc61f5ce",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 17)",
+   "content": "A9: 9행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B9: 9행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "0a6a84b5b2247b741c0bc1c6cb1d454be5be61b4adab39bef1cd49c2ccc7465e",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "ea23eecae0194ec9",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 18)",
+   "content": "| C9: 9행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D9: 9행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "d954d8e48d4bd3b4f607604d4779c7dbe3ceaab076321e1177c8b6314e9f9915",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "93ee0b83950716bf",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 19)",
+   "content": "A10: 10행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B10: 10행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "5ea09a2a51c27360d421bd3c1fba8212c8c9a5c53473e6885ff47a21d1335ae4",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "94bd9dbc93c2c6e7",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 20)",
+   "content": "| C10: 10행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D10: 10행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "9f75ab0a25a4bf16d89417220c215bd36eb1f3480c1452579ab3794f498c839c",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f682271a91ebfd88",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 21)",
+   "content": "A11: 11행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B11: 11행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "f6c768aaa503157d48dfa7551989c41bed936df8825a160fd77a273432f20955",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "64505665b0525d03",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 22)",
+   "content": "| C11: 11행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D11: 11행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "2486f7a7388d7c85476a3822590ec0ae38e25a06d46049ba5fbc3cd6832d1998",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "88c91df27d37859c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 23)",
+   "content": "A12: 12행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B12: 12행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "0faacabee4088f06db548bb9ab45f5422f1ac6e1fb07ba50ac731baf6a03f05d",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b11c19222e74f6b0",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 24)",
+   "content": "| C12: 12행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D12: 12행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "9dae746fdce63f95b9bee8d406c501b43bc4a95cdcd746ea974c41d8e23d47e8",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2a84e0716b3e9d48",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 25)",
+   "content": "A13: 13행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B13: 13행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "e16b7462bbe1d20f51d44ee47e6da64bb0947bcce22e07d7510387e1c72ed0b5",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "dfc754ea61f3678c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 26)",
+   "content": "| C13: 13행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D13: 13행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "311190c5764d59b9ac9e8af65bc437c69acee0c6728ca6560f5deb0e944ad271",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d8880b5e77316dac",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 27)",
+   "content": "A14: 14행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B14: 14행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "e1aec2fdaf44336b40f7ef1593510cb23568f1396dc37c3c282cbdcce59a3ed1",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "fe01b1cbff637a36",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 28)",
+   "content": "| C14: 14행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D14: 14행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "ef088fc6e9e666ab5ed67682b79835364fd49b40f2d892e8131814e4b6eed46e",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "91478eced7e98894",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 29)",
+   "content": "A15: 15행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B15: 15행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "a7633598b926ef669bdf0c1e6342f5d7a41b28c8ad90ec76b2fcb7e49623acea",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2930ffdd874f6752",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 30)",
+   "content": "| C15: 15행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D15: 15행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "bf1edb1aae14462a44e54297ccb6b383c910334c8efd476801ac4e719418dc60",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "6e3a7ee979f9b788",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 31)",
+   "content": "A16: 16행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B16: 16행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "f671402e669436056897b22cd31803aab114e3cd3d17a82555f59cb003393e5d",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "ad747846c5c06526",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 32)",
+   "content": "| C16: 16행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D16: 16행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "ab12d05165c7d07f22e199136b85fd6c5e0a4f4535274613aeca4d03a77688a5",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "3267fc38a0a275d9",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 33)",
+   "content": "A17: 17행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B17: 17행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "af7212cd65821944e4cd851094372ca2c4bd843bdecd1f42d89d70d04a6428c7",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "aeda1e8db94291cb",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 34)",
+   "content": "| C17: 17행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D17: 17행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "745c2ca6419ec117fa9e3d47c1d3b163cf9a00b770465dd89648677d1a928fc3",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "93e0de11d19640cf",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 35)",
+   "content": "A18: 18행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B18: 18행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "dcd54b4265a6aadcb6f3e5d337c6303957b28e83abfde4e956cb0c8b199763c3",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c47cd0b262a8b2cb",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 36)",
+   "content": "| C18: 18행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D18: 18행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "2df5dbb5fce3fb5a6e723779106d3a1d169b9db16ff97dcc2d9478eb4008f7f5",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "af8499f498713c2d",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 37)",
+   "content": "A19: 19행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B19: 19행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "687795f9655084c8e09d659d43bcccab63dc2031f54bfed588e9350269ec506b",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0f871d5dddccad62",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 38)",
+   "content": "| C19: 19행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D19: 19행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "734b41b377edd9c5654662a045c14793f4fd74178d8964c668db60f9dd8e1491",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "58c74d8a92adf8ee",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 39)",
+   "content": "A20: 20행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B20: 20행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "f096c504b5c8b6e9bc134430d627308aac1dc025e1d851639c17cd6c46c5628e",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "a76bdf2c80662ed7",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 40)",
+   "content": "| C20: 20행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D20: 20행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "1fb724eb43ba3405d2edb5553fa57e4edc5d8f98f10afa3501b5cb9d3e8f819d",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "705fb157ef4ab630",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 41)",
+   "content": "A21: 21행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B21: 21행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "ff1edb6c2b319e780e1ec8958d55c7c8c7bcacd3f3bd8c48c85a705a565b56a2",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "94c125f3bd827d9a",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 42)",
+   "content": "| C21: 21행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D21: 21행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "61f23cf792f7357176fd1c484f526db0860ed73c544e38c8d57d160d30bdab5d",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0aa52fda8cb41155",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 43)",
+   "content": "A22: 22행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B22: 22행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "b1341ae2c6d5481ed8ad0c244a403e19b7578ffcc76b8ae84522dcdafb14b6e7",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "a7f43000c9d887a6",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 44)",
+   "content": "| C22: 22행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D22: 22행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "be5fb329c48a2836bbe64bf6a15b2e18295a8eb64ca3d3c8fd0a92ae85848998",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "8302049814a76582",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 45)",
+   "content": "A23: 23행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B23: 23행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "aa0e93ce715dc9c0a3c24867c35849e06a57a540ef7f16564da01ed21cf79f8f",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b574782674469bd1",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 46)",
+   "content": "| C23: 23행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D23: 23행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "8a78ded56a362a8f218411cc7be40ef252647d476facdab8ad2bbf0e3e334266",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "5914c6e36e14735a",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 47)",
+   "content": "A24: 24행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B24: 24행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "d7947d61dabaf914ee08529a6afd3ed82a3ef76e09c103890123f73815f6a9db",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b1f53b44b45614dd",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 48)",
+   "content": "| C24: 24행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D24: 24행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "8f404559913c712ef5768e28757f6eb4c4c80fe1576f95bee79ce5ba0a528006",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "1b2148030b5d72ef",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 49)",
+   "content": "A25: 25행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B25: 25행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "bc511910543efb8cf068c31b654ea7e3ccb5fd99afa17160e4c059e48d9556eb",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f3d297d1befcf79c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 50)",
+   "content": "| C25: 25행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D25: 25행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "99fc81b7066ad50d02f3c8a39fda04f3d616ea070cec8d095cc5c63e2d980513",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9899a70379101d5b",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 51)",
+   "content": "A26: 26행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B26: 26행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "4505fb659051df5f6fce14bb6a90c93147f73c76093be17d2f1fc1600f4ca896",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b5781b3bb0a96b1e",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 52)",
+   "content": "| C26: 26행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D26: 26행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "5e9f509310494fc0f23cdd174f36854b0878e3084f49bb850fb7d1d322f047bb",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "fffa5fa84e7a85d2",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 53)",
+   "content": "A27: 27행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B27: 27행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "e69f907d49226a14f75f4df1d01b0dbcdb118de4021400683253fc6acc16bc23",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "68dd77941d578512",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 54)",
+   "content": "| C27: 27행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D27: 27행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "122a90fe1a27b0c116fa90e0d30e23350f85142638b9688524b9846fb5f5e942",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "35e2b3d01d3b732c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 55)",
+   "content": "A28: 28행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B28: 28행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "4bed9592a942d0c758e1f08aa9830d71c9bbf5a9edd1ba2664eee23e17324c8d",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "db0fec79a46ebf02",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 56)",
+   "content": "| C28: 28행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D28: 28행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "7a6675a56cd8fbca34c79bce0c38a4d2efdc45e57149456dfc7e4a2075ca554d",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9bd72d8e8b977730",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 57)",
+   "content": "A29: 29행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B29: 29행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "7069580c4fe244530383480c7111cd3dd7b92721c1abb5b8dcdf88237158b560",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9482ee114ee88b7c",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 58)",
+   "content": "| C29: 29행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D29: 29행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모\n",
+   "contentHash": "83cad1d32af68cedb62d0dabd84be7ee1a7dd22908626fca9c5c2ec01c76f59e",
+   "tokens": 422,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0b03c7f8339de51e",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 59)",
+   "content": "A30: 30행 1열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | B30: 30행 2열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  ",
+   "contentHash": "103247724778a823a299760676f7e51d1f348ae4185ad870462a93fbb0d003c4",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "8389cadbbf7c0d9a",
+   "partition": "/knowledge",
+   "title": "거래 원장 > 원장 (part 60)",
+   "content": "| C30: 30행 3열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모  | D30: 30행 4열 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모 거래 내역 메모",
+   "contentHash": "b1cd5e5cd27146626f82521c3493cdf759dfda84a48891d0e60710745ceb84a6",
+   "tokens": 421,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-big-1",
+    "uri": "https://drive.google.com/file/d/sheet-big-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9110c2724d3b1735",
+   "partition": "/knowledge",
+   "title": "실시간 집계",
+   "content": "# 실시간 집계\n\n파일 형식: application/vnd.google-apps.spreadsheet\n\n상위 폴더 ID: team-1",
+   "contentHash": "5fc83a4e031cd48edb099de99898443b7b095ecb358969c286a4bd2beb39bf29",
+   "tokens": 29,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-race-1",
+    "uri": "https://drive.google.com/file/d/sheet-race-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "cffa98ac6b68773d",
+   "partition": "/knowledge",
+   "title": "실시간 집계 > 수집 제한",
+   "content": "## 수집 제한\n시트 범위 2개 미수집 또는 버전 불일치",
+   "contentHash": "678e9b77ae51b4b8ea9f29c305ad8dcbb187572e349c873e60edf8c57b33ce2b",
+   "tokens": 21,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:sheet-race-1",
+    "uri": "https://drive.google.com/file/d/sheet-race-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "ca16633949a081cf",
+   "partition": "/knowledge",
+   "title": "회고 바로가기",
+   "content": "# 회고 바로가기\n\n파일 형식: application/vnd.google-apps.shortcut\n\n상위 폴더 ID: root-folder\n\n바로가기 대상: https://drive.google.com/file/d/doc-1",
+   "contentHash": "6eb241c519de802ee4e83635dde43c900710b789013f042d8c2c0f0a716ff550",
+   "tokens": 43,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:shortcut-1",
+    "uri": "https://drive.google.com/file/d/shortcut-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d7c6a22b519e8bbe",
+   "partition": "/knowledge",
+   "title": "분기 목표 발표",
+   "content": "# 분기 목표 발표\n\n파일 형식: application/vnd.google-apps.presentation\n\n상위 폴더 ID: root-folder",
+   "contentHash": "02b61d78ed30140c3fd7bcafbbf3a196cff6234d08e5d7514eae7c268533bc86",
+   "tokens": 26,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:slides-1",
+    "uri": "https://drive.google.com/file/d/slides-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "de6d4d16e3f6febf",
+   "partition": "/knowledge",
+   "title": "분기 목표 발표 > 슬라이드 1",
+   "content": "## 슬라이드 1\n\n분기 목표\n매출 20% 성장\n\n지표 | 목표\n전환율 |\n그룹 안 문구\n\n그룹 제목\n그룹 설명",
+   "contentHash": "57bb99a19642479ea445f174be906c5fb9cc00f416effeb453808f9d757bb399",
+   "tokens": 40,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:slides-1",
+    "uri": "https://drive.google.com/file/d/slides-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c74e7c57fa6a54bd",
+   "partition": "/knowledge",
+   "title": "분기 목표 발표 > 슬라이드 1 > 발표자 노트",
+   "content": "### 발표자 노트\n발표자 메모",
+   "contentHash": "fc2fd2f83bf8fec4f0d020ecf9eac619e054edb48065ddbea0791cbd6fc1df26",
+   "tokens": 11,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:slides-1",
+    "uri": "https://drive.google.com/file/d/slides-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 3,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d624ec13be770ae6",
+   "partition": "/knowledge",
+   "title": "온콜 인수인계",
+   "content": "# 온콜 인수인계\n\n파일 형식: application/vnd.google-apps.document\n\n상위 폴더 ID: team-1\n\n교대 시각은 09:00이다.\n- 호출기 확인",
+   "contentHash": "138693471c87cba1c0d965f9c7dab912c6212f95e18f8e4a4c28cc7d47d61a2c",
+   "tokens": 45,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:team-doc-1",
+    "uri": "https://docs.google.com/document/d/team-doc-1/edit",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "d6e76aacdd503ef4",
+   "partition": "/knowledge",
+   "title": "회의록.md",
+   "content": "# 회의록.md\n\n파일 형식: text/markdown\n\n상위 폴더 ID: root-folder",
+   "contentHash": "5d6d930bcfb0cd4dddc326c3e993707abc6e126f84d4d9144b23820650c7f3df",
+   "tokens": 23,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:text-1",
+    "uri": "https://drive.google.com/file/d/text-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2ba12a91fa5d82a9",
+   "partition": "/knowledge",
+   "title": "회의록",
+   "content": "# 회의록\n\n결정: 배포 동결 �",
+   "contentHash": "df87c6595ce9c76a3365468f31fafd654cad203d69b8601cf813499feecfbd01",
+   "tokens": 13,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:text-1",
+    "uri": "https://drive.google.com/file/d/text-1",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0b6f4709d5b7c7d0",
+   "partition": "/knowledge",
+   "title": "깨진 인코딩.txt",
+   "content": "# 깨진 인코딩.txt\n\n파일 형식: text/plain\n\n상위 폴더 ID: root-folder\n\n서로게이트 ��� CESU ������ 끝 �",
+   "contentHash": "da716ab71b21f4b622a9e563b3f227f7efac4fb207b31c46406e0504370ad496",
+   "tokens": 37,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "google-drive-synthetic",
+    "documentId": "file:text-2",
+    "uri": "https://drive.google.com/file/d/text-2",
+    "capturedAt": "2026-10-02T03:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  }
+ ]
+}

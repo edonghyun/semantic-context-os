@@ -1,0 +1,237 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-tiro-fixture.ts",
+ "units": [
+  {
+   "id": "3498ed00a09c82d6",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고",
+   "content": "# 결제 장애 회고\n\n회의 일시: 2026-10-01T01:00:00Z",
+   "contentHash": "f7760bfd10b943842eb31dab75cb543e80cf96d3ce6bcc13a2bdbfc0b1351a9e",
+   "tokens": 25,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-alpha",
+    "uri": "https://tiro.ooo/n/n-alpha",
+    "capturedAt": "2026-10-03T09:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e0520c903013d9f6",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > AI 요약",
+   "content": "## AI 요약\n- 원인: 커넥션 풀 고갈\n- 대응: 풀 크기 상향",
+   "contentHash": "c4a4e74dec955c9974b948e337d409d62275e5dbf834abfb3d2a104643fb995f",
+   "tokens": 25,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-alpha",
+    "uri": "https://tiro.ooo/n/n-alpha",
+    "capturedAt": "2026-10-03T09:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "29ceb79b6578b9e9",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > 회의록",
+   "content": "## 회의록\n결정: 풀 크기 상향\n\n후속: 알림 추가",
+   "contentHash": "d7c3d617e4d6a8d73c9395abbc484662e7e759e113bfc7c0cdfea05b9be47c2d",
+   "tokens": 20,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-alpha",
+    "uri": "https://tiro.ooo/n/n-alpha",
+    "capturedAt": "2026-10-03T09:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "bd1e61c3f93e9c8c",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고 > 전사 원문",
+   "content": "## 전사 원문\n[2026-10-01T01:00:05Z]\n민수: DB 커넥션 풀이 고갈됐다\nSPEAKER_1: 풀 크기를 올리고 알림을 추가하자\n\n따옴표 \"인용\"\t탭\u0001제어 문자와 🚀 이모지\n\n[2026-10-01T01:10:00Z]\n재발 방지 대책은 다음 주까지 정리한다\n\n전사 제한: 1개 문단은 Tiro에서 잠겨 있어 제외됨.",
+   "contentHash": "ccaba6a058b24542b14d77ee3100930842a1dae5ccd17270ba728bff52f3a1f9",
+   "tokens": 123,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-alpha",
+    "uri": "https://tiro.ooo/n/n-alpha",
+    "capturedAt": "2026-10-03T09:00:00Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f9f974fdd66b6722",
+   "partition": "/knowledge",
+   "title": "온보딩 절차 논의",
+   "content": "# 온보딩 절차 논의\n\n접근 제한으로 제외된 내용: AI 요약, 회의 문서",
+   "contentHash": "4e1f2d05bb86551fe0b79847f5c0ddddf9cfbbd2e5f8daecd8b9473340339e9d",
+   "tokens": 25,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-beta",
+    "uri": "https://tiro.ooo/n/n-beta",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c537ee1a5190f516",
+   "partition": "/knowledge",
+   "title": "온보딩 절차 논의 > 전사 원문",
+   "content": "## 전사 원문\n계정 발급 뒤 권한 신청 순서로 진행한다",
+   "contentHash": "374c54789884b98d33811d8e8381f638f25fd8e2c51a4e13056f91ac1901e192",
+   "tokens": 19,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-beta",
+    "uri": "https://tiro.ooo/n/n-beta",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "7803b8350523b2e6",
+   "partition": "/knowledge",
+   "title": "보안 점검 회의",
+   "content": "# 보안 점검 회의\n\n접근 제한으로 제외된 내용: AI 요약\n\n회의 일시: 2026-10-01T01:00:00Z",
+   "contentHash": "b80042121dc02b42c91ed0ac2d2c3ce5e6fb11aef0371374b9b391c3275b1687",
+   "tokens": 38,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-delta",
+    "uri": "https://tiro.ooo/n/n-delta",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "5074feb61c4b3eee",
+   "partition": "/knowledge",
+   "title": "보안 점검 회의 > 전사 원문",
+   "content": "## 전사 원문\n접근 권한은 분기마다 다시 확인한다",
+   "contentHash": "9cbc69e441c73e7c97c8373c6a1e7b2f4fbb22e34173477c797c8f479032b99e",
+   "tokens": 17,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-delta",
+    "uri": "https://tiro.ooo/n/n-delta",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "59bdad252b67cb18",
+   "partition": "/knowledge",
+   "title": "정산 배치 점검",
+   "content": "# 정산 배치 점검\n\n접근 제한으로 제외된 내용: 전사 원문\n\n회의 일시: 2026-10-01T01:00:00Z",
+   "contentHash": "181be0fc058a21d33d231a808b5308b81e92473735e926ee74d643109c74a065",
+   "tokens": 39,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-gamma",
+    "uri": "tiro://note:n-gamma",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "6a7c7422da66e901",
+   "partition": "/knowledge",
+   "title": "정산 배치 점검 > AI 요약",
+   "content": "## AI 요약\n스냅샷 보관 기간은 30일",
+   "contentHash": "119131ba2fde9358c780cd0b571e475c017878114d3a10c5b915441723a4fb8e",
+   "tokens": 17,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-gamma",
+    "uri": "tiro://note:n-gamma",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "61ffb663e71369e6",
+   "partition": "/knowledge",
+   "title": "정산 배치 점검 > AI 회의 문서",
+   "content": "## AI 회의 문서\n정산 배치는 매일 02시",
+   "contentHash": "cd11df48404a7a2a082155eb9c1c86900079ea27788584532ae3db2fcdd8f7c4",
+   "tokens": 16,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "tiro-synthetic",
+    "documentId": "note:n-gamma",
+    "uri": "tiro://note:n-gamma",
+    "capturedAt": "2026-10-01T02:00:00Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  }
+ ]
+}

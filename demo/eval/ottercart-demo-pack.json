@@ -1,0 +1,305 @@
+{
+  "name" : "ottercart-demo",
+  "version" : 1,
+  "generatedBy" : "backend/src/test/java/io/scos/demo/DemoCorpus.java",
+  "docs" : [ {
+    "id" : "jira/OTC-275",
+    "title" : "OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환",
+    "body" : "---\nupdated: 2026-10-10T00:00:00Z\ntags: [jira, story, inventory]\n---\n# OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환\n\n**유형:** Story · **우선순위:** High · **상태:** In Progress · **담당:** hyejin\n\n## 설명\n\n[재고 동기화 v2 설계](../notion/inventory-sync-v2-cdc)대로 inventory-sync가 `stock.changed` 이벤트를 구독하게 바꾼다. 완료 조건: 파일럿 매장 12곳의 재고 반영 지연 p95 1분 이내, 그림자 모드에서 폴링 결과와 불일치 0.1% 미만.\n\n## 댓글\n\n- hyejin (10-03): 파일럿 2곳 이벤트 발행 시작. 그림자 모드 불일치 0.4% — 대부분 version 역전.\n- hyejin (10-10): version 비교를 매장·SKU 단위로 바꾼 뒤 불일치 0.05%.\n"
+  }, {
+    "id" : "jira/OTC-288",
+    "title" : "OTC-288 PostgreSQL 15 → 17 업그레이드",
+    "body" : "---\nupdated: 2026-10-06T05:00:00Z\ntags: [jira, task, platform]\n---\n# OTC-288 PostgreSQL 15 → 17 업그레이드\n\n**유형:** Task · **우선순위:** Medium · **상태:** Done · **담당:** daniel\n\n## 설명\n\n[업그레이드 계획](../notion/postgres-17-upgrade-plan)에 따라 inventory-db와 orders-db를 17로 올린다. 논리 복제로 따라오게 한 뒤 점검 시간에 전환.\n\n## 댓글\n\n- daniel (09-29): 재고 DB 전환 완료, 쓰기 중단 6분.\n- daniel (10-06): 주문 DB 전환 완료, 쓰기 중단 8분. 15 클러스터는 일주일 뒤 삭제.\n"
+  }, {
+    "id" : "jira/OTC-290",
+    "title" : "OTC-290 Order API v2: cursor pagination for list endpoints",
+    "body" : "---\nupdated: 2026-09-19T00:00:00Z\ntags: [jira, story, api]\n---\n# OTC-290 Order API v2: cursor pagination for list endpoints\n\n**Type:** Story · **Priority:** High · **Status:** Done · **Assignee:** priya\n\n## Description\n\nImplement cursor pagination for `GET /v2/orders` and `GET /v2/stores/{id}/orders` as specified in the [Order API v2 design](../notion/order-api-v2-design). The cursor encodes `(created_at, id)` and is base64url opaque to clients.\n\n## Acceptance criteria\n\n- `limit` between 1 and 100, default 20; invalid values return `400 INVALID_LIMIT`.\n- `nextCursor` is null on the last page.\n- Inserting new orders while paging never returns duplicates or skips rows.\n\n## Comments\n\n- priya (09-12): Contract tests added for the concurrent insert case.\n- priya (09-19): Shipped in 3.4.0.\n"
+  }, {
+    "id" : "jira/OTC-295",
+    "title" : "OTC-295 Deprecate v1 offset pagination",
+    "body" : "---\nupdated: 2026-09-25T00:00:00Z\ntags: [jira, task, api]\n---\n# OTC-295 Deprecate v1 offset pagination\n\n**Type:** Task · **Priority:** Medium · **Status:** To Do · **Assignee:** priya\n\n## Description\n\nOrder API v1 `page`/`offset` parameters will be removed on **2026-12-01**. Steps:\n\n1. Return a `Deprecation` header and `Sunset: Mon, 01 Dec 2026 00:00:00 GMT` on all v1 list responses (from 3.5.0).\n2. Email partners with v1 traffic in the last 30 days; share the [migration notes](../notion/order-api-v2-design).\n3. On 2026-12-01 return `410 Gone` for v1 list endpoints.\n\n## Comments\n\n- sora (09-25): 7 partners still on v1, 2 of them above 1k requests/day.\n"
+  }, {
+    "id" : "jira/OTC-301",
+    "title" : "OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨",
+    "body" : "---\nupdated: 2026-10-13T00:00:00Z\ntags: [jira, bug, coupons]\n---\n# OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨\n\n**유형:** Bug · **우선순위:** High · **상태:** Done · **담당:** jiwoo\n\n## 설명\n\n장바구니에서 상품 쿠폰 두 장을 고르면 두 쿠폰 할인액이 모두 차감된다. [쿠폰 정책](../notion/coupon-policy)상 상품 쿠폰끼리는 중복 적용할 수 없고 할인액이 큰 쪽만 적용해야 한다.\n\n## 재현\n\n1. 10% 상품 쿠폰과 3,000원 상품 쿠폰을 보유한 계정으로 로그인\n2. 3만 원 상품을 담고 두 쿠폰을 모두 선택\n3. 결제 금액이 24,000원으로 표시됨(기대: 27,000원)\n\n## 원인\n\n쿠폰 검증이 서버가 아니라 앱에서만 이뤄졌다. 서버 계산기에 종류별 1장 제한을 추가했다. 3.5.0에서 수정.\n"
+  }, {
+    "id" : "jira/OTC-311",
+    "title" : "OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용",
+    "body" : "---\nupdated: 2026-09-12T00:00:00Z\ntags: [jira, bug, payments, incident]\n---\n# OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용\n\n**유형:** Bug · **우선순위:** Highest · **상태:** Done · **담당:** jaehoon\n\n## 설명\n\n9월 7일 결제 중복 승인 장애의 근본 원인([포스트모템](../notion/postmortem-2026-09-07-duplicate-charges)). payment-gateway의 capture 재시도가 새 `Idempotency-Key`를 만들어 Bramblepay가 재시도를 별개 승인으로 처리했다.\n\n## 수정\n\n- 멱등 키를 결제 id와 시도 그룹에서 결정적으로 만든다. 같은 capture의 재시도는 항상 같은 키를 쓴다.\n- 재시도 경로 단위 테스트 추가: 첫 요청 타임아웃 → 재시도 요청의 키가 같은지 검증.\n- `payments.capture-retry` 플래그는 3.4.0 배포 후 다시 켰다.\n\n## 댓글\n\n- daniel (09-11): 리뷰 완료. 결제 경로 변경은 이제 checkout 팀 리뷰 필수.\n"
+  }, {
+    "id" : "jira/OTC-312",
+    "title" : "OTC-312 Alert on duplicate captures",
+    "body" : "---\nupdated: 2026-09-15T00:00:00Z\ntags: [jira, task, payments, monitoring]\n---\n# OTC-312 Alert on duplicate captures\n\n**Type:** Task · **Priority:** High · **Status:** Done · **Assignee:** sora\n\n## Description\n\nFollow-up from the [duplicate charge postmortem](../notion/postmortem-2026-09-07-duplicate-charges): we learned about the incident from customer support 31 minutes late. Add an alert `payments.capture.duplicate` that fires when one order has two successful captures within 10 minutes. Page the payments on-call; severity SEV1 by default.\n\n## Comments\n\n- sora (09-15): Alert live. Backtest on September data catches all 412 affected orders within 2 minutes.\n"
+  }, {
+    "id" : "jira/OTC-318",
+    "title" : "OTC-318 중복 승인 건 환불 스크립트",
+    "body" : "---\nupdated: 2026-09-09T12:00:00Z\ntags: [jira, task, payments, refund]\n---\n# OTC-318 중복 승인 건 환불 스크립트\n\n**유형:** Task · **우선순위:** Highest · **상태:** Done · **담당:** jaehoon\n\n## 설명\n\n9월 7일 중복 승인 412건을 찾아 두 번째 승인을 Bramblepay 환불 API로 취소한다. 스크립트는 dry-run 모드로 대상 목록을 먼저 뽑고, 재무팀 확인 후 실행한다.\n\n## 진행 상황\n\n- 09-08 10:00 dry-run: 대상 412건, 금액 11,820,400원 — 재무팀 확인 완료\n- 09-08 15:00 1차 실행 380건 환불 성공, 32건은 카드사 응답 지연으로 보류\n- 09-09 11:00 보류 32건 재실행, 전부 성공. 환불 완료 문자 발송\n\n## 댓글\n\n- minji (09-09): CS에 환불 완료 목록 공유했습니다.\n"
+  }, {
+    "id" : "jira/OTC-322",
+    "title" : "OTC-322 Roll out rider batching to 30% of Seoul riders",
+    "body" : "---\nupdated: 2026-09-24T00:00:00Z\ntags: [jira, story, dispatch]\n---\n# OTC-322 Roll out rider batching to 30% of Seoul riders\n\n**Type:** Story · **Priority:** Medium · **Status:** Done · **Assignee:** kevin\n\n## Description\n\nBased on the [batching experiment](../notion/rider-batching-experiment), enable `dispatch.batching` for 30% of Seoul riders with the batching radius capped at 600 m (experiment used 800 m).\n\n## Acceptance criteria\n\n- Median delivery time increase under 2 minutes versus control.\n- Late delivery rate (> 45 min) under 4.5%.\n- Dashboard split by batched / single trips.\n\n## Comments\n\n- kevin (09-24): Live in 3.4.0. First week: cost per delivery -9.6%, median +1.4 min.\n"
+  }, {
+    "id" : "jira/OTC-327",
+    "title" : "OTC-327 Flaky checkout end-to-end test on CI",
+    "body" : "---\nupdated: 2026-10-01T00:00:00Z\ntags: [jira, bug, testing]\n---\n# OTC-327 Flaky checkout end-to-end test on CI\n\n**Type:** Bug · **Priority:** Medium · **Status:** In Progress · **Assignee:** jiwoo\n\n## Description\n\n`CheckoutFlowE2ETest.paysWithSavedCard` fails about 1 in 12 runs on CI with a timeout waiting for the order confirmation screen. It never fails locally.\n\n## Findings\n\n- The fake Bramblepay server in CI starts after the app container in some runs; the first authorise call hits a closed port and the client backs off for 10 s.\n- Fix: add a readiness check for the fake Bramblepay before starting the app; remove the fixed `sleep 5` in the CI script.\n\n## Comments\n\n- jiwoo (10-01): Readiness check merged; 200 CI runs without a failure so far.\n"
+  }, {
+    "id" : "jira/OTC-333",
+    "title" : "OTC-333 Bramblepay API 키 정기 교체 (2026 Q4)",
+    "body" : "---\nupdated: 2026-10-01T09:00:00Z\ntags: [jira, task, security]\n---\n# OTC-333 Bramblepay API 키 정기 교체 (2026 Q4)\n\n**유형:** Task · **우선순위:** High · **상태:** Done · **담당:** sora\n\n## 설명\n\n[시크릿 교체 정책](../notion/secret-rotation-policy)의 90일 주기에 따른 Bramblepay API 키 교체. 이전 교체는 2026-07-02.\n\n## 체크리스트\n\n- [x] Bramblepay 관리 콘솔에서 새 키 발급\n- [x] 시크릿 저장소에 새 키 등록, payment-gateway가 읽어 간 것 확인\n- [x] 24시간 신·구 키 병행 후 구 키 폐기(10-01 09:00)\n- [x] 감사 로그 첨부\n"
+  }, {
+    "id" : "jira/OTC-340",
+    "title" : "OTC-340 APNs token refresh blocks the notify queue consumers",
+    "body" : "---\nupdated: 2026-10-04T00:00:00Z\ntags: [jira, bug, notify, incident]\n---\n# OTC-340 APNs token refresh blocks the notify queue consumers\n\n**Type:** Bug · **Priority:** Highest · **Status:** Done · **Assignee:** kevin\n\n## Description\n\nRoot cause of the [2026-10-02 push delay](../notion/postmortem-2026-10-02-push-delay). The APNs auth token refresh runs on the consumer thread; when the token endpoint times out (30 s), all consumers stall and `notify.ios` backs up.\n\n## Fix\n\n- Refresh the token on a background scheduler every 45 minutes; keep using the old token until the new one is ready.\n- 3 s timeout on all APNs calls.\n- Apply the same change to the SMS sender, which refreshes its provider token the same way.\n\n## Comments\n\n- kevin (10-04): Deployed; forced token endpoint timeouts in staging no longer delay delivery.\n"
+  }, {
+    "id" : "jira/OTC-341",
+    "title" : "OTC-341 Alert on notify queue backlog",
+    "body" : "---\nupdated: 2026-10-06T00:00:00Z\ntags: [jira, task, notify, monitoring]\n---\n# OTC-341 Alert on notify queue backlog\n\n**Type:** Task · **Priority:** High · **Status:** Done · **Assignee:** kevin\n\n## Description\n\nDuring the [push delay incident](../notion/postmortem-2026-10-02-push-delay) we had no queue depth alert. Add alerts:\n\n- `notify.ios` or `notify.android` depth > 20,000 for 5 minutes → page notify on-call (SEV2).\n- Oldest message age > 10 minutes → page.\n\nRunbook entry: scale consumers with `scale notify-consumer 8` ([on-call runbook](../notion/oncall-runbook)).\n"
+  }, {
+    "id" : "jira/OTC-350",
+    "title" : "OTC-350 배송 시간대 선택 기능",
+    "body" : "---\nupdated: 2026-10-12T00:00:00Z\ntags: [jira, story, delivery]\n---\n# OTC-350 배송 시간대 선택 기능\n\n**유형:** Story · **우선순위:** High · **상태:** Done · **담당:** hyejin\n\n## 설명\n\n[배송 시간대 선택 PRD](../notion/delivery-time-slots-prd) 구현. 1차 범위는 서울 강남·서초·송파.\n\n## 완료 조건\n\n- 주문 화면에 오늘·내일 2시간 단위 시간대 표시, 수용량이 찬 시간대는 비활성\n- 시간대 시작 30분 전 배차\n- 시작 1시간 전까지 시간대 변경 가능\n\n## 댓글\n\n- hyejin (10-12): 3.5.0에 포함. 첫 주 시간대 주문 비율 11%.\n"
+  }, {
+    "id" : "jira/OTC-352",
+    "title" : "OTC-352 Android app crashes at checkout when the address list is empty",
+    "body" : "---\nupdated: 2026-09-22T00:00:00Z\ntags: [jira, bug, android, checkout]\n---\n# OTC-352 Android app crashes at checkout when the address list is empty\n\n**Type:** Bug · **Priority:** High · **Status:** Done · **Assignee:** jiwoo\n\n## Description\n\nNew users who skip address entry during sign-up crash on the checkout screen: `IndexOutOfBoundsException` in `AddressSelector.defaultAddress()` when the saved address list is empty. Crash rate 0.8% of Android checkout sessions on 3.3.2.\n\n## Fix\n\nShow the \"add address\" form when the list is empty instead of selecting index 0. Added a UI test for a user with no saved addresses. Shipped in 3.4.0.\n"
+  }, {
+    "id" : "jira/OTC-355",
+    "title" : "OTC-355 Remove stale feature flags (October)",
+    "body" : "---\nupdated: 2026-10-08T00:00:00Z\ntags: [jira, task, feature-flags]\n---\n# OTC-355 Remove stale feature flags (October)\n\n**Type:** Task · **Priority:** Low · **Status:** Done · **Assignee:** daniel\n\n## Description\n\nMonthly cleanup per the [feature flag guide](../notion/feature-flag-guide): remove flags that have been at 100% for more than 30 days. October list has 14 flags, including `checkout.new-summary`, `orders.v2-history`, and `exp.home-banner-b`.\n\n## Comments\n\n- daniel (10-08): 14 flags removed from code and the flag console. `payments.capture-retry` stays — it is an operational kill switch, not a release flag.\n"
+  }, {
+    "id" : "jira/OTC-360",
+    "title" : "OTC-360 주문 전환율 정의 통일",
+    "body" : "---\nupdated: 2026-09-06T00:00:00Z\ntags: [jira, task, data]\n---\n# OTC-360 주문 전환율 정의 통일\n\n**유형:** Task · **우선순위:** Medium · **상태:** Done · **담당:** yuna\n\n## 설명\n\n대시보드마다 주문 전환율 분모가 달랐다(앱 방문 세션 vs 장바구니 담은 세션). [핵심 지표 정의](../notion/metrics-definitions)에 맞춰 \"장바구니 담은 세션\"으로 통일하고, 9월 1일 이전 데이터에는 주석을 단다.\n\n## 댓글\n\n- yuna (09-06): 전 대시보드 반영 완료. 정의 변경으로 수치가 2.1%p 오른 것처럼 보이는 점을 주간 리포트에 명시.\n"
+  }, {
+    "id" : "notion/coupon-policy",
+    "title" : "쿠폰 정책",
+    "body" : "---\nupdated: 2026-09-11T00:00:00Z\ntags: [policy, coupons, product]\n---\n# 쿠폰 정책\n\n## 중복 적용\n\n- 한 주문에 **상품 쿠폰 1장 + 배송비 쿠폰 1장**까지 함께 쓸 수 있다.\n- 상품 쿠폰끼리는 중복 적용할 수 없다. 두 장을 고르면 할인액이 큰 쪽만 적용한다.\n- 할인 합계는 상품 금액의 50%를 넘을 수 없다.\n\n## 적용 순서\n\n정률 쿠폰을 먼저 계산하고 정액 쿠폰을 나중에 뺀다. 배송비 쿠폰은 마지막에 적용한다.\n\n## 취소·환불\n\n주문을 전체 취소하면 쿠폰은 복원된다. 부분 취소는 쿠폰을 복원하지 않고 할인액을 비율대로 나눠 환불한다.\n\n관련 버그: 상품 쿠폰 두 장이 모두 차감되던 문제 [OTC-301](../jira/OTC-301).\n"
+  }, {
+    "id" : "notion/delivery-time-slots-prd",
+    "title" : "PRD: 배송 시간대 선택",
+    "body" : "---\nupdated: 2026-09-08T00:00:00Z\ntags: [prd, product, delivery]\n---\n# PRD: 배송 시간대 선택\n\n## 문제\n\n지금은 \"가능한 빨리\" 배송만 있다. 고객 인터뷰에서 퇴근 후 받고 싶다는 요구가 많았고, 저녁 피크에 라이더가 부족하다.\n\n## 요구사항\n\n- 주문 화면에서 오늘·내일의 2시간 단위 시간대를 고른다(10:00~22:00).\n- 시간대마다 수용량(라이더 수 기반)을 두고, 차면 선택할 수 없게 한다.\n- 시간대 주문은 시작 30분 전에 배차한다.\n- 시간대 변경은 시작 1시간 전까지 가능하다.\n\n## 성공 지표\n\n- 저녁 피크(18~20시) 지각 배송률 20% 감소\n- 시간대 선택 주문 비율 15% 이상\n\n## 범위 밖\n\n정기 배송, 시간대별 배송비 차등.\n\n구현 이슈: [OTC-350](../jira/OTC-350)\n"
+  }, {
+    "id" : "notion/feature-flag-guide",
+    "title" : "기능 플래그 가이드",
+    "body" : "---\nupdated: 2026-09-16T00:00:00Z\ntags: [guide, feature-flags]\n---\n# 기능 플래그 가이드\n\n## 이름 규칙\n\n`<서비스>.<기능>` 형식(예: `payments.capture-retry`, `dispatch.batching`). 실험 플래그는 `exp.` 접두사를 붙인다.\n\n## 수명\n\n- 모든 플래그는 만들 때 담당자와 만료일을 적는다. 기본 만료는 90일.\n- 100% 켜진 지 30일이 지난 플래그는 오래된 플래그(stale flag)로 보고 코드에서 지운다.\n- 매달 첫 주에 플랫폼 팀이 오래된 플래그 목록을 `#eng-general`에 올린다([OTC-355](../jira/OTC-355)).\n\n## 온콜이 끌 수 있는 플래그\n\n`payments.*`, `dispatch.*`, `notify.*`는 장애 시 온콜이 승인 없이 끌 수 있다. 끈 사실은 `#oncall`에 남긴다.\n"
+  }, {
+    "id" : "notion/incident-severity-levels",
+    "title" : "Incident severity levels",
+    "body" : "---\nupdated: 2026-07-30T00:00:00Z\ntags: [oncall, incident]\n---\n# Incident severity levels\n\n## SEV1\n\nCustomers cannot order or pay, money is moved incorrectly (double charges, wrong refunds), or personal data is exposed. Page immediately, open an incident channel, assign an incident commander, update every 30 minutes. Postmortem required within 5 business days.\n\n## SEV2\n\nA major feature is degraded for many customers but there is a workaround: delayed push notifications, slow checkout (p95 > 3 s), one region's dispatch failing. Page the primary on-call. Postmortem required.\n\n## SEV3\n\nMinor bugs or internal tooling issues with no customer money or data impact. Create a ticket; handle in business hours. No postmortem needed.\n\n## Upgrading and downgrading\n\nAnyone can upgrade the severity. Only the incident commander downgrades it, and they say why in the channel.\n"
+  }, {
+    "id" : "notion/inventory-sync-v2-cdc",
+    "title" : "재고 동기화 v2: CDC 기반 설계",
+    "body" : "---\nupdated: 2026-09-05T00:00:00Z\ntags: [design, inventory]\n---\n# 재고 동기화 v2: CDC 기반 설계\n\n## 배경\n\n지금 inventory-sync는 15분마다 매장 POS의 재고 전체를 폴링한다. 재고가 화면에 늦게 반영돼 품절 상품 주문이 하루 평균 230건 생기고, 그중 대부분이 주문 취소로 이어진다. 8월 말 폴링 배치가 밀리면서 지연이 40분까지 늘었다.\n\n## 제안\n\n매장 POS 연동 서버가 재고 변경 이벤트를 내보내게 하고(CDC), inventory-sync는 이벤트를 구독해 변경분만 반영한다. 목표 지연은 1분 이내.\n\n- 이벤트: `stock.changed {storeId, sku, quantity, version}` — `version`이 낮은 이벤트는 버린다.\n- 전체 폴링은 하루 한 번 대사(reconciliation)용으로만 남긴다.\n- 이벤트 유실 대비: 매장별 마지막 version을 저장하고, 끊김이 감지되면 그 매장만 전체 동기화한다.\n\n## 단계\n\n1. POS 연동 서버 2곳(파일럿 매장 12개)에서 이벤트 발행\n2. 그림자 모드로 기존 폴링 결과와 비교\n3. 전 매장 전환, 폴링 주기를 15분 → 24시간으로\n\n작업 이슈: [OTC-275](../jira/OTC-275)\n"
+  }, {
+    "id" : "notion/metrics-definitions",
+    "title" : "핵심 지표 정의",
+    "body" : "---\nupdated: 2026-09-04T00:00:00Z\ntags: [data, metrics]\n---\n# 핵심 지표 정의\n\n## 주문 전환율\n\n**주문 전환율 = 결제 완료 주문 수 / 장바구니에 상품을 담은 세션 수.** 같은 세션의 여러 주문은 1건으로 센다. 9월 1일부터 분모를 \"앱 방문 세션\"에서 \"장바구니 담은 세션\"으로 바꿨다 — 이전 대시보드와 직접 비교하지 않는다([OTC-360](../jira/OTC-360)).\n\n## 배송 소요 시간\n\n결제 완료 시각부터 배달 완료 시각까지. 중앙값과 p90을 함께 본다. 고객이 고른 배송 시간대 주문은 제외한다.\n\n## 지각 배송률\n\n배송 소요 시간이 45분을 넘은 주문의 비율.\n\n## 품절 취소율\n\n품절 때문에 취소된 주문 / 전체 주문.\n"
+  }, {
+    "id" : "notion/onboarding-guide-backend",
+    "title" : "백엔드 신규 입사자 온보딩 가이드",
+    "body" : "---\nupdated: 2026-09-01T00:00:00Z\ntags: [onboarding, backend]\n---\n# 백엔드 신규 입사자 온보딩 가이드\n\n## 첫 주 체크리스트\n\n- 사내 계정, GitHub 조직, 클라우드 콘솔 읽기 권한 요청(IT 헬프데스크 폼)\n- `#eng-general`, `#help-dev`, `#release`, `#oncall` 채널 참여\n- 버디와 30분 1:1 — 서비스 지도(order-api, payment-gateway, dispatch, inventory-sync, notify) 설명 듣기\n\n## 로컬 개발 환경\n\n1. JDK 21과 Docker Desktop을 설치한다.\n2. `ottercart/platform` 저장소를 받고 `make dev-up`으로 PostgreSQL·Redis·가짜 Bramblepay를 띄운다.\n3. Apple silicon(M 시리즈) 맥에서는 `DOCKER_DEFAULT_PLATFORM=linux/arm64`를 설정한다. amd64 이미지로 빌드하면 느리고 일부 테스트가 실패한다.\n4. `./gradlew test`가 통과하면 준비 끝.\n\n## 코드 리뷰와 배포\n\n- PR은 최소 1명 승인, 결제 경로(payment-gateway, checkout)는 checkout 팀 승인이 필수다.\n- 배포는 매주 화·목 오후 2시 릴리스 트레인. 핫픽스는 온콜 승인 후 언제든 가능.\n\n## 온콜\n\n입사 6주 차부터 온콜 섀도잉을 시작한다. 절차는 [온콜 런북](oncall-runbook)을 본다.\n"
+  }, {
+    "id" : "notion/oncall-runbook",
+    "title" : "온콜 런북 (On-call runbook)",
+    "body" : "---\nupdated: 2026-09-12T00:00:00Z\ntags: [oncall, runbook]\n---\n# 온콜 런북 (On-call runbook)\n\n## 페이지를 받으면\n\n1. 5분 안에 페이지를 ack한다. ack하지 않으면 10분 뒤 세컨더리로 넘어간다.\n2. `#oncall`에 \"보고 있음\" 한 줄을 남긴다.\n3. 심각도를 정한다 — 기준은 [incident severity levels](incident-severity-levels).\n\n## SEV1 에스컬레이션\n\nSEV1이면 즉시 인시던트 채널(`#inc-<서비스>`)을 열고 인시던트 커맨더(IC)를 지정한다. 15분 안에 원인을 못 찾으면 해당 서비스 팀 리드에게 전화한다. 결제 관련 SEV1은 CS 리드와 재무팀에도 알린다. 30분마다 상태 업데이트를 올린다.\n\n## 자주 쓰는 조치\n\n- 기능 플래그 끄기: 플래그 콘솔에서 `payments.*`, `dispatch.*` 플래그는 온콜이 직접 끌 수 있다.\n- 롤백: `deploy rollback <service> --to <version>`. 롤백 전에 DB 마이그레이션 여부를 확인한다.\n- 큐 적체: notify 큐 깊이가 2만을 넘으면 컨슈머를 늘린다(`scale notify-consumer 8`).\n\n## 인수인계\n\n교대 시 `#oncall`에 진행 중 이슈, 끈 플래그, 다음 담당자에게 넘길 것을 적는다.\n"
+  }, {
+    "id" : "notion/order-api-v2-design",
+    "title" : "Order API v2 design",
+    "body" : "---\nupdated: 2026-08-29T05:00:00Z\ntags: [design, api, orders]\n---\n# Order API v2 design\n\n## Goals\n\nOrder API v1 uses offset pagination and has no idempotency support. Partners (store POS integrations) retry aggressively and create duplicate orders. v2 fixes both and standardises errors.\n\n## Idempotency\n\nEvery `POST /v2/orders` and `POST /v2/orders/{id}/cancel` request must send an `Idempotency-Key` header (UUID v4). The server stores the key with the response for 24 hours. A repeated key with the same body returns the stored response; a repeated key with a different body returns `409 IDEMPOTENCY_KEY_REUSED`. Clients must reuse the same key when they retry.\n\n## Pagination\n\nList endpoints use cursor pagination: `GET /v2/orders?limit=50&cursor=<opaque>`. The response has `nextCursor`, which is null on the last page. `limit` is 1-100, default 20. Offset pagination (`page`, `offset`) is not supported in v2. v1 offset pagination will be removed on 2026-12-01 ([OTC-295](../jira/OTC-295)).\n\n## Errors\n\nErrors use one shape: `{\"error\": {\"code\": \"ORDER_NOT_FOUND\", \"message\": \"...\", \"requestId\": \"...\"}}`. Codes are stable strings; messages are for humans and can change.\n\n## Rate limits\n\n300 requests per minute per partner key. Over the limit the API returns `429` with a `Retry-After` header in seconds.\n\n## Rollout\n\nImplemented in [OTC-290](../jira/OTC-290). v1 and v2 run side by side until the v1 removal date.\n"
+  }, {
+    "id" : "notion/payment-gateway-architecture",
+    "title" : "payment-gateway architecture",
+    "body" : "---\nupdated: 2026-09-20T00:00:00Z\ntags: [architecture, payments]\n---\n# payment-gateway architecture\n\n## Responsibilities\n\npayment-gateway is the only service that talks to Bramblepay, our card payment provider. It authorises at checkout, captures when the store accepts the order, and refunds on cancellation.\n\n## Flow\n\n1. checkout calls `POST /payments/authorize` with the order id and amount.\n2. When the store accepts, order-api calls `POST /payments/{id}/capture`.\n3. payment-gateway sends the capture to Bramblepay with an `Idempotency-Key` derived from the payment id and attempt group, so retries of the same capture reuse the key.\n\n## Retries\n\nCapture calls time out after 5 seconds and are retried once, behind the flag `payments.capture-retry`. Since the September duplicate charge incident the retry must reuse the original idempotency key; a unit test enforces it.\n\n## Monitoring\n\n- `payments.capture.duplicate` alert: two successful captures for one order within 10 minutes.\n- Bramblepay latency dashboard (p50/p99 per endpoint).\n"
+  }, {
+    "id" : "notion/postgres-17-upgrade-plan",
+    "title" : "PostgreSQL 17 업그레이드 계획",
+    "body" : "---\nupdated: 2026-08-22T00:00:00Z\ntags: [platform, database]\n---\n# PostgreSQL 17 업그레이드 계획\n\n## 범위\n\n주문 DB(orders-db)와 재고 DB(inventory-db)를 PostgreSQL 15에서 17로 올린다. 작업 이슈 [OTC-288](../jira/OTC-288).\n\n## 방법\n\n논리 복제로 17 클러스터를 미리 따라오게 한 뒤, 점검 시간에 쓰기를 멈추고 전환한다. 예상 쓰기 중단은 10분 이내.\n\n## 점검 시간\n\n- 1차(재고 DB): 2026-09-29 (화) 03:00~04:00 KST\n- 2차(주문 DB): 2026-10-06 (화) 03:00~04:00 KST\n- 점검 동안 주문 접수는 막고 앱에 안내 배너를 띄운다.\n\n## 되돌리기\n\n전환 후 1시간 안에 문제가 생기면 15 클러스터로 다시 쓰기를 돌린다. 전환 직전 스냅숏을 남긴다.\n"
+  }, {
+    "id" : "notion/postmortem-2026-09-07-duplicate-charges",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1)",
+    "body" : "---\nupdated: 2026-09-10T09:00:00Z\ntags: [postmortem, payments, sev1]\n---\n# 포스트모템: 2026-09-07 결제 중복 승인 (SEV1)\n\n## 요약\n\n2026-09-07 02:10~03:05(KST) 사이 일부 주문에서 카드 결제가 두 번 승인됐다. 영향 주문 412건, 고객 397명, 중복 승인 금액 합계 약 1,180만 원. 전액 환불은 9월 9일에 끝났다([OTC-318](../jira/OTC-318)).\n\n## 타임라인\n\n- 02:10 payment-gateway 배포 3.4.0-hotfix1 완료\n- 02:14 Bramblepay 승인 API 응답 지연(p99 9초) 시작\n- 02:20 CS 채널에 \"두 번 결제됐다\" 문의 첫 접수\n- 02:41 온콜(minji) 페이지 수신, SEV2 선언\n- 02:52 중복 승인 확인, SEV1로 상향, 재시도 기능 플래그 `payments.capture-retry` 끔\n- 03:05 신규 중복 승인 0건 확인\n\n## 근본 원인\n\npayment-gateway는 Bramblepay 승인 요청이 5초 안에 응답하지 않으면 한 번 재시도한다. 핫픽스에서 재시도 경로가 **멱등 키(Idempotency-Key) 헤더를 새로 생성**하도록 바뀌었다. Bramblepay는 첫 요청을 늦게나마 처리했고, 재시도는 다른 키라 별개 승인으로 처리됐다. 리뷰에서 재시도 경로 테스트가 없었다.\n\n## 잘한 점 / 아쉬운 점\n\n- 잘한 점: 기능 플래그로 15분 안에 재시도를 끌 수 있었다.\n- 아쉬운 점: 중복 승인 알림이 없어 CS 문의로 처음 알았다. 온콜 페이지까지 31분이 걸렸다.\n\n## 후속 조치\n\n| 항목 | 담당 | 이슈 |\n|---|---|---|\n| 재시도 시 원래 멱등 키 재사용 | jaehoon | [OTC-311](../jira/OTC-311) |\n| 같은 주문·금액 승인 2건 이상이면 알림 | sora | [OTC-312](../jira/OTC-312) |\n| 중복 승인 환불 스크립트 | jaehoon | [OTC-318](../jira/OTC-318) |\n| 결제 경로 변경은 checkout 팀 리뷰 필수 | daniel | - |\n"
+  }, {
+    "id" : "notion/postmortem-2026-10-02-push-delay",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2)",
+    "body" : "---\nupdated: 2026-10-05T08:00:00Z\ntags: [postmortem, notify, sev2]\n---\n# Postmortem: 2026-10-02 push notification delay (SEV2)\n\n## Summary\n\nFrom 18:05 to 19:40 KST on 2026-10-02, order status push notifications (\"rider picked up\", \"arriving in 5 min\") were delayed by up to 47 minutes on iOS. Android was not affected. About 21,000 notifications were late; none were lost.\n\n## Root cause\n\nThe notify service refreshes its APNs auth token every 50 minutes. The refresh call ran **inside the queue consumer thread**. When the APNs token endpoint started timing out, every consumer blocked on the refresh for 30 seconds, and the `notify.ios` queue backed up to 180k messages. See [OTC-340](../jira/OTC-340).\n\n## Detection\n\nWe had no alert on queue depth. Customers reported late pushes in app reviews and CS tickets; the on-call engineer noticed at 18:52 from the dashboard.\n\n## Fix\n\n- Moved token refresh to a background scheduler with the old token kept until the new one is ready.\n- Added an alert when `notify.ios` depth > 20k for 5 minutes ([OTC-341](../jira/OTC-341)).\n- Consumers now use a 3 second timeout for any APNs call.\n\n## Lessons\n\nNever do credential refresh on the hot path. The same pattern exists in the SMS sender; it is tracked in the same ticket.\n"
+  }, {
+    "id" : "notion/release-notes-3-4-0",
+    "title" : "Release notes 3.4.0 (2026-09-24)",
+    "body" : "---\nupdated: 2026-09-24T07:00:00Z\ntags: [release]\n---\n# Release notes 3.4.0 (2026-09-24)\n\n## Customer app\n\n- Order history now loads with cursor pagination from Order API v2 — scrolling long histories is faster.\n- Fixed a crash on Android when the saved address list was empty at checkout ([OTC-352](../jira/OTC-352)).\n\n## Payments\n\n- Payment capture retries reuse the original idempotency key ([OTC-311](../jira/OTC-311)). The capture retry flag is back on.\n- New alert for duplicate captures on the same order ([OTC-312](../jira/OTC-312)).\n\n## Dispatch\n\n- Rider order batching rolled out to 30% of riders in Seoul ([OTC-322](../jira/OTC-322)).\n\n## Known issues\n\n- The checkout end-to-end test is still flaky on CI ([OTC-327](../jira/OTC-327)).\n"
+  }, {
+    "id" : "notion/release-notes-3-5-0",
+    "title" : "릴리스 노트 3.5.0 (2026-10-14)",
+    "body" : "---\nupdated: 2026-10-14T07:00:00Z\ntags: [release]\n---\n# 릴리스 노트 3.5.0 (2026-10-14)\n\n## 고객 앱\n\n- 배송 시간대 선택: 주문 시 2시간 단위 배송 시간대를 고를 수 있다(서울 일부 지역, [OTC-350](../jira/OTC-350)).\n- 쿠폰을 두 장 이상 적용할 때 할인 금액이 두 번 차감되던 버그 수정([OTC-301](../jira/OTC-301)).\n\n## 알림\n\n- iOS 푸시 지연 재발 방지: APNs 토큰 갱신을 백그라운드로 옮겼다([OTC-340](../jira/OTC-340)).\n- notify 큐 적체 알림 추가([OTC-341](../jira/OTC-341)).\n\n## 플랫폼\n\n- PostgreSQL 17 업그레이드 완료([OTC-288](../jira/OTC-288)).\n- 오래된 기능 플래그 14개 제거([OTC-355](../jira/OTC-355)).\n\n## 알려진 문제\n\n- 일부 매장의 재고 반영이 최대 10분 늦을 수 있다. 재고 동기화 v2(CDC) 작업 중([OTC-275](../jira/OTC-275)).\n"
+  }, {
+    "id" : "notion/rider-batching-experiment",
+    "title" : "Rider batching experiment (Seoul, 2026-08-25 ~ 09-14)",
+    "body" : "---\nupdated: 2026-09-17T00:00:00Z\ntags: [experiment, dispatch]\n---\n# Rider batching experiment (Seoul, 2026-08-25 ~ 09-14)\n\n## Hypothesis\n\nLetting one rider carry two orders from the same store when drop-offs are within 800 m reduces cost per delivery without hurting delivery time.\n\n## Setup\n\nA/B test on 20% of Seoul riders for three weeks. Control: one order per trip. Treatment: dispatch may batch two orders when the second order is ready within 4 minutes.\n\n## Results\n\n- Cost per delivery: -11.8% (95% CI -13.1% to -10.4%)\n- Median delivery time: +2.1 minutes (24.3 → 26.4 min)\n- Late deliveries (> 45 min): 3.9% → 4.4%\n- Customer rating: no significant change\n\n## Decision\n\nRoll out to 30% of riders, but cap the batching radius at 600 m to keep the median increase under 2 minutes. Rollout ticket: [OTC-322](../jira/OTC-322).\n"
+  }, {
+    "id" : "notion/secret-rotation-policy",
+    "title" : "시크릿 교체 정책",
+    "body" : "---\nupdated: 2026-08-15T00:00:00Z\ntags: [security, policy]\n---\n# 시크릿 교체 정책\n\n## 주기\n\n- 결제 대행사(Bramblepay) API 키: 90일마다 교체. 교체 기간에는 신·구 키를 24시간 동시에 허용한다.\n- 데이터베이스 비밀번호: 180일마다.\n- 개인 액세스 토큰: 만료 30일 이하로만 발급.\n\n## 절차\n\n1. 보안 담당이 교체 티켓을 만든다(예: [OTC-333](../jira/OTC-333)).\n2. 새 키를 시크릿 저장소에 넣고, 서비스는 재배포 없이 5분 안에 읽어 간다.\n3. 24시간 뒤 구 키를 폐기하고 감사 로그를 티켓에 첨부한다.\n\n## 금지\n\n시크릿을 Slack, 이슈, 코드에 붙여 넣지 않는다. 실수로 노출하면 즉시 `#security`에 알리고 바로 교체한다.\n"
+  }, {
+    "id" : "slack/api/2026-09-01-order-api-v2-review",
+    "title" : "#api Order API v2 design review",
+    "body" : "---\nupdated: 2026-09-01T08:00:00Z\ntags: [slack, api, design-review]\n---\n# #api Order API v2 design review\n\n**priya** Design doc for Order API v2 is ready for review: [Order API v2 design](../../notion/order-api-v2-design). Main changes: mandatory Idempotency-Key on POST, cursor pagination, one error shape.\n\n**jaehoon** For idempotency, please store the response body with the key, not just the status. Partners retry and expect the same order id back.\n\n**priya** Yes, we store the full response for 24 hours. Same key with a different body returns 409 IDEMPOTENCY_KEY_REUSED.\n\n**sora** What about partners still on offset pagination? A few POS vendors depend on `page`.\n\n**priya** v1 keeps working until 2026-12-01; we send Deprecation and Sunset headers before that. Tracking in [OTC-295](../../jira/OTC-295).\n"
+  }, {
+    "id" : "slack/cs-escalations/2026-09-07-charged-twice",
+    "title" : "#cs-escalations 고객 이중 결제 문의 급증",
+    "body" : "---\nupdated: 2026-09-07T02:35:00Z\ntags: [slack, cs, payments]\n---\n# #cs-escalations 고객 이중 결제 문의 급증\n\n**hana (CS)** 02:20 새벽인데 \"카드 결제가 두 번 됐다\"는 채팅 문의가 계속 들어옵니다. 주문 번호는 다르지 않고 같은 주문에 승인 문자가 두 번 왔다고 해요.\n\n**hana (CS)** 02:28 지금까지 14건입니다. 카드사 앱 캡처를 보면 같은 금액이 1~2분 간격으로 두 번 승인됐어요.\n\n**hana (CS)** 02:35 온콜 엔지니어 호출했습니다. 고객에게는 \"확인 후 중복 금액은 전액 환불된다\"고 안내 중입니다. 매크로 답변 필요하면 말씀 주세요.\n"
+  }, {
+    "id" : "slack/data/2026-09-03-conversion-metric-drop",
+    "title" : "#data 주문 전환율이 갑자기 바뀌었어요",
+    "body" : "---\nupdated: 2026-09-03T03:00:00Z\ntags: [slack, data, metrics]\n---\n# #data 주문 전환율이 갑자기 바뀌었어요\n\n**seoyeon (PM)** 주간 대시보드에서 주문 전환율이 9월 1일부터 2%p 넘게 올랐어요. 실제로 좋아진 건가요?\n\n**yuna** 아니요, 9월 1일부터 분모를 \"앱 방문 세션\"에서 \"장바구니 담은 세션\"으로 바꿔서 그래요. 대시보드마다 정의가 달라서 통일하는 중입니다([OTC-360](../../jira/OTC-360)). 정의는 [핵심 지표 정의](../../notion/metrics-definitions)에 있어요.\n\n**seoyeon (PM)** 그럼 8월 수치와 비교할 때는 주석이 필요하겠네요.\n\n**yuna** 네, 9월 이전 데이터에 주석 달겠습니다.\n"
+  }, {
+    "id" : "slack/dispatch/2026-09-18-batching-experiment",
+    "title" : "#dispatch 라이더 묶음 배송 실험 결과 논의",
+    "body" : "---\nupdated: 2026-09-18T04:00:00Z\ntags: [slack, dispatch, experiment]\n---\n# #dispatch 라이더 묶음 배송 실험 결과 논의\n\n**kevin** Batching experiment results are in the [experiment page](../../notion/rider-batching-experiment): cost per delivery -11.8%, median delivery time +2.1 min.\n\n**seoyeon (PM)** 비용 절감은 좋은데 배송 시간 2분 증가는 고객이 체감할 것 같아요. 지각 배송률도 4.4%로 올랐고요.\n\n**kevin** 반경을 800m에서 600m로 줄이면 시뮬레이션상 중앙값 증가가 1.5분 정도입니다. 그렇게 30% 롤아웃하면 어떨까요?\n\n**seoyeon (PM)** 좋아요. 지각 배송률 4.5% 넘으면 바로 줄이는 조건으로 갑시다. [OTC-322](../../jira/OTC-322)\n"
+  }, {
+    "id" : "slack/eng-general/2026-08-20-postgres-17-upgrade",
+    "title" : "#eng-general PostgreSQL 17 업그레이드 공지",
+    "body" : "---\nupdated: 2026-08-20T06:00:00Z\ntags: [slack, platform, database]\n---\n# #eng-general PostgreSQL 17 업그레이드 공지\n\n**daniel** 주문 DB와 재고 DB를 PostgreSQL 17로 올립니다. 점검 시간은 재고 DB 9월 29일(화) 03:00~04:00, 주문 DB 10월 6일(화) 03:00~04:00입니다. 점검 동안 주문 접수가 막힙니다. 자세한 건 [업그레이드 계획](../../notion/postgres-17-upgrade-plan).\n\n**priya** 확장 기능 버전도 같이 바뀌나요? pg_trgm 쓰는 쿼리가 있어서요.\n\n**daniel** pg_trgm은 그대로 지원됩니다. 스테이징은 이미 17이라 거기서 쿼리 플랜 한 번 확인 부탁드려요.\n\n**hyejin** 재고 DB 점검 때 inventory-sync 배치는 멈춰 둘게요.\n"
+  }, {
+    "id" : "slack/eng-general/2026-09-15-feature-flag-cleanup",
+    "title" : "#eng-general Stale feature flag cleanup for October",
+    "body" : "---\nupdated: 2026-09-15T02:00:00Z\ntags: [slack, feature-flags]\n---\n# #eng-general Stale feature flag cleanup for October\n\n**daniel** Monthly reminder: 14 flags have been at 100% for more than 30 days. Owners, please remove them from code before Oct 8 — list in [OTC-355](../../jira/OTC-355). Rules are in the [feature flag guide](../../notion/feature-flag-guide).\n\n**jiwoo** `checkout.new-summary` is mine, PR is up.\n\n**jaehoon** Please do not remove `payments.capture-retry`. It is the kill switch we used during the duplicate charge incident.\n\n**daniel** Right, kill switches are exempt. I'll tag them as operational in the console.\n"
+  }, {
+    "id" : "slack/help-dev/2026-08-26-docker-arm-build",
+    "title" : "#help-dev M1 맥에서 docker 빌드가 실패해요",
+    "body" : "---\nupdated: 2026-08-26T08:00:00Z\ntags: [slack, help, docker]\n---\n# #help-dev M1 맥에서 docker 빌드가 실패해요\n\n**yuna** 새 맥북(M3)에서 `make dev-up` 하면 fake-bramblepay 이미지 빌드가 `exec format error`로 실패합니다. 다른 분들은 어떻게 하셨나요?\n\n**priya** Apple silicon이면 `DOCKER_DEFAULT_PLATFORM=linux/arm64` 설정하세요. 예전 문서엔 amd64로 돼 있는데 그러면 에뮬레이션이라 느리고 테스트 몇 개가 타임아웃 나요.\n\n**yuna** 설정하니 빌드는 되는데 Redis 컨테이너가 안 뜹니다.\n\n**priya** Redis 이미지는 `redis:7` 공식 이미지로 바꿔야 해요. 예전 사내 이미지는 amd64만 있었어요. 온보딩 문서에 반영해 둘게요.\n\n**yuna** 해결됐습니다, 감사합니다!\n"
+  }, {
+    "id" : "slack/help-dev/2026-09-22-flaky-checkout-test",
+    "title" : "#help-dev Checkout e2e test keeps failing on CI",
+    "body" : "---\nupdated: 2026-09-22T09:00:00Z\ntags: [slack, help, testing]\n---\n# #help-dev Checkout e2e test keeps failing on CI\n\n**jiwoo** `CheckoutFlowE2ETest.paysWithSavedCard` failed on my PR again, timeout waiting for the confirmation screen. Passes locally every time. Anyone seen this?\n\n**sora** Yes, it is flaky for everyone, roughly 1 in 12 runs. Retrying usually works.\n\n**jiwoo** I looked at the CI logs: the fake Bramblepay container sometimes starts after the app, so the first authorise call hits a closed port and the client backs off 10 seconds. I'll add a readiness check instead of the `sleep 5`. Tracking in [OTC-327](../../jira/OTC-327).\n"
+  }, {
+    "id" : "slack/inc-notify/2026-10-02-push-delay",
+    "title" : "#inc-notify iOS push notifications delayed",
+    "body" : "---\nupdated: 2026-10-02T19:50:00Z\ntags: [slack, incident, notify]\n---\n# #inc-notify iOS push notifications delayed\n\n**kevin** 18:52 Customers say \"arriving in 5 min\" pushes come after the rider is already at the door. notify.ios queue depth is 160k and climbing. Declaring SEV2.\n\n**kevin** 19:01 Consumers are all stuck in `ApnsTokenProvider.refresh()`. The APNs token endpoint is timing out at 30 s and the refresh runs on the consumer thread.\n\n**priya** 19:06 Can we pin the old token for now? It is valid for another ~10 minutes.\n\n**kevin** 19:12 Deployed a hotfix that skips the refresh if the current token has > 5 min left, and scaled consumers to 12. Queue draining at ~3k/s.\n\n**kevin** 19:40 Queue back under 1k. Android was never affected. Follow-ups: move refresh off the hot path ([OTC-340](../../jira/OTC-340)) and add a queue depth alert ([OTC-341](../../jira/OTC-341)). Postmortem on Monday.\n"
+  }, {
+    "id" : "slack/inc-payments/2026-09-07-duplicate-charges",
+    "title" : "#inc-payments 결제 중복 승인 장애 대응 스레드",
+    "body" : "---\nupdated: 2026-09-07T03:20:00Z\ntags: [slack, incident, payments]\n---\n# #inc-payments 결제 중복 승인 장애 대응 스레드\n\n**minji** 02:41 페이지 받았습니다. CS에서 \"두 번 결제됐다\" 문의가 10건 넘게 들어왔다고 합니다. SEV2로 시작할게요.\n\n**jaehoon** 02:45 Bramblepay 승인 API가 02:14부터 p99 9초입니다. 우리 쪽 capture 타임아웃이 5초라 재시도가 많이 나가고 있어요.\n\n**jaehoon** 02:50 재시도 요청 로그를 보니 Idempotency-Key가 첫 요청과 다릅니다. 어젯밤 hotfix1에서 재시도 경로가 키를 새로 만들게 바뀐 것 같아요. 그래서 Bramblepay가 두 번 승인합니다.\n\n**minji** 02:52 중복 승인 확인, SEV1로 올립니다. IC는 제가 할게요. `payments.capture-retry` 플래그 끕니다.\n\n**daniel** 02:58 CS 리드랑 재무팀에 공유했습니다. 영향 범위 쿼리 돌리는 중.\n\n**minji** 03:05 플래그 끈 뒤로 신규 중복 승인 0건. 영향 주문은 잠정 412건입니다. 환불은 내일 아침 스크립트로 처리하고([OTC-318](../../jira/OTC-318)), 근본 수정은 [OTC-311](../../jira/OTC-311)로 잡았습니다.\n\n**minji** 03:20 모니터링 계속하고 SEV1 유지합니다. 포스트모템은 수요일까지.\n"
+  }, {
+    "id" : "slack/inc-payments/2026-09-08-refund-progress",
+    "title" : "#inc-payments 중복 승인 환불 진행 상황",
+    "body" : "---\nupdated: 2026-09-09T11:30:00Z\ntags: [slack, incident, payments, refund]\n---\n# #inc-payments 중복 승인 환불 진행 상황\n\n**jaehoon** 09-08 10:05 Refund script dry-run done: 412 orders, 11,820,400 KRW. Finance confirmed the list.\n\n**jaehoon** 09-08 15:10 1차 실행 결과: 380건 환불 성공, 32건은 카드사 응답 지연으로 보류. 보류 건은 내일 오전에 다시 돌립니다.\n\n**sora** 09-08 15:30 Duplicate capture alert draft is up for review ([OTC-312](../../jira/OTC-312)). Backtest catches all 412 within 2 minutes.\n\n**jaehoon** 09-09 11:05 보류 32건 재실행 전부 성공. 환불 412건 완료됐고 고객 안내 문자 나갔습니다.\n\n**minji** 09-09 11:30 수고하셨습니다. SEV1 종료합니다. 포스트모템 초안: [포스트모템](../../notion/postmortem-2026-09-07-duplicate-charges)\n"
+  }, {
+    "id" : "slack/inventory/2026-08-28-stock-lag",
+    "title" : "#inventory 재고 반영 지연으로 품절 주문 증가",
+    "body" : "---\nupdated: 2026-08-28T10:00:00Z\ntags: [slack, inventory]\n---\n# #inventory 재고 반영 지연으로 품절 주문 증가\n\n**hana (CS)** 오늘 품절 취소 문의가 평소의 세 배예요. 앱에는 재고 있다고 나오는데 매장에선 없다고 합니다.\n\n**hyejin** 재고 폴링 배치가 밀려서 반영 지연이 40분까지 늘었어요. 매장 수가 늘면서 15분 주기 전체 폴링이 한 주기 안에 안 끝납니다.\n\n**daniel** 임시로 폴링 워커를 두 배로 늘릴게요. 근본적으로는 변경분만 받는 방식이 필요해 보입니다.\n\n**hyejin** 이벤트(CDC) 기반 설계를 쓰고 있어요. 초안 나오면 공유하겠습니다 — [재고 동기화 v2](../../notion/inventory-sync-v2-cdc)\n"
+  }, {
+    "id" : "slack/oncall/2026-10-09-handoff",
+    "title" : "#oncall Weekly on-call handoff (Oct 2 - Oct 9)",
+    "body" : "---\nupdated: 2026-10-09T00:30:00Z\ntags: [slack, oncall]\n---\n# #oncall Weekly on-call handoff (Oct 2 - Oct 9)\n\n**kevin** Handoff to priya.\n- Incidents: SEV2 iOS push delay on Oct 2 (postmortem done, [OTC-340](../../jira/OTC-340) shipped).\n- Flags currently off: none. `payments.capture-retry` is on.\n- Watch: inventory-sync lag is still up to 10 minutes for some stores until the CDC migration lands.\n- Noisy alert: Bramblepay latency p99 fires during their nightly maintenance (02:00-02:30); consider a mute window.\n\n**priya** Got it, thanks. I'll ack the Bramblepay alert during the maintenance window and propose a mute rule.\n"
+  }, {
+    "id" : "slack/product/2026-09-10-coupon-stacking",
+    "title" : "#product 쿠폰 두 장 중복 적용 문의",
+    "body" : "---\nupdated: 2026-09-10T05:00:00Z\ntags: [slack, product, coupons]\n---\n# #product 쿠폰 두 장 중복 적용 문의\n\n**seoyeon (PM)** CS에서 \"쿠폰 두 장이 다 적용됐다\"는 제보가 왔어요. 원래 상품 쿠폰은 한 장만 되는 거 맞죠?\n\n**jiwoo** 정책상 상품 쿠폰 1장 + 배송비 쿠폰 1장까지예요. 상품 쿠폰 두 장은 큰 쪽만 적용돼야 하는데, 지금은 앱에서만 막고 있어서 구버전 앱에서 두 장이 다 들어갑니다.\n\n**seoyeon (PM)** 서버에서도 막아 주세요. 정책은 [쿠폰 정책](../../notion/coupon-policy)에 정리돼 있어요. 할인 합계 50% 상한도 같이 확인 부탁드려요.\n\n**jiwoo** 네, [OTC-301](../../jira/OTC-301)로 잡았습니다.\n"
+  }, {
+    "id" : "slack/product/2026-10-06-delivery-slots",
+    "title" : "#product 배송 시간대 선택 베타 피드백",
+    "body" : "---\nupdated: 2026-10-06T07:00:00Z\ntags: [slack, product, delivery]\n---\n# #product 배송 시간대 선택 베타 피드백\n\n**seoyeon (PM)** 배송 시간대 선택 내부 베타 일주일 피드백 공유합니다. 저녁 7~9시 시간대가 가장 먼저 찹니다. 수용량을 라이더 수 기준으로만 잡으니 비 오는 날 부족하다는 의견이 있어요.\n\n**hyejin** 수용량 계산에 날씨 보정은 이번 범위 밖이었어요. 다음 분기 후보로 올려 두겠습니다. 정식 출시는 3.5.0([OTC-350](../../jira/OTC-350)).\n\n**kevin** 시간대 주문은 시작 30분 전에 배차하니까, 그 시간대 배차 로직은 일반 주문과 큐를 분리했습니다.\n"
+  }, {
+    "id" : "slack/release/2026-09-24-v3-4-0",
+    "title" : "#release 3.4.0 released",
+    "body" : "---\nupdated: 2026-09-24T07:10:00Z\ntags: [slack, release]\n---\n# #release 3.4.0 released\n\n**daniel** 3.4.0 is out to 100% on iOS and Android. Highlights: order history on Order API v2 cursor pagination, idempotent payment capture retries, duplicate capture alert, Android empty-address crash fix, rider batching at 30%. Full notes: [release notes 3.4.0](../../notion/release-notes-3-4-0).\n\n**sora** Capture retry flag is back on as of 14:30. Watching the duplicate capture alert.\n"
+  }, {
+    "id" : "slack/release/2026-10-14-v3-5-0",
+    "title" : "#release 3.5.0 배포 완료",
+    "body" : "---\nupdated: 2026-10-14T07:10:00Z\ntags: [slack, release]\n---\n# #release 3.5.0 배포 완료\n\n**daniel** 3.5.0 전체 배포 완료했습니다. 주요 변경: 배송 시간대 선택(서울 3개 구), 쿠폰 중복 차감 버그 수정, iOS 푸시 지연 재발 방지와 큐 적체 알림, PostgreSQL 17 전환, 오래된 기능 플래그 14개 제거. 자세한 내용은 [릴리스 노트 3.5.0](../../notion/release-notes-3-5-0).\n\n**hyejin** 재고 반영 지연은 아직 알려진 문제로 남아 있습니다. CDC 전환은 다음 릴리스 목표예요.\n"
+  }, {
+    "id" : "slack/security/2026-09-30-bramblepay-key-rotation",
+    "title" : "#security Bramblepay API 키 교체 공지",
+    "body" : "---\nupdated: 2026-09-30T09:00:00Z\ntags: [slack, security, payments]\n---\n# #security Bramblepay API 키 교체 공지\n\n**sora** 정책상 90일 주기라 오늘 09:00에 Bramblepay API 키를 교체합니다. 24시간 동안 신·구 키를 함께 허용하고 내일 09:00에 구 키를 폐기합니다. 진행은 [OTC-333](../../jira/OTC-333).\n\n**jaehoon** payment-gateway는 시크릿 저장소에서 5분 안에 새 키를 읽어 갑니다. 재배포 필요 없어요.\n\n**sora** 09:12 새 키로 승인 정상 확인했습니다.\n"
+  } ],
+  "queries" : [ {
+    "query" : "결제 중복 승인 장애 원인",
+    "expectedDocumentIds" : [ "notion/postmortem-2026-09-07-duplicate-charges", "slack/inc-payments/2026-09-07-duplicate-charges", "jira/OTC-311" ],
+    "slice" : "lexical-ko",
+    "evidenceText" : "재시도 경로가 **멱등 키(Idempotency-Key) 헤더를 새로 생성**하도록 바뀌었다"
+  }, {
+    "query" : "How do clients send an idempotency key to the Order API?",
+    "expectedDocumentIds" : [ "notion/order-api-v2-design" ],
+    "slice" : "lexical-en",
+    "evidenceText" : "must send an `Idempotency-Key` header (UUID v4)"
+  }, {
+    "query" : "why were iOS push notifications late",
+    "expectedDocumentIds" : [ "notion/postmortem-2026-10-02-push-delay", "jira/OTC-340", "slack/inc-notify/2026-10-02-push-delay" ],
+    "slice" : "paraphrase-en",
+    "evidenceText" : "The refresh call ran **inside the queue consumer thread**"
+  }, {
+    "query" : "SEV1 에스컬레이션 절차",
+    "expectedDocumentIds" : [ "notion/oncall-runbook", "notion/incident-severity-levels" ],
+    "slice" : "cross-language",
+    "evidenceText" : "15분 안에 원인을 못 찾으면 해당 서비스 팀 리드에게 전화한다"
+  }, {
+    "query" : "신규 입사자 로컬 개발 환경 설정",
+    "expectedDocumentIds" : [ "notion/onboarding-guide-backend" ],
+    "slice" : "lexical-ko",
+    "evidenceText" : "`make dev-up`으로 PostgreSQL·Redis·가짜 Bramblepay를 띄운다"
+  }, {
+    "query" : "상품 쿠폰 두 장 중복 적용 규칙",
+    "expectedDocumentIds" : [ "notion/coupon-policy", "jira/OTC-301", "slack/product/2026-09-10-coupon-stacking" ],
+    "slice" : "cross-source",
+    "evidenceText" : "상품 쿠폰끼리는 중복 적용할 수 없다"
+  }, {
+    "query" : "3.5.0 릴리스에서 바뀐 것",
+    "expectedDocumentIds" : [ "notion/release-notes-3-5-0", "slack/release/2026-10-14-v3-5-0" ],
+    "slice" : "lexical-ko",
+    "evidenceText" : "배송 시간대 선택: 주문 시 2시간 단위 배송 시간대를 고를 수 있다"
+  }, {
+    "query" : "재고 반영 지연 해결 방안",
+    "expectedDocumentIds" : [ "notion/inventory-sync-v2-cdc", "jira/OTC-275", "slack/inventory/2026-08-28-stock-lag" ],
+    "slice" : "cross-source",
+    "evidenceText" : "inventory-sync는 이벤트를 구독해 변경분만 반영한다"
+  }, {
+    "query" : "rider batching experiment effect on delivery time",
+    "expectedDocumentIds" : [ "notion/rider-batching-experiment", "slack/dispatch/2026-09-18-batching-experiment", "jira/OTC-322" ],
+    "slice" : "lexical-en",
+    "evidenceText" : "Median delivery time: +2.1 minutes (24.3 → 26.4 min)"
+  }, {
+    "query" : "Bramblepay API 키 교체 주기",
+    "expectedDocumentIds" : [ "notion/secret-rotation-policy", "jira/OTC-333", "slack/security/2026-09-30-bramblepay-key-rotation" ],
+    "slice" : "cross-source",
+    "evidenceText" : "결제 대행사(Bramblepay) API 키: 90일마다 교체"
+  }, {
+    "query" : "PostgreSQL 17 업그레이드 점검 시간",
+    "expectedDocumentIds" : [ "notion/postgres-17-upgrade-plan", "slack/eng-general/2026-08-20-postgres-17-upgrade", "jira/OTC-288" ],
+    "slice" : "lexical-ko",
+    "evidenceText" : "2차(주문 DB): 2026-10-06 (화) 03:00~04:00 KST"
+  }, {
+    "query" : "when will v1 offset pagination be removed",
+    "expectedDocumentIds" : [ "jira/OTC-295", "notion/order-api-v2-design" ],
+    "slice" : "lexical-en",
+    "evidenceText" : "will be removed on **2026-12-01**"
+  }, {
+    "query" : "주문 전환율 분모 정의",
+    "expectedDocumentIds" : [ "notion/metrics-definitions", "jira/OTC-360", "slack/data/2026-09-03-conversion-metric-drop" ],
+    "slice" : "cross-source",
+    "evidenceText" : "주문 전환율 = 결제 완료 주문 수 / 장바구니에 상품을 담은 세션 수"
+  }, {
+    "query" : "애플 실리콘 맥에서 docker exec format error",
+    "expectedDocumentIds" : [ "slack/help-dev/2026-08-26-docker-arm-build" ],
+    "slice" : "paraphrase-ko",
+    "evidenceText" : "`DOCKER_DEFAULT_PLATFORM=linux/arm64` 설정하세요"
+  }, {
+    "query" : "배송 시간대 선택 요구사항",
+    "expectedDocumentIds" : [ "notion/delivery-time-slots-prd", "jira/OTC-350" ],
+    "slice" : "lexical-ko",
+    "evidenceText" : "주문 화면에서 오늘·내일의 2시간 단위 시간대를 고른다"
+  }, {
+    "query" : "중복 승인 환불 진행 상황",
+    "expectedDocumentIds" : [ "jira/OTC-318", "slack/inc-payments/2026-09-08-refund-progress" ],
+    "slice" : "lexical-ko",
+    "evidenceText" : "보류 32건 재실행, 전부 성공"
+  }, {
+    "query" : "stale feature flag cleanup rules",
+    "expectedDocumentIds" : [ "notion/feature-flag-guide", "jira/OTC-355", "slack/eng-general/2026-09-15-feature-flag-cleanup" ],
+    "slice" : "cross-language",
+    "evidenceText" : "100% 켜진 지 30일이 지난 플래그는 오래된 플래그(stale flag)로 보고 코드에서 지운다"
+  }, {
+    "query" : "Android checkout crash with no saved address",
+    "expectedDocumentIds" : [ "jira/OTC-352" ],
+    "slice" : "lexical-en",
+    "evidenceText" : "`IndexOutOfBoundsException` in `AddressSelector.defaultAddress()`"
+  } ]
+}

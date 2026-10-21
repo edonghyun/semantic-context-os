@@ -1,0 +1,384 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-p1-fixture.ts",
+ "now": "2026-10-13T00:00:00.000Z",
+ "F1_nfkcLower": [
+  {
+   "input": "한글 NFC 결제",
+   "output": "한글 nfc 결제"
+  },
+  {
+   "input": "한글 NFD 결멸제",
+   "output": "한글 nfd 결멸제"
+  },
+  {
+   "input": "１２월 매출",
+   "output": "12월 매출"
+  },
+  {
+   "input": "ABC Def",
+   "output": "abc def"
+  },
+  {
+   "input": "결제 오류　대응",
+   "output": "결제 오류 대응"
+  },
+  {
+   "input": "👨‍👩‍👧 가족",
+   "output": "👨‍👩‍👧 가족"
+  },
+  {
+   "input": "éclair",
+   "output": "éclair"
+  },
+  {
+   "input": "quote \"q\" back\\slash\nnewline",
+   "output": "quote \"q\" back\\slash\nnewline"
+  }
+ ],
+ "F1_whitespaceSplit": [
+  {
+   "input": "결제 오류",
+   "tokens": [
+    "결제",
+    "오류"
+   ]
+  },
+  {
+   "input": "결제 오류　대응",
+   "tokens": [
+    "결제",
+    "오류",
+    "대응"
+   ]
+  },
+  {
+   "input": " 앞뒤 공백 ",
+   "tokens": [
+    "앞뒤",
+    "공백"
+   ]
+  },
+  {
+   "input": "탭\t분리\n줄",
+   "tokens": [
+    "탭",
+    "분리",
+    "줄"
+   ]
+  }
+ ],
+ "F2_lengths": [
+  {
+   "input": "한글 NFC 결제",
+   "utf16": 9,
+   "codePoints": 9,
+   "utf8Bytes": 17
+  },
+  {
+   "input": "한글 NFD 결멸제",
+   "utf16": 19,
+   "codePoints": 19,
+   "utf8Bytes": 47
+  },
+  {
+   "input": "１２월 매출",
+   "utf16": 6,
+   "codePoints": 6,
+   "utf8Bytes": 16
+  },
+  {
+   "input": "ABC Def",
+   "utf16": 7,
+   "codePoints": 7,
+   "utf8Bytes": 7
+  },
+  {
+   "input": "결제 오류　대응",
+   "utf16": 8,
+   "codePoints": 8,
+   "utf8Bytes": 23
+  },
+  {
+   "input": "👨‍👩‍👧 가족",
+   "utf16": 11,
+   "codePoints": 8,
+   "utf8Bytes": 25
+  },
+  {
+   "input": "éclair",
+   "utf16": 7,
+   "codePoints": 7,
+   "utf8Bytes": 8
+  },
+  {
+   "input": "quote \"q\" back\\slash\nnewline",
+   "utf16": 28,
+   "codePoints": 28,
+   "utf8Bytes": 28
+  }
+ ],
+ "F3_sha256": [
+  {
+   "input": "한글 NFC 결제",
+   "sha256": "0c8c1e9470335019d0eb79062bd2d9badd8782409b10c36fedf446554907cb1b"
+  },
+  {
+   "input": "한글 NFD 결멸제",
+   "sha256": "e8354854da21b251842adb166bd7919bb32165a5f800bbf82954eaa869b4cf30"
+  },
+  {
+   "input": "１２월 매출",
+   "sha256": "88a082010f99e32f47f1155a2b4a4432093ff466d5c66f676c55d1fc9f52ccb7"
+  },
+  {
+   "input": "ABC Def",
+   "sha256": "10406ba826cebdf16d4dd161a00913e69594ea3247290afed9acf4ddc1923fe7"
+  },
+  {
+   "input": "결제 오류　대응",
+   "sha256": "cea6c3bf785b685a84d002dca2a1452437722968f9657c703fa01103ca2cb356"
+  },
+  {
+   "input": "👨‍👩‍👧 가족",
+   "sha256": "1f17012fdbb52f46f89571bb37ad241f778ba92f13e23839d9b65cf35e2c7cfd"
+  },
+  {
+   "input": "éclair",
+   "sha256": "a942c880dee99c4aa7bb07e769178ba34ca0765090a5bcf75cd7e3e007780edb"
+  },
+  {
+   "input": "quote \"q\" back\\slash\nnewline",
+   "sha256": "afe644e5dd75623aebaf2ddf0a791afd3b6a8a92763f6afedba3dacbf6506be5"
+  }
+ ],
+ "F3_jsonStringify": [
+  {
+   "input": [
+    "fixture",
+    "doc-1",
+    "제목/소제목"
+   ],
+   "json": "[\"fixture\",\"doc-1\",\"제목/소제목\"]",
+   "sha256": "0eae8b694c579806f296d8e78174761f96d0e2a4f79db6264aacf4dfbf9c596c"
+  },
+  {
+   "input": [
+    "a\"b",
+    "c\\d",
+    "e\nf"
+   ],
+   "json": "[\"a\\\"b\",\"c\\\\d\",\"e\\nf\"]",
+   "sha256": "3797730cf855697c9a91672612da92486c8d27b558426968354ee43187c40ac2"
+  },
+  {
+   "input": [
+    "👨‍👩‍👧",
+    " "
+   ],
+   "json": "[\"👨‍👩‍👧\",\" \"]",
+   "sha256": "e00a4686f936f74652875a90e7133cabf0a704284589de5cbdc00c4f064fd4cc"
+  }
+ ],
+ "F4_dates": [
+  {
+   "input": "2026-10-12T22:00:00Z",
+   "parseMs": 1791842400000,
+   "iso": "2026-10-12T22:00:00.000Z",
+   "hoursToNow": 2
+  },
+  {
+   "input": "2026-10-12T22:00:00.000Z",
+   "parseMs": 1791842400000,
+   "iso": "2026-10-12T22:00:00.000Z",
+   "hoursToNow": 2
+  },
+  {
+   "input": "2026-10-13T07:00:00+09:00",
+   "parseMs": 1791842400000,
+   "iso": "2026-10-12T22:00:00.000Z",
+   "hoursToNow": 2
+  },
+  {
+   "input": "2026-10-12",
+   "parseMs": 1791763200000,
+   "iso": "2026-10-12T00:00:00.000Z",
+   "hoursToNow": 24,
+   "note": "시간대 없음: Date.parse는 날짜-시각은 로컬, 날짜만은 UTC — 하네스 실행 TZ 의존이므로 Java는 이 두 값을 비교하지 않고 거부 여부만 기록"
+  },
+  {
+   "input": "2026-10-12T22:00:00",
+   "parseMs": 1791810000000,
+   "iso": "2026-10-12T13:00:00.000Z",
+   "hoursToNow": 11,
+   "note": "시간대 없음: Date.parse는 날짜-시각은 로컬, 날짜만은 UTC — 하네스 실행 TZ 의존이므로 Java는 이 두 값을 비교하지 않고 거부 여부만 기록"
+  },
+  {
+   "input": "not-a-date",
+   "parseMs": null,
+   "iso": null,
+   "hoursToNow": null
+  },
+  {
+   "input": "",
+   "parseMs": null,
+   "iso": null,
+   "hoursToNow": null
+  }
+ ],
+ "F5_sorts": {
+  "input": [
+   "b",
+   "a",
+   "B",
+   "가",
+   "각",
+   "𝔸",
+   "z",
+   "A"
+  ],
+  "codeUnitSort": [
+   "A",
+   "B",
+   "a",
+   "b",
+   "z",
+   "가",
+   "각",
+   "𝔸"
+  ],
+  "localeCompareSort": [
+   "가",
+   "각",
+   "a",
+   "A",
+   "𝔸",
+   "b",
+   "B",
+   "z"
+  ],
+  "utf8ByteSort": [
+   "A",
+   "B",
+   "a",
+   "b",
+   "z",
+   "가",
+   "각",
+   "𝔸"
+  ]
+ },
+ "F7_rrf": {
+  "k": 60,
+  "ranks": [
+   0,
+   1,
+   2,
+   5,
+   9
+  ],
+  "weights": [
+   1,
+   0.3
+  ],
+  "values": [
+   {
+    "rank": 0,
+    "weight": 1,
+    "value": 0.01639344262295082
+   },
+   {
+    "rank": 0,
+    "weight": 0.3,
+    "value": 0.0049180327868852455
+   },
+   {
+    "rank": 1,
+    "weight": 1,
+    "value": 0.016129032258064516
+   },
+   {
+    "rank": 1,
+    "weight": 0.3,
+    "value": 0.004838709677419355
+   },
+   {
+    "rank": 2,
+    "weight": 1,
+    "value": 0.015873015873015872
+   },
+   {
+    "rank": 2,
+    "weight": 0.3,
+    "value": 0.0047619047619047615
+   },
+   {
+    "rank": 5,
+    "weight": 1,
+    "value": 0.015151515151515152
+   },
+   {
+    "rank": 5,
+    "weight": 0.3,
+    "value": 0.004545454545454545
+   },
+   {
+    "rank": 9,
+    "weight": 1,
+    "value": 0.014285714285714285
+   },
+   {
+    "rank": 9,
+    "weight": 0.3,
+    "value": 0.004285714285714286
+   }
+  ]
+ },
+ "F7_pow": [
+  {
+   "days": 0,
+   "value": 1.1
+  },
+  {
+   "days": 1,
+   "value": 1.099
+  },
+  {
+   "days": 7,
+   "value": 1.093206534790699
+  },
+  {
+   "days": 30.5,
+   "value": 1.0735992578744415
+  },
+  {
+   "days": 365,
+   "value": 1.002551796445229
+  }
+ ],
+ "F7_rounding": [
+  {
+   "input": 0.0325,
+   "rounded": 0.033
+  },
+  {
+   "input": 0.0335,
+   "rounded": 0.034
+  },
+  {
+   "input": 1.0005,
+   "rounded": 1.001
+  },
+  {
+   "input": 0.00025,
+   "rounded": 0
+  },
+  {
+   "input": 0.016499999999999997,
+   "rounded": 0.016
+  }
+ ],
+ "F6_tokens": {
+  "note": "o200k_base 토큰 수는 P2에서 TS countTokens로 생성(하네스 생성기는 core/shared/tokens.ts를 빌릴 수 있으나 이번 범위 밖)"
+ }
+}

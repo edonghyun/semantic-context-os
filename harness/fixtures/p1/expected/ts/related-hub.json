@@ -1,0 +1,6 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"related\": [\n    {\n      \"documentId\": \"fx-linked\",\n      \"title\": \"연결 항목 1\",\n      \"source\": \"unknown\",\n      \"score\": 0.033,\n      \"via\": \"both\"\n    },\n    {\n      \"documentId\": \"settlement-batch.md\",\n      \"title\": \"정산 배치\",\n      \"source\": \"unknown\",\n      \"score\": 0.033,\n      \"via\": \"both\"\n    },\n    {\n      \"documentId\": \"fx-long\",\n      \"title\": \"긴 문서 단락 1\",\n      \"source\": \"unknown\",\n      \"score\": 0.016,\n      \"via\": \"embedding\"\n    },\n    {\n      \"documentId\": \"incident-2026-03.md\",\n      \"title\": \"3월 결제 장애 기록\",\n      \"source\": \"unknown\",\n      \"score\": 0.016,\n      \"via\": \"embedding\"\n    },\n    {\n      \"documentId\": \"fx-invalid\",\n      \"title\": \"무효화된 배포 문서\",\n      \"source\": \"unknown\",\n      \"score\": 0.015,\n      \"via\": \"embedding\"\n    }\n  ]\n}"
+  } ]
+}

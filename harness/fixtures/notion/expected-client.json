@@ -1,0 +1,3938 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-notion-fixture.ts",
+ "now": "2026-10-15T00:00:00.000Z",
+ "apiVersion": "2026-03-11",
+ "authorization": "Bearer notion-synthetic-token",
+ "statusCases": [
+  {
+   "label": "400 validation_error",
+   "status": 400,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":400,\"code\":\"validation_error\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: validation_error",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "400 invalid_json",
+   "status": 400,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":400,\"code\":\"invalid_json\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: invalid_json",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "401 unauthorized",
+   "status": 401,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":401,\"code\":\"unauthorized\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "authentication_failed",
+     "retryable": false,
+     "message": "Notion API error: unauthorized",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "401 invalid_grant",
+   "status": 401,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":401,\"code\":\"invalid_grant\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "authentication_failed",
+     "retryable": false,
+     "message": "Notion API error: invalid_grant",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "403 restricted_resource",
+   "status": 403,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":403,\"code\":\"restricted_resource\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "permission_denied",
+     "retryable": false,
+     "message": "Notion API error: restricted_resource",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "404 object_not_found",
+   "status": 404,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":404,\"code\":\"object_not_found\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "permission_denied",
+     "retryable": false,
+     "message": "Notion API error: object_not_found",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "409 conflict_error",
+   "status": 409,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":409,\"code\":\"conflict_error\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: conflict_error",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 없음",
+   "status": 429,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 12",
+   "status": 429,
+   "retryAfter": "12",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": 12000
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 0",
+   "status": 429,
+   "retryAfter": "0",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": 0
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 빈 값",
+   "status": 429,
+   "retryAfter": "",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": 0
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 공백 5",
+   "status": 429,
+   "retryAfter": " 5 ",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": 5000
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 1.5",
+   "status": 429,
+   "retryAfter": "1.5",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": 1500
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 음수",
+   "status": 429,
+   "retryAfter": "-3",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 16진",
+   "status": 429,
+   "retryAfter": "0x10",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": 16000
+    }
+   }
+  },
+  {
+   "label": "429 Retry-After 날짜",
+   "status": 429,
+   "retryAfter": "Thu, 15 Oct 2026 00:00:30 GMT",
+   "body": "{\"object\":\"error\",\"status\":429,\"code\":\"rate_limited\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Notion API error: rate_limited",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "429 본문 JSON 아님",
+   "status": 429,
+   "retryAfter": "3",
+   "body": "Too Many Requests",
+   "contentType": "text/plain",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "500 internal_server_error",
+   "status": 500,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":500,\"code\":\"internal_server_error\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: internal_server_error",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "502 bad_gateway",
+   "status": 502,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":502,\"code\":\"bad_gateway\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: bad_gateway",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "503 service_unavailable Retry-After",
+   "status": 503,
+   "retryAfter": "7",
+   "body": "{\"object\":\"error\",\"status\":503,\"code\":\"service_unavailable\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: service_unavailable",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "504 gateway_timeout",
+   "status": 504,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":504,\"code\":\"gateway_timeout\",\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: gateway_timeout",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "502 HTML",
+   "status": 502,
+   "retryAfter": null,
+   "body": "<html>502</html>",
+   "contentType": "text/html",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "500 code 없음",
+   "status": 500,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":500}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: http_error",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "400 code가 수",
+   "status": 400,
+   "retryAfter": null,
+   "body": "{\"object\":\"error\",\"status\":400,\"code\":7,\"message\":\"synthetic\"}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: http_error",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "500 본문 배열",
+   "status": 500,
+   "retryAfter": null,
+   "body": "[]",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Notion API error: http_error",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "404 빈 본문",
+   "status": 404,
+   "retryAfter": null,
+   "body": "",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "200 JSON 아님",
+   "status": 200,
+   "retryAfter": null,
+   "body": "not json",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "200 빈 본문",
+   "status": 200,
+   "retryAfter": null,
+   "body": "",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "200 배열",
+   "status": 200,
+   "retryAfter": null,
+   "body": "[]",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "200 null",
+   "status": 200,
+   "retryAfter": null,
+   "body": "null",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "201 페이지",
+   "status": 201,
+   "retryAfter": null,
+   "body": "{\"object\":\"page\",\"id\":\"root-wiki\",\"created_time\":\"2026-08-01T00:00:00.000Z\",\"last_edited_time\":\"2026-10-01T09:00:00.000Z\",\"created_by\":{\"object\":\"user\",\"id\":\"user-synthetic\"},\"last_edited_by\":{\"object\":\"user\",\"id\":\"user-synthetic\"},\"cover\":null,\"icon\":null,\"parent\":{\"type\":\"workspace\",\"workspace\":true},\"archived\":false,\"in_trash\":false,\"is_locked\":false,\"properties\":{\"title\":{\"id\":\"title\",\"type\":\"title\",\"title\":[{\"type\":\"text\",\"text\":{\"content\":\"운영 위키\",\"link\":null},\"annotations\":{\"bold\":false,\"italic\":false,\"strikethrough\":false,\"underline\":false,\"code\":false,\"color\":\"default\"},\"plain_text\":\"운영 위키\",\"href\":null}]}},\"url\":\"https://www.notion.so/root-wiki\",\"public_url\":null}",
+   "contentType": "application/json",
+   "outcome": {
+    "ok": true,
+    "id": "root-wiki"
+   }
+  }
+ ],
+ "transportFailure": {
+  "kind": "dependency_unavailable",
+  "retryable": true,
+  "message": "fetch failed",
+  "retryAfterMs": null
+ },
+ "retrieveCases": [
+  {
+   "label": "페이지",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": "root-wiki",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": true
+   }
+  },
+  {
+   "label": "페이지 object 다름",
+   "operation": "page",
+   "value": {
+    "object": "block",
+    "id": "root-wiki",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "페이지 id 빈 값",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": "",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "페이지 id 수",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": 7,
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "페이지 created_time 없음",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": "root-wiki",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "페이지 last_edited_time 수",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": "root-wiki",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": 1,
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "페이지 in_trash 없음",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": "root-wiki",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "페이지 in_trash 문자열",
+   "operation": "page",
+   "value": {
+    "object": "page",
+    "id": "root-wiki",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-10-01T09:00:00.000Z",
+    "created_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "last_edited_by": {
+     "object": "user",
+     "id": "user-synthetic"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+     "type": "workspace",
+     "workspace": true
+    },
+    "archived": false,
+    "in_trash": "false",
+    "is_locked": false,
+    "properties": {
+     "title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+       {
+        "type": "text",
+        "text": {
+         "content": "운영 위키",
+         "link": null
+        },
+        "annotations": {
+         "bold": false,
+         "italic": false,
+         "strikethrough": false,
+         "underline": false,
+         "code": false,
+         "color": "default"
+        },
+        "plain_text": "운영 위키",
+        "href": null
+       }
+      ]
+     }
+    },
+    "url": "https://www.notion.so/root-wiki",
+    "public_url": null
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "database",
+   "operation": "database",
+   "value": {
+    "object": "database",
+    "id": "db-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false,
+    "data_sources": [
+     {
+      "id": "ds-tasks",
+      "name": "작업"
+     }
+    ]
+   },
+   "outcome": {
+    "ok": true
+   }
+  },
+  {
+   "label": "database data_sources 없음",
+   "operation": "database",
+   "value": {
+    "object": "database",
+    "id": "db-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "database data_source id 빈 값",
+   "operation": "database",
+   "value": {
+    "object": "database",
+    "id": "db-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false,
+    "data_sources": [
+     {
+      "id": "",
+      "name": "x"
+     }
+    ]
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "database data_source name 없음",
+   "operation": "database",
+   "value": {
+    "object": "database",
+    "id": "db-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false,
+    "data_sources": [
+     {
+      "id": "ds"
+     }
+    ]
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "database 빈 data_sources",
+   "operation": "database",
+   "value": {
+    "object": "database",
+    "id": "db-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false,
+    "data_sources": []
+   },
+   "outcome": {
+    "ok": true
+   }
+  },
+  {
+   "label": "database in_trash 없음",
+   "operation": "database",
+   "value": {
+    "object": "database",
+    "id": "db-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "data_sources": [
+     {
+      "id": "ds-tasks",
+      "name": "작업"
+     }
+    ]
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "data_source",
+   "operation": "data_source",
+   "value": {
+    "object": "data_source",
+    "id": "ds-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false
+   },
+   "outcome": {
+    "ok": true
+   }
+  },
+  {
+   "label": "data_source object 다름",
+   "operation": "data_source",
+   "value": {
+    "object": "database",
+    "id": "ds-tasks",
+    "created_time": "2026-08-01T00:00:00.000Z",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "data_source created_time 없음",
+   "operation": "data_source",
+   "value": {
+    "object": "data_source",
+    "id": "ds-tasks",
+    "last_edited_time": "2026-08-01T00:00:00.000Z",
+    "in_trash": false
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  }
+ ],
+ "listCases": [
+  {
+   "label": "검색 마지막 페이지",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "page",
+      "id": "root-wiki",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-10-01T09:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+       "type": "workspace",
+       "workspace": true
+      },
+      "archived": false,
+      "in_trash": false,
+      "is_locked": false,
+      "properties": {
+       "title": {
+        "id": "title",
+        "type": "title",
+        "title": [
+         {
+          "type": "text",
+          "text": {
+           "content": "운영 위키",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "운영 위키",
+          "href": null
+         }
+        ]
+       }
+      },
+      "url": "https://www.notion.so/root-wiki",
+      "public_url": null
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": true,
+    "count": 1,
+    "nextCursor": null
+   }
+  },
+  {
+   "label": "검색 다음 커서",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "page",
+      "id": "root-wiki",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-10-01T09:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+       "type": "workspace",
+       "workspace": true
+      },
+      "archived": false,
+      "in_trash": false,
+      "is_locked": false,
+      "properties": {
+       "title": {
+        "id": "title",
+        "type": "title",
+        "title": [
+         {
+          "type": "text",
+          "text": {
+           "content": "운영 위키",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "운영 위키",
+          "href": null
+         }
+        ]
+       }
+      },
+      "url": "https://www.notion.so/root-wiki",
+      "public_url": null
+     }
+    ],
+    "next_cursor": "c2",
+    "has_more": true,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": true,
+    "count": 1,
+    "nextCursor": "c2"
+   }
+  },
+  {
+   "label": "검색 빈 결과",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": true,
+    "count": 0,
+    "nextCursor": null
+   }
+  },
+  {
+   "label": "검색 object 다름",
+   "operation": "search",
+   "value": {
+    "object": "page",
+    "results": [],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 type 다름",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "block",
+    "block": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 결과에 data_source",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "data_source",
+      "id": "ds-tasks",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "in_trash": false
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 has_more 문자열",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": null,
+    "has_more": "false",
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 results 객체",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": {},
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 다음 있음 커서 null",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": null,
+    "has_more": true,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 다음 있음 커서 빈 값",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": "",
+    "has_more": true,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 다음 없음 커서 있음",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": "c2",
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 다음 없음 커서 빠짐",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 다음 있음 커서 수",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": 3,
+    "has_more": true,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 불완전 결과",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "page",
+      "id": "root-wiki",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-10-01T09:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+       "type": "workspace",
+       "workspace": true
+      },
+      "archived": false,
+      "in_trash": false,
+      "is_locked": false,
+      "properties": {
+       "title": {
+        "id": "title",
+        "type": "title",
+        "title": [
+         {
+          "type": "text",
+          "text": {
+           "content": "운영 위키",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "운영 위키",
+          "href": null
+         }
+        ]
+       }
+      },
+      "url": "https://www.notion.so/root-wiki",
+      "public_url": null
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic",
+    "request_status": {
+     "incomplete_reason": "query_timeout"
+    }
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: incomplete_search_results",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "검색 request_status 이유 없음",
+   "operation": "search",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "page",
+      "id": "root-wiki",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-10-01T09:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+       "type": "workspace",
+       "workspace": true
+      },
+      "archived": false,
+      "in_trash": false,
+      "is_locked": false,
+      "properties": {
+       "title": {
+        "id": "title",
+        "type": "title",
+        "title": [
+         {
+          "type": "text",
+          "text": {
+           "content": "운영 위키",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "운영 위키",
+          "href": null
+         }
+        ]
+       }
+      },
+      "url": "https://www.notion.so/root-wiki",
+      "public_url": null
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic",
+    "request_status": {
+     "incomplete_reason": null
+    }
+   },
+   "outcome": {
+    "ok": true,
+    "count": 1,
+    "nextCursor": null
+   }
+  },
+  {
+   "label": "블록 마지막 페이지",
+   "operation": "blocks",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "block",
+      "id": "b",
+      "parent": {
+       "type": "page_id",
+       "page_id": "p"
+      },
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "has_children": false,
+      "archived": false,
+      "in_trash": false,
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "x",
+          "link": null
+         },
+         "annotations": {
+          "bold": false,
+          "italic": false,
+          "strikethrough": false,
+          "underline": false,
+          "code": false,
+          "color": "default"
+         },
+         "plain_text": "x",
+         "href": null
+        }
+       ],
+       "color": "default"
+      }
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "block",
+    "block": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": true,
+    "count": 1,
+    "nextCursor": null
+   }
+  },
+  {
+   "label": "블록 type 빈 값",
+   "operation": "blocks",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "block",
+      "id": "b",
+      "parent": {
+       "type": "page_id",
+       "page_id": "p"
+      },
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "has_children": false,
+      "archived": false,
+      "in_trash": false,
+      "type": "",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "x",
+          "link": null
+         },
+         "annotations": {
+          "bold": false,
+          "italic": false,
+          "strikethrough": false,
+          "underline": false,
+          "code": false,
+          "color": "default"
+         },
+         "plain_text": "x",
+         "href": null
+        }
+       ],
+       "color": "default"
+      }
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "block",
+    "block": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "블록 has_children 없음",
+   "operation": "blocks",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "block",
+      "id": "b",
+      "parent": {
+       "type": "page_id",
+       "page_id": "p"
+      },
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "archived": false,
+      "in_trash": false,
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "x",
+          "link": null
+         },
+         "annotations": {
+          "bold": false,
+          "italic": false,
+          "strikethrough": false,
+          "underline": false,
+          "code": false,
+          "color": "default"
+         },
+         "plain_text": "x",
+         "href": null
+        }
+       ],
+       "color": "default"
+      }
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "block",
+    "block": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "블록 type 다름",
+   "operation": "blocks",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "block",
+      "id": "b",
+      "parent": {
+       "type": "page_id",
+       "page_id": "p"
+      },
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "has_children": false,
+      "archived": false,
+      "in_trash": false,
+      "type": "paragraph",
+      "paragraph": {
+       "rich_text": [
+        {
+         "type": "text",
+         "text": {
+          "content": "x",
+          "link": null
+         },
+         "annotations": {
+          "bold": false,
+          "italic": false,
+          "strikethrough": false,
+          "underline": false,
+          "code": false,
+          "color": "default"
+         },
+         "plain_text": "x",
+         "href": null
+        }
+       ],
+       "color": "default"
+      }
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "블록 불완전 결과",
+   "operation": "blocks",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "block",
+    "block": {},
+    "request_id": "req-synthetic",
+    "request_status": {
+     "incomplete_reason": "x"
+    }
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: incomplete_search_results",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "조회 페이지와 data_source",
+   "operation": "query",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "page",
+      "id": "root-wiki",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-10-01T09:00:00.000Z",
+      "created_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "last_edited_by": {
+       "object": "user",
+       "id": "user-synthetic"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+       "type": "workspace",
+       "workspace": true
+      },
+      "archived": false,
+      "in_trash": false,
+      "is_locked": false,
+      "properties": {
+       "title": {
+        "id": "title",
+        "type": "title",
+        "title": [
+         {
+          "type": "text",
+          "text": {
+           "content": "운영 위키",
+           "link": null
+          },
+          "annotations": {
+           "bold": false,
+           "italic": false,
+           "strikethrough": false,
+           "underline": false,
+           "code": false,
+           "color": "default"
+          },
+          "plain_text": "운영 위키",
+          "href": null
+         }
+        ]
+       }
+      },
+      "url": "https://www.notion.so/root-wiki",
+      "public_url": null
+     },
+     {
+      "object": "data_source",
+      "id": "ds-tasks",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "in_trash": false
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": true,
+    "count": 2,
+    "nextCursor": null
+   }
+  },
+  {
+   "label": "조회 database는 아님",
+   "operation": "query",
+   "value": {
+    "object": "list",
+    "results": [
+     {
+      "object": "database",
+      "id": "db-tasks",
+      "created_time": "2026-08-01T00:00:00.000Z",
+      "last_edited_time": "2026-08-01T00:00:00.000Z",
+      "in_trash": false,
+      "data_sources": [
+       {
+        "id": "ds-tasks",
+        "name": "작업"
+       }
+      ]
+     }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic"
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: invalid_provider_response",
+     "retryAfterMs": null
+    }
+   }
+  },
+  {
+   "label": "조회 불완전 결과",
+   "operation": "query",
+   "value": {
+    "object": "list",
+    "results": [],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_data_source",
+    "page_or_data_source": {},
+    "request_id": "req-synthetic",
+    "request_status": {
+     "incomplete_reason": "x"
+    }
+   },
+   "outcome": {
+    "ok": false,
+    "failure": {
+     "kind": "invalid_provider_response",
+     "retryable": false,
+     "message": "Notion API error: incomplete_query_results",
+     "retryAfterMs": null
+    }
+   }
+  }
+ ],
+ "configCases": [
+  {
+   "label": "빈 설정(검색 모드)",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "accepted": true,
+   "message": null,
+   "coverage": "incremental",
+   "deletionDetection": "none"
+  },
+  {
+   "label": "루트 하나",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki"
+     ]
+    }
+   },
+   "accepted": true,
+   "message": null,
+   "coverage": "complete_snapshot",
+   "deletionDetection": "complete_snapshot"
+  },
+  {
+   "label": "운영 설정(루트 셋)",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro",
+      "root-archive"
+     ]
+    }
+   },
+   "accepted": true,
+   "message": null,
+   "coverage": "complete_snapshot",
+   "deletionDetection": "complete_snapshot"
+  },
+  {
+   "label": "discoverSharedPages 참",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki"
+     ],
+     "discoverSharedPages": true
+    }
+   },
+   "accepted": true,
+   "message": null,
+   "coverage": "incremental",
+   "deletionDetection": "none"
+  },
+  {
+   "label": "discoverSharedPages 거짓",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki"
+     ],
+     "discoverSharedPages": false
+    }
+   },
+   "accepted": true,
+   "message": null,
+   "coverage": "complete_snapshot",
+   "deletionDetection": "complete_snapshot"
+  },
+  {
+   "label": "스키마 2",
+   "config": {
+    "schemaVersion": 2,
+    "value": {}
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "값이 배열",
+   "config": {
+    "schemaVersion": 1,
+    "value": []
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "값이 null",
+   "config": {
+    "schemaVersion": 1,
+    "value": null
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "query": "hidden"
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "루트에 모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki"
+     ],
+     "extra": 1
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "빈 루트 목록",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": []
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "중복 루트",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-wiki"
+     ]
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "빈 루트 id",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      ""
+     ]
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "루트 id 수",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      7
+     ]
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "루트 목록이 문자열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": "root-wiki"
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "discoverSharedPages만",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "discoverSharedPages": true
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "discoverSharedPages 문자열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki"
+     ],
+     "discoverSharedPages": "yes"
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  },
+  {
+   "label": "discoverSharedPages null",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki"
+     ],
+     "discoverSharedPages": null
+    }
+   },
+   "accepted": false,
+   "message": "Invalid Notion source configuration",
+   "coverage": null,
+   "deletionDetection": null
+  }
+ ],
+ "checkpointCases": [
+  {
+   "label": "roots 체크포인트 없음",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": null,
+   "coverage": {
+    "value": "complete_snapshot"
+   },
+   "firstRequest": {
+    "operation": "retrievePage",
+    "pageId": "root-wiki"
+   }
+  },
+  {
+   "label": "roots 초기 시드",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "complete_snapshot"
+   },
+   "firstRequest": {
+    "operation": "retrievePage",
+    "pageId": "root-wiki"
+   }
+  },
+  {
+   "label": "roots 루트 순서만 다른 시드",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "retrievePage",
+    "pageId": "root-retro"
+   }
+  },
+  {
+   "label": "roots 중간(block_children 커서)",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "block_children",
+       "blockId": "blk-wiki-toggle",
+       "cursor": "c-9"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "listBlockChildren",
+    "blockId": "blk-wiki-toggle",
+    "cursor": "c-9"
+   }
+  },
+  {
+   "label": "roots 중간(database)",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "database",
+       "databaseId": "db-tasks"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "retrieveDatabase",
+    "databaseId": "db-tasks"
+   }
+  },
+  {
+   "label": "roots 중간(data_source)",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "data_source",
+       "dataSourceId": "ds-tasks"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "retrieveDataSource",
+    "dataSourceId": "ds-tasks"
+   }
+  },
+  {
+   "label": "roots 중간(행 커서)",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "data_source_rows",
+       "dataSourceId": "ds-tasks",
+       "phase": "active",
+       "cursor": "cur-rows-2"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "queryDataSource",
+    "dataSourceId": "ds-tasks",
+    "cursor": "cur-rows-2"
+   }
+  },
+  {
+   "label": "roots 옛 휴지통 행 작업",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "data_source_rows",
+       "dataSourceId": "ds-tasks",
+       "phase": "trash"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": null
+  },
+  {
+   "label": "roots에 v1 체크포인트",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "phase": "trash",
+     "cursor": "x"
+    }
+   },
+   "coverage": {
+    "value": "complete_snapshot"
+   },
+   "firstRequest": {
+    "operation": "retrievePage",
+    "pageId": "root-wiki"
+   }
+  },
+  {
+   "label": "roots에 v2 체크포인트",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "anything": true
+    }
+   },
+   "coverage": {
+    "value": "complete_snapshot"
+   },
+   "firstRequest": {
+    "operation": "retrievePage",
+    "pageId": "root-wiki"
+   }
+  },
+  {
+   "label": "roots 스키마 4",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 4,
+    "value": {}
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 값이 배열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": []
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots mode 다름",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "search",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 루트가 바뀜",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-old"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-old"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Notion source checkpoint does not match configured roots"
+   },
+   "error": "Notion source checkpoint does not match configured roots"
+  },
+  {
+   "label": "roots 루트 순서가 바뀜",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-retro",
+      "root-wiki"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Notion source checkpoint does not match configured roots"
+   },
+   "error": "Notion source checkpoint does not match configured roots"
+  },
+  {
+   "label": "roots discover 여부가 바뀜",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ],
+     "discoverSharedPages": true
+    }
+   },
+   "coverage": {
+    "error": "Notion source checkpoint does not match configured roots"
+   },
+   "error": "Notion source checkpoint does not match configured roots"
+  },
+  {
+   "label": "roots 모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ],
+     "extra": 1
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 단계 이름 틀림",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "walk",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 빈 traversal",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": []
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots traversal에 검색 단계",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ],
+     "searchPhase": "active"
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots traversal에 검색 커서",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ],
+     "searchCursor": "c"
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots discovery인데 discover 꺼짐",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "discovery",
+     "pendingWork": [],
+     "searchPhase": "active"
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 검색 커서 빈 값",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "discoverSharedPages": true
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "discovery",
+     "pendingWork": [],
+     "searchPhase": "active",
+     "searchCursor": "",
+     "discoverSharedPages": true
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 작업 종류 모름",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "user",
+       "userId": "u"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots page 작업 id 빈 값",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": ""
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots page 작업 모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "p",
+       "cursor": "c"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots block 작업 커서 빈 값",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "block_children",
+       "blockId": "b",
+       "cursor": ""
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 행 작업 단계 없음",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "data_source_rows",
+       "dataSourceId": "ds"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 작업이 문자열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      "page"
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 루트 목록이 문자열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": "root-wiki",
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 루트 id 빈 값",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      ""
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "roots 작업 목록이 객체",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ]
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": {}
+    }
+   },
+   "coverage": {
+    "error": "Invalid Notion source checkpoint"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "discover 검색 active 단계",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "discoverSharedPages": true
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "discovery",
+     "pendingWork": [],
+     "searchPhase": "active",
+     "discoverSharedPages": true
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages"
+   }
+  },
+  {
+   "label": "discover 검색 trash 단계 커서",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "discoverSharedPages": true
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "discovery",
+     "pendingWork": [],
+     "searchPhase": "trash",
+     "searchCursor": "c-t",
+     "discoverSharedPages": true
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages",
+    "cursor": "c-t",
+    "inTrash": true
+   }
+  },
+  {
+   "label": "discover 단계 이름 없이 discovery",
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "discoverSharedPages": true
+    }
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "discovery",
+     "pendingWork": [],
+     "discoverSharedPages": true
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search 체크포인트 없음",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": null,
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages"
+   }
+  },
+  {
+   "label": "search v1 active 커서",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "phase": "active",
+     "cursor": "c-1"
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages",
+    "cursor": "c-1"
+   }
+  },
+  {
+   "label": "search v1 trash",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "phase": "trash"
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages",
+    "inTrash": true
+   }
+  },
+  {
+   "label": "search v1 모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "phase": "active",
+     "searchCursor": "c"
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v1 커서 빈 값",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "phase": "active",
+     "cursor": ""
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v1 단계 틀림",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "phase": "done"
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v2 블록 대기열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active",
+     "searchCursor": "c-2",
+     "pendingBlockParents": [
+      {
+       "blockId": "b-1",
+       "cursor": "bc"
+      },
+      {
+       "blockId": "b-2"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "listBlockChildren",
+    "blockId": "b-1",
+    "cursor": "bc"
+   }
+  },
+  {
+   "label": "search v2 trash 커서",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "trash",
+     "searchCursor": "c-t"
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages",
+    "cursor": "c-t",
+    "inTrash": true
+   }
+  },
+  {
+   "label": "search v2 trash인데 블록 대기",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "trash",
+     "pendingBlockParents": [
+      {
+       "blockId": "b"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v2 대기열 빈 배열",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active",
+     "pendingBlockParents": []
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "firstRequest": {
+    "operation": "searchPages"
+   }
+  },
+  {
+   "label": "search v2 대기열 객체",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active",
+     "pendingBlockParents": {}
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v2 블록 id 빈 값",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active",
+     "pendingBlockParents": [
+      {
+       "blockId": ""
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v2 블록 모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active",
+     "pendingBlockParents": [
+      {
+       "blockId": "b",
+       "depth": 1
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v2 모르는 키",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "phase": "active",
+     "cursor": "c"
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search v3 체크포인트",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 3,
+    "value": {
+     "mode": "roots",
+     "rootPageIds": [
+      "root-wiki",
+      "root-retro"
+     ],
+     "stage": "traversal",
+     "pendingWork": [
+      {
+       "kind": "page",
+       "pageId": "root-wiki"
+      },
+      {
+       "kind": "page",
+       "pageId": "root-retro"
+      }
+     ]
+    }
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  },
+  {
+   "label": "search 값이 null",
+   "config": {
+    "schemaVersion": 1,
+    "value": {}
+   },
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": null
+   },
+   "coverage": {
+    "value": "incremental"
+   },
+   "error": "Invalid Notion source checkpoint"
+  }
+ ],
+ "timestampCases": [
+  {
+   "label": "Z 밀리초",
+   "value": "2026-08-11T00:00:00.000Z",
+   "position": "2026-08-11T00:00:00.000Z",
+   "error": null
+  },
+  {
+   "label": "Z 초",
+   "value": "2026-08-11T00:00:00Z",
+   "position": "2026-08-11T00:00:00.000Z",
+   "error": null
+  },
+  {
+   "label": "오프셋 +09:00",
+   "value": "2026-08-11T09:00:00+09:00",
+   "position": "2026-08-11T00:00:00.000Z",
+   "error": null
+  },
+  {
+   "label": "마이크로초",
+   "value": "2026-08-11T00:00:00.123456Z",
+   "position": "2026-08-11T00:00:00.123Z",
+   "error": null
+  },
+  {
+   "label": "날짜만",
+   "value": "2026-08-11",
+   "position": "2026-08-11T00:00:00.000Z",
+   "error": null
+  },
+  {
+   "label": "오프셋 없는 시각",
+   "value": "2026-08-11T00:00:00",
+   "position": "2026-08-11T00:00:00.000Z",
+   "error": null
+  },
+  {
+   "label": "글자",
+   "value": "어제",
+   "position": null,
+   "error": "Invalid Notion page timestamp"
+  },
+  {
+   "label": "빈 문자열",
+   "value": "",
+   "position": null,
+   "error": "Invalid Notion page timestamp"
+  }
+ ]
+}

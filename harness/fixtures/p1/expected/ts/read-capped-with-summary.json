@@ -1,0 +1,6 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"title\": \"마감 점검 1\",\n  \"source\": \"unknown\",\n  \"uri\": \"fixture://fx-capped\",\n  \"units\": [\n    {\n      \"title\": \"마감 점검 1\",\n      \"content\": \"마감 점검 절차 1단계\"\n    },\n    {\n      \"title\": \"마감 점검 2\",\n      \"content\": \"마감 점검 절차 2단계\"\n    },\n    {\n      \"title\": \"마감 점검 3\",\n      \"content\": \"마감 점검 절차 3단계\"\n    },\n    {\n      \"title\": \"마감 점검 요약\",\n      \"content\": \"마감 점검 절차 요약\"\n    }\n  ],\n  \"nextOffset\": null\n}"
+  } ]
+}

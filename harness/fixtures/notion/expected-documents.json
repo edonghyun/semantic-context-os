@@ -1,0 +1,90 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-notion-fixture.ts",
+ "documents": [
+  {
+   "sourceId": "notion-synthetic",
+   "documentId": "page-onboarding",
+   "uri": "https://www.notion.so/page-onboarding",
+   "title": "신규 입사자 안내",
+   "body": "첫 주에는 온콜을 맡지 않는다",
+   "createdAt": "2026-08-01T00:20:00.000Z",
+   "updatedAt": "2026-08-03T00:00:00.000Z",
+   "metadata": {
+    "sourceInstanceId": "notion-synthetic",
+    "resourceType": "notion.page",
+    "pageId": "page-onboarding"
+   }
+  },
+  {
+   "sourceId": "notion-synthetic",
+   "documentId": "root-retro",
+   "uri": "https://www.notion.so/root-retro",
+   "title": "결제 장애 회고",
+   "body": "```sql\nSELECT count(*)\nFROM payments;\n```\n\n- 원인\n\n  1. 커넥션 풀 고갈\n\n- [x] 재발 방지 배포",
+   "createdAt": "2026-08-10T00:00:00.000Z",
+   "updatedAt": "2026-10-02T09:00:00.000Z",
+   "metadata": {
+    "sourceInstanceId": "notion-synthetic",
+    "resourceType": "notion.page",
+    "pageId": "root-retro"
+   }
+  },
+  {
+   "sourceId": "notion-synthetic",
+   "documentId": "root-wiki",
+   "uri": "https://www.notion.so/root-wiki",
+   "title": "운영 위키",
+   "body": "장애 등급\n\n  - SEV1: 결제 전면 장애\n\n# 온콜 절차\n\n- [ ] 런북 갱신",
+   "createdAt": "2026-08-01T00:00:00.000Z",
+   "updatedAt": "2026-10-01T09:00:00.000Z",
+   "metadata": {
+    "sourceInstanceId": "notion-synthetic",
+    "resourceType": "notion.page",
+    "pageId": "root-wiki"
+   }
+  },
+  {
+   "sourceId": "notion-synthetic",
+   "documentId": "row-alert",
+   "uri": "https://www.notion.so/row-alert",
+   "title": "알림 정리",
+   "body": "알림 임계값을 낮춘다",
+   "createdAt": "2026-08-05T00:00:00.000Z",
+   "updatedAt": "2026-09-10T00:00:00.000Z",
+   "metadata": {
+    "sourceInstanceId": "notion-synthetic",
+    "resourceType": "notion.page",
+    "pageId": "row-alert"
+   }
+  },
+  {
+   "sourceId": "notion-synthetic",
+   "documentId": "row-drill",
+   "uri": "https://www.notion.so/row-drill",
+   "title": "장애 훈련",
+   "body": "다음 훈련은 11월",
+   "createdAt": "2026-08-05T00:00:00.000Z",
+   "updatedAt": "2026-09-12T00:00:00.000Z",
+   "metadata": {
+    "sourceInstanceId": "notion-synthetic",
+    "resourceType": "notion.page",
+    "pageId": "row-drill"
+   }
+  },
+  {
+   "sourceId": "notion-synthetic",
+   "documentId": "row-runbook",
+   "uri": "https://www.notion.so/row-runbook",
+   "title": "런북 검토",
+   "body": "분기마다 검토",
+   "createdAt": "2026-08-05T00:00:00.000Z",
+   "updatedAt": "2026-09-11T00:00:00.000Z",
+   "metadata": {
+    "sourceInstanceId": "notion-synthetic",
+    "resourceType": "notion.page",
+    "pageId": "row-runbook"
+   }
+  }
+ ]
+}

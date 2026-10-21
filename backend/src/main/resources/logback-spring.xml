@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- stdout은 MCP(JSON-RPC) 전용 채널이다(ADR-0010). 모든 로그는 프로필과 무관하게 stderr로 쓴다(ADR-0023).
+     daemon 프로필: TS serve.log와 같은 JSON 한 줄(io.scos.engine.support.text.JsonLineEncoder — status.sh가 "level":"warn|error"를 grep한다).
+     그 밖(mcp·명령): 사람이 읽는 평문. -->
+<configuration>
+  <springProfile name="daemon">
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target>
+      <encoder class="io.scos.engine.support.text.JsonLineEncoder"/>
+    </appender>
+  </springProfile>
+  <springProfile name="!daemon">
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target>
+      <encoder>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
+      </encoder>
+    </appender>
+  </springProfile>
+  <root level="WARN">
+    <appender-ref ref="STDERR"/>
+  </root>
+  <logger name="io.scos" level="INFO"/>
+</configuration>

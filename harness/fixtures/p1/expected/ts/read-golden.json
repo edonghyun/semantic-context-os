@@ -1,0 +1,6 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"title\": \"3월 결제 장애 기록\",\n  \"source\": \"unknown\",\n  \"uri\": \"https://docs.example.test/incident-2026-03.md\",\n  \"units\": [\n    {\n      \"title\": \"3월 결제 장애 기록\",\n      \"content\": \"3월 결제 장애의 원인은 커넥션 풀 고갈로 인한 타임아웃이었다. 풀 크기를 20으로 늘리고 알림 임계값을 낮춰 재발을 방지했다.\\n사후 분석 문서는 온콜 채널에 공유됐다.\"\n    }\n  ],\n  \"nextOffset\": null\n}"
+  } ]
+}

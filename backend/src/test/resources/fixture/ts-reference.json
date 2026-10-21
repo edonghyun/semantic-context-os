@@ -1,0 +1,4304 @@
+{
+  "generatedBy": "experiments/pa/tools/make-fixture.ts",
+  "sqliteVersion": "3.49.2",
+  "dataVersion": 2,
+  "meta": [
+    {
+      "key": "schema:data_spaces_version",
+      "value": "1"
+    },
+    {
+      "key": "schema:engine_format",
+      "value": "2"
+    },
+    {
+      "key": "schema:fts_version",
+      "value": "5"
+    }
+  ],
+  "tables": [
+    "document_spaces",
+    "meta",
+    "space_meta",
+    "sqlite_sequence",
+    "unit_links",
+    "unit_vectors",
+    "units",
+    "units_ad",
+    "units_ai",
+    "units_au",
+    "units_fts",
+    "units_fts_config",
+    "units_fts_content",
+    "units_fts_data",
+    "units_fts_docsize",
+    "units_fts_idx",
+    "units_v1_guard_ai",
+    "units_v1_guard_au",
+    "units_vec_ad"
+  ],
+  "fixtureInfo": {
+    "searchQueries": [
+      "배포 장애",
+      "결제 오류 대응",
+      "정산 배치 일정",
+      "온보딩",
+      "링크 원본 문서",
+      "마감 점검 절차"
+    ],
+    "documentIds": [
+      "fx-hub",
+      "fx-linked",
+      "fx-archived",
+      "fx-compacted",
+      "fx-capped",
+      "fx-long"
+    ]
+  },
+  "lexical": {
+    "배포 장애": [
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 1.3333333333333333
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 1.3333333333333333
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 1.1666666666666665
+      },
+      {
+        "unitId": "fx-recent-1",
+        "documentId": "fx-recent",
+        "score": 1.1666666666666665
+      }
+    ],
+    "결제 오류 대응": [
+      {
+        "unitId": "fx-hub-1",
+        "documentId": "fx-hub",
+        "score": 1.5
+      },
+      {
+        "unitId": "fx-archived-1",
+        "documentId": "fx-archived",
+        "score": 1.3333333333333333
+      },
+      {
+        "unitId": "fx-recent-1",
+        "documentId": "fx-recent",
+        "score": 1
+      },
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 0.5
+      }
+    ],
+    "정산 배치 일정": [
+      {
+        "unitId": "fx-linked-1",
+        "documentId": "fx-linked",
+        "score": 1.5
+      },
+      {
+        "unitId": "fx-linked-2",
+        "documentId": "fx-linked",
+        "score": 1.5
+      },
+      {
+        "unitId": "fx-linked-3",
+        "documentId": "fx-linked",
+        "score": 1.5
+      },
+      {
+        "unitId": "fx-linked-4",
+        "documentId": "fx-linked",
+        "score": 1.5
+      }
+    ],
+    "온보딩": [
+      {
+        "unitId": "fx-compacted-1",
+        "documentId": "fx-compacted",
+        "score": 1.3701687917728378
+      }
+    ],
+    "링크 원본 문서": [
+      {
+        "unitId": "fx-hub-1",
+        "documentId": "fx-hub",
+        "score": 1.6666666666666665
+      },
+      {
+        "unitId": "fx-long-01",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-02",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-03",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-04",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-05",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-06",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-07",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-08",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-09",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-10",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-11",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-12",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-13",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-14",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-15",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-16",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-17",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-18",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-19",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-20",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-21",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-22",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-23",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-24",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-long-25",
+        "documentId": "fx-long",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.5
+      }
+    ],
+    "마감 점검 절차": [
+      {
+        "unitId": "fx-capped-1",
+        "documentId": "fx-capped",
+        "score": 1.8333333333333333
+      },
+      {
+        "unitId": "fx-capped-2",
+        "documentId": "fx-capped",
+        "score": 1.8333333333333333
+      },
+      {
+        "unitId": "fx-capped-3",
+        "documentId": "fx-capped",
+        "score": 1.8333333333333333
+      },
+      {
+        "unitId": "fx-capped-summary",
+        "documentId": "fx-capped",
+        "score": 1.8333333333333333
+      },
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-compacted-1",
+        "documentId": "fx-compacted",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.5
+      }
+    ],
+    "온보딩 절차": [
+      {
+        "unitId": "fx-compacted-1",
+        "documentId": "fx-compacted",
+        "score": 1.8701687917728378
+      },
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-capped-1",
+        "documentId": "fx-capped",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-capped-2",
+        "documentId": "fx-capped",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-capped-3",
+        "documentId": "fx-capped",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-capped-summary",
+        "documentId": "fx-capped",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.5
+      }
+    ],
+    "배포장애 회고": [
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 1.1273829858788296
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 1.125832362112313
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.450530574175326
+      },
+      {
+        "unitId": "fx-recent-1",
+        "documentId": "fx-recent",
+        "score": 0.44502689757334446
+      }
+    ],
+    "결제오류 대응절차": [
+      {
+        "unitId": "fx-archived-1",
+        "documentId": "fx-archived",
+        "score": 0.46728265260289426
+      },
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 0.4579319425282796
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 0.455628835593039
+      },
+      {
+        "unitId": "fx-hub-1",
+        "documentId": "fx-hub",
+        "score": 0.45373983373824395
+      },
+      {
+        "unitId": "fx-recent-1",
+        "documentId": "fx-recent",
+        "score": 0.4501934782853251
+      }
+    ],
+    "마감점검 절차 요약": [
+      {
+        "unitId": "fx-capped-summary",
+        "documentId": "fx-capped",
+        "score": 1.629592888623195
+      },
+      {
+        "unitId": "fx-compacted-1",
+        "documentId": "fx-compacted",
+        "score": 1.1666666666666665
+      },
+      {
+        "unitId": "fx-capped-1",
+        "documentId": "fx-capped",
+        "score": 0.9642099605636621
+      },
+      {
+        "unitId": "fx-capped-2",
+        "documentId": "fx-capped",
+        "score": 0.9642099605636621
+      },
+      {
+        "unitId": "fx-capped-3",
+        "documentId": "fx-capped",
+        "score": 0.9642099605636621
+      },
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.5
+      }
+    ],
+    "긴 문서 본문 단락": [
+      {
+        "unitId": "fx-long-01",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-02",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-03",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-04",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-05",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-06",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-07",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-08",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-09",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-10",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-11",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-12",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-13",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-14",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-15",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-16",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-17",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-18",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-19",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-20",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-21",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-22",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-23",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-24",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-long-25",
+        "documentId": "fx-long",
+        "score": 2.333333333333333
+      },
+      {
+        "unitId": "fx-hub-1",
+        "documentId": "fx-hub",
+        "score": 0.5
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.5
+      }
+    ],
+    "연결 항목 정산배치": [
+      {
+        "unitId": "fx-linked-1",
+        "documentId": "fx-linked",
+        "score": 1.4539844498961538
+      },
+      {
+        "unitId": "fx-linked-2",
+        "documentId": "fx-linked",
+        "score": 1.4539844498961538
+      },
+      {
+        "unitId": "fx-linked-3",
+        "documentId": "fx-linked",
+        "score": 1.4539844498961538
+      },
+      {
+        "unitId": "fx-linked-4",
+        "documentId": "fx-linked",
+        "score": 1.4539844498961538
+      }
+    ],
+    "최근 배포 장애와 결제 오류 현황": [
+      {
+        "unitId": "fx-recent-1",
+        "documentId": "fx-recent",
+        "score": 4.134486968752896
+      },
+      {
+        "unitId": "fx-archived-1",
+        "documentId": "fx-archived",
+        "score": 1.3333333333333333
+      },
+      {
+        "unitId": "fx-hub-1",
+        "documentId": "fx-hub",
+        "score": 1
+      },
+      {
+        "unitId": "fx-dup-a-1",
+        "documentId": "fx-dup-a",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-dup-b-1",
+        "documentId": "fx-dup-b",
+        "score": 0.6666666666666666
+      },
+      {
+        "unitId": "fx-invalid-1",
+        "documentId": "fx-invalid",
+        "score": 0.6666666666666666
+      }
+    ]
+  },
+  "vector": {
+    "배포 장애": {
+      "query": [
+        0.3779644730092272,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.3779644730092272,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.3779644730092272,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.3779644730092272,
+        0,
+        0,
+        0.3779644730092272,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.3779644730092272,
+        0,
+        0,
+        0.3779644730092272,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.5915204817512772
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.5878963512522155
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.5878963512522155
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.49382916465843124
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.436435780471985
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.4285714285714287
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.3927922024247863
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.3876574430285533
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.3876574430285533
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.38271893000630614
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.3827189300063061
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.36401260415463216
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.3588490432130054
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.3588490432130054
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.35389916416304706
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.3401946044500499
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.32322996757772715
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.2923136380967479
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.2903603510974964
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.27300945311597413
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.26542437312228534
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.2584382953523689
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.2584382953523689
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.24196695924791367
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.22750787759664512
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.22428065200812836
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.2205271385679885
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.2182178902359924
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.21536524612697405
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.21262162778128119
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.20032077005375098
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.20032077005375098
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.1619847741468117
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.16198477414681167
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.11026356928399428
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.10012523486435179
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.07838618016696207
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.07597371763975865
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.039621442587516376
+        }
+      ]
+    },
+    "결제 오류 대응": {
+      "query": [
+        0,
+        0.2581988897471611,
+        0,
+        0.2581988897471611,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0.2581988897471611,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0.5163977794943222,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.7552907619063648
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.6308802978765118
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.6227991553292184
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.5590653920196748
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.5228936043967142
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.5068420748999525
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.5002164033860248
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.492642496353576
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.48795003647426666
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.4770278351999552
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.4596385597769218
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.4596385597769218
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.4532984139116245
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.43516891051214657
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.4351689105121465
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.41739935579996085
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.4066950256418888
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.4040854169041361
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.39670776294437177
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.3831663860527813
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.3748356868211662
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.3748356868211662
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.36364878269900747
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.36263873112929973
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.3530939318018998
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.3530939318018998
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.34191842968811503
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.3370682771697426
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.3236694374850748
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.32128773156099955
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.3195460915757698
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.3012974308618838
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.27457131696462483
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.259499648053841
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.24359938288234506
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.20352874052591377
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.1883108942886774
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.1844277783908294
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.18442777839082938
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.06839855680567695
+        }
+      ]
+    },
+    "정산 배치 일정": {
+      "query": [
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5163977794943222,
+        0,
+        0.2581988897471611,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2581988897471611,
+        0,
+        0.2581988897471611,
+        0,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.7745966692414835
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.7532435771547096
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.7377111135633175
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.7155813982969741
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.5362482531950351
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.4066950256418888
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.4040854169041361
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.3632995072753774
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.3632995072753774
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.35617529592034913
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.3518657752744984
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.3480617091910828
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.2757831358661531
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.26482044885142486
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.24632124817678797
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.24632124817678797
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.24175915408619977
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.24096579867074971
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.24096579867074971
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.23851391759997762
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.23539595453459985
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.21758445525607328
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.2115392598254248
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.19968823051972714
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.1983538814721859
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.19518001458970666
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.18650096164806282
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.1765469659009499
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.1765469659009499
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.17429786813223805
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.16529490122682158
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.1554174680400523
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.15321285325897394
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.1532128532589739
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.149071198499986
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.14907119849998599
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.14712247158412492
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.14524822344353172
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.14524822344353172
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.10259783520851543
+        }
+      ]
+    },
+    "온보딩": {
+      "query": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5773502691896258,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5773502691896258,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5773502691896258,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.5353033790313109
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.2526455763199557
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.25264557631995566
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.24743582965269684
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.24743582965269678
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.22176638128637188
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.11605177063713193
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.06757373783994859
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.06579516949597691
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.06579516949597691
+        }
+      ]
+    },
+    "링크 원본 문서": {
+      "query": [
+        0.2773500981126146,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0,
+        0.2773500981126146,
+        0,
+        0.2773500981126146,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2773500981126146,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.7801080992678708
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.5291829288340694
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.5124100921762791
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.5017452060042545
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.46744639430592466
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.44249767886870983
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.426132494537061
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.42199785755477714
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.41931393468876743
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.4163331998932267
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.41089070180665915
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.4108907018066591
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.4099217579581477
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.40660448854301845
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.40066833797650686
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.4006683379765068
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.3949848112059801
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.39498481120598006
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.3906214533256393
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.39024627133664247
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.3821876708246056
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.3792837247446084
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.3792837247446084
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.36727930981179796
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.36206941027214845
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.3570751102386576
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.35228193837119176
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.3488902827777483
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.3485617981116172
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.34511838512583054
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.3432475636778632
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.3432475636778632
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.3432475636778632
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.32364535762509394
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.28759865427152553
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.28759865427152553
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.28318968792195726
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.23772865552509828
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.23772865552509825
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.14694367167412906
+        }
+      ]
+    },
+    "마감 점검 절차": {
+      "query": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.6546536707079772,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.4364357804719848,
+        0,
+        0.2182178902359924
+      ],
+      "hits": [
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.9245708479556909
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.915018021743355
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.9051256444028408
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.8772689266130252
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.3167939755409943
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.3167939755409943
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.3152441624956403
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.3117398431942748
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.2864731563356536
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.28647315633565357
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.28056585887484736
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.2771739468734334
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.24124895481858197
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.2364331218717302
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.2313105010296124
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.2209628772631063
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.20817945092665116
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.20232565955562798
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.20158105227158782
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.19894589252079747
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.18661690879115472
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.18128389273528472
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.17638342073763932
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.17407765595569782
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.16763962686813375
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.15762208124782015
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.15538619377310117
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.15538619377310117
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.14730858484207088
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.13969968905677813
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.13746434980705377
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.13135173437318345
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.1277023610596992
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.12770236105969918
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.12434118282549843
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.12434118282549843
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.12434118282549843
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.12275715403505906
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.12275715403505906
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.10547959852684761
+        }
+      ]
+    },
+    "온보딩 절차": {
+      "query": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.6030226891555273,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.7587869106393281
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.35183959770683393
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.3445843938031584
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.3439179697143974
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.316069770620507
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.3078596479934797
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.30151134457776363
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.2970879555111533
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.2727272727272727
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.270232002768764
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.25408390302421974
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.2188568898182529
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.2188568898182529
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.21212121212121215
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.17891406674112834
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.17180203318601237
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.1374416265488099
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.1374416265488099
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.107348440044677
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.10444659357341873
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.07057846732405854
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.06963106238227915
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.06872081327440495
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.0639202772100593
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.038604571824109146
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.03798685881987932
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.03683547343418787
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.03629770043203139
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.03629770043203139
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.03629770043203139
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.03578281334822567
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.035289233662029275
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.03481553119113957
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.034360406637202474
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.03392267657763792
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.03392267657763792
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.03392267657763792
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.03392267657763792
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.03196013860502965
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.02914820186645445
+        }
+      ]
+    },
+    "배포장애 회고": {
+      "query": [
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0.30151134457776363,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0.30151134457776363,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0,
+        0,
+        0,
+        0,
+        0.30151134457776363,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.5940401295066864
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.5940401295066864
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.4307304922539481
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.3876574430285532
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.35183959770683393
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.3333333333333333
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.3315192609076908
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.32667930388828254
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.31760310295826344
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.31333978072025614
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.3078596479934797
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.29038160345625114
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.2823138692962342
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.2748832530976198
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.2748832530976198
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.2713814126211034
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.270232002768764
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.2659080117391553
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.2504796934375797
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.24052284646041733
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.23745873604346546
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.23745873604346546
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.2331856149316356
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.22372097023520757
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.21778620259218834
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.21778620259218834
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.214696880089354
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.20889318714683747
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.20889318714683747
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.20616243982321486
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.19968076595771794
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.19302285912054573
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.17891406674112834
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.1718020331860124
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.1696133828881896
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.15980069302514827
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.06253053994807226
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.06060606060606061
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.05941759110223066
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.031606977062050706
+        }
+      ]
+    },
+    "결제오류 대응절차": {
+      "query": [
+        0,
+        0,
+        0,
+        0.22941573387056174,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0,
+        0.22941573387056174,
+        0.22941573387056174,
+        0,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0,
+        0,
+        0.4588314677411235,
+        0,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.4588314677411235,
+        0,
+        0.22941573387056174,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0.22941573387056174,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.4129805863357339
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.4015646888461528
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.3806288544558454
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.3806288544558454
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.3681009647756401
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.356839551052355
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.34585723193303747
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.33633111280272626
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.3277367626722311
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.31373219136960134
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.3038024971663592
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.29974293434196575
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.29496308640500807
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.29386505129047585
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.28859164214632915
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.2839241531058171
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.2649064714130089
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.2649064714130088
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.2614434928080011
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.23122932520643208
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.2188621723886089
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.2178131080469321
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.21480864541642186
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.21192517713040704
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.194544153234319
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.19332886183313772
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.1933288618331377
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.19058646954106562
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.18301044496560076
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.1806790065218836
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.176242048633814
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.176242048633814
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.16110648406231642
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.15686609568480067
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.15686609568480067
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.1380920441665269
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.13613319252933256
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.12905643322991686
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.12154742509255281
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.11089228054693061
+        }
+      ]
+    },
+    "마감점검 절차 요약": {
+      "query": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.41702882811414954,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.41702882811414954,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0.41702882811414954,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0.20851441405707477,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477
+      ],
+      "hits": [
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.7334770490389203
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.7190937498139781
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.6557474954819613
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.6054142500901748
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.4756826250708518
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.4756826250708518
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.46951295016619143
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.4468166015508745
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.42673715548798447
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.42580934527073155
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.3649794388034841
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.3370803886401539
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.3315372552769015
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.3276655078039747
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.2936728849659423
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.2933908196155681
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.28892604740584615
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.28733228790664794
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.28514907391305455
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.2613866510869667
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.2613866510869667
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.2613866510869667
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.25805674886672353
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.2580567488667235
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.25474090105633396
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.24746108207197498
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.24077170617153845
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.24027781497213455
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.23762422826087878
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.23459704442429408
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.23459704442429408
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.22591967055246234
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.22271497386477748
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.2217363418170453
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.21964289605352108
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.21964289605352105
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.2101627749970936
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.20081748493552207
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.20081748493552207
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.19796886565758
+        }
+      ]
+    },
+    "긴 문서 본문 단락": {
+      "query": [
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0.41702882811414954,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0.41702882811414954,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.20851441405707477,
+        0,
+        0.20851441405707477,
+        0,
+        0.41702882811414954,
+        0,
+        0.20851441405707477,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.9267344902174272
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.9062018310901971
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.8869453672681811
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.8840993474050703
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.8792096445652514
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.8792096445652514
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.868009064369888
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.8667781422175388
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.8406510999883744
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.8297620517577463
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.8283721253590286
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.8276235849040193
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.8276235849040193
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.8166215708375172
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.8032699397420884
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.7976299510425998
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.7976299510425998
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.7945466303660773
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.7918754626303197
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.7841599532608999
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.7841599532608999
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.7809525193014082
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.778167754125148
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.7704694597489232
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.7671293544231222
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.516113497733447
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.48199920365414756
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.4016349698710442
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.3891948750579696
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.3891948750579696
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.3821113515845009
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.3287285713435329
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.30414953233623687
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.2433196258689894
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.23052135826937492
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.21621937503220534
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.19672424864458846
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.17872664062034985
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.17872664062034982
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.1380920441665269
+        }
+      ]
+    },
+    "연결 항목 정산배치": {
+      "query": [
+        0.2182178902359924,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.4364357804719848,
+        0,
+        0.2182178902359924,
+        0.4364357804719848,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0.2182178902359924,
+        0.2182178902359924,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0.2182178902359924,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2182178902359924,
+        0,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.6858276550274046
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.6684373647831918
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.6366070140792304
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.6234796863885498
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.46245865041286394
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.3677848562449137
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.3620502577611363
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.3620502577611363
+        },
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.35090757064521017
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.3167939755409943
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.30102306677627144
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.2851124011492332
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.27450540652300653
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.24551430807011815
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.2399360255886275
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.17407765595569782
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.17407765595569782
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.16763962686813375
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.14920941939059812
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.14920941939059812
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.13878630061776745
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.12948849481091765
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.12275715403505906
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.10997147984564301
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.10508138749854676
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.10508138749854676
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.10359079584873412
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.10216188884775936
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.10079052613579391
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.07881104062391006
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.0776930968865506
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.07662141663581953
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.07559289460184546
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.07559289460184543
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.07460470969529906
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.07365429242103544
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.06939315030888372
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.06328775911610857
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.055879875622711246
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.04910286161402362
+        }
+      ]
+    },
+    "최근 배포 장애와 결제 오류 현황": {
+      "query": [
+        0.27472112789737807,
+        0.27472112789737807,
+        0,
+        0.13736056394868904,
+        0,
+        0.13736056394868904,
+        0,
+        0,
+        0,
+        0.13736056394868904,
+        0.13736056394868904,
+        0.13736056394868904,
+        0,
+        0,
+        0.13736056394868904,
+        0,
+        0,
+        0,
+        0,
+        0.27472112789737807,
+        0,
+        0,
+        0,
+        0,
+        0.13736056394868904,
+        0,
+        0,
+        0.27472112789737807,
+        0,
+        0.27472112789737807,
+        0,
+        0.27472112789737807,
+        0,
+        0.27472112789737807,
+        0,
+        0.27472112789737807,
+        0,
+        0.13736056394868904,
+        0,
+        0.13736056394868904,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.27472112789737807,
+        0.13736056394868904,
+        0,
+        0,
+        0.27472112789737807,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.13736056394868904,
+        0,
+        0.13736056394868904,
+        0,
+        0,
+        0.13736056394868904,
+        0,
+        0,
+        0
+      ],
+      "hits": [
+        {
+          "unitId": "fx-recent-1",
+          "documentId": "fx-recent",
+          "score": 0.9111469032188408
+        },
+        {
+          "unitId": "fx-archived-1",
+          "documentId": "fx-archived",
+          "score": 0.7719381336076834
+        },
+        {
+          "unitId": "fx-hub-1",
+          "documentId": "fx-hub",
+          "score": 0.7263507302463137
+        },
+        {
+          "unitId": "fx-long-15",
+          "documentId": "fx-long",
+          "score": 0.6731086291677834
+        },
+        {
+          "unitId": "fx-long-10",
+          "documentId": "fx-long",
+          "score": 0.6520679914138721
+        },
+        {
+          "unitId": "fx-long-11",
+          "documentId": "fx-long",
+          "score": 0.6418012510669563
+        },
+        {
+          "unitId": "fx-long-01",
+          "documentId": "fx-long",
+          "score": 0.6403147623697704
+        },
+        {
+          "unitId": "fx-long-17",
+          "documentId": "fx-long",
+          "score": 0.6344412685745158
+        },
+        {
+          "unitId": "fx-invalid-1",
+          "documentId": "fx-invalid",
+          "score": 0.6283782095096009
+        },
+        {
+          "unitId": "fx-long-22",
+          "documentId": "fx-long",
+          "score": 0.6260881983029802
+        },
+        {
+          "unitId": "fx-long-19",
+          "documentId": "fx-long",
+          "score": 0.6185802368601526
+        },
+        {
+          "unitId": "fx-long-18",
+          "documentId": "fx-long",
+          "score": 0.6031628920578318
+        },
+        {
+          "unitId": "fx-long-13",
+          "documentId": "fx-long",
+          "score": 0.5953056721669905
+        },
+        {
+          "unitId": "fx-long-12",
+          "documentId": "fx-long",
+          "score": 0.5948430054102947
+        },
+        {
+          "unitId": "fx-long-16",
+          "documentId": "fx-long",
+          "score": 0.5872622925395727
+        },
+        {
+          "unitId": "fx-long-03",
+          "documentId": "fx-long",
+          "score": 0.580378195115835
+        },
+        {
+          "unitId": "fx-long-04",
+          "documentId": "fx-long",
+          "score": 0.5787661674262328
+        },
+        {
+          "unitId": "fx-long-14",
+          "documentId": "fx-long",
+          "score": 0.5718080216832683
+        },
+        {
+          "unitId": "fx-long-08",
+          "documentId": "fx-long",
+          "score": 0.570997141717064
+        },
+        {
+          "unitId": "fx-long-06",
+          "documentId": "fx-long",
+          "score": 0.56223313482438
+        },
+        {
+          "unitId": "fx-dup-a-1",
+          "documentId": "fx-dup-a",
+          "score": 0.5555014513453085
+        },
+        {
+          "unitId": "fx-dup-b-1",
+          "documentId": "fx-dup-b",
+          "score": 0.5555014513453085
+        },
+        {
+          "unitId": "fx-long-20",
+          "documentId": "fx-long",
+          "score": 0.553287245011936
+        },
+        {
+          "unitId": "fx-long-02",
+          "documentId": "fx-long",
+          "score": 0.5478791167644749
+        },
+        {
+          "unitId": "fx-long-21",
+          "documentId": "fx-long",
+          "score": 0.5478791167644749
+        },
+        {
+          "unitId": "fx-long-25",
+          "documentId": "fx-long",
+          "score": 0.5478791167644749
+        },
+        {
+          "unitId": "fx-long-09",
+          "documentId": "fx-long",
+          "score": 0.5456968661530744
+        },
+        {
+          "unitId": "fx-long-05",
+          "documentId": "fx-long",
+          "score": 0.5452037590482086
+        },
+        {
+          "unitId": "fx-long-07",
+          "documentId": "fx-long",
+          "score": 0.5379560929164445
+        },
+        {
+          "unitId": "fx-long-23",
+          "documentId": "fx-long",
+          "score": 0.50999093825805
+        },
+        {
+          "unitId": "fx-long-24",
+          "documentId": "fx-long",
+          "score": 0.49132843650282554
+        },
+        {
+          "unitId": "fx-linked-1",
+          "documentId": "fx-linked",
+          "score": 0.40072194985043047
+        },
+        {
+          "unitId": "fx-linked-2",
+          "documentId": "fx-linked",
+          "score": 0.3606497548653876
+        },
+        {
+          "unitId": "fx-linked-4",
+          "documentId": "fx-linked",
+          "score": 0.3532128787252005
+        },
+        {
+          "unitId": "fx-capped-summary",
+          "documentId": "fx-capped",
+          "score": 0.331326146625033
+        },
+        {
+          "unitId": "fx-linked-3",
+          "documentId": "fx-linked",
+          "score": 0.31396700331128924
+        },
+        {
+          "unitId": "fx-capped-2",
+          "documentId": "fx-capped",
+          "score": 0.27069077064760405
+        },
+        {
+          "unitId": "fx-capped-1",
+          "documentId": "fx-capped",
+          "score": 0.25638528523629617
+        },
+        {
+          "unitId": "fx-capped-3",
+          "documentId": "fx-capped",
+          "score": 0.24478809379666966
+        },
+        {
+          "unitId": "fx-compacted-1",
+          "documentId": "fx-compacted",
+          "score": 0.1819385115347408
+        }
+      ]
+    }
+  },
+  "links": [
+    {
+      "unitId": "fx-linked-1",
+      "documentId": "fx-linked",
+      "score": 0
+    },
+    {
+      "unitId": "fx-linked-2",
+      "documentId": "fx-linked",
+      "score": 0
+    },
+    {
+      "unitId": "fx-linked-3",
+      "documentId": "fx-linked",
+      "score": 0
+    },
+    {
+      "unitId": "fx-linked-4",
+      "documentId": "fx-linked",
+      "score": 0
+    }
+  ],
+  "latestCapturedAt": "2026-10-07T00:00:00Z",
+  "documents": [
+    {
+      "documentId": "fx-hub",
+      "title": "링크 원본 문서",
+      "uri": "fixture://fx-hub",
+      "sourceId": "fixture",
+      "unitCount": 1,
+      "latestCapturedAt": "2026-09-01T00:00:00Z"
+    },
+    {
+      "documentId": "fx-linked",
+      "title": "연결 항목 1",
+      "uri": "fixture://fx-linked",
+      "sourceId": "fixture",
+      "unitCount": 4,
+      "latestCapturedAt": "2026-09-01T00:00:00Z"
+    },
+    {
+      "documentId": "fx-archived",
+      "title": "옛 결제 오류",
+      "uri": "fixture://fx-archived",
+      "sourceId": "fixture",
+      "unitCount": 1,
+      "latestCapturedAt": "2026-09-01T00:00:00Z"
+    },
+    {
+      "documentId": "fx-compacted",
+      "title": "온보딩 요약",
+      "uri": "fixture://fx-compacted",
+      "sourceId": "fixture",
+      "unitCount": 1,
+      "latestCapturedAt": "2026-09-01T00:00:00Z"
+    },
+    {
+      "documentId": "fx-capped",
+      "title": "마감 점검 1",
+      "uri": "fixture://fx-capped",
+      "sourceId": "fixture",
+      "unitCount": 4,
+      "latestCapturedAt": "2026-09-01T00:00:00Z"
+    },
+    {
+      "documentId": "fx-long",
+      "title": "긴 문서 단락 1",
+      "uri": "fixture://fx-long",
+      "sourceId": "fixture",
+      "unitCount": 25,
+      "latestCapturedAt": "2026-09-01T00:00:00Z"
+    }
+  ],
+  "longPage": [
+    "fx-long-21",
+    "fx-long-22",
+    "fx-long-23",
+    "fx-long-24",
+    "fx-long-25"
+  ],
+  "bm25": {
+    "온보딩": [
+      {
+        "id": "fx-compacted-1",
+        "rank": -4.776731267013593
+      }
+    ],
+    "온보딩 절차": [
+      {
+        "id": "fx-compacted-1",
+        "rank": -4.776731267013593
+      }
+    ],
+    "배포장애 회고": [],
+    "결제오류 대응절차": [],
+    "마감점검 절차 요약": [],
+    "연결 항목 정산배치": [],
+    "최근 배포 장애와 결제 오류 현황": [
+      {
+        "id": "fx-recent-1",
+        "rank": -2.77175615748615
+      }
+    ]
+  },
+  "vectors": [
+    {
+      "id": "fx-dup-a-1",
+      "dim": 64,
+      "hex": "2CD0A341C48BCA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BCA3F21DC3A31D3E8D33F2CD0A341C48BCA3F00000000000000002CD0A341C48BDA3F00000000000000002CD0A341C48BBA3F00000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BBA3F2CD0A341C48BCA3F2CD0A341C48BBA3F000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BBA3F2CD0A341C48BBA3F00000000000000002CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BCA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F2CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BBA3F2CD0A341C48BBA3F2CD0A341C48BBA3F00000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BCA3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-dup-b-1",
+      "dim": 64,
+      "hex": "2CD0A341C48BCA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BCA3F21DC3A31D3E8D33F2CD0A341C48BCA3F00000000000000002CD0A341C48BDA3F00000000000000002CD0A341C48BBA3F00000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BBA3F2CD0A341C48BCA3F2CD0A341C48BBA3F000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BBA3F2CD0A341C48BBA3F00000000000000002CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BCA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F2CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BBA3F2CD0A341C48BBA3F2CD0A341C48BBA3F00000000000000002CD0A341C48BCA3F00000000000000002CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BCA3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-hub-1",
+      "dim": 64,
+      "hex": "58D3F54560CDCC3F825E7834089AD53F58D3F54560CDBC3F58D3F54560CDCC3F000000000000000058D3F54560CDCC3F00000000000000000000000000000000000000000000000058D3F54560CDBC3F58D3F54560CDBC3F58D3F54560CDBC3F00000000000000000000000000000000000000000000000058D3F54560CDBC3F00000000000000000000000000000000000000000000000058D3F54560CDBC3F58D3F54560CDBC3F58D3F54560CDBC3F000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F825E7834089AD53F000000000000000058D3F54560CDBC3F58D3F54560CDBC3F825E7834089AD53F58D3F54560CDCC3F58D3F54560CDCC3F00000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000825E7834089AD53F000000000000000058D3F54560CDCC3F58D3F54560CDBC3F58D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F00000000000000000000000000000000"
+    },
+    {
+      "id": "fx-linked-1",
+      "dim": 64,
+      "hex": "F3B00E3CB4ABC23F00000000000000000000000000000000F3B00E3CB4ABC23FF3B00E3CB4ABC23FF3B00E3CB4ABC23F0000000000000000000000000000000000000000000000000000000000000000F3B00E3CB4ABD23F00000000000000000000000000000000F3B00E3CB4ABC23F00000000000000000000000000000000F3B00E3CB4ABC23F00000000000000000000000000000000F3B00E3CB4ABC23F0000000000000000F3B00E3CB4ABC23FF3B00E3CB4ABC23FF3B00E3CB4ABD23F0000000000000000F3B00E3CB4ABC23F0000000000000000000000000000000000000000000000006D09165A8E01DC3FF3B00E3CB4ABD23FF3B00E3CB4ABC23FF3B00E3CB4ABC23F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000F3B00E3CB4ABC23F00000000000000000000000000000000F3B00E3CB4ABD23F0000000000000000F3B00E3CB4ABC23FF3B00E3CB4ABC23F0000000000000000F3B00E3CB4ABC23FF3B00E3CB4ABC23F00000000000000000000000000000000F3B00E3CB4ABC23FF3B00E3CB4ABC23F0000000000000000000000000000000000000000000000000000000000000000F3B00E3CB4ABC23F0000000000000000F3B00E3CB4ABC23F00000000000000000000000000000000F3B00E3CB4ABC23F0000000000000000"
+    },
+    {
+      "id": "fx-linked-2",
+      "dim": 64,
+      "hex": "F4B00E3CB4ABC23F00000000000000000000000000000000F4B00E3CB4ABC23FF4B00E3CB4ABC23FF4B00E3CB4ABC23F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000F4B00E3CB4ABC23FF4B00E3CB4ABC23F0000000000000000F4B00E3CB4ABC23F0000000000000000000000000000000000000000000000000000000000000000F4B00E3CB4ABC23FF4B00E3CB4ABC23FF4B00E3CB4ABD23F0000000000000000F4B00E3CB4ABC23F0000000000000000000000000000000000000000000000006E09165A8E01DC3FF4B00E3CB4ABC23FF4B00E3CB4ABC23FF4B00E3CB4ABC23F00000000000000000000000000000000000000000000000000000000000000000000000000000000F4B00E3CB4ABC23F000000000000000000000000000000000000000000000000F4B00E3CB4ABD23F0000000000000000F4B00E3CB4ABC23FF4B00E3CB4ABC23F0000000000000000F4B00E3CB4ABD23FF4B00E3CB4ABC23F0000000000000000000000000000000000000000000000000000000000000000F4B00E3CB4ABC23F0000000000000000F4B00E3CB4ABD23F0000000000000000F4B00E3CB4ABC23FF4B00E3CB4ABC23FF4B00E3CB4ABC23F00000000000000000000000000000000F4B00E3CB4ABC23F0000000000000000"
+    },
+    {
+      "id": "fx-linked-3",
+      "dim": 64,
+      "hex": "922449922449C23F00000000000000000000000000000000922449922449C23F922449922449C23F922449922449C23F922449922449C23F00000000000000000000000000000000000000000000000000000000000000000000000000000000922449922449C23F922449922449D23F00000000000000000000000000000000922449922449C23F0000000000000000000000000000000000000000000000000000000000000000922449922449C23F922449922449C23F922449922449D23F0000000000000000922449922449C23F000000000000000000000000000000000000000000000000DBB66DDBB66DDB3F922449922449C23F922449922449C23F922449922449C23F000000000000000000000000000000000000000000000000922449922449D23F0000000000000000000000000000000000000000000000000000000000000000922449922449C23F922449922449D23F0000000000000000922449922449C23F922449922449C23F0000000000000000922449922449C23F922449922449C23F00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000922449922449D23F0000000000000000922449922449C23F00000000000000000000000000000000922449922449C23F0000000000000000"
+    },
+    {
+      "id": "fx-linked-4",
+      "dim": 64,
+      "hex": "932449922449C23F00000000000000000000000000000000932449922449C23F932449922449D23F932449922449C23F00000000000000000000000000000000932449922449C23F000000000000000000000000000000000000000000000000932449922449C23F932449922449C23F00000000000000000000000000000000932449922449C23F932449922449D23F000000000000000000000000000000000000000000000000932449922449C23F932449922449C23F932449922449D23F0000000000000000932449922449C23F000000000000000000000000000000000000000000000000DCB66DDBB66DDB3F932449922449C23F932449922449C23F932449922449C23F00000000000000000000000000000000932449922449C23F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000932449922449D23F0000000000000000932449922449C23F932449922449C23F0000000000000000932449922449C23F932449922449C23F00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000932449922449D23F0000000000000000932449922449C23F00000000000000000000000000000000932449922449C23F0000000000000000"
+    },
+    {
+      "id": "fx-archived-1",
+      "dim": 64,
+      "hex": "CCB014287F46BF3FCCB014287F46CF3F0000000000000000CCB014287F46CF3F0000000000000000CCB014287F46CF3F000000000000000000000000000000000000000000000000CCB014287F46CF3F0000000000000000CCB014287F46CF3F00000000000000000000000000000000000000000000000000000000000000000000000000000000CCB014287F46BF3F0000000000000000CCB014287F46CF3F000000000000000000000000000000000000000000000000CCB014287F46BF3F000000000000000000000000000000000000000000000000CCB014287F46CF3F0000000000000000CCB014287F46DF3F0000000000000000CCB014287F46CF3F0000000000000000CCB014287F46CF3F0000000000000000CCB014287F46BF3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000CCB014287F46BF3F00000000000000000000000000000000CCB014287F46BF3FCCB014287F46BF3F0000000000000000CCB014287F46CF3F0000000000000000000000000000000000000000000000000000000000000000CCB014287F46BF3F00000000000000000000000000000000CCB014287F46BF3FCCB014287F46BF3FCCB014287F46BF3F0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-compacted-1",
+      "dim": 64,
+      "hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ADEDCD453AF4C03F00000000000000000000000000000000000000000000000000000000000000000000000000000000ADEDCD453AF4C03FADEDCD453AF4C03F000000000000000083E4B468576ED93F00000000000000000000000000000000ADEDCD453AF4D03F0000000000000000ADEDCD453AF4D03F0000000000000000ADEDCD453AF4C03FADEDCD453AF4C03FADEDCD453AF4D03FADEDCD453AF4D03F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ADEDCD453AF4D03F000000000000000000000000000000000000000000000000ADEDCD453AF4C03F00000000000000000000000000000000000000000000000083E4B468576ED93F0000000000000000000000000000000000000000000000000000000000000000ADEDCD453AF4D03F000000000000000000000000000000000000000000000000ADEDCD453AF4C03F0000000000000000000000000000000000000000000000000000000000000000ADEDCD453AF4D03F000000000000000000000000000000000000000000000000ADEDCD453AF4D03F0000000000000000"
+    },
+    {
+      "id": "fx-capped-1",
+      "dim": 64,
+      "hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001C6206A95A97E03F000000000000000000000000000000002CD0A341C48BCA3F000000000000000000000000000000002CD0A341C48BBA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BBA3F21DC3A31D3E8D33F000000000000000021DC3A31D3E8D33F000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F2CD0A341C48BBA3F21DC3A31D3E8D33F000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BBA3F2CD0A341C48BCA3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BCA3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CD0A341C48BDA3F00000000000000002CD0A341C48BBA3F"
+    },
+    {
+      "id": "fx-capped-2",
+      "dim": 64,
+      "hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000BD383044D187DF3F0000000000000000000000000000000000000000000000000000000000000000000000000000000031FA8C367439C93F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000A5BBE92817EBD23F0000000000000000A5BBE92817EBD23F0000000000000000000000000000000000000000000000000000000000000000000000000000000031FA8C367439C93F0000000000000000A5BBE92817EBD23F0000000000000000000000000000000000000000000000000000000000000000000000000000000031FA8C367439D93F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000031FA8C367439C93F000000000000000031FA8C367439B93F0000000000000000000000000000000000000000000000000000000000000000000000000000000031FA8C367439B93F000000000000000031FA8C367439C93F0000000000000000000000000000000000000000000000000000000000000000000000000000000031FA8C367439D93F000000000000000031FA8C367439B93F"
+    },
+    {
+      "id": "fx-capped-3",
+      "dim": 64,
+      "hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000094B30F1D0AD6BA3F3DD02952C6C5E03F0000000000000000000000000000000094B30F1D0AD6BA3F000000000000000094B30F1D0AD6BA3F94B30F1D0AD6BA3F000000000000000000000000000000000000000000000000000000000000000094B30F1D0AD6BA3F00000000000000000000000000000000AFC6CB958720D43F0000000000000000AFC6CB958720D43F0000000000000000000000000000000000000000000000000000000000000000000000000000000094B30F1D0AD6CA3F0000000000000000AFC6CB958720D43F000000000000000000000000000000000000000000000000000000000000000094B30F1D0AD6CA3F94B30F1D0AD6CA3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000094B30F1D0AD6CA3F00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000094B30F1D0AD6BA3F0000000000000000000000000000000094B30F1D0AD6DA3F000000000000000094B30F1D0AD6BA3F"
+    },
+    {
+      "id": "fx-capped-summary",
+      "dim": 64,
+      "hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000075813C88A214E03F000000000000000000000000000000000000000000000000000000000000000000000000000000008835C7A69DBAB93F8835C7A69DBAB93F00000000000000000000000000000000000000000000000000000000000000008835C7A69DBAB93F00000000000000002668153DF64BD33F00000000000000002668153DF64BD33F8835C7A69DBAB93F00000000000000008835C7A69DBAC93F000000000000000000000000000000008835C7A69DBAC93F00000000000000002668153DF64BD33F00000000000000000000000000000000000000000000000000000000000000008835C7A69DBAC93F8835C7A69DBAC93F00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008835C7A69DBAC93F000000000000000000000000000000008835C7A69DBAB93F8835C7A69DBAC93F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008835C7A69DBAB93F00000000000000008835C7A69DBAD93F00000000000000008835C7A69DBAB93F"
+    },
+    {
+      "id": "fx-long-01",
+      "dim": 64,
+      "hex": "99FA6F446120C03F99FA6F446120D03F000000000000000000000000000000000000000000000000E6F7A7E69130D83F000000000000000099FA6F446120C03F0000000000000000000000000000000099FA6F446120D03F99FA6F446120C03F0000000000000000000000000000000000000000000000000000000000000000000000000000000099FA6F446120C03F000000000000000099FA6F446120D03F000000000000000000000000000000000000000000000000000000000000000099FA6F446120D03F000000000000000099FA6F446120C03FE6F7A7E69130D83F0000000000000000000000000000000099FA6F446120D03F0000000000000000000000000000000099FA6F446120D03F000000000000000099FA6F446120C03F000000000000000099FA6F446120C03F0000000000000000000000000000000000000000000000000000000000000000000000000000000099FA6F446120C03F000000000000000099FA6F446120C03F0000000000000000000000000000000000000000000000000000000000000000000000000000000099FA6F446120D03F99FA6F446120C03F99FA6F446120C03F000000000000000099FA6F446120C03F000000000000000099FA6F446120D03F0000000000000000000000000000000099FA6F446120C03F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-02",
+      "dim": 64,
+      "hex": "00000000000000002412B2E763E1D53F0000000000000000000000000000000000000000000000002412B2E763E1D53F0000000000000000866DED34852CBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F0000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F2412B2E763E1D53F00000000000000000000000000000000866DED34852CCD3F00000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F000000000000000000000000000000000000000000000000866DED34852CCD3F00000000000000002412B2E763E1D53F00000000000000002412B2E763E1D53F0000000000000000866DED34852CCD3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-03",
+      "dim": 64,
+      "hex": "00000000000000007A30FF318363D03F000000000000000000000000000000000000000000000000B7C8FECA4495D83F7A30FF318363C03F7A30FF318363C03F00000000000000000000000000000000000000000000000000000000000000007A30FF318363C03F00000000000000000000000000000000000000000000000000000000000000007A30FF318363C03F00000000000000007A30FF318363D03F00000000000000000000000000000000000000000000000000000000000000007A30FF318363D03F00000000000000007A30FF318363C03FB7C8FECA4495D83F000000000000000000000000000000007A30FF318363C03F000000000000000000000000000000007A30FF318363D03F7A30FF318363C03F7A30FF318363C03F7A30FF318363D03F7A30FF318363C03F000000000000000000000000000000000000000000000000000000000000000000000000000000007A30FF318363C03F00000000000000007A30FF318363C03F0000000000000000000000000000000000000000000000007A30FF318363C03F00000000000000007A30FF318363D03F00000000000000007A30FF318363C03F7A30FF318363C03F7A30FF318363C03F00000000000000007A30FF318363D03F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-04",
+      "dim": 64,
+      "hex": "000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F50637E9B68F6BD3F7CCA9E74CE78D63F000000000000000050637E9B68F6BD3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007CCA9E74CE78D63F000000000000000050637E9B68F6CD3F000000000000000000000000000000000000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F7CCA9E74CE78D63F0000000000000000000000000000000050637E9B68F6BD3F0000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F0000000000000000000000000000000000000000000000000000000000000000000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6BD3F0000000000000000000000000000000000000000000000000000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6CD3F00000000000000007CCA9E74CE78D63F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-05",
+      "dim": 64,
+      "hex": "00000000000000007A30FF318363D03F000000000000000000000000000000000000000000000000B7C8FECA4495D83F00000000000000007A30FF318363C03F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007A30FF318363C03F7A30FF318363C03F00000000000000007A30FF318363D03F0000000000000000000000000000000000000000000000007A30FF318363C03F7A30FF318363D03F00000000000000007A30FF318363C03FB7C8FECA4495D83F000000000000000000000000000000007A30FF318363C03F000000000000000000000000000000007A30FF318363D03F00000000000000007A30FF318363C03F00000000000000007A30FF318363C03F000000000000000000000000000000000000000000000000000000000000000000000000000000007A30FF318363C03F7A30FF318363C03F7A30FF318363C03F000000000000000000000000000000007A30FF318363C03F000000000000000000000000000000007A30FF318363D03F00000000000000007A30FF318363C03F00000000000000007A30FF318363C03F00000000000000007A30FF318363D03F7A30FF318363C03F0000000000000000000000000000000000000000000000007A30FF318363D03F0000000000000000"
+    },
+    {
+      "id": "fx-long-06",
+      "dim": 64,
+      "hex": "00000000000000005989E7759BD1CE3F00000000000000000000000000000000000000000000000003A76D98341DD73F00000000000000005989E7759BD1BE3F0000000000000000000000000000000000000000000000005989E7759BD1BE3F000000000000000000000000000000000000000000000000000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1CE3F00000000000000000000000000000000000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F03A76D98341DD73F000000000000000000000000000000005989E7759BD1BE3F000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F0000000000000000000000000000000000000000000000005989E7759BD1BE3F5989E7759BD1BE3F03A76D98341DD73F00000000000000005989E7759BD1CE3F000000000000000000000000000000000000000000000000000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F00000000000000005989E7759BD1CE3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-07",
+      "dim": 64,
+      "hex": "0000000000000000DB8AF138B161CE3F0000000000000000000000000000000000000000000000002428B5EA44C9D63F0000000000000000DB8AF138B161BE3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000DB8AF138B161BE3F0000000000000000DB8AF138B161CE3F00000000000000000000000000000000DB8AF138B161BE3F0000000000000000DB8AF138B161DE3F0000000000000000DB8AF138B161BE3F2428B5EA44C9D63F00000000000000000000000000000000DB8AF138B161BE3F00000000000000000000000000000000DB8AF138B161CE3FDB8AF138B161CE3FDB8AF138B161BE3F0000000000000000DB8AF138B161BE3F00000000000000000000000000000000DB8AF138B161BE3F00000000000000000000000000000000DB8AF138B161BE3F0000000000000000DB8AF138B161BE3F00000000000000000000000000000000000000000000000000000000000000000000000000000000DB8AF138B161CE3F0000000000000000DB8AF138B161BE3F0000000000000000DB8AF138B161BE3F0000000000000000DB8AF138B161CE3F000000000000000000000000000000000000000000000000DB8AF138B161BE3F00000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-08",
+      "dim": 64,
+      "hex": "00000000000000002CB8E608728FCD3F00000000000000002CB8E608728FBD3F00000000000000001C339045A779E23F00000000000000002CB8E608728FBD3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002CB8E608728FBD3F00000000000000002CB8E608728FCD3F00000000000000000000000000000000000000000000000000000000000000002CB8E608728FCD3F00000000000000002CB8E608728FBD3F210AAD86952BD63F000000000000000000000000000000002CB8E608728FBD3F00000000000000002CB8E608728FBD3F2CB8E608728FCD3F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FCD3F00000000000000002CB8E608728FBD3F0000000000000000000000000000000000000000000000002CB8E608728FBD3F00000000000000002CB8E608728FBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000002CB8E608728FCD3F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FCD3F000000000000000000000000000000000000000000000000000000000000000000000000000000002CB8E608728FBD3F"
+    },
+    {
+      "id": "fx-long-09",
+      "dim": 64,
+      "hex": "00000000000000005789E7759BD1CE3F00000000000000000000000000000000000000000000000001A76D98341DD73F00000000000000005789E7759BD1BE3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005789E7759BD1BE3F00000000000000005789E7759BD1CE3F5789E7759BD1BE3F00000000000000005789E7759BD1BE3F000000000000000001A76D98341DD73F00000000000000005789E7759BD1BE3F01A76D98341DD73F000000000000000000000000000000005789E7759BD1BE3F000000000000000000000000000000005789E7759BD1CE3F00000000000000005789E7759BD1BE3F00000000000000005789E7759BD1BE3F000000000000000000000000000000000000000000000000000000000000000000000000000000005789E7759BD1BE3F00000000000000005789E7759BD1BE3F00000000000000000000000000000000000000000000000000000000000000005789E7759BD1CE3F01A76D98341DD73F00000000000000005789E7759BD1BE3F00000000000000005789E7759BD1BE3F00000000000000005789E7759BD1CE3F000000000000000000000000000000005789E7759BD1BE3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-10",
+      "dim": 64,
+      "hex": "0000000000000000DD8AF138B161CE3F00000000000000000000000000000000DD8AF138B161CE3F2628B5EA44C9D63F0000000000000000DD8AF138B161BE3F00000000000000000000000000000000DD8AF138B161CE3FDD8AF138B161CE3F00000000000000000000000000000000DD8AF138B161CE3F00000000000000000000000000000000DD8AF138B161BE3F0000000000000000DD8AF138B161CE3F0000000000000000000000000000000000000000000000000000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3F2628B5EA44C9D63F0000000000000000DD8AF138B161BE3FDD8AF138B161BE3F00000000000000000000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3F0000000000000000DD8AF138B161BE3F00000000000000000000000000000000000000000000000000000000000000000000000000000000DD8AF138B161BE3FDD8AF138B161BE3FDD8AF138B161BE3F00000000000000000000000000000000000000000000000000000000000000000000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3F0000000000000000DD8AF138B161BE3F0000000000000000DD8AF138B161CE3F00000000000000000000000000000000DD8AF138B161BE3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-11",
+      "dim": 64,
+      "hex": "866DED34852CBD3F866DED34852CCD3F0000000000000000000000000000000000000000000000002412B2E763E1D53F0000000000000000866DED34852CBD3F00000000000000000000000000000000866DED34852CCD3F866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F866DED34852CCD3F0000000000000000866DED34852CBD3F2412B2E763E1D53F00000000000000000000000000000000866DED34852CBD3F00000000000000000000000000000000866DED34852CDD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F866DED34852CBD3F866DED34852CBD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F00000000000000000000000000000000866DED34852CBD3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-12",
+      "dim": 64,
+      "hex": "00000000000000007CCA9E74CE78D63F0000000000000000000000000000000000000000000000007CCA9E74CE78D63F000000000000000050637E9B68F6BD3F0000000000000000000000000000000050637E9B68F6CD3F50637E9B68F6BD3F0000000000000000000000000000000000000000000000000000000000000000000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6CD3F000000000000000000000000000000000000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F7CCA9E74CE78D63F0000000000000000000000000000000050637E9B68F6BD3F0000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6BD3F0000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6CD3F50637E9B68F6BD3F000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6BD3F00000000000000000000000000000000000000000000000050637E9B68F6CD3F000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6CD3F0000000000000000000000000000000050637E9B68F6BD3F000000000000000050637E9B68F6BD3F0000000000000000"
+    },
+    {
+      "id": "fx-long-13",
+      "dim": 64,
+      "hex": "00000000000000005989E7759BD1CE3F00000000000000000000000000000000000000000000000003A76D98341DD73F5989E7759BD1BE3F5989E7759BD1BE3F000000000000000000000000000000005989E7759BD1CE3F5989E7759BD1BE3F000000000000000000000000000000000000000000000000000000000000000000000000000000005989E7759BD1BE3F00000000000000005989E7759BD1CE3F00000000000000000000000000000000000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F03A76D98341DD73F000000000000000000000000000000005989E7759BD1BE3F000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F0000000000000000000000000000000000000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F000000000000000000000000000000000000000000000000000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F5989E7759BD1BE3F5989E7759BD1BE3F00000000000000005989E7759BD1CE3F00000000000000005989E7759BD1CE3F5989E7759BD1BE3F5989E7759BD1CE3F00000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-14",
+      "dim": 64,
+      "hex": "000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000825E7834089AD53F000000000000000058D3F54560CDBC3F58D3F54560CDBC3F000000000000000058D3F54560CDCC3F58D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F0000000000000000825E7834089AD53F825E7834089AD53F0000000000000000000000000000000058D3F54560CDBC3F0000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDCC3F58D3F54560CDCC3F825E7834089AD53F0000000000000000000000000000000058D3F54560CDBC3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-15",
+      "dim": 64,
+      "hex": "0000000000000000866DED34852CCD3F0000000000000000000000000000000000000000000000002412B2E763E1D53F0000000000000000866DED34852CBD3F00000000000000000000000000000000866DED34852CCD3F2412B2E763E1D53F0000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F866DED34852CBD3F0000000000000000866DED34852CCD3F0000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F2412B2E763E1D53F00000000000000000000000000000000866DED34852CBD3F00000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F866DED34852CBD3F2412B2E763E1D53F000000000000000000000000000000000000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F00000000000000000000000000000000866DED34852CBD3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-16",
+      "dim": 64,
+      "hex": "000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000825E7834089AD53F000000000000000058D3F54560CDBC3F0000000000000000000000000000000058D3F54560CDCC3F58D3F54560CDCC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDCC3F825E7834089AD53F00000000000000000000000000000000825E7834089AD53F0000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDCC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F58D3F54560CDCC3F58D3F54560CDBC3F000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDCC3F0000000000000000000000000000000058D3F54560CDBC3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-17",
+      "dim": 64,
+      "hex": "00000000000000002EB8E608728FCD3F00000000000000002EB8E608728FBD3F0000000000000000230AAD86952BD63F0000000000000000230AAD86952BD63F000000000000000000000000000000002EB8E608728FCD3F2EB8E608728FBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000002EB8E608728FBD3F00000000000000002EB8E608728FCD3F00000000000000000000000000000000000000000000000000000000000000002EB8E608728FCD3F00000000000000002EB8E608728FBD3F230AAD86952BD63F000000000000000000000000000000002EB8E608728FBD3F000000000000000000000000000000002EB8E608728FCD3F2EB8E608728FCD3F2EB8E608728FBD3F00000000000000002EB8E608728FBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000002EB8E608728FBD3F00000000000000002EB8E608728FBD3F0000000000000000000000000000000000000000000000002EB8E608728FCD3F00000000000000002EB8E608728FCD3F00000000000000002EB8E608728FBD3F00000000000000002EB8E608728FBD3F00000000000000002EB8E608728FCD3F000000000000000000000000000000002EB8E608728FBD3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-18",
+      "dim": 64,
+      "hex": "0000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3F00000000000000002628B5EA44C9D63F0000000000000000DD8AF138B161BE3F00000000000000000000000000000000DD8AF138B161CE3FDD8AF138B161BE3F00000000000000000000000000000000000000000000000000000000000000000000000000000000DD8AF138B161BE3F0000000000000000DD8AF138B161CE3F0000000000000000000000000000000000000000000000000000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3F2628B5EA44C9D63F00000000000000000000000000000000DD8AF138B161BE3F00000000000000000000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3FDD8AF138B161BE3FDD8AF138B161CE3F00000000000000000000000000000000000000000000000000000000000000000000000000000000DD8AF138B161BE3FDD8AF138B161CE3FDD8AF138B161BE3F00000000000000000000000000000000000000000000000000000000000000000000000000000000DD8AF138B161CE3F0000000000000000DD8AF138B161BE3FDD8AF138B161CE3FDD8AF138B161BE3F0000000000000000DD8AF138B161CE3F00000000000000000000000000000000DD8AF138B161BE3F000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-19",
+      "dim": 64,
+      "hex": "00000000000000002CB8E608728FCD3F000000000000000000000000000000000000000000000000210AAD86952BD63F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FCD3F2CB8E608728FCD3F2CB8E608728FBD3F00000000000000002CB8E608728FBD3F0000000000000000000000000000000000000000000000002CB8E608728FBD3F00000000000000002CB8E608728FCD3F0000000000000000000000000000000000000000000000000000000000000000210AAD86952BD63F00000000000000002CB8E608728FBD3F210AAD86952BD63F000000000000000000000000000000002CB8E608728FBD3F000000000000000000000000000000002CB8E608728FCD3F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000002CB8E608728FBD3F00000000000000002CB8E608728FBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000002CB8E608728FCD3F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FBD3F00000000000000002CB8E608728FCD3F000000000000000000000000000000002CB8E608728FCD3F000000000000000000000000000000002CB8E608728FCD3F"
+    },
+    {
+      "id": "fx-long-20",
+      "dim": 64,
+      "hex": "00000000000000007D7DD856CD22CB3F0000000000000000000000000000000000000000000000006E4E4756C0F5E03F00000000000000007D7DD856CD22BB3F0000000000000000000000000000000000000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22BB3F0000000000000000000000000000000000000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22CB3F00000000000000000000000000000000000000000000000000000000000000007D7DD856CD22CB3F00000000000000007D7DD856CD22BB3F1E5E22011A5AD43F00000000000000007D7DD856CD22BB3F7D7DD856CD22CB3F000000000000000000000000000000007D7DD856CD22CB3F00000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22BB3F000000000000000000000000000000000000000000000000000000000000000000000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22BB3F000000000000000000000000000000000000000000000000000000000000000000000000000000007D7DD856CD22CB3F00000000000000007D7DD856CD22CB3F00000000000000001E5E22011A5AD43F00000000000000007D7DD856CD22CB3F000000000000000000000000000000000000000000000000000000000000000000000000000000007D7DD856CD22CB3F"
+    },
+    {
+      "id": "fx-long-21",
+      "dim": 64,
+      "hex": "866DED34852CBD3F866DED34852CCD3F0000000000000000000000000000000000000000000000002412B2E763E1D53F0000000000000000866DED34852CBD3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F0000000000000000866DED34852CCD3F0000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F2412B2E763E1D53F00000000000000000000000000000000866DED34852CCD3F00000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F866DED34852CBD3F866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F866DED34852CCD3F866DED34852CBD3F0000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F866DED34852CCD3F866DED34852CBD3F866DED34852CCD3F00000000000000002412B2E763E1D53F0000000000000000866DED34852CCD3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-22",
+      "dim": 64,
+      "hex": "00000000000000001E5E22011A5AD43F0000000000000000000000000000000000000000000000001E5E22011A5AD43F00000000000000007D7DD856CD22BB3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22CB3F00000000000000000000000000000000000000000000000000000000000000007D7DD856CD22CB3F00000000000000007D7DD856CD22BB3F1E5E22011A5AD43F000000000000000000000000000000007D7DD856CD22CB3F1E5E22011A5AD43F00000000000000007D7DD856CD22CB3F00000000000000007D7DD856CD22BB3F00000000000000001E5E22011A5AD43F000000000000000000000000000000000000000000000000000000000000000000000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22BB3F00000000000000007D7DD856CD22BB3F0000000000000000000000000000000000000000000000007D7DD856CD22CB3F00000000000000007D7DD856CD22CB3F00000000000000001E5E22011A5AD43F00000000000000007D7DD856CD22CB3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-23",
+      "dim": 64,
+      "hex": "000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000825E7834089AD53F58D3F54560CDBC3F58D3F54560CDBC3F000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F58D3F54560CDCC3F58D3F54560CDCC3F000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDBC3F825E7834089AD53F0000000000000000000000000000000058D3F54560CDCC3F0000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDBC3F000000000000000058D3F54560CDBC3F0000000000000000000000000000000000000000000000000000000000000000000000000000000058D3F54560CDCC3F000000000000000058D3F54560CDCC3F58D3F54560CDCC3F825E7834089AD53F000000000000000058D3F54560CDCC3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-24",
+      "dim": 64,
+      "hex": "0000000000000000F31A6EB09ABFC83F00000000000000000000000000000000000000000000000036945204B48FD23F0000000000000000F31A6EB09ABFB83F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000F31A6EB09ABFB83F0000000000000000F31A6EB09ABFC83F0000000000000000000000000000000000000000000000000000000000000000F31A6EB09ABFC83F0000000000000000F31A6EB09ABFB83F36945204B48FD23F00000000000000000000000000000000F31A6EB09ABFC83F00000000000000000000000000000000F31A6EB09ABFC83F0000000000000000F31A6EB09ABFB83F0000000000000000F31A6EB09ABFB83F000000000000000000000000000000000000000000000000F31A6EB09ABFB83F0000000000000000F31A6EB09ABFB83F0000000000000000F31A6EB09ABFB83F00000000000000000000000000000000000000000000000000000000000000000000000000000000F31A6EB09ABFD83F0000000000000000F31A6EB09ABFC83F0000000000000000F31A6EB09ABFD83F0000000000000000B0A1895C81EFDE3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-long-25",
+      "dim": 64,
+      "hex": "866DED34852CBD3F866DED34852CCD3F0000000000000000000000000000000000000000000000002412B2E763E1D53F0000000000000000866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F866DED34852CBD3F0000000000000000866DED34852CCD3F0000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CBD3F2412B2E763E1D53F00000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CCD3F866DED34852CCD3F0000000000000000866DED34852CBD3F0000000000000000866DED34852CBD3F866DED34852CCD3F0000000000000000000000000000000000000000000000000000000000000000866DED34852CBD3F866DED34852CBD3F866DED34852CBD3F00000000000000000000000000000000000000000000000000000000000000000000000000000000866DED34852CCD3F0000000000000000866DED34852CCD3F00000000000000002412B2E763E1D53F0000000000000000866DED34852CCD3F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "fx-invalid-1",
+      "dim": 64,
+      "hex": "5989E7759BD1BE3F5989E7759BD1BE3F00000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F000000000000000000000000000000005989E7759BD1BE3F0000000000000000000000000000000003A76D98341DD73F0000000000000000000000000000000000000000000000005989E7759BD1BE3F5989E7759BD1BE3F000000000000000000000000000000005989E7759BD1BE3F00000000000000005989E7759BD1BE3F00000000000000000000000000000000000000000000000003A76D98341DD73F00000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F5989E7759BD1BE3F5989E7759BD1CE3F5989E7759BD1BE3F5989E7759BD1CE3F5989E7759BD1BE3F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005989E7759BD1BE3F5989E7759BD1BE3F00000000000000005989E7759BD1CE3F000000000000000000000000000000005989E7759BD1CE3F00000000000000005989E7759BD1BE3F0000000000000000000000000000000000000000000000000000000000000000000000000000000003A76D98341DD73F000000000000000000000000000000005989E7759BD1BE3F000000000000000000000000000000005989E7759BD1BE3F"
+    },
+    {
+      "id": "fx-recent-1",
+      "dim": 64,
+      "hex": "2668153DF64BD33F2668153DF64BD33F00000000000000008835C7A69DBAB93F00000000000000008835C7A69DBAB93F0000000000000000000000000000000000000000000000008835C7A69DBAB93F8835C7A69DBAC93F8835C7A69DBAB93F00000000000000008835C7A69DBAB93F8835C7A69DBAC93F00000000000000008835C7A69DBAB93F000000000000000000000000000000008835C7A69DBAC93F00000000000000000000000000000000000000000000000000000000000000008835C7A69DBAC93F8835C7A69DBAB93F00000000000000008835C7A69DBAC93F00000000000000008835C7A69DBAC93F00000000000000002668153DF64BD33F8835C7A69DBAB93F2668153DF64BD33F00000000000000008835C7A69DBAC93F00000000000000008835C7A69DBAC93F00000000000000008835C7A69DBAB93F000000000000000000000000000000008835C7A69DBAB93F8835C7A69DBAB93F8835C7A69DBAC93F8835C7A69DBAC93F8835C7A69DBAC93F000000000000000000000000000000008835C7A69DBAC93F000000000000000000000000000000000000000000000000000000000000000000000000000000008835C7A69DBAB93F00000000000000008835C7A69DBAB93F000000000000000000000000000000008835C7A69DBAB93F000000000000000000000000000000008835C7A69DBAB93F"
+    }
+  ]
+}

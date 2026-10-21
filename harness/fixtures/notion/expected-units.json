@@ -1,0 +1,69 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-notion-fixture.ts",
+ "units": [
+  {
+   "id": "3a2df1e1a5c30a15",
+   "partition": "/knowledge",
+   "title": "결제 장애 회고",
+   "content": "```sql\nSELECT count(*)\nFROM payments;\n```\n\n- 원인\n\n  1. 커넥션 풀 고갈\n\n- [x] 재발 방지 배포",
+   "contentHash": "b0fa80a47064216a8174ebd5f725ec793695ac8cb7026a3b8913a5136c20d693",
+   "tokens": 38,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "notion-synthetic",
+    "documentId": "root-retro",
+    "uri": "https://www.notion.so/root-retro",
+    "capturedAt": "2026-10-02T09:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "56812dc7f443d009",
+   "partition": "/knowledge",
+   "title": "운영 위키",
+   "content": "장애 등급\n\n  - SEV1: 결제 전면 장애",
+   "contentHash": "572587b781134fc2db515af6884a646cfc96764c5441f324903b4dda077f7673",
+   "tokens": 16,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "notion-synthetic",
+    "documentId": "root-wiki",
+    "uri": "https://www.notion.so/root-wiki",
+    "capturedAt": "2026-10-01T09:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "6b0660c1e69fc636",
+   "partition": "/knowledge",
+   "title": "온콜 절차",
+   "content": "# 온콜 절차\n\n- [ ] 런북 갱신",
+   "contentHash": "03ee1786335e54b2f5e57776bf820b6142b6c275daf2a29c42d17f993dc21360",
+   "tokens": 15,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "notion-synthetic",
+    "documentId": "root-wiki",
+    "uri": "https://www.notion.so/root-wiki",
+    "capturedAt": "2026-10-01T09:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  }
+ ]
+}

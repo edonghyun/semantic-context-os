@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "Tool (assemble_context) input validation failed: Validation failed: JSON schema validation errors: [: required property 'query' not found]"
+  } ],
+  "isError" : true
+}

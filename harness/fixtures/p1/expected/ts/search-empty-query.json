@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "MCP error -32602: Input validation error: Invalid arguments for tool search_context: Too small: expected string to have >=1 characters at query"
+  } ],
+  "isError" : true
+}

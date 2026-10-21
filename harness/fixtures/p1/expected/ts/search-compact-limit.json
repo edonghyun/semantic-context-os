@@ -1,0 +1,6 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\": [\n    {\n      \"title\": \"API 호출 한도\",\n      \"excerpt\": \"API 호출 한도를 초과하면 429 응답이 반환된다. 한도는 클라이언트별 분당 600회이며 초과가 반복되면 차단된다.\",\n      \"source\": \"unknown\",\n      \"documentId\": \"api-rate-limit.md\",\n      \"capturedAt\": \"2026-10-12T00:00:00.000Z\",\n      \"score\": 0.016\n    }\n  ],\n  \"freshness\": {\n    \"latestCapturedAt\": \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\": 1,\n    \"stale\": false\n  }\n}"
+  } ]
+}

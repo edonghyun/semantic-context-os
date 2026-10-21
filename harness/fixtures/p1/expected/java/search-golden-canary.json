@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\" : [ {\n    \"title\" : \"배포 장애 회고 사본\",\n    \"excerpt\" : \"배포 장애의 원인과 재발 방지 대책을 정리한 회고 — 복제본\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-dup-b\",\n    \"capturedAt\" : \"2026-10-11T00:00:00.000Z\",\n    \"score\" : 0.016\n  }, {\n    \"title\" : \"배포 장애 회고\",\n    \"excerpt\" : \"배포 장애의 원인과 재발 방지 대책을 정리한 회고\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-dup-a\",\n    \"capturedAt\" : \"2026-10-11T00:00:00.000Z\",\n    \"score\" : 0.016\n  }, {\n    \"title\" : \"배포 절차\",\n    \"excerpt\" : \"배포 순서는 고정되어 있다. 카나리 배포로 10%에 먼저 내보내고 이상이 없으면 전체로 확장한다.\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"deploy-procedure.md\",\n    \"capturedAt\" : \"2026-10-10T18:00:00.000Z\",\n    \"score\" : 0.016\n  } ],\n  \"freshness\" : {\n    \"latestCapturedAt\" : \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\" : 1.0,\n    \"stale\" : false\n  }\n}"
+  } ],
+  "isError" : false
+}

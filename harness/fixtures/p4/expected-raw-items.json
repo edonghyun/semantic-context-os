@@ -1,0 +1,317 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-p4-fixture.ts",
+ "report": {
+  "runId": "run-1",
+  "sourceInstanceId": "slack-synthetic",
+  "status": "succeeded_with_rejections",
+  "pagesApplied": 5,
+  "upserted": 9,
+  "deleted": 0,
+  "unchanged": 1,
+  "rejected": 1,
+  "errorCount": 0
+ },
+ "checkpoint": {
+  "checkpoint": {
+   "schemaVersion": 2,
+   "value": {
+    "channelWatermarks": {
+     "C0000000001": "1760400300.000000",
+     "C0000000002": "1760486420.000000"
+    }
+   }
+  },
+  "revision": 5
+ },
+ "rejections": [
+  {
+   "failureKind": "invalid_item",
+   "message": "Slack message must have a valid ts",
+   "providerLocator": {
+    "channelId": "C0000000002",
+    "messageIndex": 1
+   }
+  }
+ ],
+ "items": [
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400005.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400005.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400005.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400005.000000",
+    "threadTs": null,
+    "authorId": "U04",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U04",
+     "text": "<@U01> :+1: 좋아요",
+     "ts": "1760400005.000000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400010.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400400.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400400.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400010.000000",
+    "threadTs": null,
+    "authorId": "U01",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U01",
+     "text": "온보딩 절차 정리 `계정 발급` → 권한 신청",
+     "ts": "1760400010.000000",
+     "edited": {
+      "user": "U01",
+      "ts": "1760400400.000000"
+     }
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400050.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400050.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400050.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400050.000000",
+    "threadTs": null,
+    "authorId": "U03",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U03",
+     "text": "",
+     "ts": "1760400050.000000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400100.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400100.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400100.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400100.000000",
+    "threadTs": "1760400100.000000",
+    "authorId": "U02",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U02",
+     "text": "스레드 시작: 결제 장애 원인 공유",
+     "ts": "1760400100.000000",
+     "thread_ts": "1760400100.000000",
+     "reply_count": 2
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400120.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400120.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400120.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400120.000000",
+    "threadTs": "1760400100.000000",
+    "authorId": "U05",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U05",
+     "text": "DB 커넥션 풀 고갈이 원인",
+     "ts": "1760400120.000000",
+     "thread_ts": "1760400100.000000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400130.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400130.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400130.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400130.000000",
+    "threadTs": "1760400100.000000",
+    "authorId": "U02",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U02",
+     "text": "대응: 풀 크기 상향과 알림 추가",
+     "ts": "1760400130.000000",
+     "thread_ts": "1760400100.000000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000001:1760400300.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760400300.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760400300.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000001",
+    "messageTs": "1760400300.000000",
+    "threadTs": null,
+    "authorId": "U01",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U01",
+     "text": "배포 *장애* 회고: 원인은 <https://example.test/deploy|배포 절차> 누락",
+     "ts": "1760400300.000000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000002:1760486410.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760486410.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760486410.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000002",
+    "messageTs": "1760486410.000000",
+    "threadTs": null,
+    "authorId": "U06",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U06",
+     "text": "정산 배치가 ```SELECT *\nFROM x``` 로 느려짐",
+     "ts": "1760486410.000000"
+    }
+   }
+  },
+  {
+   "key": {
+    "sourceInstanceId": "slack-synthetic",
+    "externalId": "C0000000002:1760486420.000000"
+   },
+   "resourceType": "slack.message",
+   "sourceVersion": "1760486420.000000",
+   "sourceOrder": {
+    "scheme": "slack.message-state.v1",
+    "position": "00000000001760486420.000000"
+   },
+   "observedAt": "2026-10-14T00:00:00.000Z",
+   "metadata": {
+    "channelId": "C0000000002",
+    "messageTs": "1760486420.000000",
+    "threadTs": null,
+    "authorId": "U07",
+    "subtype": null
+   },
+   "content": {
+    "storage": "inline",
+    "mediaType": "application/json",
+    "value": {
+     "type": "message",
+     "user": "U07",
+     "text": "스냅샷 보관 기간은 30일",
+     "ts": "1760486420.000000"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "Tool (search_context) input validation failed: Validation failed: JSON schema validation errors: [/query: must be at least 1 characters long]"
+  } ],
+  "isError" : true
+}

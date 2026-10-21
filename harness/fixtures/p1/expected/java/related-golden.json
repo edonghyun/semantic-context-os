@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"related\" : [ {\n    \"documentId\" : \"incident-2026-03.md\",\n    \"title\" : \"3월 결제 장애 기록\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"backup-policy.md\",\n    \"title\" : \"백업 정책\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"api-rate-limit.md\",\n    \"title\" : \"API 호출 한도\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"deploy-procedure.md\",\n    \"title\" : \"배포 절차\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"session-management.md\",\n    \"title\" : \"세션 관리\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.015,\n    \"via\" : \"embedding\"\n  } ]\n}"
+  } ],
+  "isError" : false
+}

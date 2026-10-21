@@ -1,0 +1,115 @@
+{
+  "name": "ottercart-demo",
+  "version": 1,
+  "description": "Synthetic judgment set for the demo corpus (fictional company Ottercart). expectedDocumentIds are document ids under demo/corpus/docs without the .md extension.",
+  "queries": [
+    {
+      "query": "결제 중복 승인 장애 원인",
+      "expectedDocumentIds": ["notion/postmortem-2026-09-07-duplicate-charges", "slack/inc-payments/2026-09-07-duplicate-charges", "jira/OTC-311"],
+      "slice": "lexical-ko",
+      "evidenceText": "재시도 경로가 **멱등 키(Idempotency-Key) 헤더를 새로 생성**하도록 바뀌었다"
+    },
+    {
+      "query": "How do clients send an idempotency key to the Order API?",
+      "expectedDocumentIds": ["notion/order-api-v2-design"],
+      "slice": "lexical-en",
+      "evidenceText": "must send an `Idempotency-Key` header (UUID v4)"
+    },
+    {
+      "query": "why were iOS push notifications late",
+      "expectedDocumentIds": ["notion/postmortem-2026-10-02-push-delay", "jira/OTC-340", "slack/inc-notify/2026-10-02-push-delay"],
+      "slice": "paraphrase-en",
+      "evidenceText": "The refresh call ran **inside the queue consumer thread**"
+    },
+    {
+      "query": "SEV1 에스컬레이션 절차",
+      "expectedDocumentIds": ["notion/oncall-runbook", "notion/incident-severity-levels"],
+      "slice": "cross-language",
+      "evidenceText": "15분 안에 원인을 못 찾으면 해당 서비스 팀 리드에게 전화한다"
+    },
+    {
+      "query": "신규 입사자 로컬 개발 환경 설정",
+      "expectedDocumentIds": ["notion/onboarding-guide-backend"],
+      "slice": "lexical-ko",
+      "evidenceText": "`make dev-up`으로 PostgreSQL·Redis·가짜 Bramblepay를 띄운다"
+    },
+    {
+      "query": "상품 쿠폰 두 장 중복 적용 규칙",
+      "expectedDocumentIds": ["notion/coupon-policy", "jira/OTC-301", "slack/product/2026-09-10-coupon-stacking"],
+      "slice": "cross-source",
+      "evidenceText": "상품 쿠폰끼리는 중복 적용할 수 없다"
+    },
+    {
+      "query": "3.5.0 릴리스에서 바뀐 것",
+      "expectedDocumentIds": ["notion/release-notes-3-5-0", "slack/release/2026-10-14-v3-5-0"],
+      "slice": "lexical-ko",
+      "evidenceText": "배송 시간대 선택: 주문 시 2시간 단위 배송 시간대를 고를 수 있다"
+    },
+    {
+      "query": "재고 반영 지연 해결 방안",
+      "expectedDocumentIds": ["notion/inventory-sync-v2-cdc", "jira/OTC-275", "slack/inventory/2026-08-28-stock-lag"],
+      "slice": "cross-source",
+      "evidenceText": "inventory-sync는 이벤트를 구독해 변경분만 반영한다"
+    },
+    {
+      "query": "rider batching experiment effect on delivery time",
+      "expectedDocumentIds": ["notion/rider-batching-experiment", "slack/dispatch/2026-09-18-batching-experiment", "jira/OTC-322"],
+      "slice": "lexical-en",
+      "evidenceText": "Median delivery time: +2.1 minutes (24.3 → 26.4 min)"
+    },
+    {
+      "query": "Bramblepay API 키 교체 주기",
+      "expectedDocumentIds": ["notion/secret-rotation-policy", "jira/OTC-333", "slack/security/2026-09-30-bramblepay-key-rotation"],
+      "slice": "cross-source",
+      "evidenceText": "결제 대행사(Bramblepay) API 키: 90일마다 교체"
+    },
+    {
+      "query": "PostgreSQL 17 업그레이드 점검 시간",
+      "expectedDocumentIds": ["notion/postgres-17-upgrade-plan", "slack/eng-general/2026-08-20-postgres-17-upgrade", "jira/OTC-288"],
+      "slice": "lexical-ko",
+      "evidenceText": "2차(주문 DB): 2026-10-06 (화) 03:00~04:00 KST"
+    },
+    {
+      "query": "when will v1 offset pagination be removed",
+      "expectedDocumentIds": ["jira/OTC-295", "notion/order-api-v2-design"],
+      "slice": "lexical-en",
+      "evidenceText": "will be removed on **2026-12-01**"
+    },
+    {
+      "query": "주문 전환율 분모 정의",
+      "expectedDocumentIds": ["notion/metrics-definitions", "jira/OTC-360", "slack/data/2026-09-03-conversion-metric-drop"],
+      "slice": "cross-source",
+      "evidenceText": "주문 전환율 = 결제 완료 주문 수 / 장바구니에 상품을 담은 세션 수"
+    },
+    {
+      "query": "애플 실리콘 맥에서 docker exec format error",
+      "expectedDocumentIds": ["slack/help-dev/2026-08-26-docker-arm-build"],
+      "slice": "paraphrase-ko",
+      "evidenceText": "`DOCKER_DEFAULT_PLATFORM=linux/arm64` 설정하세요"
+    },
+    {
+      "query": "배송 시간대 선택 요구사항",
+      "expectedDocumentIds": ["notion/delivery-time-slots-prd", "jira/OTC-350"],
+      "slice": "lexical-ko",
+      "evidenceText": "주문 화면에서 오늘·내일의 2시간 단위 시간대를 고른다"
+    },
+    {
+      "query": "중복 승인 환불 진행 상황",
+      "expectedDocumentIds": ["jira/OTC-318", "slack/inc-payments/2026-09-08-refund-progress"],
+      "slice": "lexical-ko",
+      "evidenceText": "보류 32건 재실행, 전부 성공"
+    },
+    {
+      "query": "stale feature flag cleanup rules",
+      "expectedDocumentIds": ["notion/feature-flag-guide", "jira/OTC-355", "slack/eng-general/2026-09-15-feature-flag-cleanup"],
+      "slice": "cross-language",
+      "evidenceText": "100% 켜진 지 30일이 지난 플래그는 오래된 플래그(stale flag)로 보고 코드에서 지운다"
+    },
+    {
+      "query": "Android checkout crash with no saved address",
+      "expectedDocumentIds": ["jira/OTC-352"],
+      "slice": "lexical-en",
+      "evidenceText": "`IndexOutOfBoundsException` in `AddressSelector.defaultAddress()`"
+    }
+  ]
+}

@@ -1,0 +1,6083 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-google-drive-fixture.ts",
+ "configCases": [
+  {
+   "label": "최소 설정",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test"
+   },
+   "accepted": true,
+   "message": null
+  },
+  {
+   "label": "대문자 계정",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "Reader@Example.TEST"
+   },
+   "accepted": true,
+   "message": null
+  },
+  {
+   "label": "다운로드 끔",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test",
+    "downloadBinaries": false
+   },
+   "accepted": true,
+   "message": null
+  },
+  {
+   "label": "다운로드 켬",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test",
+    "downloadBinaries": true
+   },
+   "accepted": true,
+   "message": null
+  },
+  {
+   "label": "모르는 키",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test",
+    "extra": 1
+   },
+   "accepted": true,
+   "message": null
+  },
+  {
+   "label": "계정에 @ 없음",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader.example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정에 공백",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader @example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정에 @ 둘",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "a@b@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정에 NBSP",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader x@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정에 BOM",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "﻿reader@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정에 NEL",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "readerx@example.test"
+   },
+   "accepted": true,
+   "message": null
+  },
+  {
+   "label": "계정에 줄 구분자",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test "
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정 앞 비어 있음",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정 수",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": 7
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "계정 없음",
+   "schemaVersion": 1,
+   "value": {},
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "다운로드 문자열",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test",
+    "downloadBinaries": "no"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "다운로드 null",
+   "schemaVersion": 1,
+   "value": {
+    "accountEmail": "reader@example.test",
+    "downloadBinaries": null
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "스키마 2",
+   "schemaVersion": 2,
+   "value": {
+    "accountEmail": "reader@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Google Drive source configuration"
+  },
+  {
+   "label": "값이 배열",
+   "schemaVersion": 1,
+   "value": [],
+   "accepted": false,
+   "message": "Invalid Google API object"
+  }
+ ],
+ "cases": [
+  {
+   "label": "OAuth 계정이 설정과 다르다",
+   "checkpoint": null,
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"user\":{\"emailAddress\":\"other@example.test\",\"permissionId\":\"other\"}}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google OAuth account does not match the configured Drive account",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "about에 permissionId가 없다",
+   "checkpoint": null,
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"user\":{\"emailAddress\":\"reader@example.test\"}}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google OAuth account does not match the configured Drive account",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "불완전한 검색",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "files"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"files\":[],\"incompleteSearch\":true}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive search is incomplete; refusing to mark this page complete",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "params": {
+      "pageSize": "100",
+      "q": "trashed = false",
+      "spaces": "drive",
+      "corpora": "user",
+      "includeItemsFromAllDrives": "true",
+      "supportsAllDrives": "true",
+      "fields": "nextPageToken,incompleteSearch,files(id)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "목록 페이지 토큰이 반복된다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "files",
+       "pageToken": "same"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"files\":[],\"nextPageToken\":\"same\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive page token did not advance",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "params": {
+      "pageSize": "100",
+      "pageToken": "same",
+      "q": "trashed = false",
+      "spaces": "drive",
+      "corpora": "user",
+      "includeItemsFromAllDrives": "true",
+      "supportsAllDrives": "true",
+      "fields": "nextPageToken,incompleteSearch,files(id)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "목록 항목에 id가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "files"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"files\":[{\"name\":\"x\"}]}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive listing has no identity",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "params": {
+      "pageSize": "100",
+      "q": "trashed = false",
+      "spaces": "drive",
+      "corpora": "user",
+      "includeItemsFromAllDrives": "true",
+      "supportsAllDrives": "true",
+      "fields": "nextPageToken,incompleteSearch,files(id)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "목록 봉투에 배열이 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "drives"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"drives\":{}}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive listing",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "params": {
+      "pageSize": "100",
+      "fields": "nextPageToken,drives(id,name)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드의 다음 토큰이 현재 토큰과 같다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[],\"nextPageToken\":\"saved\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive change token did not advance",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드에 다음 토큰이 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[]}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive change token did not advance",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 변경에 fileId가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[{\"changeType\":\"file\",\"removed\":true}],\"newStartPageToken\":\"next\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive change identity",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 변경 종류를 모른다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[{\"changeType\":\"team\",\"fileId\":\"x\"}],\"newStartPageToken\":\"next\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive change identity",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 봉투에 changes가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"newStartPageToken\":\"next\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive changes",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 작업의 토큰이 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes",
+       "driveId": "gone"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {},
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Missing Google Drive change token",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes/startPageToken",
+     "params": {
+      "supportsAllDrives": "true"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 HTTP 401",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 401,
+      "text": ""
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 401)",
+    "failure": {
+     "kind": "authentication_failed",
+     "retryable": false,
+     "message": "Google API request failed (HTTP 401)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 HTTP 403",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 403,
+      "text": ""
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 403)",
+    "failure": {
+     "kind": "permission_denied",
+     "retryable": false,
+     "message": "Google API request failed (HTTP 403)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 HTTP 404",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 404,
+      "text": ""
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 404)",
+    "failure": {
+     "kind": "permission_denied",
+     "retryable": false,
+     "message": "Google API request failed (HTTP 404)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "피드 HTTP 429",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 429,
+      "text": ""
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 429)",
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 429)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ]
+  },
+  {
+   "label": "피드 HTTP 503",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 503,
+      "text": ""
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 503)",
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 503)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ]
+  },
+  {
+   "label": "피드 403 userRateLimitExceeded",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 403,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"error\":{\"code\":403,\"message\":\"private provider detail\",\"errors\":[{\"reason\":\"userRateLimitExceeded\",\"message\":\"private provider detail\"}]}}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 403, rate_limited)",
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 403, rate_limited)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ]
+  },
+  {
+   "label": "파일 조회가 다른 id를 돌려준다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "asked"
+      }
+     ],
+     "seenFiles": [
+      "asked"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/asked",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"other\",\"mimeType\":\"text/plain\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive returned wrong file identity or MIME type",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/asked",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "파일에 MIME 유형이 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "asked"
+      }
+     ],
+     "seenFiles": [
+      "asked"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/asked",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"asked\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive returned wrong file identity or MIME type",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/asked",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "읽는 순간 휴지통",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "binned"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {
+      "binned": "3"
+     },
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {
+      "binned": {
+       "children": [
+        "sheet:binned:0:0:0:1:1"
+       ]
+      }
+     }
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/binned",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"binned\",\"mimeType\":\"application/pdf\",\"trashed\":true}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [
+      "file:binned",
+      "binary:binned",
+      "sheet:binned:0:0:0:1:1"
+     ],
+     "mutations": [
+      "delete:file:binned",
+      "delete:binary:binned",
+      "delete:sheet:binned:0:0:0:1:1"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/binned",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "파일 조회 404",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "missing"
+      }
+     ],
+     "seenFiles": [
+      "missing"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/missing",
+     "reply": {
+      "status": 404,
+      "text": ""
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "kind": "file",
+        "id": "missing"
+       },
+       "message": "Google API request failed (HTTP 404)"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [
+        "missing"
+       ],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/missing",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "파일 조회 403 rateLimitExceeded",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "busy"
+      }
+     ],
+     "seenFiles": [
+      "busy"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/busy",
+     "reply": {
+      "status": 403,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"error\":{\"code\":403,\"message\":\"private provider detail\",\"errors\":[{\"reason\":\"rateLimitExceeded\",\"message\":\"private provider detail\"}]}}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 403, rate_limited)",
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 403, rate_limited)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/busy",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/busy",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/busy",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/busy",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/busy",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    }
+   ],
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ]
+  },
+  {
+   "label": "시트에 버전이 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "noversion"
+      }
+     ],
+     "seenFiles": [
+      "noversion"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/noversion",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"noversion\",\"mimeType\":\"application/vnd.google-apps.spreadsheet\"}"
+     }
+    },
+    {
+     "origin": "https://sheets.googleapis.com",
+     "path": "/v4/spreadsheets/noversion",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"sheets\":[]}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Spreadsheet has no version",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/noversion",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://sheets.googleapis.com",
+     "path": "/v4/spreadsheets/noversion",
+     "params": {
+      "fields": "spreadsheetId,properties(title),sheets(properties)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "시트 격자가 잘못됐다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "badgrid"
+      }
+     ],
+     "seenFiles": [
+      "badgrid"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/badgrid",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"badgrid\",\"mimeType\":\"application/vnd.google-apps.spreadsheet\",\"version\":\"1\"}"
+     }
+    },
+    {
+     "origin": "https://sheets.googleapis.com",
+     "path": "/v4/spreadsheets/badgrid",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"sheets\":[{\"properties\":{\"sheetId\":1,\"title\":\"x\",\"gridProperties\":{\"rowCount\":-1,\"columnCount\":1}}}]}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid spreadsheet grid",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/badgrid",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://sheets.googleapis.com",
+     "path": "/v4/spreadsheets/badgrid",
+     "params": {
+      "fields": "spreadsheetId,properties(title),sheets(properties)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "댓글 페이지 토큰이 반복된다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "loop"
+      }
+     ],
+     "seenFiles": [
+      "loop"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/loop",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"loop\",\"mimeType\":\"application/vnd.google-apps.form\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/loop/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[],\"nextPageToken\":\"again\"}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive child page token did not advance",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/loop",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/loop/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/loop/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false",
+      "pageToken": "again"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "댓글에 id가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "anon"
+      }
+     ],
+     "seenFiles": [
+      "anon"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/anon",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"anon\",\"mimeType\":\"application/vnd.google-apps.form\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/anon/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[{\"content\":\"x\"}]}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive comment has no identity",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/anon",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/anon/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "다운로드 크기가 메타데이터와 다르다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "short"
+      }
+     ],
+     "seenFiles": [
+      "short"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"short\",\"mimeType\":\"application/pdf\",\"version\":\"1\",\"size\":\"10\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "media": true,
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/pdf"
+      },
+      "text": "short"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 502, incomplete_download)",
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 502, incomplete_download)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/short",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    }
+   ],
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ]
+  },
+  {
+   "label": "크기가 정확히 50 MiB면 내려받는다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "exact"
+      }
+     ],
+     "seenFiles": [
+      "exact"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"exact\",\"mimeType\":\"application/pdf\",\"version\":\"1\",\"size\":\"52428800\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "media": true,
+     "reply": {
+      "status": 200,
+      "text": "x"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 502, incomplete_download)",
+    "failure": {
+     "kind": "dependency_unavailable",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 502, incomplete_download)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/exact",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    }
+   ],
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ]
+  },
+  {
+   "label": "삭제 작업은 큐에 남은 그 파일의 범위 작업을 버린다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "remove",
+       "id": "gone"
+      },
+      {
+       "kind": "sheet",
+       "id": "gone",
+       "key": "0:0:0:1:1",
+       "range": "'A'!A1:A1",
+       "version": "1",
+       "file": {
+        "id": "gone"
+       }
+      },
+      {
+       "kind": "sheet",
+       "id": "kept",
+       "key": "0:0:0:1:1",
+       "range": "'A'!A1:A1",
+       "version": "1",
+       "file": {
+        "id": "kept"
+       }
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {
+      "gone": {
+       "children": [
+        "sheet:gone:0:0:0:1:1"
+       ]
+      }
+     }
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/kept",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"kept\",\"version\":\"2\"}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [
+      "file:gone",
+      "binary:gone",
+      "sheet:gone:0:0:0:1:1"
+     ],
+     "mutations": [
+      "delete:file:gone",
+      "delete:binary:gone",
+      "delete:sheet:gone:0:0:0:1:1"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "sheet",
+         "id": "kept",
+         "key": "0:0:0:1:1",
+         "range": "'A'!A1:A1",
+         "version": "1",
+         "file": {
+          "id": "kept"
+         }
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "kind": "sheet",
+        "id": "kept",
+        "key": "0:0:0:1:1",
+        "range": "'A'!A1:A1",
+        "version": "1",
+        "file": {
+         "id": "kept"
+        }
+       },
+       "message": "Spreadsheet changed during ranged collection; range omitted until next scan"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/kept",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,version"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "드라이브 회수는 그 드라이브의 목록·피드 작업을 버린다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "remove",
+       "id": "team-x",
+       "drive": true
+      },
+      {
+       "kind": "changes",
+       "driveId": "team-x"
+      },
+      {
+       "kind": "files",
+       "driveId": "team-x",
+       "pageToken": "p2"
+      },
+      {
+       "kind": "changes",
+       "driveId": "team-y"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {
+      "z": "4",
+      "a": "1"
+     },
+     "changeTokens": {
+      "user": "saved",
+      "drive:team-x": "tok-x",
+      "drive:team-y": "tok-y"
+     },
+     "files": {
+      "1": {
+       "driveId": "team-x",
+       "children": []
+      },
+      "z": {
+       "driveId": "team-x",
+       "children": [
+        "sheet:z:k"
+       ]
+      },
+      "a": {
+       "driveId": "team-y",
+       "children": []
+      },
+      "b": {
+       "children": []
+      }
+     }
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[],\"newStartPageToken\":\"tok-y2\"}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [
+      "file:1",
+      "binary:1",
+      "file:z",
+      "binary:z",
+      "sheet:z:k",
+      "drive:team-x"
+     ],
+     "mutations": [
+      "delete:file:1",
+      "delete:binary:1",
+      "delete:file:z",
+      "delete:binary:z",
+      "delete:sheet:z:k",
+      "delete:drive:team-x"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:team-y": "tok-y"
+       },
+       "files": {
+        "a": {
+         "driveId": "team-y",
+         "children": []
+        },
+        "b": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "changes",
+         "driveId": "team-y"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {
+        "a": "1"
+       }
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:team-y": "tok-y2"
+       },
+       "files": {
+        "a": {
+         "driveId": "team-y",
+         "children": []
+        },
+        "b": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {
+        "a": "1"
+       }
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "tok-y",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))",
+      "driveId": "team-y"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "알려진 공유 드라이브는 변경 토큰을 다시 받지 않는다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "drives"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved",
+      "drive:team-1": "kept"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[],\"newStartPageToken\":\"kept-2\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"files\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "drive:team-1"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:drive:team-1"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:team-1": "kept"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "changes",
+         "driveId": "team-1"
+        },
+        {
+         "kind": "files",
+         "driveId": "team-1"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:team-1": "kept-2"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "files",
+         "driveId": "team-1"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:team-1": "kept-2"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "drive:team-1"
+     },
+     "resourceType": "gdrive.drive",
+     "sourceVersion": "afdc849dd48cc796063adce4e966fe4af5e1e0bf0a4bad7b6b2bad44235a7a16",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/drive/folders/team-1",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "id": "team-1",
+       "name": "운영팀 드라이브"
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "params": {
+      "pageSize": "100",
+      "fields": "nextPageToken,drives(id,name)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "params": {
+      "pageSize": "100",
+      "fields": "nextPageToken,drives(id,name)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "kept",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))",
+      "driveId": "team-1"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "params": {
+      "pageSize": "100",
+      "q": "trashed = false",
+      "spaces": "drive",
+      "corpora": "drive",
+      "includeItemsFromAllDrives": "true",
+      "supportsAllDrives": "true",
+      "fields": "nextPageToken,incompleteSearch,files(id)",
+      "driveId": "team-1"
+     }
+    }
+   ],
+   "waits": [
+    2000
+   ]
+  },
+  {
+   "label": "버전 없는 바이너리는 수정 시각이 원본 버전이다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "unversioned"
+      }
+     ],
+     "seenFiles": [
+      "unversioned"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/unversioned",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"unversioned\",\"mimeType\":\"application/zip\",\"modifiedTime\":\"2026-10-02T03:00:00.000Z\",\"size\":\"3\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/unversioned",
+     "media": true,
+     "reply": {
+      "status": 200,
+      "text": "zip"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/unversioned/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "binary:unversioned",
+      "file:unversioned"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:binary:unversioned",
+      "upsert:file:unversioned"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {
+        "unversioned": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [
+        "unversioned"
+       ],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "binary:unversioned"
+     },
+     "resourceType": "gdrive.binary",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "sourceVersion": "2026-10-02T03:00:00.000Z",
+     "metadata": {
+      "fileId": "unversioned",
+      "extraction": "not_extracted"
+     },
+     "content": {
+      "storage": "blob",
+      "blobKey": "4a70fe9aa6436e02c2dea340fbd1e352e4ef2d8ce6ca52ad25d4b95471fc8bf2",
+      "mediaType": "application/zip",
+      "sha256": "4a70fe9aa6436e02c2dea340fbd1e352e4ef2d8ce6ca52ad25d4b95471fc8bf2",
+      "size": 3
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:unversioned"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "364b8b80894f39a4fe6d41d06f547f5d4522409d95e5a28a587bbf42f9df77f9",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-10-02T03:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/unversioned",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "unversioned",
+        "mimeType": "application/zip",
+        "modifiedTime": "2026-10-02T03:00:00.000Z",
+        "size": "3"
+       },
+       "extraction": "metadata_only",
+       "limitations": [
+        "Binary original stored; body/OCR not extracted"
+       ],
+       "originalStored": true,
+       "comments": []
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/unversioned",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/unversioned",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/unversioned/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "버전·수정 시각이 null인 바이너리는 관찰 시각이 원본 버전이다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "bare"
+      }
+     ],
+     "seenFiles": [
+      "bare"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/bare",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"bare\",\"mimeType\":\"application/zip\",\"version\":null,\"modifiedTime\":null}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/bare",
+     "media": true,
+     "reply": {
+      "status": 200,
+      "text": "zip"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/bare/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "binary:bare",
+      "file:bare"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:binary:bare",
+      "upsert:file:bare"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {
+        "bare": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [
+        "bare"
+       ],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "binary:bare"
+     },
+     "resourceType": "gdrive.binary",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "sourceVersion": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "fileId": "bare",
+      "extraction": "not_extracted"
+     },
+     "content": {
+      "storage": "blob",
+      "blobKey": "4a70fe9aa6436e02c2dea340fbd1e352e4ef2d8ce6ca52ad25d4b95471fc8bf2",
+      "mediaType": "application/zip",
+      "sha256": "4a70fe9aa6436e02c2dea340fbd1e352e4ef2d8ce6ca52ad25d4b95471fc8bf2",
+      "size": 3
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:bare"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "89442a6a4d271d1d2775dfb0b974836ccd7fdde4eb5aadb135feb9a94c2cad1a",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/bare",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "bare",
+        "mimeType": "application/zip",
+        "version": null,
+        "modifiedTime": null
+       },
+       "extraction": "metadata_only",
+       "limitations": [
+        "Binary original stored; body/OCR not extracted"
+       ],
+       "originalStored": true,
+       "comments": []
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/bare",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/bare",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/bare/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "원본 다운로드 404는 제한으로 남는다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "vanished"
+      }
+     ],
+     "seenFiles": [
+      "vanished"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/vanished",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"vanished\",\"mimeType\":\"application/pdf\",\"version\":\"1\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/vanished",
+     "media": true,
+     "reply": {
+      "status": 404,
+      "text": ""
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/vanished/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "file:vanished"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:file:vanished"
+     ],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "fileId": "vanished",
+        "section": "content"
+       },
+       "message": "Google API request failed (HTTP 404)"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {
+        "vanished": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [
+        "vanished"
+       ],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:vanished"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "7ef208072d35c8dbf738bdef06e88a59866a1493cd5391b687d57f2c52c34ee9",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/vanished",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "vanished",
+        "mimeType": "application/pdf",
+        "version": "1"
+       },
+       "extraction": "metadata_only",
+       "limitations": [
+        "content: Google API request failed (HTTP 404)"
+       ],
+       "comments": []
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/vanished",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/vanished",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/vanished/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "원본 다운로드 403 rateLimitExceeded는 재시도한다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "throttled"
+      }
+     ],
+     "seenFiles": [
+      "throttled"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"throttled\",\"mimeType\":\"application/pdf\",\"version\":\"1\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "media": true,
+     "reply": {
+      "status": 403,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8",
+       "retry-after": "3"
+      },
+      "text": "{\"error\":{\"code\":403,\"message\":\"private provider detail\",\"errors\":[{\"reason\":\"rateLimitExceeded\",\"message\":\"private provider detail\"}]}}"
+     }
+    }
+   ],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "ProviderCallError",
+    "message": "Google API request failed (HTTP 403, rate_limited)",
+    "failure": {
+     "kind": "rate_limited",
+     "retryable": true,
+     "message": "Google API request failed (HTTP 403, rate_limited)"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/throttled",
+     "params": {
+      "alt": "media",
+      "supportsAllDrives": "true"
+     }
+    }
+   ],
+   "waits": [
+    3000,
+    3000,
+    3000,
+    3000
+   ]
+  },
+  {
+   "label": "다음 토큰이 null이면 새 시작 토큰으로 이어 간다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[],\"nextPageToken\":null,\"newStartPageToken\":\"fresh\"}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "fresh"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "changes",
+         "pageToken": "fresh"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive change token did not advance",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "fresh",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "버전이 바뀐 시트의 남은 범위만 버리고 다른 시트의 범위는 수집한다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "sheet",
+       "id": "sa",
+       "key": "0:0:0:1:1",
+       "range": "'A'!A1:A1",
+       "version": "7",
+       "file": {
+        "id": "sa"
+       }
+      },
+      {
+       "kind": "sheet",
+       "id": "sa",
+       "key": "0:1:0:2:1",
+       "range": "'A'!A2:A2",
+       "version": "7",
+       "file": {
+        "id": "sa"
+       }
+      },
+      {
+       "kind": "sheet",
+       "id": "sb",
+       "key": "0:0:0:1:1",
+       "range": "'B'!A1:A1",
+       "version": "7",
+       "file": {
+        "id": "sb"
+       }
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sa",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"sa\",\"version\":\"8\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sb",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"sb\",\"version\":\"7\"}"
+     }
+    },
+    {
+     "origin": "https://sheets.googleapis.com",
+     "path": "/v4/spreadsheets/sb",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"spreadsheetId\":\"sb\",\"sheets\":[{\"properties\":{\"sheetId\":0,\"title\":\"B\",\"index\":0,\"sheetType\":\"GRID\"},\"data\":[{\"rowData\":[{\"values\":[{\"formattedValue\":\"B 값\"}]}]}]}]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "kind": "sheet",
+        "id": "sa",
+        "key": "0:0:0:1:1",
+        "range": "'A'!A1:A1",
+        "version": "7",
+        "file": {
+         "id": "sa"
+        }
+       },
+       "message": "Spreadsheet changed during ranged collection; range omitted until next scan"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "sheet",
+         "id": "sb",
+         "key": "0:0:0:1:1",
+         "range": "'B'!A1:A1",
+         "version": "7",
+         "file": {
+          "id": "sb"
+         }
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [
+      "sheet:sb:0:0:0:1:1"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:sheet:sb:0:0:0:1:1"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "sheet:sb:0:0:0:1:1"
+     },
+     "resourceType": "gdrive.sheet",
+     "sourceVersion": "cec165d3c84616cc9941f7d1e3f65bf2b1d0167bc2274c48d1c752e9ffdfef16",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/sb%3A0%3A0%3A0%3A1%3A1",
+      "accountEmail": "reader@example.test",
+      "fileId": "sb"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "workspace": {
+        "spreadsheetId": "sb",
+        "sheets": [
+         {
+          "properties": {
+           "sheetId": 0,
+           "title": "B",
+           "index": 0,
+           "sheetType": "GRID"
+          },
+          "data": [
+           {
+            "rowData": [
+             {
+              "values": [
+               {
+                "formattedValue": "B 값"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "version": "7",
+       "fileId": "sb"
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sa",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,version"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sb",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,version"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://sheets.googleapis.com",
+     "path": "/v4/spreadsheets/sb",
+     "params": {
+      "ranges": "'B'!A1:A1",
+      "fields": "spreadsheetId,sheets(properties,data(startRow,startColumn,rowData(values(formattedValue,userEnteredValue,effectiveValue,hyperlink,note))))"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sb",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,version"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "같은 시트라도 다른 버전의 범위는 버리지 않는다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "sheet",
+       "id": "sa",
+       "key": "0:0:0:1:1",
+       "range": "'A'!A1:A1",
+       "version": "7",
+       "file": {
+        "id": "sa"
+       }
+      },
+      {
+       "kind": "sheet",
+       "id": "sa",
+       "key": "0:1:0:2:1",
+       "range": "'A'!A2:A2",
+       "version": "6",
+       "file": {
+        "id": "sa"
+       }
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sa",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"sa\",\"version\":\"8\"}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "kind": "sheet",
+        "id": "sa",
+        "key": "0:0:0:1:1",
+        "range": "'A'!A1:A1",
+        "version": "7",
+        "file": {
+         "id": "sa"
+        }
+       },
+       "message": "Spreadsheet changed during ranged collection; range omitted until next scan"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "sheet",
+         "id": "sa",
+         "key": "0:1:0:2:1",
+         "range": "'A'!A2:A2",
+         "version": "6",
+         "file": {
+          "id": "sa"
+         }
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "kind": "sheet",
+        "id": "sa",
+        "key": "0:1:0:2:1",
+        "range": "'A'!A2:A2",
+        "version": "6",
+        "file": {
+         "id": "sa"
+        }
+       },
+       "message": "Spreadsheet changed during ranged collection; range omitted until next scan"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sa",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,version"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/sa",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,version"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "삭제 작업이 남은 체크포인트에서 재개한다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "remove",
+       "id": "gone"
+      },
+      {
+       "kind": "changes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {
+      "gone": "2"
+     },
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {
+      "gone": {
+       "children": [
+        "sheet:gone:k"
+       ]
+      }
+     }
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[],\"newStartPageToken\":\"next\"}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [],
+     "deleted": [
+      "file:gone",
+      "binary:gone",
+      "sheet:gone:k"
+     ],
+     "mutations": [
+      "delete:file:gone",
+      "delete:binary:gone",
+      "delete:sheet:gone:k"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "changes"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "next"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "saved",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "공유 드라이브 목록 다음 페이지 토큰이 반복되면 실패한다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "drives"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved",
+      "drive:d1": "kept"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"drives\":[{\"id\":\"d1\",\"name\":\"팀\"}],\"nextPageToken\":\"d2\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"changes\":[],\"newStartPageToken\":\"kept-2\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"files\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "drive:d1"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:drive:d1"
+     ],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:d1": "kept"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "changes",
+         "driveId": "d1"
+        },
+        {
+         "kind": "files",
+         "driveId": "d1"
+        },
+        {
+         "kind": "drives",
+         "pageToken": "d2"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:d1": "kept-2"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "files",
+         "driveId": "d1"
+        },
+        {
+         "kind": "drives",
+         "pageToken": "d2"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    },
+    {
+     "upserted": [],
+     "deleted": [],
+     "mutations": [],
+     "rejections": [],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved",
+        "drive:d1": "kept-2"
+       },
+       "files": {},
+       "accountId": "perm-reader",
+       "pending": [
+        {
+         "kind": "drives",
+         "pageToken": "d2"
+        }
+       ],
+       "seenFiles": [],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "drive:d1"
+     },
+     "resourceType": "gdrive.drive",
+     "sourceVersion": "f3601ad781e8b2f3c6a4e3527514288da9d7fd6aa24fc94e214fdbb32d3720c2",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/drive/folders/d1",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "id": "d1",
+       "name": "팀"
+      }
+     }
+    }
+   ],
+   "error": {
+    "name": "Error",
+    "message": "Google Drive page token did not advance",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "params": {
+      "pageSize": "100",
+      "fields": "nextPageToken,drives(id,name)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "params": {
+      "pageToken": "kept",
+      "pageSize": "100",
+      "spaces": "drive",
+      "supportsAllDrives": "true",
+      "includeItemsFromAllDrives": "true",
+      "includeRemoved": "true",
+      "includeCorpusRemovals": "true",
+      "fields": "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))",
+      "driveId": "d1"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files",
+     "params": {
+      "pageSize": "100",
+      "q": "trashed = false",
+      "spaces": "drive",
+      "corpora": "drive",
+      "includeItemsFromAllDrives": "true",
+      "supportsAllDrives": "true",
+      "fields": "nextPageToken,incompleteSearch,files(id)",
+      "driveId": "d1"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/drives",
+     "params": {
+      "pageSize": "100",
+      "pageToken": "d2",
+      "fields": "nextPageToken,drives(id,name)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "envelope 축소 구역의 크기가 같으면 앞 구역(workspace)부터 뺀다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "tie"
+      }
+     ],
+     "seenFiles": [
+      "tie"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": 1861,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/tie",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"tie\",\"mimeType\":\"application/vnd.google-apps.document\",\"version\":\"1\"}"
+     }
+    },
+    {
+     "origin": "https://docs.googleapis.com",
+     "path": "/v1/documents/tie",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"p\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/tie/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[{\"id\":\"c\",\"content\":\"같은 길이의 댓글가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\"}]}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/tie/comments/c/replies",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"replies\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "file:tie"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:file:tie"
+     ],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "fileId": "tie",
+        "section": "workspace"
+       },
+       "message": "Raw content exceeds 1861 byte limit"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {
+        "tie": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [
+        "tie"
+       ],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:tie"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "c4bca7a99c9059827cc6329d5a04bd2bbbd22aa3eceb06d1002990e2da61608b",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/tie",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "tie",
+        "mimeType": "application/vnd.google-apps.document",
+        "version": "1"
+       },
+       "extraction": "metadata_only",
+       "limitations": [
+        "workspace: Raw content exceeds 1861 byte limit"
+       ],
+       "comments": [
+        {
+         "id": "c",
+         "content": "같은 길이의 댓글가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+         "replies": []
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/tie",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://docs.googleapis.com",
+     "path": "/v1/documents/tie",
+     "params": {
+      "includeTabsContent": "true"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/tie/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/tie/comments/c/replies",
+     "params": {
+      "fields": "nextPageToken,replies(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "바이너리 다운로드를 끈 설정",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file",
+       "id": "off"
+      }
+     ],
+     "seenFiles": [
+      "off"
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": {
+    "schemaVersion": 1,
+    "value": {
+     "accountEmail": "reader@example.test",
+     "downloadBinaries": false
+    }
+   },
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/off",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"id\":\"off\",\"mimeType\":\"application/zip\",\"version\":\"1\"}"
+     }
+    },
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/off/comments",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"comments\":[]}"
+     }
+    }
+   ],
+   "pages": [
+    {
+     "upserted": [
+      "file:off"
+     ],
+     "deleted": [],
+     "mutations": [
+      "upsert:file:off"
+     ],
+     "rejections": [
+      {
+       "observedAt": "2026-10-16T00:00:00.000Z",
+       "failureKind": "unsupported_item",
+       "providerLocator": {
+        "fileId": "off",
+        "section": "content"
+       },
+       "message": "Binary downloads disabled by configuration"
+      }
+     ],
+     "nextCheckpoint": {
+      "schemaVersion": 1,
+      "value": {
+       "changeTokens": {
+        "user": "saved"
+       },
+       "files": {
+        "off": {
+         "children": []
+        }
+       },
+       "accountId": "perm-reader",
+       "pending": [],
+       "seenFiles": [
+        "off"
+       ],
+       "downloadedVersions": {}
+      }
+     }
+    }
+   ],
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:off"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "4d20a64a273c7df721b1543bab1c29a2f70a6b9137eed8f0f0490f2c2cd74d60",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/off",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "off",
+        "mimeType": "application/zip",
+        "version": "1"
+       },
+       "extraction": "metadata_only",
+       "limitations": [
+        "content: Binary downloads disabled by configuration"
+       ],
+       "comments": []
+      }
+     }
+    }
+   ],
+   "error": null,
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/off",
+     "params": {
+      "supportsAllDrives": "true",
+      "fields": "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails"
+     }
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/off/comments",
+     "params": {
+      "fields": "nextPageToken,comments(*)",
+      "pageSize": "100",
+      "includeDeleted": "false"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "자격 증명이 JSON이 아니다",
+   "checkpoint": null,
+   "config": null,
+   "credential": "not json",
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google OAuth credential JSON",
+    "failure": null
+   },
+   "requests": [],
+   "waits": []
+  },
+  {
+   "label": "자격 증명이 배열이다",
+   "checkpoint": null,
+   "config": null,
+   "credential": "[]",
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google OAuth credential JSON",
+    "failure": null
+   },
+   "requests": [],
+   "waits": []
+  },
+  {
+   "label": "client_id가 없다",
+   "checkpoint": null,
+   "config": null,
+   "credential": "{\"client_secret\":\"s\",\"refresh_token\":\"r\"}",
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google OAuth credential requires client_id",
+    "failure": null
+   },
+   "requests": [],
+   "waits": []
+  },
+  {
+   "label": "client_secret이 비었다",
+   "checkpoint": null,
+   "config": null,
+   "credential": "{\"client_id\":\"c\",\"client_secret\":\"\",\"refresh_token\":\"r\"}",
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google OAuth credential requires client_secret",
+    "failure": null
+   },
+   "requests": [],
+   "waits": []
+  },
+  {
+   "label": "refresh_token이 수다",
+   "checkpoint": null,
+   "config": null,
+   "credential": "{\"client_id\":\"c\",\"client_secret\":\"s\",\"refresh_token\":7}",
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Google OAuth credential requires refresh_token",
+    "failure": null
+   },
+   "requests": [],
+   "waits": []
+  },
+  {
+   "label": "체크포인트 스키마 2",
+   "checkpoint": {
+    "schemaVersion": 2,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "다른 계정의 체크포인트",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "someone-else",
+     "pending": [],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "pending이 배열이 아니다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": {},
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "seenFiles에 수가 있다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [],
+     "seenFiles": [
+      1
+     ],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "모르는 작업 종류",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "folder"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint task",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "file 작업에 id가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "file"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint task",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "remove 작업의 drive가 문자열이다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "remove",
+       "id": "x",
+       "drive": "yes"
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint task",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "sheet 작업에 range가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "sheet",
+       "id": "s",
+       "key": "0:0:0:1:1",
+       "version": "1",
+       "file": {
+        "id": "s"
+       }
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint task",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "sheet 작업의 file에 id가 없다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "sheet",
+       "id": "s",
+       "key": "k",
+       "range": "r",
+       "version": "1",
+       "file": {}
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint task",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "작업의 pageToken이 비었다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [
+      {
+       "kind": "files",
+       "pageToken": ""
+      }
+     ],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive checkpoint task",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "내려받은 버전이 수다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [],
+     "seenFiles": [],
+     "downloadedVersions": {
+      "a": 1
+     },
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive download checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "변경 토큰이 비었다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": ""
+     },
+     "files": {}
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive change checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "files의 children이 배열이 아니다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {
+      "a": {
+       "children": "x"
+      }
+     }
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive file checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  },
+  {
+   "label": "files의 driveId가 수다",
+   "checkpoint": {
+    "schemaVersion": 1,
+    "value": {
+     "accountId": "perm-reader",
+     "pending": [],
+     "seenFiles": [],
+     "downloadedVersions": {},
+     "changeTokens": {
+      "user": "saved"
+     },
+     "files": {
+      "a": {
+       "children": [],
+       "driveId": 3
+      }
+     }
+    }
+   },
+   "config": null,
+   "credential": null,
+   "captureMaxBytes": null,
+   "overrides": [],
+   "pages": [],
+   "items": [],
+   "error": {
+    "name": "Error",
+    "message": "Invalid Google Drive file checkpoint",
+    "failure": null
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "params": {}
+    },
+    {
+     "method": "GET",
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "params": {
+      "fields": "user(emailAddress,permissionId)"
+     }
+    }
+   ],
+   "waits": []
+  }
+ ]
+}

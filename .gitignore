@@ -1,0 +1,9 @@
+*.db
+.env
+.env.*
+
+# IntelliJ 프로젝트 설정(로컬)
+.idea/
+
+# Python 바이트코드(tools/ 스크립트 실행 산출물)
+__pycache__/

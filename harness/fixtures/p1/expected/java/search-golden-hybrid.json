@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\" : [ {\n    \"title\" : \"검색 로드맵\",\n    \"excerpt\" : \"검색 개선 로드맵의 핵심은 하이브리드 검색 도입이다. 어휘 검색과 벡터 검색을 병합해 순위를 만든다.\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"search-roadmap.md\",\n    \"capturedAt\" : \"2026-10-09T18:00:00.000Z\",\n    \"score\" : 0.016\n  } ],\n  \"freshness\" : {\n    \"latestCapturedAt\" : \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\" : 1.0,\n    \"stale\" : false\n  }\n}"
+  } ],
+  "isError" : false
+}

@@ -1,0 +1,7 @@
+{
+  "jsonrpcError" : {
+    "code" : -32602,
+    "message" : "Unknown tool: invalid_tool_name",
+    "data" : "Tool not found: no_such_tool"
+  }
+}

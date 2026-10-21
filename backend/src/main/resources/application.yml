@@ -1,0 +1,70 @@
+# 환경변수 이름은 TS와 같은 규약을 유지한다(ADR-0009). 값이 비면 기동 시 검증이 거부한다.
+spring:
+  application:
+    name: scos
+  datasource:
+    url: ${SCOS_DB_URL:}
+    username: ${SCOS_DB_USER:}
+    password: ${SCOS_DB_PASSWORD:}
+    hikari:
+      # 매달린 트랜잭션이 점유 행을 쥐어도 페이지 커밋·heartbeat가 무기한 대기하지 않는다(리뷰 B-M-5). 55P03은 storage_failed로 분류(ADR-0020 §4).
+      connection-init-sql: SET lock_timeout = '5s'
+      # 자원 상한(ADR-0020 §4): 풀 = 데몬 concurrency(2) + heartbeat·루프(투영)·health·지표 스크레이프 4 — daemon은 이보다 작으면 기동 거부. 고갈 시 5s 뒤 실패.
+      maximum-pool-size: ${SCOS_DB_POOL_SIZE:6}
+      connection-timeout: ${SCOS_DB_CONNECTION_TIMEOUT:5000}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # Flyway는 자체 연결(Hikari connection-init-sql의 lock_timeout 밖)로 마이그레이션한다 — DDL이 5s 잠금 대기로 거부되지 않게
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+  main:
+    banner-mode: off
+    # 웹 유형은 ScosApplication.main이 정한다(daemon만 servlet, ADR-0020 §3). 여기 spring.main.web-application-type을 두면
+    # 환경 바인딩이 main의 설정을 덮어쓴다.
+scos:
+  # 기동 시 DB 버전 검사(ADR-0027): 테스트 이미지(digest 고정)와 같은 값. 이미지를 올릴 때 함께 바꾼다
+  database:
+    expected-server-version: ${SCOS_DB_EXPECTED_SERVER_VERSION:17.11}
+    expected-vector-version: ${SCOS_DB_EXPECTED_VECTOR_VERSION:0.8.7}
+  mcp:
+    space-id: ${SCOS_SPACE_ID:legacy}
+    # 질의 로그 JSONL(TS mcp-server와 같은 환경변수·형식). 비우면 끈다
+    query-log: ${SCOS_QUERY_LOG:}
+  projection:
+    source-spaces: ${SCOS_SOURCE_SPACES:}
+    default-space: ${SCOS_SPACE_ID:legacy}
+  collection:
+    lease-ttl: ${SCOS_LEASE_TTL:180s}
+    slack-base-url: ${SCOS_SLACK_BASE_URL:https://slack.com}
+    # 스냅샷 축소 보호(ADR-0028): 정리 직전 active가 min-active 이상이고 지울 비율이 max-delete-percent(%)를 넘으면 정리하지 않는다.
+    # 전부 지우는 정리(빈 목록)는 규모와 무관하게 늘 보호한다. 소스별 값은 source add --snapshot-guard-…
+    snapshot-guard:
+      min-active: ${SCOS_SNAPSHOT_GUARD_MIN_ACTIVE:10}
+      max-delete-percent: ${SCOS_SNAPSHOT_GUARD_MAX_DELETE_PERCENT:50}
+      # source accept-shrink 허용의 유효 기간 — 이보다 오래 묵은 허용은 쓰지 않고 만료 이벤트를 남긴다
+      accept-ttl: ${SCOS_SNAPSHOT_GUARD_ACCEPT_TTL:7d}
+    tiro:
+      base-url: ${SCOS_TIRO_BASE_URL:https://api.tiro.ooo}
+    notion:
+      base-url: ${SCOS_NOTION_BASE_URL:https://api.notion.com}
+  # 데몬(ADR-0020 §1, TS --interval-seconds 등과 같은 의미)
+  daemon:
+    interval: ${SCOS_DAEMON_INTERVAL:900s}
+    poll: ${SCOS_DAEMON_POLL:5s}
+    retry-base: ${SCOS_DAEMON_RETRY_BASE:30s}
+    retry-max: ${SCOS_DAEMON_RETRY_MAX:300s}
+    concurrency: ${SCOS_DAEMON_CONCURRENCY:2}
+    snapshot-interval: ${SCOS_DAEMON_SNAPSHOT_INTERVAL:}
+    shutdown-timeout: ${SCOS_DAEMON_SHUTDOWN_TIMEOUT:10s}
+    maintenance-interval: ${SCOS_DAEMON_MAINTENANCE_INTERVAL:24h}
+    maintenance-grace-days: ${SCOS_DAEMON_MAINTENANCE_GRACE_DAYS:30}
+    # 마지막 진행(사이클 끝)이 이보다 오래되면 health daemon = DOWN(stalled)
+    stall-after: ${SCOS_DAEMON_STALL_AFTER:30m}
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    base-url: ${SCOS_GEMINI_BASE_URL:}
+  rerank:
+    provider: ${SCOS_RERANK_PROVIDER:gemini}
+    model: ${SCOS_RERANK_MODEL:gemini-2.5-flash}

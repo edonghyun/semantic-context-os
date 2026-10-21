@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\" : [ {\n    \"title\" : \"온보딩 가이드\",\n    \"excerpt\" : \"신규 입사자는 첫날 계정을 발급받고 저장소 권한을 신청한다. 권한 승인은 팀 리드가 처리한다.\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"onboarding-guide.md\",\n    \"capturedAt\" : \"2026-10-10T06:00:00.000Z\",\n    \"score\" : 1.016\n  }, {\n    \"title\" : \"온보딩 요약\",\n    \"excerpt\" : \"온보딩 절차 요약: 계정 발급과 권한 신청\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-compacted\",\n    \"capturedAt\" : \"2026-10-11T00:00:00.000Z\",\n    \"score\" : 0.016\n  } ],\n  \"freshness\" : {\n    \"latestCapturedAt\" : \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\" : 1.0,\n    \"stale\" : false\n  }\n}"
+  } ],
+  "isError" : false
+}

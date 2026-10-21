@@ -1,0 +1,2606 @@
+{
+  "version" : 1,
+  "generatedBy" : "backend/src/test/java/io/scos/demo/DemoCorpus.java",
+  "units" : [ {
+    "id" : "9aea8fb74c175224",
+    "partition" : "/knowledge",
+    "title" : "OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환",
+    "content" : "# OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환\n\n**유형:** Story · **우선순위:** High · **상태:** In Progress · **담당:** hyejin",
+    "contentHash" : "dccf2b70801defaba44399f8a25a849495b46813dec4e10774de39376f0ba40e",
+    "tokens" : 44,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-275",
+      "uri" : "jira://ottercart.example/OTC-275",
+      "capturedAt" : "2026-10-10T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "inventory" ]
+  }, {
+    "id" : "ebb7ab35a50e398b",
+    "partition" : "/knowledge",
+    "title" : "OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환 > 설명",
+    "content" : "## 설명\n\n[재고 동기화 v2 설계](../notion/inventory-sync-v2-cdc)대로 inventory-sync가 `stock.changed` 이벤트를 구독하게 바꾼다. 완료 조건: 파일럿 매장 12곳의 재고 반영 지연 p95 1분 이내, 그림자 모드에서 폴링 결과와 불일치 0.1% 미만.",
+    "contentHash" : "fe80a6ea6153fa540b7d9b203b2da8edf5d6d62f433d4b50c7d1225a51174367",
+    "tokens" : 91,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-275",
+      "uri" : "jira://ottercart.example/OTC-275",
+      "capturedAt" : "2026-10-10T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/inventory-sync-v2-cdc" ],
+    "tags" : [ "jira", "story", "inventory" ]
+  }, {
+    "id" : "7baff01eeedd163b",
+    "partition" : "/knowledge",
+    "title" : "OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환 > 댓글",
+    "content" : "## 댓글\n\n- hyejin (10-03): 파일럿 2곳 이벤트 발행 시작. 그림자 모드 불일치 0.4% — 대부분 version 역전.\n- hyejin (10-10): version 비교를 매장·SKU 단위로 바꾼 뒤 불일치 0.05%.",
+    "contentHash" : "01cac855930a4da7668775c2cd5d1602dccb41d54824c8395ba56b37cc962f81",
+    "tokens" : 73,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-275",
+      "uri" : "jira://ottercart.example/OTC-275",
+      "capturedAt" : "2026-10-10T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "inventory" ]
+  }, {
+    "id" : "5d33ef0de912329c",
+    "partition" : "/knowledge",
+    "title" : "OTC-288 PostgreSQL 15 → 17 업그레이드",
+    "content" : "# OTC-288 PostgreSQL 15 → 17 업그레이드\n\n**유형:** Task · **우선순위:** Medium · **상태:** Done · **담당:** daniel",
+    "contentHash" : "14f2cf4496feb460fb6f95a1f8061e82760fdfcb378d0f7e8e43867b78646366",
+    "tokens" : 42,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-288",
+      "uri" : "jira://ottercart.example/OTC-288",
+      "capturedAt" : "2026-10-06T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "platform" ]
+  }, {
+    "id" : "0fe9cd752fba1e98",
+    "partition" : "/knowledge",
+    "title" : "OTC-288 PostgreSQL 15 → 17 업그레이드 > 설명",
+    "content" : "## 설명\n\n[업그레이드 계획](../notion/postgres-17-upgrade-plan)에 따라 inventory-db와 orders-db를 17로 올린다. 논리 복제로 따라오게 한 뒤 점검 시간에 전환.",
+    "contentHash" : "eba36d51905e96971913ec273fe0d493bddf92acbf5a3990f0d780c54dabc890",
+    "tokens" : 51,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-288",
+      "uri" : "jira://ottercart.example/OTC-288",
+      "capturedAt" : "2026-10-06T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/postgres-17-upgrade-plan" ],
+    "tags" : [ "jira", "task", "platform" ]
+  }, {
+    "id" : "0b2c9663833bf825",
+    "partition" : "/knowledge",
+    "title" : "OTC-288 PostgreSQL 15 → 17 업그레이드 > 댓글",
+    "content" : "## 댓글\n\n- daniel (09-29): 재고 DB 전환 완료, 쓰기 중단 6분.\n- daniel (10-06): 주문 DB 전환 완료, 쓰기 중단 8분. 15 클러스터는 일주일 뒤 삭제.",
+    "contentHash" : "5e673828f850b85f89883a8e05f0d40226a926ba1faafcbc2b89e489b96a9ae0",
+    "tokens" : 60,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-288",
+      "uri" : "jira://ottercart.example/OTC-288",
+      "capturedAt" : "2026-10-06T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "platform" ]
+  }, {
+    "id" : "fed1fc47c8d64ece",
+    "partition" : "/knowledge",
+    "title" : "OTC-290 Order API v2: cursor pagination for list endpoints",
+    "content" : "# OTC-290 Order API v2: cursor pagination for list endpoints\n\n**Type:** Story · **Priority:** High · **Status:** Done · **Assignee:** priya",
+    "contentHash" : "9239651a31b33f4037e6b268d8e83d5928cfb745e6ac79834fd1c0874fba7144",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-290",
+      "uri" : "jira://ottercart.example/OTC-290",
+      "capturedAt" : "2026-09-19T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "api" ]
+  }, {
+    "id" : "a866e7c5fc44814c",
+    "partition" : "/knowledge",
+    "title" : "OTC-290 Order API v2: cursor pagination for list endpoints > Description",
+    "content" : "## Description\n\nImplement cursor pagination for `GET /v2/orders` and `GET /v2/stores/{id}/orders` as specified in the [Order API v2 design](../notion/order-api-v2-design). The cursor encodes `(created_at, id)` and is base64url opaque to clients.",
+    "contentHash" : "fb49e6a4528d3d2f651e59be4403de9766aac0277347dcb458e1c29a0311a0d6",
+    "tokens" : 66,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-290",
+      "uri" : "jira://ottercart.example/OTC-290",
+      "capturedAt" : "2026-09-19T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/order-api-v2-design" ],
+    "tags" : [ "jira", "story", "api" ]
+  }, {
+    "id" : "b617bccf8e7e083a",
+    "partition" : "/knowledge",
+    "title" : "OTC-290 Order API v2: cursor pagination for list endpoints > Acceptance criteria",
+    "content" : "## Acceptance criteria\n\n- `limit` between 1 and 100, default 20; invalid values return `400 INVALID_LIMIT`.\n- `nextCursor` is null on the last page.\n- Inserting new orders while paging never returns duplicates or skips rows.",
+    "contentHash" : "f4f824d9e169d33d1b4a46261612090bbc8eb2def592d169976a6035c927eea1",
+    "tokens" : 53,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-290",
+      "uri" : "jira://ottercart.example/OTC-290",
+      "capturedAt" : "2026-09-19T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "api" ]
+  }, {
+    "id" : "682b11dada0e3731",
+    "partition" : "/knowledge",
+    "title" : "OTC-290 Order API v2: cursor pagination for list endpoints > Comments",
+    "content" : "## Comments\n\n- priya (09-12): Contract tests added for the concurrent insert case.\n- priya (09-19): Shipped in 3.4.0.",
+    "contentHash" : "849035676bc7080ec35e6b39b7b90b575d19826a97bbe31082447815b4953d5d",
+    "tokens" : 38,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-290",
+      "uri" : "jira://ottercart.example/OTC-290",
+      "capturedAt" : "2026-09-19T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "api" ]
+  }, {
+    "id" : "77c3f3f8fe172b07",
+    "partition" : "/knowledge",
+    "title" : "OTC-295 Deprecate v1 offset pagination",
+    "content" : "# OTC-295 Deprecate v1 offset pagination\n\n**Type:** Task · **Priority:** Medium · **Status:** To Do · **Assignee:** priya",
+    "contentHash" : "a8e1d2070e37d1e7b086be694efd0e7007c853776306745e37d1f6aee710d5b2",
+    "tokens" : 34,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-295",
+      "uri" : "jira://ottercart.example/OTC-295",
+      "capturedAt" : "2026-09-25T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "api" ]
+  }, {
+    "id" : "157eb4ccc8e16b33",
+    "partition" : "/knowledge",
+    "title" : "OTC-295 Deprecate v1 offset pagination > Description",
+    "content" : "## Description\n\nOrder API v1 `page`/`offset` parameters will be removed on **2026-12-01**. Steps:\n\n1. Return a `Deprecation` header and `Sunset: Mon, 01 Dec 2026 00:00:00 GMT` on all v1 list responses (from 3.5.0).\n2. Email partners with v1 traffic in the last 30 days; share the [migration notes](../notion/order-api-v2-design).\n3. On 2026-12-01 return `410 Gone` for v1 list endpoints.",
+    "contentHash" : "de7685055afe8696cf1de515afa4f04394aeb27f79ea8d2bfeea868d815e3be7",
+    "tokens" : 127,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-295",
+      "uri" : "jira://ottercart.example/OTC-295",
+      "capturedAt" : "2026-09-25T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/order-api-v2-design" ],
+    "tags" : [ "jira", "task", "api" ]
+  }, {
+    "id" : "9f9e5b37483ee78e",
+    "partition" : "/knowledge",
+    "title" : "OTC-295 Deprecate v1 offset pagination > Comments",
+    "content" : "## Comments\n\n- sora (09-25): 7 partners still on v1, 2 of them above 1k requests/day.",
+    "contentHash" : "f06815d8a47413a1fb8dd8b2f96213bdf64c6b20dd86a159ed86f61a5bba6334",
+    "tokens" : 29,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-295",
+      "uri" : "jira://ottercart.example/OTC-295",
+      "capturedAt" : "2026-09-25T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "api" ]
+  }, {
+    "id" : "b00950c8d3019e00",
+    "partition" : "/knowledge",
+    "title" : "OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨",
+    "content" : "# OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨\n\n**유형:** Bug · **우선순위:** High · **상태:** Done · **담당:** jiwoo",
+    "contentHash" : "4706e44c6c29197dd2f5b141ffba120735bfa0024b1192bbb18ec53f09dc1922",
+    "tokens" : 45,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-301",
+      "uri" : "jira://ottercart.example/OTC-301",
+      "capturedAt" : "2026-10-13T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "coupons" ]
+  }, {
+    "id" : "ec8320d170483a66",
+    "partition" : "/knowledge",
+    "title" : "OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨 > 설명",
+    "content" : "## 설명\n\n장바구니에서 상품 쿠폰 두 장을 고르면 두 쿠폰 할인액이 모두 차감된다. [쿠폰 정책](../notion/coupon-policy)상 상품 쿠폰끼리는 중복 적용할 수 없고 할인액이 큰 쪽만 적용해야 한다.",
+    "contentHash" : "3763923a07bef0b8596bb99fbd0a2b7a36fed2e7c4dab9b029f2c2c19488cc69",
+    "tokens" : 63,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-301",
+      "uri" : "jira://ottercart.example/OTC-301",
+      "capturedAt" : "2026-10-13T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/coupon-policy" ],
+    "tags" : [ "jira", "bug", "coupons" ]
+  }, {
+    "id" : "a5a7dc47f40240e6",
+    "partition" : "/knowledge",
+    "title" : "OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨 > 재현",
+    "content" : "## 재현\n\n1. 10% 상품 쿠폰과 3,000원 상품 쿠폰을 보유한 계정으로 로그인\n2. 3만 원 상품을 담고 두 쿠폰을 모두 선택\n3. 결제 금액이 24,000원으로 표시됨(기대: 27,000원)",
+    "contentHash" : "495fa5bb40303182f08beea5ed7ce37fb0212fd34eb2eea71b0ec867f6075c26",
+    "tokens" : 72,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-301",
+      "uri" : "jira://ottercart.example/OTC-301",
+      "capturedAt" : "2026-10-13T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "coupons" ]
+  }, {
+    "id" : "fecfeb9ac710adf9",
+    "partition" : "/knowledge",
+    "title" : "OTC-301 상품 쿠폰 두 장 선택 시 할인이 두 번 차감됨 > 원인",
+    "content" : "## 원인\n\n쿠폰 검증이 서버가 아니라 앱에서만 이뤄졌다. 서버 계산기에 종류별 1장 제한을 추가했다. 3.5.0에서 수정.",
+    "contentHash" : "461015bbae59271f38c360849d27cab20705c8cf0ce4d185956a8c66d6507bd7",
+    "tokens" : 42,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-301",
+      "uri" : "jira://ottercart.example/OTC-301",
+      "capturedAt" : "2026-10-13T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "coupons" ]
+  }, {
+    "id" : "831e1b4c616514aa",
+    "partition" : "/knowledge",
+    "title" : "OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용",
+    "content" : "# OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용\n\n**유형:** Bug · **우선순위:** Highest · **상태:** Done · **담당:** jaehoon",
+    "contentHash" : "bf31e365767b6317898305c9b03a273113541ef0c2778b5f4632c7457043abfa",
+    "tokens" : 49,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-311",
+      "uri" : "jira://ottercart.example/OTC-311",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "payments", "incident" ]
+  }, {
+    "id" : "11f68ba8c8f20250",
+    "partition" : "/knowledge",
+    "title" : "OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용 > 설명",
+    "content" : "## 설명\n\n9월 7일 결제 중복 승인 장애의 근본 원인([포스트모템](../notion/postmortem-2026-09-07-duplicate-charges)). payment-gateway의 capture 재시도가 새 `Idempotency-Key`를 만들어 Bramblepay가 재시도를 별개 승인으로 처리했다.",
+    "contentHash" : "b3e166b7f54b3754c6617ecab221affdf45d2a792aba20726deddf1d99366cf9",
+    "tokens" : 74,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-311",
+      "uri" : "jira://ottercart.example/OTC-311",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/postmortem-2026-09-07-duplicate-charges" ],
+    "tags" : [ "jira", "bug", "payments", "incident" ]
+  }, {
+    "id" : "f6a1c34fd1dcf269",
+    "partition" : "/knowledge",
+    "title" : "OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용 > 수정",
+    "content" : "## 수정\n\n- 멱등 키를 결제 id와 시도 그룹에서 결정적으로 만든다. 같은 capture의 재시도는 항상 같은 키를 쓴다.\n- 재시도 경로 단위 테스트 추가: 첫 요청 타임아웃 → 재시도 요청의 키가 같은지 검증.\n- `payments.capture-retry` 플래그는 3.4.0 배포 후 다시 켰다.",
+    "contentHash" : "ae8e53500e2408eac65a61ffeb8112315ef6fd5315f9080fedb9f1fe2eb23a2f",
+    "tokens" : 92,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-311",
+      "uri" : "jira://ottercart.example/OTC-311",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "payments", "incident" ]
+  }, {
+    "id" : "44873ca79f6f4c67",
+    "partition" : "/knowledge",
+    "title" : "OTC-311 결제 승인 재시도 시 원래 멱등 키를 재사용 > 댓글",
+    "content" : "## 댓글\n\n- daniel (09-11): 리뷰 완료. 결제 경로 변경은 이제 checkout 팀 리뷰 필수.",
+    "contentHash" : "30d36d06b35655702a7aeb23e5d68c74319c7d177e1ff017ca54c178959d93e4",
+    "tokens" : 27,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-311",
+      "uri" : "jira://ottercart.example/OTC-311",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "payments", "incident" ]
+  }, {
+    "id" : "c7b8a4a4d45c6c1c",
+    "partition" : "/knowledge",
+    "title" : "OTC-312 Alert on duplicate captures",
+    "content" : "# OTC-312 Alert on duplicate captures\n\n**Type:** Task · **Priority:** High · **Status:** Done · **Assignee:** sora",
+    "contentHash" : "ed6222595f2e53956978b2bae49090045b5857c298e58bc85bd99315bf52d4fa",
+    "tokens" : 29,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-312",
+      "uri" : "jira://ottercart.example/OTC-312",
+      "capturedAt" : "2026-09-15T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "payments", "monitoring" ]
+  }, {
+    "id" : "c8c03cc6dfc21bee",
+    "partition" : "/knowledge",
+    "title" : "OTC-312 Alert on duplicate captures > Description",
+    "content" : "## Description\n\nFollow-up from the [duplicate charge postmortem](../notion/postmortem-2026-09-07-duplicate-charges): we learned about the incident from customer support 31 minutes late. Add an alert `payments.capture.duplicate` that fires when one order has two successful captures within 10 minutes. Page the payments on-call; severity SEV1 by default.",
+    "contentHash" : "a830a516532223ff65f833e5ab3d71de8f83649e7cfec59fda16e948f8352869",
+    "tokens" : 81,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-312",
+      "uri" : "jira://ottercart.example/OTC-312",
+      "capturedAt" : "2026-09-15T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/postmortem-2026-09-07-duplicate-charges" ],
+    "tags" : [ "jira", "task", "payments", "monitoring" ]
+  }, {
+    "id" : "7fc918b2262edc39",
+    "partition" : "/knowledge",
+    "title" : "OTC-312 Alert on duplicate captures > Comments",
+    "content" : "## Comments\n\n- sora (09-15): Alert live. Backtest on September data catches all 412 affected orders within 2 minutes.",
+    "contentHash" : "d35b0807b2633bd52faabefb8f10bf8107ee1e309e97fc6f22206790da6391a6",
+    "tokens" : 29,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-312",
+      "uri" : "jira://ottercart.example/OTC-312",
+      "capturedAt" : "2026-09-15T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "payments", "monitoring" ]
+  }, {
+    "id" : "2ec0c8fbb6a3c4b7",
+    "partition" : "/knowledge",
+    "title" : "OTC-318 중복 승인 건 환불 스크립트",
+    "content" : "# OTC-318 중복 승인 건 환불 스크립트\n\n**유형:** Task · **우선순위:** Highest · **상태:** Done · **담당:** jaehoon",
+    "contentHash" : "201e90945b40a4003a49905bfda8f3ffc25fe11f27a7225dfa026c7631836623",
+    "tokens" : 43,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-318",
+      "uri" : "jira://ottercart.example/OTC-318",
+      "capturedAt" : "2026-09-09T12:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "payments", "refund" ]
+  }, {
+    "id" : "89143f4a5940b58c",
+    "partition" : "/knowledge",
+    "title" : "OTC-318 중복 승인 건 환불 스크립트 > 설명",
+    "content" : "## 설명\n\n9월 7일 중복 승인 412건을 찾아 두 번째 승인을 Bramblepay 환불 API로 취소한다. 스크립트는 dry-run 모드로 대상 목록을 먼저 뽑고, 재무팀 확인 후 실행한다.",
+    "contentHash" : "ed6112101713b6b4a308c291ab9894ce3fd94d28c8ece7abe7cec866905754cd",
+    "tokens" : 58,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-318",
+      "uri" : "jira://ottercart.example/OTC-318",
+      "capturedAt" : "2026-09-09T12:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "payments", "refund" ]
+  }, {
+    "id" : "900b3390eb6e4dd5",
+    "partition" : "/knowledge",
+    "title" : "OTC-318 중복 승인 건 환불 스크립트 > 진행 상황",
+    "content" : "## 진행 상황\n\n- 09-08 10:00 dry-run: 대상 412건, 금액 11,820,400원 — 재무팀 확인 완료\n- 09-08 15:00 1차 실행 380건 환불 성공, 32건은 카드사 응답 지연으로 보류\n- 09-09 11:00 보류 32건 재실행, 전부 성공. 환불 완료 문자 발송",
+    "contentHash" : "d11116460ae347e19f54d3790a38cf3a5bab57cd8de3c38fa2d849afbf076516",
+    "tokens" : 99,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-318",
+      "uri" : "jira://ottercart.example/OTC-318",
+      "capturedAt" : "2026-09-09T12:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "payments", "refund" ]
+  }, {
+    "id" : "0e1041730b7d66d6",
+    "partition" : "/knowledge",
+    "title" : "OTC-318 중복 승인 건 환불 스크립트 > 댓글",
+    "content" : "## 댓글\n\n- minji (09-09): CS에 환불 완료 목록 공유했습니다.",
+    "contentHash" : "78747c81c0b3a11f58872472bcee79b0989838c96ad33380c42b344d3bfa51ca",
+    "tokens" : 20,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-318",
+      "uri" : "jira://ottercart.example/OTC-318",
+      "capturedAt" : "2026-09-09T12:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "payments", "refund" ]
+  }, {
+    "id" : "0f29b2be521aaec2",
+    "partition" : "/knowledge",
+    "title" : "OTC-322 Roll out rider batching to 30% of Seoul riders",
+    "content" : "# OTC-322 Roll out rider batching to 30% of Seoul riders\n\n**Type:** Story · **Priority:** Medium · **Status:** Done · **Assignee:** kevin",
+    "contentHash" : "61f621322ddaa139175cfc10c1724f08a388821a073c06aa985c26edfcd7bfe1",
+    "tokens" : 37,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-322",
+      "uri" : "jira://ottercart.example/OTC-322",
+      "capturedAt" : "2026-09-24T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "dispatch" ]
+  }, {
+    "id" : "26d597ab48b52e56",
+    "partition" : "/knowledge",
+    "title" : "OTC-322 Roll out rider batching to 30% of Seoul riders > Description",
+    "content" : "## Description\n\nBased on the [batching experiment](../notion/rider-batching-experiment), enable `dispatch.batching` for 30% of Seoul riders with the batching radius capped at 600 m (experiment used 800 m).",
+    "contentHash" : "d625fb590c3882f83785e66214411aecc47a91a38b74c7053b91e7e5a292597b",
+    "tokens" : 50,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-322",
+      "uri" : "jira://ottercart.example/OTC-322",
+      "capturedAt" : "2026-09-24T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/rider-batching-experiment" ],
+    "tags" : [ "jira", "story", "dispatch" ]
+  }, {
+    "id" : "321dd63b39a6b034",
+    "partition" : "/knowledge",
+    "title" : "OTC-322 Roll out rider batching to 30% of Seoul riders > Acceptance criteria",
+    "content" : "## Acceptance criteria\n\n- Median delivery time increase under 2 minutes versus control.\n- Late delivery rate (> 45 min) under 4.5%.\n- Dashboard split by batched / single trips.",
+    "contentHash" : "7c51ce432a0b023a43c6488a9b787ba92478c04d40ac582dea4a527518075aa6",
+    "tokens" : 41,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-322",
+      "uri" : "jira://ottercart.example/OTC-322",
+      "capturedAt" : "2026-09-24T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "dispatch" ]
+  }, {
+    "id" : "05bf7ba8d2155fb5",
+    "partition" : "/knowledge",
+    "title" : "OTC-322 Roll out rider batching to 30% of Seoul riders > Comments",
+    "content" : "## Comments\n\n- kevin (09-24): Live in 3.4.0. First week: cost per delivery -9.6%, median +1.4 min.",
+    "contentHash" : "5edb4e1773e973ddbf61b1784839b0d15e1c564604d05522a11521d074b280cb",
+    "tokens" : 38,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-322",
+      "uri" : "jira://ottercart.example/OTC-322",
+      "capturedAt" : "2026-09-24T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "dispatch" ]
+  }, {
+    "id" : "9f1b1204c2a245d1",
+    "partition" : "/knowledge",
+    "title" : "OTC-327 Flaky checkout end-to-end test on CI",
+    "content" : "# OTC-327 Flaky checkout end-to-end test on CI\n\n**Type:** Bug · **Priority:** Medium · **Status:** In Progress · **Assignee:** jiwoo",
+    "contentHash" : "ae5ac9790437d3e254c21e3f1b52a9f25ee1fc3bf3a0ce7d53c04f51076963d2",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-327",
+      "uri" : "jira://ottercart.example/OTC-327",
+      "capturedAt" : "2026-10-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "testing" ]
+  }, {
+    "id" : "7c1eb780f606b6f2",
+    "partition" : "/knowledge",
+    "title" : "OTC-327 Flaky checkout end-to-end test on CI > Description",
+    "content" : "## Description\n\n`CheckoutFlowE2ETest.paysWithSavedCard` fails about 1 in 12 runs on CI with a timeout waiting for the order confirmation screen. It never fails locally.",
+    "contentHash" : "97ca144f896cbc6898ec5a4dd04e0fdd72c87cca245bbb539ea7c626603883dd",
+    "tokens" : 41,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-327",
+      "uri" : "jira://ottercart.example/OTC-327",
+      "capturedAt" : "2026-10-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "testing" ]
+  }, {
+    "id" : "4e6255662b040a9c",
+    "partition" : "/knowledge",
+    "title" : "OTC-327 Flaky checkout end-to-end test on CI > Findings",
+    "content" : "## Findings\n\n- The fake Bramblepay server in CI starts after the app container in some runs; the first authorise call hits a closed port and the client backs off for 10 s.\n- Fix: add a readiness check for the fake Bramblepay before starting the app; remove the fixed `sleep 5` in the CI script.",
+    "contentHash" : "bf37d98afb56d4e748711546b38c4ccf8d9536137b58a21808c65ee6ae96f0d2",
+    "tokens" : 71,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-327",
+      "uri" : "jira://ottercart.example/OTC-327",
+      "capturedAt" : "2026-10-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "testing" ]
+  }, {
+    "id" : "1694e53be5e4f8f6",
+    "partition" : "/knowledge",
+    "title" : "OTC-327 Flaky checkout end-to-end test on CI > Comments",
+    "content" : "## Comments\n\n- jiwoo (10-01): Readiness check merged; 200 CI runs without a failure so far.",
+    "contentHash" : "567e58bffae44d80463c50e6fa3389246470c9b6d4564f212049c531ddec965f",
+    "tokens" : 26,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-327",
+      "uri" : "jira://ottercart.example/OTC-327",
+      "capturedAt" : "2026-10-01T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "testing" ]
+  }, {
+    "id" : "3fa915dc72ea2146",
+    "partition" : "/knowledge",
+    "title" : "OTC-333 Bramblepay API 키 정기 교체 (2026 Q4)",
+    "content" : "# OTC-333 Bramblepay API 키 정기 교체 (2026 Q4)\n\n**유형:** Task · **우선순위:** High · **상태:** Done · **담당:** sora",
+    "contentHash" : "ec3d386d2e0d8292619b5938d58dcfb2eef7a094268ff60eb6cbf51c472535cc",
+    "tokens" : 44,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-333",
+      "uri" : "jira://ottercart.example/OTC-333",
+      "capturedAt" : "2026-10-01T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "security" ]
+  }, {
+    "id" : "dc848abfd3604304",
+    "partition" : "/knowledge",
+    "title" : "OTC-333 Bramblepay API 키 정기 교체 (2026 Q4) > 설명",
+    "content" : "## 설명\n\n[시크릿 교체 정책](../notion/secret-rotation-policy)의 90일 주기에 따른 Bramblepay API 키 교체. 이전 교체는 2026-07-02.",
+    "contentHash" : "3eb676da7e9b6eee5b70c5f50ee56a7ef1357a4880965fe45113139d05d64c98",
+    "tokens" : 46,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-333",
+      "uri" : "jira://ottercart.example/OTC-333",
+      "capturedAt" : "2026-10-01T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/secret-rotation-policy" ],
+    "tags" : [ "jira", "task", "security" ]
+  }, {
+    "id" : "9b660b08ab220337",
+    "partition" : "/knowledge",
+    "title" : "OTC-333 Bramblepay API 키 정기 교체 (2026 Q4) > 체크리스트",
+    "content" : "## 체크리스트\n\n- [x] Bramblepay 관리 콘솔에서 새 키 발급\n- [x] 시크릿 저장소에 새 키 등록, payment-gateway가 읽어 간 것 확인\n- [x] 24시간 신·구 키 병행 후 구 키 폐기(10-01 09:00)\n- [x] 감사 로그 첨부",
+    "contentHash" : "ebd0df2659425bacc8a863f2d67b16d500cf7fb7b01bcf5a9ab547deb452ce41",
+    "tokens" : 81,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-333",
+      "uri" : "jira://ottercart.example/OTC-333",
+      "capturedAt" : "2026-10-01T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "security" ]
+  }, {
+    "id" : "7f6f838c9c94d8a0",
+    "partition" : "/knowledge",
+    "title" : "OTC-340 APNs token refresh blocks the notify queue consumers",
+    "content" : "# OTC-340 APNs token refresh blocks the notify queue consumers\n\n**Type:** Bug · **Priority:** Highest · **Status:** Done · **Assignee:** kevin",
+    "contentHash" : "be498c8ec52c772565edf5673c8175ce9942a69f35e318132f4d7a1a59ff4e63",
+    "tokens" : 35,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-340",
+      "uri" : "jira://ottercart.example/OTC-340",
+      "capturedAt" : "2026-10-04T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "notify", "incident" ]
+  }, {
+    "id" : "f95acb9121d66e04",
+    "partition" : "/knowledge",
+    "title" : "OTC-340 APNs token refresh blocks the notify queue consumers > Description",
+    "content" : "## Description\n\nRoot cause of the [2026-10-02 push delay](../notion/postmortem-2026-10-02-push-delay). The APNs auth token refresh runs on the consumer thread; when the token endpoint times out (30 s), all consumers stall and `notify.ios` backs up.",
+    "contentHash" : "9c97bbc50a6c0bf648c470085e36b91034dfb80fd23bb37f68e59283418707b1",
+    "tokens" : 68,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-340",
+      "uri" : "jira://ottercart.example/OTC-340",
+      "capturedAt" : "2026-10-04T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/postmortem-2026-10-02-push-delay" ],
+    "tags" : [ "jira", "bug", "notify", "incident" ]
+  }, {
+    "id" : "7beb0b2c50d59bb9",
+    "partition" : "/knowledge",
+    "title" : "OTC-340 APNs token refresh blocks the notify queue consumers > Fix",
+    "content" : "## Fix\n\n- Refresh the token on a background scheduler every 45 minutes; keep using the old token until the new one is ready.\n- 3 s timeout on all APNs calls.\n- Apply the same change to the SMS sender, which refreshes its provider token the same way.",
+    "contentHash" : "cf583a620709cb5b0100cda44e7d0f4d10639802219c1666ff9cb6302c410b67",
+    "tokens" : 59,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-340",
+      "uri" : "jira://ottercart.example/OTC-340",
+      "capturedAt" : "2026-10-04T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "notify", "incident" ]
+  }, {
+    "id" : "612095a34ebad4a1",
+    "partition" : "/knowledge",
+    "title" : "OTC-340 APNs token refresh blocks the notify queue consumers > Comments",
+    "content" : "## Comments\n\n- kevin (10-04): Deployed; forced token endpoint timeouts in staging no longer delay delivery.",
+    "contentHash" : "d826e04b3560d4c3743e82dcc15b48ea499c516c1968276cba567fbac10c4099",
+    "tokens" : 26,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-340",
+      "uri" : "jira://ottercart.example/OTC-340",
+      "capturedAt" : "2026-10-04T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "notify", "incident" ]
+  }, {
+    "id" : "09553381b336f75e",
+    "partition" : "/knowledge",
+    "title" : "OTC-341 Alert on notify queue backlog",
+    "content" : "# OTC-341 Alert on notify queue backlog\n\n**Type:** Task · **Priority:** High · **Status:** Done · **Assignee:** kevin",
+    "contentHash" : "63ab0f8090861e1480b89d979046eea16fba9a0eeb9177b52a86bef6a9d8b2fd",
+    "tokens" : 31,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-341",
+      "uri" : "jira://ottercart.example/OTC-341",
+      "capturedAt" : "2026-10-06T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "notify", "monitoring" ]
+  }, {
+    "id" : "7c1715651fb50b4b",
+    "partition" : "/knowledge",
+    "title" : "OTC-341 Alert on notify queue backlog > Description",
+    "content" : "## Description\n\nDuring the [push delay incident](../notion/postmortem-2026-10-02-push-delay) we had no queue depth alert. Add alerts:\n\n- `notify.ios` or `notify.android` depth > 20,000 for 5 minutes → page notify on-call (SEV2).\n- Oldest message age > 10 minutes → page.\n\nRunbook entry: scale consumers with `scale notify-consumer 8` ([on-call runbook](../notion/oncall-runbook)).",
+    "contentHash" : "ff23be68098e5062101d49aed1922b43942e28c553b7c7339a679550623e33c3",
+    "tokens" : 109,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-341",
+      "uri" : "jira://ottercart.example/OTC-341",
+      "capturedAt" : "2026-10-06T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/oncall-runbook", "notion/postmortem-2026-10-02-push-delay" ],
+    "tags" : [ "jira", "task", "notify", "monitoring" ]
+  }, {
+    "id" : "344e55424b3c09f2",
+    "partition" : "/knowledge",
+    "title" : "OTC-350 배송 시간대 선택 기능",
+    "content" : "# OTC-350 배송 시간대 선택 기능\n\n**유형:** Story · **우선순위:** High · **상태:** Done · **담당:** hyejin",
+    "contentHash" : "fa73610cfb2f07c72b7479f10a704a14d42cd9e078792fda331dd893b0e9c6a3",
+    "tokens" : 37,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-350",
+      "uri" : "jira://ottercart.example/OTC-350",
+      "capturedAt" : "2026-10-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "delivery" ]
+  }, {
+    "id" : "62439703d3817fa3",
+    "partition" : "/knowledge",
+    "title" : "OTC-350 배송 시간대 선택 기능 > 설명",
+    "content" : "## 설명\n\n[배송 시간대 선택 PRD](../notion/delivery-time-slots-prd) 구현. 1차 범위는 서울 강남·서초·송파.",
+    "contentHash" : "e8948df31b00db709b1f444faed852ce3d9a8e3fc6676532f7f24fc7642bece4",
+    "tokens" : 40,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-350",
+      "uri" : "jira://ottercart.example/OTC-350",
+      "capturedAt" : "2026-10-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/delivery-time-slots-prd" ],
+    "tags" : [ "jira", "story", "delivery" ]
+  }, {
+    "id" : "73daa83d044f4556",
+    "partition" : "/knowledge",
+    "title" : "OTC-350 배송 시간대 선택 기능 > 완료 조건",
+    "content" : "## 완료 조건\n\n- 주문 화면에 오늘·내일 2시간 단위 시간대 표시, 수용량이 찬 시간대는 비활성\n- 시간대 시작 30분 전 배차\n- 시작 1시간 전까지 시간대 변경 가능",
+    "contentHash" : "e583745e8b8e9cacabb80b13ca5801526cc6812aff2fd9693ca769c4b79aa241",
+    "tokens" : 56,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-350",
+      "uri" : "jira://ottercart.example/OTC-350",
+      "capturedAt" : "2026-10-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "delivery" ]
+  }, {
+    "id" : "52b8baecb1241a26",
+    "partition" : "/knowledge",
+    "title" : "OTC-350 배송 시간대 선택 기능 > 댓글",
+    "content" : "## 댓글\n\n- hyejin (10-12): 3.5.0에 포함. 첫 주 시간대 주문 비율 11%.",
+    "contentHash" : "f133c16bbc352f24faf540503fc4c8be329b0776179164fad22838e6cc860fd8",
+    "tokens" : 31,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-350",
+      "uri" : "jira://ottercart.example/OTC-350",
+      "capturedAt" : "2026-10-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "story", "delivery" ]
+  }, {
+    "id" : "fb1316b40fdcbf78",
+    "partition" : "/knowledge",
+    "title" : "OTC-352 Android app crashes at checkout when the address list is empty",
+    "content" : "# OTC-352 Android app crashes at checkout when the address list is empty\n\n**Type:** Bug · **Priority:** High · **Status:** Done · **Assignee:** jiwoo",
+    "contentHash" : "344cfbb20454f3f5bebfbbe7259667abda21ba2749acb2afa86118c796e73f3d",
+    "tokens" : 37,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-352",
+      "uri" : "jira://ottercart.example/OTC-352",
+      "capturedAt" : "2026-09-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "android", "checkout" ]
+  }, {
+    "id" : "88dadb78e6140ab3",
+    "partition" : "/knowledge",
+    "title" : "OTC-352 Android app crashes at checkout when the address list is empty > Description",
+    "content" : "## Description\n\nNew users who skip address entry during sign-up crash on the checkout screen: `IndexOutOfBoundsException` in `AddressSelector.defaultAddress()` when the saved address list is empty. Crash rate 0.8% of Android checkout sessions on 3.3.2.",
+    "contentHash" : "f0857456adf461321e481f7089c56667971c4b5d5a536fabde959c67a3a89228",
+    "tokens" : 59,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-352",
+      "uri" : "jira://ottercart.example/OTC-352",
+      "capturedAt" : "2026-09-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "android", "checkout" ]
+  }, {
+    "id" : "7151fa7b0ecc8c5f",
+    "partition" : "/knowledge",
+    "title" : "OTC-352 Android app crashes at checkout when the address list is empty > Fix",
+    "content" : "## Fix\n\nShow the \"add address\" form when the list is empty instead of selecting index 0. Added a UI test for a user with no saved addresses. Shipped in 3.4.0.",
+    "contentHash" : "7d2a463f0360affb04add265f801e3c1d29fb3ddb7e7611e5b96d9362bf7c10c",
+    "tokens" : 44,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-352",
+      "uri" : "jira://ottercart.example/OTC-352",
+      "capturedAt" : "2026-09-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "bug", "android", "checkout" ]
+  }, {
+    "id" : "0b38429536decbb8",
+    "partition" : "/knowledge",
+    "title" : "OTC-355 Remove stale feature flags (October)",
+    "content" : "# OTC-355 Remove stale feature flags (October)\n\n**Type:** Task · **Priority:** Low · **Status:** Done · **Assignee:** daniel",
+    "contentHash" : "f402dc4f5821479535cfce02020ad858b6be7e05e2ed4994d783ab1a6d2ca5f6",
+    "tokens" : 32,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-355",
+      "uri" : "jira://ottercart.example/OTC-355",
+      "capturedAt" : "2026-10-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "feature-flags" ]
+  }, {
+    "id" : "fadf25a1464f0468",
+    "partition" : "/knowledge",
+    "title" : "OTC-355 Remove stale feature flags (October) > Description",
+    "content" : "## Description\n\nMonthly cleanup per the [feature flag guide](../notion/feature-flag-guide): remove flags that have been at 100% for more than 30 days. October list has 14 flags, including `checkout.new-summary`, `orders.v2-history`, and `exp.home-banner-b`.",
+    "contentHash" : "026857e905dc59fd75dd6d57cfcf20e527e79cb8d8f2340ddf103954449454f0",
+    "tokens" : 63,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-355",
+      "uri" : "jira://ottercart.example/OTC-355",
+      "capturedAt" : "2026-10-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/feature-flag-guide" ],
+    "tags" : [ "jira", "task", "feature-flags" ]
+  }, {
+    "id" : "9a2f3ef0dc08dd15",
+    "partition" : "/knowledge",
+    "title" : "OTC-355 Remove stale feature flags (October) > Comments",
+    "content" : "## Comments\n\n- daniel (10-08): 14 flags removed from code and the flag console. `payments.capture-retry` stays — it is an operational kill switch, not a release flag.",
+    "contentHash" : "83f09e912ec9c9ae8da2f2f01920313c375c48c15930b8618db3b78d9f79649d",
+    "tokens" : 42,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-355",
+      "uri" : "jira://ottercart.example/OTC-355",
+      "capturedAt" : "2026-10-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "feature-flags" ]
+  }, {
+    "id" : "07cb4282eebb10e3",
+    "partition" : "/knowledge",
+    "title" : "OTC-360 주문 전환율 정의 통일",
+    "content" : "# OTC-360 주문 전환율 정의 통일\n\n**유형:** Task · **우선순위:** Medium · **상태:** Done · **담당:** yuna",
+    "contentHash" : "c49cdcddbe6c42a4853583ce8c64d1fa4638f5735fc5d03c9539da4e726110b7",
+    "tokens" : 38,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-360",
+      "uri" : "jira://ottercart.example/OTC-360",
+      "capturedAt" : "2026-09-06T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "data" ]
+  }, {
+    "id" : "3d6acfd2c444d051",
+    "partition" : "/knowledge",
+    "title" : "OTC-360 주문 전환율 정의 통일 > 설명",
+    "content" : "## 설명\n\n대시보드마다 주문 전환율 분모가 달랐다(앱 방문 세션 vs 장바구니 담은 세션). [핵심 지표 정의](../notion/metrics-definitions)에 맞춰 \"장바구니 담은 세션\"으로 통일하고, 9월 1일 이전 데이터에는 주석을 단다.",
+    "contentHash" : "9375f5e07c6a5babf901456394add4f7bff69f1d16d6ef9516475b5e940c91f5",
+    "tokens" : 82,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-360",
+      "uri" : "jira://ottercart.example/OTC-360",
+      "capturedAt" : "2026-09-06T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/metrics-definitions" ],
+    "tags" : [ "jira", "task", "data" ]
+  }, {
+    "id" : "bf161d36836b61af",
+    "partition" : "/knowledge",
+    "title" : "OTC-360 주문 전환율 정의 통일 > 댓글",
+    "content" : "## 댓글\n\n- yuna (09-06): 전 대시보드 반영 완료. 정의 변경으로 수치가 2.1%p 오른 것처럼 보이는 점을 주간 리포트에 명시.",
+    "contentHash" : "66f8c9018b0a765481a12db061831abba6892db8e9d9260a58434da3cdd69a1e",
+    "tokens" : 48,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-jira",
+      "documentId" : "jira/OTC-360",
+      "uri" : "jira://ottercart.example/OTC-360",
+      "capturedAt" : "2026-09-06T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "jira", "task", "data" ]
+  }, {
+    "id" : "98d3c38ab8280148",
+    "partition" : "/knowledge",
+    "title" : "쿠폰 정책 > 중복 적용",
+    "content" : "## 중복 적용\n\n- 한 주문에 **상품 쿠폰 1장 + 배송비 쿠폰 1장**까지 함께 쓸 수 있다.\n- 상품 쿠폰끼리는 중복 적용할 수 없다. 두 장을 고르면 할인액이 큰 쪽만 적용한다.\n- 할인 합계는 상품 금액의 50%를 넘을 수 없다.",
+    "contentHash" : "42bafd5460f124c45efc1cedbf6f53177449287c6d21bdbcae1557456d5df8b5",
+    "tokens" : 78,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/coupon-policy",
+      "uri" : "notion://ottercart.example/coupon-policy",
+      "capturedAt" : "2026-09-11T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "policy", "coupons", "product" ]
+  }, {
+    "id" : "6667c36ca74de8e0",
+    "partition" : "/knowledge",
+    "title" : "쿠폰 정책 > 적용 순서",
+    "content" : "## 적용 순서\n\n정률 쿠폰을 먼저 계산하고 정액 쿠폰을 나중에 뺀다. 배송비 쿠폰은 마지막에 적용한다.",
+    "contentHash" : "80e634578a339083586fb33e12460b89c3f84ed8dbd83074224599418e8517e7",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/coupon-policy",
+      "uri" : "notion://ottercart.example/coupon-policy",
+      "capturedAt" : "2026-09-11T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "policy", "coupons", "product" ]
+  }, {
+    "id" : "8ce96d5a32b7399e",
+    "partition" : "/knowledge",
+    "title" : "쿠폰 정책 > 취소·환불",
+    "content" : "## 취소·환불\n\n주문을 전체 취소하면 쿠폰은 복원된다. 부분 취소는 쿠폰을 복원하지 않고 할인액을 비율대로 나눠 환불한다.\n\n관련 버그: 상품 쿠폰 두 장이 모두 차감되던 문제 [OTC-301](../jira/OTC-301).",
+    "contentHash" : "1a6ec33d497aa418e702e0a4b2cf22ded07f5bfa4206c7c8a123fba7128b1d89",
+    "tokens" : 75,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/coupon-policy",
+      "uri" : "notion://ottercart.example/coupon-policy",
+      "capturedAt" : "2026-09-11T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-301" ],
+    "tags" : [ "policy", "coupons", "product" ]
+  }, {
+    "id" : "1b324863a18eeeee",
+    "partition" : "/knowledge",
+    "title" : "PRD: 배송 시간대 선택 > 문제",
+    "content" : "## 문제\n\n지금은 \"가능한 빨리\" 배송만 있다. 고객 인터뷰에서 퇴근 후 받고 싶다는 요구가 많았고, 저녁 피크에 라이더가 부족하다.",
+    "contentHash" : "0e03e3beae2aa8204690fa10c001515d17f9ce1b3172cdad47abd020cf43f8e2",
+    "tokens" : 44,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/delivery-time-slots-prd",
+      "uri" : "notion://ottercart.example/delivery-time-slots-prd",
+      "capturedAt" : "2026-09-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "prd", "product", "delivery" ]
+  }, {
+    "id" : "4d218cd7d832aae6",
+    "partition" : "/knowledge",
+    "title" : "PRD: 배송 시간대 선택 > 요구사항",
+    "content" : "## 요구사항\n\n- 주문 화면에서 오늘·내일의 2시간 단위 시간대를 고른다(10:00~22:00).\n- 시간대마다 수용량(라이더 수 기반)을 두고, 차면 선택할 수 없게 한다.\n- 시간대 주문은 시작 30분 전에 배차한다.\n- 시간대 변경은 시작 1시간 전까지 가능하다.",
+    "contentHash" : "f21f83e03ae172878b6aecfacb5be2a1c2744f348072e1d7dc35860ebf117a9b",
+    "tokens" : 85,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/delivery-time-slots-prd",
+      "uri" : "notion://ottercart.example/delivery-time-slots-prd",
+      "capturedAt" : "2026-09-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "prd", "product", "delivery" ]
+  }, {
+    "id" : "2a6f0843a71f1266",
+    "partition" : "/knowledge",
+    "title" : "PRD: 배송 시간대 선택 > 성공 지표",
+    "content" : "## 성공 지표\n\n- 저녁 피크(18~20시) 지각 배송률 20% 감소\n- 시간대 선택 주문 비율 15% 이상",
+    "contentHash" : "8a25f73456c6edfada9aa7547b8b1cb986931fd3f2abf778fdc0cb91ea9b9fd0",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/delivery-time-slots-prd",
+      "uri" : "notion://ottercart.example/delivery-time-slots-prd",
+      "capturedAt" : "2026-09-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "prd", "product", "delivery" ]
+  }, {
+    "id" : "a2fd4c580fcb7b0e",
+    "partition" : "/knowledge",
+    "title" : "PRD: 배송 시간대 선택 > 범위 밖",
+    "content" : "## 범위 밖\n\n정기 배송, 시간대별 배송비 차등.\n\n구현 이슈: [OTC-350](../jira/OTC-350)",
+    "contentHash" : "cd4eb01a14720bfcc04033ad55e5331ded05dcee7ff8a812f10aca5aa5c723ba",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/delivery-time-slots-prd",
+      "uri" : "notion://ottercart.example/delivery-time-slots-prd",
+      "capturedAt" : "2026-09-08T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-350" ],
+    "tags" : [ "prd", "product", "delivery" ]
+  }, {
+    "id" : "9afa0aa23bb30a67",
+    "partition" : "/knowledge",
+    "title" : "기능 플래그 가이드 > 이름 규칙",
+    "content" : "## 이름 규칙\n\n`<서비스>.<기능>` 형식(예: `payments.capture-retry`, `dispatch.batching`). 실험 플래그는 `exp.` 접두사를 붙인다.",
+    "contentHash" : "6ba44a6d53feffb5681a4f059bba104f4c984d6faacc9fd5aad930a132c35cdf",
+    "tokens" : 44,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/feature-flag-guide",
+      "uri" : "notion://ottercart.example/feature-flag-guide",
+      "capturedAt" : "2026-09-16T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "guide", "feature-flags" ]
+  }, {
+    "id" : "b92fd6f4a98d7600",
+    "partition" : "/knowledge",
+    "title" : "기능 플래그 가이드 > 수명",
+    "content" : "## 수명\n\n- 모든 플래그는 만들 때 담당자와 만료일을 적는다. 기본 만료는 90일.\n- 100% 켜진 지 30일이 지난 플래그는 오래된 플래그(stale flag)로 보고 코드에서 지운다.\n- 매달 첫 주에 플랫폼 팀이 오래된 플래그 목록을 `#eng-general`에 올린다([OTC-355](../jira/OTC-355)).",
+    "contentHash" : "05581d2d3f1db563f459575ab190a39d6208ecabce8e4cacf84106d0e9bb22ee",
+    "tokens" : 103,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/feature-flag-guide",
+      "uri" : "notion://ottercart.example/feature-flag-guide",
+      "capturedAt" : "2026-09-16T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-355" ],
+    "tags" : [ "guide", "feature-flags" ]
+  }, {
+    "id" : "0d2b6de9aac735e8",
+    "partition" : "/knowledge",
+    "title" : "기능 플래그 가이드 > 온콜이 끌 수 있는 플래그",
+    "content" : "## 온콜이 끌 수 있는 플래그\n\n`payments.*`, `dispatch.*`, `notify.*`는 장애 시 온콜이 승인 없이 끌 수 있다. 끈 사실은 `#oncall`에 남긴다.",
+    "contentHash" : "74a9579ec28f9d9330259a76335eb4b9e0a38fb65a30e7defa0b162038504d34",
+    "tokens" : 51,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/feature-flag-guide",
+      "uri" : "notion://ottercart.example/feature-flag-guide",
+      "capturedAt" : "2026-09-16T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "guide", "feature-flags" ]
+  }, {
+    "id" : "ccb0476b7f562030",
+    "partition" : "/knowledge",
+    "title" : "Incident severity levels > SEV1",
+    "content" : "## SEV1\n\nCustomers cannot order or pay, money is moved incorrectly (double charges, wrong refunds), or personal data is exposed. Page immediately, open an incident channel, assign an incident commander, update every 30 minutes. Postmortem required within 5 business days.",
+    "contentHash" : "762e57445439d146061b1f116d308dd68cfd4bdafdebe91503a060bdebd722d4",
+    "tokens" : 57,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/incident-severity-levels",
+      "uri" : "notion://ottercart.example/incident-severity-levels",
+      "capturedAt" : "2026-07-30T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "incident" ]
+  }, {
+    "id" : "9f0964279687cc1b",
+    "partition" : "/knowledge",
+    "title" : "Incident severity levels > SEV2",
+    "content" : "## SEV2\n\nA major feature is degraded for many customers but there is a workaround: delayed push notifications, slow checkout (p95 > 3 s), one region's dispatch failing. Page the primary on-call. Postmortem required.",
+    "contentHash" : "291fb273213d29ec36e094edd541ccb847d42592f345f7a0c94a34e7ee1b39b4",
+    "tokens" : 50,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/incident-severity-levels",
+      "uri" : "notion://ottercart.example/incident-severity-levels",
+      "capturedAt" : "2026-07-30T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "incident" ]
+  }, {
+    "id" : "f40732a3635e2693",
+    "partition" : "/knowledge",
+    "title" : "Incident severity levels > SEV3",
+    "content" : "## SEV3\n\nMinor bugs or internal tooling issues with no customer money or data impact. Create a ticket; handle in business hours. No postmortem needed.",
+    "contentHash" : "96114d1b7f187a5e62289d6130beb575dde7b6c0894ac1dccc6b84e5fb427faa",
+    "tokens" : 34,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/incident-severity-levels",
+      "uri" : "notion://ottercart.example/incident-severity-levels",
+      "capturedAt" : "2026-07-30T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "incident" ]
+  }, {
+    "id" : "811c94c4aa42d3e7",
+    "partition" : "/knowledge",
+    "title" : "Incident severity levels > Upgrading and downgrading",
+    "content" : "## Upgrading and downgrading\n\nAnyone can upgrade the severity. Only the incident commander downgrades it, and they say why in the channel.",
+    "contentHash" : "6d55795dbce4f50acbe14fc294b45e7e9fe4271af0059a30f5697daf9caff760",
+    "tokens" : 31,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/incident-severity-levels",
+      "uri" : "notion://ottercart.example/incident-severity-levels",
+      "capturedAt" : "2026-07-30T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "incident" ]
+  }, {
+    "id" : "d9924e2fbf8aee9c",
+    "partition" : "/knowledge",
+    "title" : "재고 동기화 v2: CDC 기반 설계",
+    "content" : "# 재고 동기화 v2: CDC 기반 설계",
+    "contentHash" : "2473fb1b19b8a17aefada6434076d54d703870fffffac51ea1a5c68e1e6851b0",
+    "tokens" : 13,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/inventory-sync-v2-cdc",
+      "uri" : "notion://ottercart.example/inventory-sync-v2-cdc",
+      "capturedAt" : "2026-09-05T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "design", "inventory" ]
+  }, {
+    "id" : "1acd8b99c323ae9c",
+    "partition" : "/knowledge",
+    "title" : "재고 동기화 v2: CDC 기반 설계 > 배경",
+    "content" : "## 배경\n\n지금 inventory-sync는 15분마다 매장 POS의 재고 전체를 폴링한다. 재고가 화면에 늦게 반영돼 품절 상품 주문이 하루 평균 230건 생기고, 그중 대부분이 주문 취소로 이어진다. 8월 말 폴링 배치가 밀리면서 지연이 40분까지 늘었다.",
+    "contentHash" : "0ce9083c40ee124a4d1430bc8e933cc58399999212c37d4285a8670f6a3bdb06",
+    "tokens" : 86,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/inventory-sync-v2-cdc",
+      "uri" : "notion://ottercart.example/inventory-sync-v2-cdc",
+      "capturedAt" : "2026-09-05T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "design", "inventory" ]
+  }, {
+    "id" : "6392cfc0f9c86eef",
+    "partition" : "/knowledge",
+    "title" : "재고 동기화 v2: CDC 기반 설계 > 제안",
+    "content" : "## 제안\n\n매장 POS 연동 서버가 재고 변경 이벤트를 내보내게 하고(CDC), inventory-sync는 이벤트를 구독해 변경분만 반영한다. 목표 지연은 1분 이내.\n\n- 이벤트: `stock.changed {storeId, sku, quantity, version}` — `version`이 낮은 이벤트는 버린다.\n- 전체 폴링은 하루 한 번 대사(reconciliation)용으로만 남긴다.\n- 이벤트 유실 대비: 매장별 마지막 version을 저장하고, 끊김이 감지되면 그 매장만 전체 동기화한다.",
+    "contentHash" : "b3f2f202205175af777aa0c5e9d7de9a2e89d353524eab9833c7eb608fda0d33",
+    "tokens" : 132,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/inventory-sync-v2-cdc",
+      "uri" : "notion://ottercart.example/inventory-sync-v2-cdc",
+      "capturedAt" : "2026-09-05T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "design", "inventory" ]
+  }, {
+    "id" : "baea8c92d3a0037e",
+    "partition" : "/knowledge",
+    "title" : "재고 동기화 v2: CDC 기반 설계 > 단계",
+    "content" : "## 단계\n\n1. POS 연동 서버 2곳(파일럿 매장 12개)에서 이벤트 발행\n2. 그림자 모드로 기존 폴링 결과와 비교\n3. 전 매장 전환, 폴링 주기를 15분 → 24시간으로\n\n작업 이슈: [OTC-275](../jira/OTC-275)",
+    "contentHash" : "26f0fc8bfb9505b48eff34718053b4170144d993a49cebc6ed71b7ecd247ceab",
+    "tokens" : 83,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/inventory-sync-v2-cdc",
+      "uri" : "notion://ottercart.example/inventory-sync-v2-cdc",
+      "capturedAt" : "2026-09-05T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-275" ],
+    "tags" : [ "design", "inventory" ]
+  }, {
+    "id" : "98eae11a79e85a80",
+    "partition" : "/knowledge",
+    "title" : "핵심 지표 정의 > 주문 전환율",
+    "content" : "## 주문 전환율\n\n**주문 전환율 = 결제 완료 주문 수 / 장바구니에 상품을 담은 세션 수.** 같은 세션의 여러 주문은 1건으로 센다. 9월 1일부터 분모를 \"앱 방문 세션\"에서 \"장바구니 담은 세션\"으로 바꿨다 — 이전 대시보드와 직접 비교하지 않는다([OTC-360](../jira/OTC-360)).",
+    "contentHash" : "3a5ba3d02f59512f78e0fe49b26e4ba5153f91f192215bc99e1ad8f18f367499",
+    "tokens" : 105,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/metrics-definitions",
+      "uri" : "notion://ottercart.example/metrics-definitions",
+      "capturedAt" : "2026-09-04T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-360" ],
+    "tags" : [ "data", "metrics" ]
+  }, {
+    "id" : "49a52041e5c79dbe",
+    "partition" : "/knowledge",
+    "title" : "핵심 지표 정의 > 배송 소요 시간",
+    "content" : "## 배송 소요 시간\n\n결제 완료 시각부터 배달 완료 시각까지. 중앙값과 p90을 함께 본다. 고객이 고른 배송 시간대 주문은 제외한다.",
+    "contentHash" : "d708cc08a4c1de621c4d4dd0a6df7b6cee2c80c1aa6d99847fdde5ebb84a32b6",
+    "tokens" : 41,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/metrics-definitions",
+      "uri" : "notion://ottercart.example/metrics-definitions",
+      "capturedAt" : "2026-09-04T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "data", "metrics" ]
+  }, {
+    "id" : "06e7c47f2b4d2d09",
+    "partition" : "/knowledge",
+    "title" : "핵심 지표 정의 > 지각 배송률",
+    "content" : "## 지각 배송률\n\n배송 소요 시간이 45분을 넘은 주문의 비율.",
+    "contentHash" : "7cdd43f066005625bcc7e89314c8f91b9b8b3eac87871c06e9f9fd90e6381b69",
+    "tokens" : 21,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/metrics-definitions",
+      "uri" : "notion://ottercart.example/metrics-definitions",
+      "capturedAt" : "2026-09-04T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "data", "metrics" ]
+  }, {
+    "id" : "eeaa1a2abd7e3fff",
+    "partition" : "/knowledge",
+    "title" : "핵심 지표 정의 > 품절 취소율",
+    "content" : "## 품절 취소율\n\n품절 때문에 취소된 주문 / 전체 주문.",
+    "contentHash" : "f17de5b43ccc11ca9a4879b39cb00390bee79513181195fc615bedb413182e06",
+    "tokens" : 18,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/metrics-definitions",
+      "uri" : "notion://ottercart.example/metrics-definitions",
+      "capturedAt" : "2026-09-04T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "data", "metrics" ]
+  }, {
+    "id" : "d311f13782df5615",
+    "partition" : "/knowledge",
+    "title" : "백엔드 신규 입사자 온보딩 가이드",
+    "content" : "# 백엔드 신규 입사자 온보딩 가이드",
+    "contentHash" : "8b385ab1e301865b13859d876ebe65c0b5af6e05ce94f426bdcaae1e2854ec15",
+    "tokens" : 13,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/onboarding-guide-backend",
+      "uri" : "notion://ottercart.example/onboarding-guide-backend",
+      "capturedAt" : "2026-09-01T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "onboarding", "backend" ]
+  }, {
+    "id" : "e8d2e694ef8ac80d",
+    "partition" : "/knowledge",
+    "title" : "백엔드 신규 입사자 온보딩 가이드 > 첫 주 체크리스트",
+    "content" : "## 첫 주 체크리스트\n\n- 사내 계정, GitHub 조직, 클라우드 콘솔 읽기 권한 요청(IT 헬프데스크 폼)\n- `#eng-general`, `#help-dev`, `#release`, `#oncall` 채널 참여\n- 버디와 30분 1:1 — 서비스 지도(order-api, payment-gateway, dispatch, inventory-sync, notify) 설명 듣기",
+    "contentHash" : "edffd73a05c1b1bce89728c1fd996965e35bfc1ece5413564bd84b0d9cf2c74f",
+    "tokens" : 92,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/onboarding-guide-backend",
+      "uri" : "notion://ottercart.example/onboarding-guide-backend",
+      "capturedAt" : "2026-09-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "onboarding", "backend" ]
+  }, {
+    "id" : "1d7a2a5ac45888a0",
+    "partition" : "/knowledge",
+    "title" : "백엔드 신규 입사자 온보딩 가이드 > 로컬 개발 환경",
+    "content" : "## 로컬 개발 환경\n\n1. JDK 21과 Docker Desktop을 설치한다.\n2. `ottercart/platform` 저장소를 받고 `make dev-up`으로 PostgreSQL·Redis·가짜 Bramblepay를 띄운다.\n3. Apple silicon(M 시리즈) 맥에서는 `DOCKER_DEFAULT_PLATFORM=linux/arm64`를 설정한다. amd64 이미지로 빌드하면 느리고 일부 테스트가 실패한다.\n4. `./gradlew test`가 통과하면 준비 끝.",
+    "contentHash" : "4cb9c1aa587889142a4037acf4afbdaed572757e143c2cafe5bed2c32fd64323",
+    "tokens" : 110,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/onboarding-guide-backend",
+      "uri" : "notion://ottercart.example/onboarding-guide-backend",
+      "capturedAt" : "2026-09-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "onboarding", "backend" ]
+  }, {
+    "id" : "07312cac96bb2243",
+    "partition" : "/knowledge",
+    "title" : "백엔드 신규 입사자 온보딩 가이드 > 코드 리뷰와 배포",
+    "content" : "## 코드 리뷰와 배포\n\n- PR은 최소 1명 승인, 결제 경로(payment-gateway, checkout)는 checkout 팀 승인이 필수다.\n- 배포는 매주 화·목 오후 2시 릴리스 트레인. 핫픽스는 온콜 승인 후 언제든 가능.",
+    "contentHash" : "944962d407609a81c38b37d0cb802a77524b8dd768d1992dcd01701518f77c56",
+    "tokens" : 67,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/onboarding-guide-backend",
+      "uri" : "notion://ottercart.example/onboarding-guide-backend",
+      "capturedAt" : "2026-09-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "onboarding", "backend" ]
+  }, {
+    "id" : "f2007f4981a38d71",
+    "partition" : "/knowledge",
+    "title" : "백엔드 신규 입사자 온보딩 가이드 > 온콜",
+    "content" : "## 온콜\n\n입사 6주 차부터 온콜 섀도잉을 시작한다. 절차는 [온콜 런북](oncall-runbook)을 본다.",
+    "contentHash" : "4dc7822b443e3aad97d58a7af5c2c16a32bfd9ca17f871e3f927c3d3fc9d10e1",
+    "tokens" : 40,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/onboarding-guide-backend",
+      "uri" : "notion://ottercart.example/onboarding-guide-backend",
+      "capturedAt" : "2026-09-01T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/oncall-runbook" ],
+    "tags" : [ "onboarding", "backend" ]
+  }, {
+    "id" : "b6a6458ca93a65b8",
+    "partition" : "/knowledge",
+    "title" : "온콜 런북 (On-call runbook)",
+    "content" : "# 온콜 런북 (On-call runbook)",
+    "contentHash" : "13a21936d742c3fb678e6af4ad17a121bee2ba25fd75850b00c4bce969042f2e",
+    "tokens" : 12,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/oncall-runbook",
+      "uri" : "notion://ottercart.example/oncall-runbook",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "oncall", "runbook" ]
+  }, {
+    "id" : "5b71abb9df588c91",
+    "partition" : "/knowledge",
+    "title" : "온콜 런북 (On-call runbook) > 페이지를 받으면",
+    "content" : "## 페이지를 받으면\n\n1. 5분 안에 페이지를 ack한다. ack하지 않으면 10분 뒤 세컨더리로 넘어간다.\n2. `#oncall`에 \"보고 있음\" 한 줄을 남긴다.\n3. 심각도를 정한다 — 기준은 [incident severity levels](incident-severity-levels).",
+    "contentHash" : "3164d95bacd9cdae4fb07c93b7173c3d52dae8a2e6c51550f1244f6173bb8fcf",
+    "tokens" : 75,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/oncall-runbook",
+      "uri" : "notion://ottercart.example/oncall-runbook",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/incident-severity-levels" ],
+    "tags" : [ "oncall", "runbook" ]
+  }, {
+    "id" : "7dbfd85b69bbb9de",
+    "partition" : "/knowledge",
+    "title" : "온콜 런북 (On-call runbook) > SEV1 에스컬레이션",
+    "content" : "## SEV1 에스컬레이션\n\nSEV1이면 즉시 인시던트 채널(`#inc-<서비스>`)을 열고 인시던트 커맨더(IC)를 지정한다. 15분 안에 원인을 못 찾으면 해당 서비스 팀 리드에게 전화한다. 결제 관련 SEV1은 CS 리드와 재무팀에도 알린다. 30분마다 상태 업데이트를 올린다.",
+    "contentHash" : "b243d0b41ffbaf48c05e4ee3c0b63344d3e32c4794f251eca78c8378407cd6d8",
+    "tokens" : 93,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/oncall-runbook",
+      "uri" : "notion://ottercart.example/oncall-runbook",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "runbook" ]
+  }, {
+    "id" : "0cbb23c57afa86d1",
+    "partition" : "/knowledge",
+    "title" : "온콜 런북 (On-call runbook) > 자주 쓰는 조치",
+    "content" : "## 자주 쓰는 조치\n\n- 기능 플래그 끄기: 플래그 콘솔에서 `payments.*`, `dispatch.*` 플래그는 온콜이 직접 끌 수 있다.\n- 롤백: `deploy rollback <service> --to <version>`. 롤백 전에 DB 마이그레이션 여부를 확인한다.\n- 큐 적체: notify 큐 깊이가 2만을 넘으면 컨슈머를 늘린다(`scale notify-consumer 8`).",
+    "contentHash" : "c04f20e6546235e3fc54515f4fda7e1320aa76e04316b9148478ff3f8cbe6ef7",
+    "tokens" : 108,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/oncall-runbook",
+      "uri" : "notion://ottercart.example/oncall-runbook",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "runbook" ]
+  }, {
+    "id" : "3296846954591de5",
+    "partition" : "/knowledge",
+    "title" : "온콜 런북 (On-call runbook) > 인수인계",
+    "content" : "## 인수인계\n\n교대 시 `#oncall`에 진행 중 이슈, 끈 플래그, 다음 담당자에게 넘길 것을 적는다.",
+    "contentHash" : "33cc9cc49f63a8c3c2b3e2ef3c6568e6f02ef2bb6299e2997f470b66bed5a847",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/oncall-runbook",
+      "uri" : "notion://ottercart.example/oncall-runbook",
+      "capturedAt" : "2026-09-12T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "oncall", "runbook" ]
+  }, {
+    "id" : "d7fd28df46f9b842",
+    "partition" : "/knowledge",
+    "title" : "Order API v2 design > Goals",
+    "content" : "## Goals\n\nOrder API v1 uses offset pagination and has no idempotency support. Partners (store POS integrations) retry aggressively and create duplicate orders. v2 fixes both and standardises errors.",
+    "contentHash" : "2fc116bda787915f24b3ba7249e5050cf6206595af85ca0bc8780bc85bdc2254",
+    "tokens" : 40,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/order-api-v2-design",
+      "uri" : "notion://ottercart.example/order-api-v2-design",
+      "capturedAt" : "2026-08-29T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "design", "api", "orders" ]
+  }, {
+    "id" : "7d016db38dcfbbe3",
+    "partition" : "/knowledge",
+    "title" : "Order API v2 design > Idempotency",
+    "content" : "## Idempotency\n\nEvery `POST /v2/orders` and `POST /v2/orders/{id}/cancel` request must send an `Idempotency-Key` header (UUID v4). The server stores the key with the response for 24 hours. A repeated key with the same body returns the stored response; a repeated key with a different body returns `409 IDEMPOTENCY_KEY_REUSED`. Clients must reuse the same key when they retry.",
+    "contentHash" : "80583b18971ab8de870a7f0b2b57ec01e002e87f23d95d3e9a50c4ccd5284fae",
+    "tokens" : 94,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/order-api-v2-design",
+      "uri" : "notion://ottercart.example/order-api-v2-design",
+      "capturedAt" : "2026-08-29T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "design", "api", "orders" ]
+  }, {
+    "id" : "97dc1eb65771f957",
+    "partition" : "/knowledge",
+    "title" : "Order API v2 design > Pagination",
+    "content" : "## Pagination\n\nList endpoints use cursor pagination: `GET /v2/orders?limit=50&cursor=<opaque>`. The response has `nextCursor`, which is null on the last page. `limit` is 1-100, default 20. Offset pagination (`page`, `offset`) is not supported in v2. v1 offset pagination will be removed on 2026-12-01 ([OTC-295](../jira/OTC-295)).",
+    "contentHash" : "a97cdcbf9159bdf0d55685b2a6039608be79797e6dc30f2c68d0cd24000adf4e",
+    "tokens" : 97,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/order-api-v2-design",
+      "uri" : "notion://ottercart.example/order-api-v2-design",
+      "capturedAt" : "2026-08-29T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-295" ],
+    "tags" : [ "design", "api", "orders" ]
+  }, {
+    "id" : "0c79007f299579f2",
+    "partition" : "/knowledge",
+    "title" : "Order API v2 design > Errors",
+    "content" : "## Errors\n\nErrors use one shape: `{\"error\": {\"code\": \"ORDER_NOT_FOUND\", \"message\": \"...\", \"requestId\": \"...\"}}`. Codes are stable strings; messages are for humans and can change.",
+    "contentHash" : "edd53155791d4164f36c194d8ad52048d8e8c24734dce7d449cc4b159cb0c4c4",
+    "tokens" : 46,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/order-api-v2-design",
+      "uri" : "notion://ottercart.example/order-api-v2-design",
+      "capturedAt" : "2026-08-29T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "design", "api", "orders" ]
+  }, {
+    "id" : "25eeb415f745c9b0",
+    "partition" : "/knowledge",
+    "title" : "Order API v2 design > Rate limits",
+    "content" : "## Rate limits\n\n300 requests per minute per partner key. Over the limit the API returns `429` with a `Retry-After` header in seconds.",
+    "contentHash" : "d7ab10c9ad571c20e02939c37a0c5f44a3881a23e8bd50418c02e685bbd9985f",
+    "tokens" : 32,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/order-api-v2-design",
+      "uri" : "notion://ottercart.example/order-api-v2-design",
+      "capturedAt" : "2026-08-29T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "design", "api", "orders" ]
+  }, {
+    "id" : "03382e82685c1dc6",
+    "partition" : "/knowledge",
+    "title" : "Order API v2 design > Rollout",
+    "content" : "## Rollout\n\nImplemented in [OTC-290](../jira/OTC-290). v1 and v2 run side by side until the v1 removal date.",
+    "contentHash" : "02102e9ec5428a869839f25a36986d6991b63b4f59fc1bd0cc56030b9d2ad4e5",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/order-api-v2-design",
+      "uri" : "notion://ottercart.example/order-api-v2-design",
+      "capturedAt" : "2026-08-29T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-290" ],
+    "tags" : [ "design", "api", "orders" ]
+  }, {
+    "id" : "5714e6ebc9abeb98",
+    "partition" : "/knowledge",
+    "title" : "payment-gateway architecture > Responsibilities",
+    "content" : "## Responsibilities\n\npayment-gateway is the only service that talks to Bramblepay, our card payment provider. It authorises at checkout, captures when the store accepts the order, and refunds on cancellation.",
+    "contentHash" : "13674d51bb7e22cf92c91eecd8def16ed00023e54d946db025866c3834785e44",
+    "tokens" : 41,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/payment-gateway-architecture",
+      "uri" : "notion://ottercart.example/payment-gateway-architecture",
+      "capturedAt" : "2026-09-20T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "architecture", "payments" ]
+  }, {
+    "id" : "9c8d357d69c0ed8a",
+    "partition" : "/knowledge",
+    "title" : "payment-gateway architecture > Flow",
+    "content" : "## Flow\n\n1. checkout calls `POST /payments/authorize` with the order id and amount.\n2. When the store accepts, order-api calls `POST /payments/{id}/capture`.\n3. payment-gateway sends the capture to Bramblepay with an `Idempotency-Key` derived from the payment id and attempt group, so retries of the same capture reuse the key.",
+    "contentHash" : "38d5f5aeb084c8b0890033f4ab20e01df092b2c2569f05347363a146c7d67bd1",
+    "tokens" : 79,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/payment-gateway-architecture",
+      "uri" : "notion://ottercart.example/payment-gateway-architecture",
+      "capturedAt" : "2026-09-20T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "architecture", "payments" ]
+  }, {
+    "id" : "1af3af207713e9d0",
+    "partition" : "/knowledge",
+    "title" : "payment-gateway architecture > Retries",
+    "content" : "## Retries\n\nCapture calls time out after 5 seconds and are retried once, behind the flag `payments.capture-retry`. Since the September duplicate charge incident the retry must reuse the original idempotency key; a unit test enforces it.",
+    "contentHash" : "2d39ee16001a17013efd50d8f77e7911c87a5b2dfd144dba6eea409ee82a6dde",
+    "tokens" : 51,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/payment-gateway-architecture",
+      "uri" : "notion://ottercart.example/payment-gateway-architecture",
+      "capturedAt" : "2026-09-20T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "architecture", "payments" ]
+  }, {
+    "id" : "5114d691820aaf2e",
+    "partition" : "/knowledge",
+    "title" : "payment-gateway architecture > Monitoring",
+    "content" : "## Monitoring\n\n- `payments.capture.duplicate` alert: two successful captures for one order within 10 minutes.\n- Bramblepay latency dashboard (p50/p99 per endpoint).",
+    "contentHash" : "2573671e851baf2c862acce026966da9d9fb79e8f22a66813a2961f3deb34d85",
+    "tokens" : 37,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/payment-gateway-architecture",
+      "uri" : "notion://ottercart.example/payment-gateway-architecture",
+      "capturedAt" : "2026-09-20T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "architecture", "payments" ]
+  }, {
+    "id" : "b9ab2e14737463ed",
+    "partition" : "/knowledge",
+    "title" : "PostgreSQL 17 업그레이드 계획",
+    "content" : "# PostgreSQL 17 업그레이드 계획",
+    "contentHash" : "c4b345dfd0626e4707534e8b729df37121cdffc9db445553c2e72f49154c19f6",
+    "tokens" : 10,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postgres-17-upgrade-plan",
+      "uri" : "notion://ottercart.example/postgres-17-upgrade-plan",
+      "capturedAt" : "2026-08-22T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "platform", "database" ]
+  }, {
+    "id" : "ca7c6a1e0f7a3b91",
+    "partition" : "/knowledge",
+    "title" : "PostgreSQL 17 업그레이드 계획 > 범위",
+    "content" : "## 범위\n\n주문 DB(orders-db)와 재고 DB(inventory-db)를 PostgreSQL 15에서 17로 올린다. 작업 이슈 [OTC-288](../jira/OTC-288).",
+    "contentHash" : "afa0d7fa8e6bbb6f1d0752edbe0adb4805bda9498857e6533504ff422c94ae8c",
+    "tokens" : 48,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postgres-17-upgrade-plan",
+      "uri" : "notion://ottercart.example/postgres-17-upgrade-plan",
+      "capturedAt" : "2026-08-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-288" ],
+    "tags" : [ "platform", "database" ]
+  }, {
+    "id" : "ca83fdbc3a30beec",
+    "partition" : "/knowledge",
+    "title" : "PostgreSQL 17 업그레이드 계획 > 방법",
+    "content" : "## 방법\n\n논리 복제로 17 클러스터를 미리 따라오게 한 뒤, 점검 시간에 쓰기를 멈추고 전환한다. 예상 쓰기 중단은 10분 이내.",
+    "contentHash" : "a076a750c475ace3f484898a57885c2d955863066116e1cb990c6279bdb54592",
+    "tokens" : 47,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postgres-17-upgrade-plan",
+      "uri" : "notion://ottercart.example/postgres-17-upgrade-plan",
+      "capturedAt" : "2026-08-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "platform", "database" ]
+  }, {
+    "id" : "86068234f3911b0a",
+    "partition" : "/knowledge",
+    "title" : "PostgreSQL 17 업그레이드 계획 > 점검 시간",
+    "content" : "## 점검 시간\n\n- 1차(재고 DB): 2026-09-29 (화) 03:00~04:00 KST\n- 2차(주문 DB): 2026-10-06 (화) 03:00~04:00 KST\n- 점검 동안 주문 접수는 막고 앱에 안내 배너를 띄운다.",
+    "contentHash" : "9e5cacd6603be3542fdc04b870c05eeff3b5cca1a14bff201ea7781745b1c952",
+    "tokens" : 86,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postgres-17-upgrade-plan",
+      "uri" : "notion://ottercart.example/postgres-17-upgrade-plan",
+      "capturedAt" : "2026-08-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "platform", "database" ]
+  }, {
+    "id" : "f242b369eafab3e3",
+    "partition" : "/knowledge",
+    "title" : "PostgreSQL 17 업그레이드 계획 > 되돌리기",
+    "content" : "## 되돌리기\n\n전환 후 1시간 안에 문제가 생기면 15 클러스터로 다시 쓰기를 돌린다. 전환 직전 스냅숏을 남긴다.",
+    "contentHash" : "49124b23770f3de6d95ad3d14de29e707d0f1a2e6a3a3f15072b03e420cf6ded",
+    "tokens" : 45,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postgres-17-upgrade-plan",
+      "uri" : "notion://ottercart.example/postgres-17-upgrade-plan",
+      "capturedAt" : "2026-08-22T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "platform", "database" ]
+  }, {
+    "id" : "81942a813aa5fc6d",
+    "partition" : "/knowledge",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1)",
+    "content" : "# 포스트모템: 2026-09-07 결제 중복 승인 (SEV1)",
+    "contentHash" : "790569df632ad59b3e4b945e7e4a7cb1611ecf9c92d9cffac6dd677a99ef5697",
+    "tokens" : 23,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-09-07-duplicate-charges",
+      "uri" : "notion://ottercart.example/postmortem-2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-10T09:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "postmortem", "payments", "sev1" ]
+  }, {
+    "id" : "a218e3d222ecfede",
+    "partition" : "/knowledge",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1) > 요약",
+    "content" : "## 요약\n\n2026-09-07 02:10~03:05(KST) 사이 일부 주문에서 카드 결제가 두 번 승인됐다. 영향 주문 412건, 고객 397명, 중복 승인 금액 합계 약 1,180만 원. 전액 환불은 9월 9일에 끝났다([OTC-318](../jira/OTC-318)).",
+    "contentHash" : "4892f590748ac7493b069a5357c386e02a2183202de07551b1672646405e288c",
+    "tokens" : 87,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-09-07-duplicate-charges",
+      "uri" : "notion://ottercart.example/postmortem-2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-10T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-318" ],
+    "tags" : [ "postmortem", "payments", "sev1" ]
+  }, {
+    "id" : "e287b44a33f493a0",
+    "partition" : "/knowledge",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1) > 타임라인",
+    "content" : "## 타임라인\n\n- 02:10 payment-gateway 배포 3.4.0-hotfix1 완료\n- 02:14 Bramblepay 승인 API 응답 지연(p99 9초) 시작\n- 02:20 CS 채널에 \"두 번 결제됐다\" 문의 첫 접수\n- 02:41 온콜(minji) 페이지 수신, SEV2 선언\n- 02:52 중복 승인 확인, SEV1로 상향, 재시도 기능 플래그 `payments.capture-retry` 끔\n- 03:05 신규 중복 승인 0건 확인",
+    "contentHash" : "d06a378f5fa1ff63161cc071b0f74985dd3610aac3cee3e0f1500683bba7b78f",
+    "tokens" : 134,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-09-07-duplicate-charges",
+      "uri" : "notion://ottercart.example/postmortem-2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-10T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "postmortem", "payments", "sev1" ]
+  }, {
+    "id" : "d52b3ae55eeefdd0",
+    "partition" : "/knowledge",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1) > 근본 원인",
+    "content" : "## 근본 원인\n\npayment-gateway는 Bramblepay 승인 요청이 5초 안에 응답하지 않으면 한 번 재시도한다. 핫픽스에서 재시도 경로가 **멱등 키(Idempotency-Key) 헤더를 새로 생성**하도록 바뀌었다. Bramblepay는 첫 요청을 늦게나마 처리했고, 재시도는 다른 키라 별개 승인으로 처리됐다. 리뷰에서 재시도 경로 테스트가 없었다.",
+    "contentHash" : "086c210efca5f862e633d7f56ea682e65361db85bf512c1379efd83de5d6ff7d",
+    "tokens" : 108,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-09-07-duplicate-charges",
+      "uri" : "notion://ottercart.example/postmortem-2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-10T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "postmortem", "payments", "sev1" ]
+  }, {
+    "id" : "916a60d021904e69",
+    "partition" : "/knowledge",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1) > 잘한 점 / 아쉬운 점",
+    "content" : "## 잘한 점 / 아쉬운 점\n\n- 잘한 점: 기능 플래그로 15분 안에 재시도를 끌 수 있었다.\n- 아쉬운 점: 중복 승인 알림이 없어 CS 문의로 처음 알았다. 온콜 페이지까지 31분이 걸렸다.",
+    "contentHash" : "c1b0a2b292f86819256c8449e99000e100bdefe0bdfabff9368f10b10630d4b4",
+    "tokens" : 64,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-09-07-duplicate-charges",
+      "uri" : "notion://ottercart.example/postmortem-2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-10T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "postmortem", "payments", "sev1" ]
+  }, {
+    "id" : "cc360812bf51c861",
+    "partition" : "/knowledge",
+    "title" : "포스트모템: 2026-09-07 결제 중복 승인 (SEV1) > 후속 조치",
+    "content" : "## 후속 조치\n\n| 항목 | 담당 | 이슈 |\n|---|---|---|\n| 재시도 시 원래 멱등 키 재사용 | jaehoon | [OTC-311](../jira/OTC-311) |\n| 같은 주문·금액 승인 2건 이상이면 알림 | sora | [OTC-312](../jira/OTC-312) |\n| 중복 승인 환불 스크립트 | jaehoon | [OTC-318](../jira/OTC-318) |\n| 결제 경로 변경은 checkout 팀 리뷰 필수 | daniel | - |",
+    "contentHash" : "b29d29653628693bee173287c5872dd39535a60e974012d81a2d9b9650d04b2c",
+    "tokens" : 137,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-09-07-duplicate-charges",
+      "uri" : "notion://ottercart.example/postmortem-2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-10T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-311", "jira/OTC-312", "jira/OTC-318" ],
+    "tags" : [ "postmortem", "payments", "sev1" ]
+  }, {
+    "id" : "3b1f63d494546bbb",
+    "partition" : "/knowledge",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2)",
+    "content" : "# Postmortem: 2026-10-02 push notification delay (SEV2)",
+    "contentHash" : "d014b35a63ca5a01169c5717ef9ad5fa4a97b49bf47ae026253cc983d671a43f",
+    "tokens" : 20,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-10-02-push-delay",
+      "uri" : "notion://ottercart.example/postmortem-2026-10-02-push-delay",
+      "capturedAt" : "2026-10-05T08:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "postmortem", "notify", "sev2" ]
+  }, {
+    "id" : "9ec7f65e4ed5a573",
+    "partition" : "/knowledge",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2) > Summary",
+    "content" : "## Summary\n\nFrom 18:05 to 19:40 KST on 2026-10-02, order status push notifications (\"rider picked up\", \"arriving in 5 min\") were delayed by up to 47 minutes on iOS. Android was not affected. About 21,000 notifications were late; none were lost.",
+    "contentHash" : "5336f1d341d473c60ed57f32bd2ab0991b67cef34a48199fafc3cc69ee11d49a",
+    "tokens" : 72,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-10-02-push-delay",
+      "uri" : "notion://ottercart.example/postmortem-2026-10-02-push-delay",
+      "capturedAt" : "2026-10-05T08:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "postmortem", "notify", "sev2" ]
+  }, {
+    "id" : "62cd1b9455028cdc",
+    "partition" : "/knowledge",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2) > Root cause",
+    "content" : "## Root cause\n\nThe notify service refreshes its APNs auth token every 50 minutes. The refresh call ran **inside the queue consumer thread**. When the APNs token endpoint started timing out, every consumer blocked on the refresh for 30 seconds, and the `notify.ios` queue backed up to 180k messages. See [OTC-340](../jira/OTC-340).",
+    "contentHash" : "95dde4a7d3586c119eb1c8d0bd3f686c221b7d9e894ddd67e8db4175caa70ec9",
+    "tokens" : 83,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-10-02-push-delay",
+      "uri" : "notion://ottercart.example/postmortem-2026-10-02-push-delay",
+      "capturedAt" : "2026-10-05T08:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-340" ],
+    "tags" : [ "postmortem", "notify", "sev2" ]
+  }, {
+    "id" : "81f2058aa6c32d01",
+    "partition" : "/knowledge",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2) > Detection",
+    "content" : "## Detection\n\nWe had no alert on queue depth. Customers reported late pushes in app reviews and CS tickets; the on-call engineer noticed at 18:52 from the dashboard.",
+    "contentHash" : "b84302a1420fe0350e91ec81e3d41139f852bdbbc4f0de4749b2ccaa4cee4663",
+    "tokens" : 36,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-10-02-push-delay",
+      "uri" : "notion://ottercart.example/postmortem-2026-10-02-push-delay",
+      "capturedAt" : "2026-10-05T08:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "postmortem", "notify", "sev2" ]
+  }, {
+    "id" : "441b2e16df3e4ee9",
+    "partition" : "/knowledge",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2) > Fix",
+    "content" : "## Fix\n\n- Moved token refresh to a background scheduler with the old token kept until the new one is ready.\n- Added an alert when `notify.ios` depth > 20k for 5 minutes ([OTC-341](../jira/OTC-341)).\n- Consumers now use a 3 second timeout for any APNs call.",
+    "contentHash" : "bc4833cbd3524db089fa1209bf7bdbd3b537c04b1512c8c70de1c39ad6d31960",
+    "tokens" : 72,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-10-02-push-delay",
+      "uri" : "notion://ottercart.example/postmortem-2026-10-02-push-delay",
+      "capturedAt" : "2026-10-05T08:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-341" ],
+    "tags" : [ "postmortem", "notify", "sev2" ]
+  }, {
+    "id" : "2b5d320814b64034",
+    "partition" : "/knowledge",
+    "title" : "Postmortem: 2026-10-02 push notification delay (SEV2) > Lessons",
+    "content" : "## Lessons\n\nNever do credential refresh on the hot path. The same pattern exists in the SMS sender; it is tracked in the same ticket.",
+    "contentHash" : "847dca68ab0b2c6a27c0858db02d716c1fa1ec6e7320cb9109711b4c4ce37c1f",
+    "tokens" : 29,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/postmortem-2026-10-02-push-delay",
+      "uri" : "notion://ottercart.example/postmortem-2026-10-02-push-delay",
+      "capturedAt" : "2026-10-05T08:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "postmortem", "notify", "sev2" ]
+  }, {
+    "id" : "5f639fde3437e495",
+    "partition" : "/knowledge",
+    "title" : "Release notes 3.4.0 (2026-09-24)",
+    "content" : "# Release notes 3.4.0 (2026-09-24)",
+    "contentHash" : "b6d45a4e94b3aafd32927e1c4be050dfdde334d5f788cc2d182ed3205a2ec195",
+    "tokens" : 17,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-4-0",
+      "uri" : "notion://ottercart.example/release-notes-3-4-0",
+      "capturedAt" : "2026-09-24T07:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "73c071bfad9346d0",
+    "partition" : "/knowledge",
+    "title" : "Release notes 3.4.0 (2026-09-24) > Customer app",
+    "content" : "## Customer app\n\n- Order history now loads with cursor pagination from Order API v2 — scrolling long histories is faster.\n- Fixed a crash on Android when the saved address list was empty at checkout ([OTC-352](../jira/OTC-352)).",
+    "contentHash" : "dc49dd3727e9a2edc89c3633aac2a04f74448a0fbd2492ed2de3b1611b83f61f",
+    "tokens" : 53,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-4-0",
+      "uri" : "notion://ottercart.example/release-notes-3-4-0",
+      "capturedAt" : "2026-09-24T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-352" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "09a65b5400f824ac",
+    "partition" : "/knowledge",
+    "title" : "Release notes 3.4.0 (2026-09-24) > Payments",
+    "content" : "## Payments\n\n- Payment capture retries reuse the original idempotency key ([OTC-311](../jira/OTC-311)). The capture retry flag is back on.\n- New alert for duplicate captures on the same order ([OTC-312](../jira/OTC-312)).",
+    "contentHash" : "4a7a679ec6e9166cce20c5a51d78ebd51b7cfeff08e7b943149f4dcaca5cd632",
+    "tokens" : 60,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-4-0",
+      "uri" : "notion://ottercart.example/release-notes-3-4-0",
+      "capturedAt" : "2026-09-24T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-311", "jira/OTC-312" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "2140a355726f7155",
+    "partition" : "/knowledge",
+    "title" : "Release notes 3.4.0 (2026-09-24) > Dispatch",
+    "content" : "## Dispatch\n\n- Rider order batching rolled out to 30% of riders in Seoul ([OTC-322](../jira/OTC-322)).",
+    "contentHash" : "435fb0955c15e73fc12a0aa84b7bbeecd163bd5e4e7b2662a2846286af7d3328",
+    "tokens" : 31,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-4-0",
+      "uri" : "notion://ottercart.example/release-notes-3-4-0",
+      "capturedAt" : "2026-09-24T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-322" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "1e554d4354cc85af",
+    "partition" : "/knowledge",
+    "title" : "Release notes 3.4.0 (2026-09-24) > Known issues",
+    "content" : "## Known issues\n\n- The checkout end-to-end test is still flaky on CI ([OTC-327](../jira/OTC-327)).",
+    "contentHash" : "7b30b972045ee82386dc9d6cde0b8b79aad714f985b037501141170198091528",
+    "tokens" : 30,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-4-0",
+      "uri" : "notion://ottercart.example/release-notes-3-4-0",
+      "capturedAt" : "2026-09-24T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-327" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "9bf324adb2dd1321",
+    "partition" : "/knowledge",
+    "title" : "릴리스 노트 3.5.0 (2026-10-14)",
+    "content" : "# 릴리스 노트 3.5.0 (2026-10-14)",
+    "contentHash" : "df0a0a28ef830485cae57491f695d42dd5441c45f0085dba621e05fd3b22b657",
+    "tokens" : 20,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-5-0",
+      "uri" : "notion://ottercart.example/release-notes-3-5-0",
+      "capturedAt" : "2026-10-14T07:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "3778c640a39f4ddf",
+    "partition" : "/knowledge",
+    "title" : "릴리스 노트 3.5.0 (2026-10-14) > 고객 앱",
+    "content" : "## 고객 앱\n\n- 배송 시간대 선택: 주문 시 2시간 단위 배송 시간대를 고를 수 있다(서울 일부 지역, [OTC-350](../jira/OTC-350)).\n- 쿠폰을 두 장 이상 적용할 때 할인 금액이 두 번 차감되던 버그 수정([OTC-301](../jira/OTC-301)).",
+    "contentHash" : "d874b8fc32310b3a8690a4738a6e8c02fb87aa2ca6f1558415f1d52de154d7bb",
+    "tokens" : 80,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-5-0",
+      "uri" : "notion://ottercart.example/release-notes-3-5-0",
+      "capturedAt" : "2026-10-14T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-301", "jira/OTC-350" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "b16e6441caf7c641",
+    "partition" : "/knowledge",
+    "title" : "릴리스 노트 3.5.0 (2026-10-14) > 알림",
+    "content" : "## 알림\n\n- iOS 푸시 지연 재발 방지: APNs 토큰 갱신을 백그라운드로 옮겼다([OTC-340](../jira/OTC-340)).\n- notify 큐 적체 알림 추가([OTC-341](../jira/OTC-341)).",
+    "contentHash" : "955bf8e971a8daf52139247f0d22479e39bdf101224b483655451f18008d20e8",
+    "tokens" : 72,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-5-0",
+      "uri" : "notion://ottercart.example/release-notes-3-5-0",
+      "capturedAt" : "2026-10-14T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-340", "jira/OTC-341" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "7d37e97939ce5f56",
+    "partition" : "/knowledge",
+    "title" : "릴리스 노트 3.5.0 (2026-10-14) > 플랫폼",
+    "content" : "## 플랫폼\n\n- PostgreSQL 17 업그레이드 완료([OTC-288](../jira/OTC-288)).\n- 오래된 기능 플래그 14개 제거([OTC-355](../jira/OTC-355)).",
+    "contentHash" : "78aa62cddfce94181e2dd952043c790e5d6b000d3fbfa2cc4ada05bd74e3e132",
+    "tokens" : 52,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-5-0",
+      "uri" : "notion://ottercart.example/release-notes-3-5-0",
+      "capturedAt" : "2026-10-14T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-288", "jira/OTC-355" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "fc36b7ae87bd4356",
+    "partition" : "/knowledge",
+    "title" : "릴리스 노트 3.5.0 (2026-10-14) > 알려진 문제",
+    "content" : "## 알려진 문제\n\n- 일부 매장의 재고 반영이 최대 10분 늦을 수 있다. 재고 동기화 v2(CDC) 작업 중([OTC-275](../jira/OTC-275)).",
+    "contentHash" : "364c72c9dbf927791305d70451f0677807977c41875a48dfc67cb304feaf0e47",
+    "tokens" : 50,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/release-notes-3-5-0",
+      "uri" : "notion://ottercart.example/release-notes-3-5-0",
+      "capturedAt" : "2026-10-14T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-275" ],
+    "tags" : [ "release" ]
+  }, {
+    "id" : "7c982c7064f851ba",
+    "partition" : "/knowledge",
+    "title" : "Rider batching experiment (Seoul, 2026-08-25 ~ 09-14)",
+    "content" : "# Rider batching experiment (Seoul, 2026-08-25 ~ 09-14)",
+    "contentHash" : "ad361b519d066ca0cecad64b2d4fb02cf83ca91cfa6d9acd5f22fe9ae8ec1fa3",
+    "tokens" : 21,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/rider-batching-experiment",
+      "uri" : "notion://ottercart.example/rider-batching-experiment",
+      "capturedAt" : "2026-09-17T00:00:00Z"
+    },
+    "importance" : 5,
+    "links" : [ ],
+    "tags" : [ "experiment", "dispatch" ]
+  }, {
+    "id" : "601ed5adc59b7226",
+    "partition" : "/knowledge",
+    "title" : "Rider batching experiment (Seoul, 2026-08-25 ~ 09-14) > Hypothesis",
+    "content" : "## Hypothesis\n\nLetting one rider carry two orders from the same store when drop-offs are within 800 m reduces cost per delivery without hurting delivery time.",
+    "contentHash" : "c4a671005d8a326470515c11cc4dcecdbf8b8058eff90b0aaba2f20e11082bf9",
+    "tokens" : 32,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/rider-batching-experiment",
+      "uri" : "notion://ottercart.example/rider-batching-experiment",
+      "capturedAt" : "2026-09-17T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "experiment", "dispatch" ]
+  }, {
+    "id" : "04e101ede7e38062",
+    "partition" : "/knowledge",
+    "title" : "Rider batching experiment (Seoul, 2026-08-25 ~ 09-14) > Setup",
+    "content" : "## Setup\n\nA/B test on 20% of Seoul riders for three weeks. Control: one order per trip. Treatment: dispatch may batch two orders when the second order is ready within 4 minutes.",
+    "contentHash" : "788f9e77093d03e035b0ea1e716bc2dec6cfb66eae13b552a82609f61d47183d",
+    "tokens" : 42,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/rider-batching-experiment",
+      "uri" : "notion://ottercart.example/rider-batching-experiment",
+      "capturedAt" : "2026-09-17T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "experiment", "dispatch" ]
+  }, {
+    "id" : "1ddb3159841b93ec",
+    "partition" : "/knowledge",
+    "title" : "Rider batching experiment (Seoul, 2026-08-25 ~ 09-14) > Results",
+    "content" : "## Results\n\n- Cost per delivery: -11.8% (95% CI -13.1% to -10.4%)\n- Median delivery time: +2.1 minutes (24.3 → 26.4 min)\n- Late deliveries (> 45 min): 3.9% → 4.4%\n- Customer rating: no significant change",
+    "contentHash" : "bc6d542f776e0ba80057176bff7100c3fc79e02625f8a68aa40a7f51024fbea2",
+    "tokens" : 75,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/rider-batching-experiment",
+      "uri" : "notion://ottercart.example/rider-batching-experiment",
+      "capturedAt" : "2026-09-17T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "experiment", "dispatch" ]
+  }, {
+    "id" : "c1c1386b5c7ccad5",
+    "partition" : "/knowledge",
+    "title" : "Rider batching experiment (Seoul, 2026-08-25 ~ 09-14) > Decision",
+    "content" : "## Decision\n\nRoll out to 30% of riders, but cap the batching radius at 600 m to keep the median increase under 2 minutes. Rollout ticket: [OTC-322](../jira/OTC-322).",
+    "contentHash" : "df9e3066fe3a590b261a49bccda7ff9ee1fe194005bf474448d2107b738d154d",
+    "tokens" : 49,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/rider-batching-experiment",
+      "uri" : "notion://ottercart.example/rider-batching-experiment",
+      "capturedAt" : "2026-09-17T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-322" ],
+    "tags" : [ "experiment", "dispatch" ]
+  }, {
+    "id" : "92c756f614dbfa0d",
+    "partition" : "/knowledge",
+    "title" : "시크릿 교체 정책 > 주기",
+    "content" : "## 주기\n\n- 결제 대행사(Bramblepay) API 키: 90일마다 교체. 교체 기간에는 신·구 키를 24시간 동시에 허용한다.\n- 데이터베이스 비밀번호: 180일마다.\n- 개인 액세스 토큰: 만료 30일 이하로만 발급.",
+    "contentHash" : "25bfd3bae811d6aaf0948698cc08ae546fca63eac21b593d998668ecf3c3c811",
+    "tokens" : 73,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/secret-rotation-policy",
+      "uri" : "notion://ottercart.example/secret-rotation-policy",
+      "capturedAt" : "2026-08-15T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "security", "policy" ]
+  }, {
+    "id" : "c2b4e49f147944d5",
+    "partition" : "/knowledge",
+    "title" : "시크릿 교체 정책 > 절차",
+    "content" : "## 절차\n\n1. 보안 담당이 교체 티켓을 만든다(예: [OTC-333](../jira/OTC-333)).\n2. 새 키를 시크릿 저장소에 넣고, 서비스는 재배포 없이 5분 안에 읽어 간다.\n3. 24시간 뒤 구 키를 폐기하고 감사 로그를 티켓에 첨부한다.",
+    "contentHash" : "a978641ad6f6b26e14f5d93d04fcd62ee6d37f51ea0763fcb3cea811c4a555d8",
+    "tokens" : 87,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/secret-rotation-policy",
+      "uri" : "notion://ottercart.example/secret-rotation-policy",
+      "capturedAt" : "2026-08-15T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-333" ],
+    "tags" : [ "security", "policy" ]
+  }, {
+    "id" : "438a489bc78edc28",
+    "partition" : "/knowledge",
+    "title" : "시크릿 교체 정책 > 금지",
+    "content" : "## 금지\n\n시크릿을 Slack, 이슈, 코드에 붙여 넣지 않는다. 실수로 노출하면 즉시 `#security`에 알리고 바로 교체한다.",
+    "contentHash" : "dd34b5b84476913dba04767c9e053e647585b7e4db685e763413a23ce140f8bd",
+    "tokens" : 41,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-notion",
+      "documentId" : "notion/secret-rotation-policy",
+      "uri" : "notion://ottercart.example/secret-rotation-policy",
+      "capturedAt" : "2026-08-15T00:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "security", "policy" ]
+  }, {
+    "id" : "b98f5f144d07131f",
+    "partition" : "/knowledge",
+    "title" : "#api Order API v2 design review",
+    "content" : "# #api Order API v2 design review\n\n**priya** Design doc for Order API v2 is ready for review: [Order API v2 design](../../notion/order-api-v2-design). Main changes: mandatory Idempotency-Key on POST, cursor pagination, one error shape.\n\n**jaehoon** For idempotency, please store the response body with the key, not just the status. Partners retry and expect the same order id back.\n\n**priya** Yes, we store the full response for 24 hours. Same key with a different body returns 409 IDEMPOTENCY_KEY_REUSED.\n\n**sora** What about partners still on offset pagination? A few POS vendors depend on `page`.\n\n**priya** v1 keeps working until 2026-12-01; we send Deprecation and Sunset headers before that. Tracking in [OTC-295](../../jira/OTC-295).",
+    "contentHash" : "dca9627e1f7817e45dae1b38106a480da74e2949ef52add961570eeb26e78da9",
+    "tokens" : 193,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/api/2026-09-01-order-api-v2-review",
+      "uri" : "slack://ottercart.example/api/2026-09-01-order-api-v2-review",
+      "capturedAt" : "2026-09-01T08:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-295", "notion/order-api-v2-design" ],
+    "tags" : [ "slack", "api", "design-review" ]
+  }, {
+    "id" : "472a4af96c13109a",
+    "partition" : "/knowledge",
+    "title" : "#cs-escalations 고객 이중 결제 문의 급증",
+    "content" : "# #cs-escalations 고객 이중 결제 문의 급증\n\n**hana (CS)** 02:20 새벽인데 \"카드 결제가 두 번 됐다\"는 채팅 문의가 계속 들어옵니다. 주문 번호는 다르지 않고 같은 주문에 승인 문자가 두 번 왔다고 해요.\n\n**hana (CS)** 02:28 지금까지 14건입니다. 카드사 앱 캡처를 보면 같은 금액이 1~2분 간격으로 두 번 승인됐어요.\n\n**hana (CS)** 02:35 온콜 엔지니어 호출했습니다. 고객에게는 \"확인 후 중복 금액은 전액 환불된다\"고 안내 중입니다. 매크로 답변 필요하면 말씀 주세요.",
+    "contentHash" : "4e1a2f26ff54ed12d1b28d62d4328bd186c145c877ef3862bb004e7483bee982",
+    "tokens" : 160,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/cs-escalations/2026-09-07-charged-twice",
+      "uri" : "slack://ottercart.example/cs-escalations/2026-09-07-charged-twice",
+      "capturedAt" : "2026-09-07T02:35:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "slack", "cs", "payments" ]
+  }, {
+    "id" : "c39a463718405693",
+    "partition" : "/knowledge",
+    "title" : "#data 주문 전환율이 갑자기 바뀌었어요",
+    "content" : "# #data 주문 전환율이 갑자기 바뀌었어요\n\n**seoyeon (PM)** 주간 대시보드에서 주문 전환율이 9월 1일부터 2%p 넘게 올랐어요. 실제로 좋아진 건가요?\n\n**yuna** 아니요, 9월 1일부터 분모를 \"앱 방문 세션\"에서 \"장바구니 담은 세션\"으로 바꿔서 그래요. 대시보드마다 정의가 달라서 통일하는 중입니다([OTC-360](../../jira/OTC-360)). 정의는 [핵심 지표 정의](../../notion/metrics-definitions)에 있어요.\n\n**seoyeon (PM)** 그럼 8월 수치와 비교할 때는 주석이 필요하겠네요.\n\n**yuna** 네, 9월 이전 데이터에 주석 달겠습니다.",
+    "contentHash" : "65f8d7dfab0a48d96be2f16b9a29f5598dc8a14bc78adb7774eb76210ac0a4ad",
+    "tokens" : 198,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/data/2026-09-03-conversion-metric-drop",
+      "uri" : "slack://ottercart.example/data/2026-09-03-conversion-metric-drop",
+      "capturedAt" : "2026-09-03T03:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-360", "notion/metrics-definitions" ],
+    "tags" : [ "slack", "data", "metrics" ]
+  }, {
+    "id" : "6d97dfafe4f45c3f",
+    "partition" : "/knowledge",
+    "title" : "#dispatch 라이더 묶음 배송 실험 결과 논의",
+    "content" : "# #dispatch 라이더 묶음 배송 실험 결과 논의\n\n**kevin** Batching experiment results are in the [experiment page](../../notion/rider-batching-experiment): cost per delivery -11.8%, median delivery time +2.1 min.\n\n**seoyeon (PM)** 비용 절감은 좋은데 배송 시간 2분 증가는 고객이 체감할 것 같아요. 지각 배송률도 4.4%로 올랐고요.\n\n**kevin** 반경을 800m에서 600m로 줄이면 시뮬레이션상 중앙값 증가가 1.5분 정도입니다. 그렇게 30% 롤아웃하면 어떨까요?\n\n**seoyeon (PM)** 좋아요. 지각 배송률 4.5% 넘으면 바로 줄이는 조건으로 갑시다. [OTC-322](../../jira/OTC-322)",
+    "contentHash" : "d96de663a6b56d0bdd432bbe0ef0352bebd5a337555f1a1e821128e7eed983de",
+    "tokens" : 196,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/dispatch/2026-09-18-batching-experiment",
+      "uri" : "slack://ottercart.example/dispatch/2026-09-18-batching-experiment",
+      "capturedAt" : "2026-09-18T04:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-322", "notion/rider-batching-experiment" ],
+    "tags" : [ "slack", "dispatch", "experiment" ]
+  }, {
+    "id" : "a9d3e07c4cd90465",
+    "partition" : "/knowledge",
+    "title" : "#eng-general PostgreSQL 17 업그레이드 공지",
+    "content" : "# #eng-general PostgreSQL 17 업그레이드 공지\n\n**daniel** 주문 DB와 재고 DB를 PostgreSQL 17로 올립니다. 점검 시간은 재고 DB 9월 29일(화) 03:00~04:00, 주문 DB 10월 6일(화) 03:00~04:00입니다. 점검 동안 주문 접수가 막힙니다. 자세한 건 [업그레이드 계획](../../notion/postgres-17-upgrade-plan).\n\n**priya** 확장 기능 버전도 같이 바뀌나요? pg_trgm 쓰는 쿼리가 있어서요.\n\n**daniel** pg_trgm은 그대로 지원됩니다. 스테이징은 이미 17이라 거기서 쿼리 플랜 한 번 확인 부탁드려요.\n\n**hyejin** 재고 DB 점검 때 inventory-sync 배치는 멈춰 둘게요.",
+    "contentHash" : "48ffddac535b3cb4de97c2f904ba6413e47942501061214d64796ab3e191b81f",
+    "tokens" : 200,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/eng-general/2026-08-20-postgres-17-upgrade",
+      "uri" : "slack://ottercart.example/eng-general/2026-08-20-postgres-17-upgrade",
+      "capturedAt" : "2026-08-20T06:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/postgres-17-upgrade-plan" ],
+    "tags" : [ "slack", "platform", "database" ]
+  }, {
+    "id" : "a0d6a7b8dde8c648",
+    "partition" : "/knowledge",
+    "title" : "#eng-general Stale feature flag cleanup for October",
+    "content" : "# #eng-general Stale feature flag cleanup for October\n\n**daniel** Monthly reminder: 14 flags have been at 100% for more than 30 days. Owners, please remove them from code before Oct 8 — list in [OTC-355](../../jira/OTC-355). Rules are in the [feature flag guide](../../notion/feature-flag-guide).\n\n**jiwoo** `checkout.new-summary` is mine, PR is up.\n\n**jaehoon** Please do not remove `payments.capture-retry`. It is the kill switch we used during the duplicate charge incident.\n\n**daniel** Right, kill switches are exempt. I'll tag them as operational in the console.",
+    "contentHash" : "bae17b3bcbf1aea5bbcff26514127618313843aac57084cf9965b35357d198dd",
+    "tokens" : 146,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/eng-general/2026-09-15-feature-flag-cleanup",
+      "uri" : "slack://ottercart.example/eng-general/2026-09-15-feature-flag-cleanup",
+      "capturedAt" : "2026-09-15T02:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-355", "notion/feature-flag-guide" ],
+    "tags" : [ "slack", "feature-flags" ]
+  }, {
+    "id" : "602f7a6f5d062b23",
+    "partition" : "/knowledge",
+    "title" : "#help-dev M1 맥에서 docker 빌드가 실패해요",
+    "content" : "# #help-dev M1 맥에서 docker 빌드가 실패해요\n\n**yuna** 새 맥북(M3)에서 `make dev-up` 하면 fake-bramblepay 이미지 빌드가 `exec format error`로 실패합니다. 다른 분들은 어떻게 하셨나요?\n\n**priya** Apple silicon이면 `DOCKER_DEFAULT_PLATFORM=linux/arm64` 설정하세요. 예전 문서엔 amd64로 돼 있는데 그러면 에뮬레이션이라 느리고 테스트 몇 개가 타임아웃 나요.\n\n**yuna** 설정하니 빌드는 되는데 Redis 컨테이너가 안 뜹니다.\n\n**priya** Redis 이미지는 `redis:7` 공식 이미지로 바꿔야 해요. 예전 사내 이미지는 amd64만 있었어요. 온보딩 문서에 반영해 둘게요.\n\n**yuna** 해결됐습니다, 감사합니다!",
+    "contentHash" : "53a37da9d1567cc3f9e153d3f6c346ad8993c7cf7d55e9101aaab5570ece074b",
+    "tokens" : 197,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/help-dev/2026-08-26-docker-arm-build",
+      "uri" : "slack://ottercart.example/help-dev/2026-08-26-docker-arm-build",
+      "capturedAt" : "2026-08-26T08:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ ],
+    "tags" : [ "slack", "help", "docker" ]
+  }, {
+    "id" : "65730de9ff446a2f",
+    "partition" : "/knowledge",
+    "title" : "#help-dev Checkout e2e test keeps failing on CI",
+    "content" : "# #help-dev Checkout e2e test keeps failing on CI\n\n**jiwoo** `CheckoutFlowE2ETest.paysWithSavedCard` failed on my PR again, timeout waiting for the confirmation screen. Passes locally every time. Anyone seen this?\n\n**sora** Yes, it is flaky for everyone, roughly 1 in 12 runs. Retrying usually works.\n\n**jiwoo** I looked at the CI logs: the fake Bramblepay container sometimes starts after the app, so the first authorise call hits a closed port and the client backs off 10 seconds. I'll add a readiness check instead of the `sleep 5`. Tracking in [OTC-327](../../jira/OTC-327).",
+    "contentHash" : "60985f9634d54b47120ffec4fc4f96c180262c1a0b8bf46c8fd10672a8081120",
+    "tokens" : 150,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/help-dev/2026-09-22-flaky-checkout-test",
+      "uri" : "slack://ottercart.example/help-dev/2026-09-22-flaky-checkout-test",
+      "capturedAt" : "2026-09-22T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-327" ],
+    "tags" : [ "slack", "help", "testing" ]
+  }, {
+    "id" : "b351a07d84323d0b",
+    "partition" : "/knowledge",
+    "title" : "#inc-notify iOS push notifications delayed",
+    "content" : "# #inc-notify iOS push notifications delayed\n\n**kevin** 18:52 Customers say \"arriving in 5 min\" pushes come after the rider is already at the door. notify.ios queue depth is 160k and climbing. Declaring SEV2.\n\n**kevin** 19:01 Consumers are all stuck in `ApnsTokenProvider.refresh()`. The APNs token endpoint is timing out at 30 s and the refresh runs on the consumer thread.\n\n**priya** 19:06 Can we pin the old token for now? It is valid for another ~10 minutes.\n\n**kevin** 19:12 Deployed a hotfix that skips the refresh if the current token has > 5 min left, and scaled consumers to 12. Queue draining at ~3k/s.\n\n**kevin** 19:40 Queue back under 1k. Android was never affected. Follow-ups: move refresh off the hot path ([OTC-340](../../jira/OTC-340)) and add a queue depth alert ([OTC-341](../../jira/OTC-341)). Postmortem on Monday.",
+    "contentHash" : "571d4ce61df6a760bc026ca404a9a10669eb96e89a74f5feb48841c1f835fd8d",
+    "tokens" : 238,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/inc-notify/2026-10-02-push-delay",
+      "uri" : "slack://ottercart.example/inc-notify/2026-10-02-push-delay",
+      "capturedAt" : "2026-10-02T19:50:00Z"
+    },
+    "importance" : 8,
+    "links" : [ "jira/OTC-340", "jira/OTC-341" ],
+    "tags" : [ "slack", "incident", "notify" ]
+  }, {
+    "id" : "9e818c64fd836c49",
+    "partition" : "/knowledge",
+    "title" : "#inc-payments 결제 중복 승인 장애 대응 스레드",
+    "content" : "# #inc-payments 결제 중복 승인 장애 대응 스레드\n\n**minji** 02:41 페이지 받았습니다. CS에서 \"두 번 결제됐다\" 문의가 10건 넘게 들어왔다고 합니다. SEV2로 시작할게요.\n\n**jaehoon** 02:45 Bramblepay 승인 API가 02:14부터 p99 9초입니다. 우리 쪽 capture 타임아웃이 5초라 재시도가 많이 나가고 있어요.\n\n**jaehoon** 02:50 재시도 요청 로그를 보니 Idempotency-Key가 첫 요청과 다릅니다. 어젯밤 hotfix1에서 재시도 경로가 키를 새로 만들게 바뀐 것 같아요. 그래서 Bramblepay가 두 번 승인합니다.\n\n**minji** 02:52 중복 승인 확인, SEV1로 올립니다. IC는 제가 할게요. `payments.capture-retry` 플래그 끕니다.\n\n**daniel** 02:58 CS 리드랑 재무팀에 공유했습니다. 영향 범위 쿼리 돌리는 중.\n\n**minji** 03:05 플래그 끈 뒤로 신규 중복 승인 0건. 영향 주문은 잠정 412건입니다. 환불은 내일 아침 스크립트로 처리하고([OTC-318](../../jira/OTC-318)), 근본 수정은 [OTC-311](../../jira/OTC-311)로 잡았습니다.\n\n**minji** 03:20 모니터링 계속하고 SEV1 유지합니다. 포스트모템은 수요일까지.",
+    "contentHash" : "d05b1a2cc6783b71da424893951833d4d0d4bbcfdfcd4d55d1905c0607d3107f",
+    "tokens" : 358,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/inc-payments/2026-09-07-duplicate-charges",
+      "uri" : "slack://ottercart.example/inc-payments/2026-09-07-duplicate-charges",
+      "capturedAt" : "2026-09-07T03:20:00Z"
+    },
+    "importance" : 8,
+    "links" : [ "jira/OTC-311", "jira/OTC-318" ],
+    "tags" : [ "slack", "incident", "payments" ]
+  }, {
+    "id" : "b6a712f5511b813d",
+    "partition" : "/knowledge",
+    "title" : "#inc-payments 중복 승인 환불 진행 상황",
+    "content" : "# #inc-payments 중복 승인 환불 진행 상황\n\n**jaehoon** 09-08 10:05 Refund script dry-run done: 412 orders, 11,820,400 KRW. Finance confirmed the list.\n\n**jaehoon** 09-08 15:10 1차 실행 결과: 380건 환불 성공, 32건은 카드사 응답 지연으로 보류. 보류 건은 내일 오전에 다시 돌립니다.\n\n**sora** 09-08 15:30 Duplicate capture alert draft is up for review ([OTC-312](../../jira/OTC-312)). Backtest catches all 412 within 2 minutes.\n\n**jaehoon** 09-09 11:05 보류 32건 재실행 전부 성공. 환불 412건 완료됐고 고객 안내 문자 나갔습니다.\n\n**minji** 09-09 11:30 수고하셨습니다. SEV1 종료합니다. 포스트모템 초안: [포스트모템](../../notion/postmortem-2026-09-07-duplicate-charges)",
+    "contentHash" : "11da9163c1b05effa7bcb7de0a3ac002a2af44169219ca466ad4dbae491b6a84",
+    "tokens" : 246,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/inc-payments/2026-09-08-refund-progress",
+      "uri" : "slack://ottercart.example/inc-payments/2026-09-08-refund-progress",
+      "capturedAt" : "2026-09-09T11:30:00Z"
+    },
+    "importance" : 8,
+    "links" : [ "jira/OTC-312", "notion/postmortem-2026-09-07-duplicate-charges" ],
+    "tags" : [ "slack", "incident", "payments", "refund" ]
+  }, {
+    "id" : "f2e012272b3fbf59",
+    "partition" : "/knowledge",
+    "title" : "#inventory 재고 반영 지연으로 품절 주문 증가",
+    "content" : "# #inventory 재고 반영 지연으로 품절 주문 증가\n\n**hana (CS)** 오늘 품절 취소 문의가 평소의 세 배예요. 앱에는 재고 있다고 나오는데 매장에선 없다고 합니다.\n\n**hyejin** 재고 폴링 배치가 밀려서 반영 지연이 40분까지 늘었어요. 매장 수가 늘면서 15분 주기 전체 폴링이 한 주기 안에 안 끝납니다.\n\n**daniel** 임시로 폴링 워커를 두 배로 늘릴게요. 근본적으로는 변경분만 받는 방식이 필요해 보입니다.\n\n**hyejin** 이벤트(CDC) 기반 설계를 쓰고 있어요. 초안 나오면 공유하겠습니다 — [재고 동기화 v2](../../notion/inventory-sync-v2-cdc)",
+    "contentHash" : "2845bc31e558409328c9a9f8f99154cb453786968dee2301b502894c5ecf1a72",
+    "tokens" : 187,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/inventory/2026-08-28-stock-lag",
+      "uri" : "slack://ottercart.example/inventory/2026-08-28-stock-lag",
+      "capturedAt" : "2026-08-28T10:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/inventory-sync-v2-cdc" ],
+    "tags" : [ "slack", "inventory" ]
+  }, {
+    "id" : "83f42c44d9663e79",
+    "partition" : "/knowledge",
+    "title" : "#oncall Weekly on-call handoff (Oct 2 - Oct 9)",
+    "content" : "# #oncall Weekly on-call handoff (Oct 2 - Oct 9)\n\n**kevin** Handoff to priya.\n- Incidents: SEV2 iOS push delay on Oct 2 (postmortem done, [OTC-340](../../jira/OTC-340) shipped).\n- Flags currently off: none. `payments.capture-retry` is on.\n- Watch: inventory-sync lag is still up to 10 minutes for some stores until the CDC migration lands.\n- Noisy alert: Bramblepay latency p99 fires during their nightly maintenance (02:00-02:30); consider a mute window.\n\n**priya** Got it, thanks. I'll ack the Bramblepay alert during the maintenance window and propose a mute rule.",
+    "contentHash" : "dfd22497ecf6d4355c2c7acbf079de19f551cf410c30b28a15df17df8480a5a6",
+    "tokens" : 159,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/oncall/2026-10-09-handoff",
+      "uri" : "slack://ottercart.example/oncall/2026-10-09-handoff",
+      "capturedAt" : "2026-10-09T00:30:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-340" ],
+    "tags" : [ "slack", "oncall" ]
+  }, {
+    "id" : "880d373b49296a43",
+    "partition" : "/knowledge",
+    "title" : "#product 쿠폰 두 장 중복 적용 문의",
+    "content" : "# #product 쿠폰 두 장 중복 적용 문의\n\n**seoyeon (PM)** CS에서 \"쿠폰 두 장이 다 적용됐다\"는 제보가 왔어요. 원래 상품 쿠폰은 한 장만 되는 거 맞죠?\n\n**jiwoo** 정책상 상품 쿠폰 1장 + 배송비 쿠폰 1장까지예요. 상품 쿠폰 두 장은 큰 쪽만 적용돼야 하는데, 지금은 앱에서만 막고 있어서 구버전 앱에서 두 장이 다 들어갑니다.\n\n**seoyeon (PM)** 서버에서도 막아 주세요. 정책은 [쿠폰 정책](../../notion/coupon-policy)에 정리돼 있어요. 할인 합계 50% 상한도 같이 확인 부탁드려요.\n\n**jiwoo** 네, [OTC-301](../../jira/OTC-301)로 잡았습니다.",
+    "contentHash" : "3c6dd189f988c0188eed0eab11b1c06ad1a7e64be276abff47d5bee2d5abd9e5",
+    "tokens" : 187,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/product/2026-09-10-coupon-stacking",
+      "uri" : "slack://ottercart.example/product/2026-09-10-coupon-stacking",
+      "capturedAt" : "2026-09-10T05:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-301", "notion/coupon-policy" ],
+    "tags" : [ "slack", "product", "coupons" ]
+  }, {
+    "id" : "da38f3df205eba6a",
+    "partition" : "/knowledge",
+    "title" : "#product 배송 시간대 선택 베타 피드백",
+    "content" : "# #product 배송 시간대 선택 베타 피드백\n\n**seoyeon (PM)** 배송 시간대 선택 내부 베타 일주일 피드백 공유합니다. 저녁 7~9시 시간대가 가장 먼저 찹니다. 수용량을 라이더 수 기준으로만 잡으니 비 오는 날 부족하다는 의견이 있어요.\n\n**hyejin** 수용량 계산에 날씨 보정은 이번 범위 밖이었어요. 다음 분기 후보로 올려 두겠습니다. 정식 출시는 3.5.0([OTC-350](../../jira/OTC-350)).\n\n**kevin** 시간대 주문은 시작 30분 전에 배차하니까, 그 시간대 배차 로직은 일반 주문과 큐를 분리했습니다.",
+    "contentHash" : "d0a5cb2e7fbf83109f9beb5aed4979c0c136bed6048608157fa0fea2c72c7c41",
+    "tokens" : 170,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/product/2026-10-06-delivery-slots",
+      "uri" : "slack://ottercart.example/product/2026-10-06-delivery-slots",
+      "capturedAt" : "2026-10-06T07:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-350" ],
+    "tags" : [ "slack", "product", "delivery" ]
+  }, {
+    "id" : "474f909c6b2e7d73",
+    "partition" : "/knowledge",
+    "title" : "#release 3.4.0 released",
+    "content" : "# #release 3.4.0 released\n\n**daniel** 3.4.0 is out to 100% on iOS and Android. Highlights: order history on Order API v2 cursor pagination, idempotent payment capture retries, duplicate capture alert, Android empty-address crash fix, rider batching at 30%. Full notes: [release notes 3.4.0](../../notion/release-notes-3-4-0).\n\n**sora** Capture retry flag is back on as of 14:30. Watching the duplicate capture alert.",
+    "contentHash" : "b9e63bb798dfa0c1df8da472d2fbf5b5cd4fe3c8e8f03ee3fe27e517a1c86f26",
+    "tokens" : 118,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/release/2026-09-24-v3-4-0",
+      "uri" : "slack://ottercart.example/release/2026-09-24-v3-4-0",
+      "capturedAt" : "2026-09-24T07:10:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/release-notes-3-4-0" ],
+    "tags" : [ "slack", "release" ]
+  }, {
+    "id" : "74fad33f79483a03",
+    "partition" : "/knowledge",
+    "title" : "#release 3.5.0 배포 완료",
+    "content" : "# #release 3.5.0 배포 완료\n\n**daniel** 3.5.0 전체 배포 완료했습니다. 주요 변경: 배송 시간대 선택(서울 3개 구), 쿠폰 중복 차감 버그 수정, iOS 푸시 지연 재발 방지와 큐 적체 알림, PostgreSQL 17 전환, 오래된 기능 플래그 14개 제거. 자세한 내용은 [릴리스 노트 3.5.0](../../notion/release-notes-3-5-0).\n\n**hyejin** 재고 반영 지연은 아직 알려진 문제로 남아 있습니다. CDC 전환은 다음 릴리스 목표예요.",
+    "contentHash" : "6199035e8e2f6b80eedec53dd5770afd96ab5cde9355e128b7684f2f3684ad8a",
+    "tokens" : 153,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/release/2026-10-14-v3-5-0",
+      "uri" : "slack://ottercart.example/release/2026-10-14-v3-5-0",
+      "capturedAt" : "2026-10-14T07:10:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "notion/release-notes-3-5-0" ],
+    "tags" : [ "slack", "release" ]
+  }, {
+    "id" : "6fbe5dd104f2b27a",
+    "partition" : "/knowledge",
+    "title" : "#security Bramblepay API 키 교체 공지",
+    "content" : "# #security Bramblepay API 키 교체 공지\n\n**sora** 정책상 90일 주기라 오늘 09:00에 Bramblepay API 키를 교체합니다. 24시간 동안 신·구 키를 함께 허용하고 내일 09:00에 구 키를 폐기합니다. 진행은 [OTC-333](../../jira/OTC-333).\n\n**jaehoon** payment-gateway는 시크릿 저장소에서 5분 안에 새 키를 읽어 갑니다. 재배포 필요 없어요.\n\n**sora** 09:12 새 키로 승인 정상 확인했습니다.",
+    "contentHash" : "fab84fce1f3dd247362fb1bc732c7f58aa0ec5e049a853465a50a212223ad60f",
+    "tokens" : 136,
+    "tier" : "raw",
+    "provenance" : {
+      "sourceId" : "demo-slack",
+      "documentId" : "slack/security/2026-09-30-bramblepay-key-rotation",
+      "uri" : "slack://ottercart.example/security/2026-09-30-bramblepay-key-rotation",
+      "capturedAt" : "2026-09-30T09:00:00Z"
+    },
+    "importance" : 7,
+    "links" : [ "jira/OTC-333" ],
+    "tags" : [ "slack", "security", "payments" ]
+  } ]
+}

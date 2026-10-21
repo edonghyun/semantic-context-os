@@ -1,0 +1,48 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-p4-fixture.ts",
+ "documents": [
+  {
+   "sourceId": "slack-synthetic",
+   "documentId": "C0000000001/day-2025-10-14",
+   "uri": "slack://slack-synthetic/C0000000001/day-2025-10-14",
+   "title": "#C0000000001 2025-10-14",
+   "body": "[00:00] U04: @U01 좋아요\n[00:00] U01: 온보딩 절차 정리 `계정 발급` → 권한 신청\n[00:05] U01: 배포 장애 회고: 원인은 배포 절차 누락",
+   "createdAt": "2025-10-14T00:00:05.000Z",
+   "updatedAt": "2025-10-14T00:06:40.000Z",
+   "metadata": {
+    "sourceInstanceId": "slack-synthetic",
+    "resourceType": "slack.message",
+    "channelId": "C0000000001"
+   }
+  },
+  {
+   "sourceId": "slack-synthetic",
+   "documentId": "C0000000001/thread-1760400100.000000",
+   "uri": "slack://slack-synthetic/C0000000001/thread-1760400100.000000",
+   "title": "스레드 시작: 결제 장애 원인 공유",
+   "body": "[00:01] U02: 스레드 시작: 결제 장애 원인 공유\n[00:02] U05: DB 커넥션 풀 고갈이 원인\n[00:02] U02: 대응: 풀 크기 상향과 알림 추가",
+   "createdAt": "2025-10-14T00:01:40.000Z",
+   "updatedAt": "2025-10-14T00:02:10.000Z",
+   "metadata": {
+    "sourceInstanceId": "slack-synthetic",
+    "resourceType": "slack.message",
+    "channelId": "C0000000001"
+   }
+  },
+  {
+   "sourceId": "slack-synthetic",
+   "documentId": "C0000000002/day-2025-10-15",
+   "uri": "slack://slack-synthetic/C0000000002/day-2025-10-15",
+   "title": "#C0000000002 2025-10-15",
+   "body": "[00:00] U06: 정산 배치가 ```SELECT *\nFROM x``` 로 느려짐\n[00:00] U07: 스냅샷 보관 기간은 30일",
+   "createdAt": "2025-10-15T00:00:10.000Z",
+   "updatedAt": "2025-10-15T00:00:20.000Z",
+   "metadata": {
+    "sourceInstanceId": "slack-synthetic",
+    "resourceType": "slack.message",
+    "channelId": "C0000000002"
+   }
+  }
+ ]
+}

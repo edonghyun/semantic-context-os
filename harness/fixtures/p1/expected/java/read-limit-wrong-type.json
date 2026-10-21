@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "Tool (read_document) input validation failed: Validation failed: JSON schema validation errors: [/limit: string found, integer expected]"
+  } ],
+  "isError" : true
+}

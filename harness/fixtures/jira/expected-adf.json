@@ -1,0 +1,1435 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-jira-fixture.ts",
+ "cases": [
+  {
+   "label": "문자열",
+   "value": "평문 값",
+   "rendered": "평문 값"
+  },
+  {
+   "label": "빈 문자열",
+   "value": "",
+   "rendered": ""
+  },
+  {
+   "label": "정수",
+   "value": 5,
+   "rendered": "5"
+  },
+  {
+   "label": "소수",
+   "value": 1.5,
+   "rendered": "1.5"
+  },
+  {
+   "label": "큰 수(지수 표기)",
+   "value": 1e+21,
+   "rendered": "1e+21"
+  },
+  {
+   "label": "참",
+   "value": true,
+   "rendered": "true"
+  },
+  {
+   "label": "거짓",
+   "value": false,
+   "rendered": "false"
+  },
+  {
+   "label": "null",
+   "value": null,
+   "rendered": ""
+  },
+  {
+   "label": "배열(빈 값은 빠진다)",
+   "value": [
+    "가",
+    "",
+    null,
+    {
+     "name": "나"
+    }
+   ],
+   "rendered": "가\n나"
+  },
+  {
+   "label": "빈 배열",
+   "value": [],
+   "rendered": ""
+  },
+  {
+   "label": "text",
+   "value": {
+    "type": "text",
+    "text": "본문"
+   },
+   "rendered": "본문"
+  },
+  {
+   "label": "text 비문자열",
+   "value": {
+    "type": "text",
+    "text": 7
+   },
+   "rendered": ""
+  },
+  {
+   "label": "text https 링크",
+   "value": {
+    "type": "text",
+    "text": "런북",
+    "marks": [
+     {
+      "type": "link",
+      "attrs": {
+       "href": "https://example.test/r"
+      }
+     }
+    ]
+   },
+   "rendered": "[런북](https://example.test/r)"
+  },
+  {
+   "label": "text http 링크",
+   "value": {
+    "type": "text",
+    "text": "옛 링크",
+    "marks": [
+     {
+      "type": "link",
+      "attrs": {
+       "href": "http://example.test/o"
+      }
+     }
+    ]
+   },
+   "rendered": "[옛 링크](http://example.test/o)"
+  },
+  {
+   "label": "text 위험 링크",
+   "value": {
+    "type": "text",
+    "text": "열기",
+    "marks": [
+     {
+      "type": "link",
+      "attrs": {
+       "href": "javascript:alert(1)"
+      }
+     }
+    ]
+   },
+   "rendered": "열기"
+  },
+  {
+   "label": "text mailto 링크",
+   "value": {
+    "type": "text",
+    "text": "메일",
+    "marks": [
+     {
+      "type": "link",
+      "attrs": {
+       "href": "mailto:a@example.test"
+      }
+     }
+    ]
+   },
+   "rendered": "메일"
+  },
+  {
+   "label": "text 링크 href 없음",
+   "value": {
+    "type": "text",
+    "text": "빈 링크",
+    "marks": [
+     {
+      "type": "link",
+      "attrs": {}
+     }
+    ]
+   },
+   "rendered": "빈 링크"
+  },
+  {
+   "label": "text strong만",
+   "value": {
+    "type": "text",
+    "text": "굵게",
+    "marks": [
+     {
+      "type": "strong"
+     }
+    ]
+   },
+   "rendered": "굵게"
+  },
+  {
+   "label": "text 첫 표식이 링크 아님",
+   "value": {
+    "type": "text",
+    "text": "둘",
+    "marks": [
+     {
+      "type": "em"
+     },
+     {
+      "type": "link",
+      "attrs": {
+       "href": "https://example.test/2"
+      }
+     }
+    ]
+   },
+   "rendered": "[둘](https://example.test/2)"
+  },
+  {
+   "label": "hardBreak",
+   "value": {
+    "type": "hardBreak"
+   },
+   "rendered": "\n"
+  },
+  {
+   "label": "mention",
+   "value": {
+    "type": "mention",
+    "attrs": {
+     "id": "acct-1",
+     "text": "@담당"
+    }
+   },
+   "rendered": "@담당"
+  },
+  {
+   "label": "mention text 없음",
+   "value": {
+    "type": "mention",
+    "attrs": {
+     "id": "acct-1"
+    }
+   },
+   "rendered": ""
+  },
+  {
+   "label": "emoji text",
+   "value": {
+    "type": "emoji",
+    "attrs": {
+     "shortName": ":fire:",
+     "text": "🔥"
+    }
+   },
+   "rendered": "🔥"
+  },
+  {
+   "label": "emoji shortName만",
+   "value": {
+    "type": "emoji",
+    "attrs": {
+     "shortName": ":warning:"
+    }
+   },
+   "rendered": ":warning:"
+  },
+  {
+   "label": "emoji 속성 없음",
+   "value": {
+    "type": "emoji"
+   },
+   "rendered": ""
+  },
+  {
+   "label": "emoji text null",
+   "value": {
+    "type": "emoji",
+    "attrs": {
+     "text": null,
+     "shortName": ":x:"
+    }
+   },
+   "rendered": ":x:"
+  },
+  {
+   "label": "inlineCard",
+   "value": {
+    "type": "inlineCard",
+    "attrs": {
+     "url": "https://example.test/card"
+    }
+   },
+   "rendered": "https://example.test/card"
+  },
+  {
+   "label": "blockCard",
+   "value": {
+    "type": "blockCard",
+    "attrs": {
+     "url": "https://example.test/block"
+    }
+   },
+   "rendered": "https://example.test/block"
+  },
+  {
+   "label": "inlineCard url 없음",
+   "value": {
+    "type": "inlineCard",
+    "attrs": {}
+   },
+   "rendered": ""
+  },
+  {
+   "label": "paragraph",
+   "value": {
+    "type": "paragraph",
+    "content": [
+     {
+      "type": "text",
+      "text": "한 "
+     },
+     {
+      "type": "text",
+      "text": "문단"
+     },
+     {
+      "type": "hardBreak"
+     },
+     {
+      "type": "text",
+      "text": "둘째 줄"
+     }
+    ]
+   },
+   "rendered": "한 문단\n둘째 줄"
+  },
+  {
+   "label": "빈 paragraph",
+   "value": {
+    "type": "paragraph",
+    "content": []
+   },
+   "rendered": ""
+  },
+  {
+   "label": "heading",
+   "value": {
+    "type": "heading",
+    "attrs": {
+     "level": 1
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "제목 "
+     },
+     {
+      "type": "text",
+      "text": "둘"
+     }
+    ]
+   },
+   "rendered": "제목 둘"
+  },
+  {
+   "label": "bulletList",
+   "value": {
+    "type": "bulletList",
+    "content": [
+     {
+      "type": "listItem",
+      "content": [
+       {
+        "type": "paragraph",
+        "content": [
+         {
+          "type": "text",
+          "text": "하나"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "type": "listItem",
+      "content": [
+       {
+        "type": "paragraph",
+        "content": [
+         {
+          "type": "text",
+          "text": "둘"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "- 하나\n- 둘"
+  },
+  {
+   "label": "중첩 목록",
+   "value": {
+    "type": "bulletList",
+    "content": [
+     {
+      "type": "listItem",
+      "content": [
+       {
+        "type": "paragraph",
+        "content": [
+         {
+          "type": "text",
+          "text": "바깥"
+         }
+        ]
+       },
+       {
+        "type": "orderedList",
+        "content": [
+         {
+          "type": "listItem",
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "안"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "- 바깥\n- 안"
+  },
+  {
+   "label": "listItem 여러 블록",
+   "value": {
+    "type": "listItem",
+    "content": [
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "첫"
+       }
+      ]
+     },
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "둘"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "- 첫\n둘"
+  },
+  {
+   "label": "table",
+   "value": {
+    "type": "table",
+    "content": [
+     {
+      "type": "tableRow",
+      "content": [
+       {
+        "type": "tableHeader",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "열1"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "type": "tableHeader",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "열2"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "type": "tableRow",
+      "content": [
+       {
+        "type": "tableCell",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "a"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "type": "tableCell",
+        "content": []
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "열1 | 열2\na | "
+  },
+  {
+   "label": "codeBlock",
+   "value": {
+    "type": "codeBlock",
+    "attrs": {
+     "language": "sql"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "SELECT 1;\nSELECT 2;"
+     }
+    ]
+   },
+   "rendered": "SELECT 1;\nSELECT 2;"
+  },
+  {
+   "label": "panel",
+   "value": {
+    "type": "panel",
+    "attrs": {
+     "panelType": "info"
+    },
+    "content": [
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "참고"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "참고"
+  },
+  {
+   "label": "blockquote",
+   "value": {
+    "type": "blockquote",
+    "content": [
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "인용"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "인용"
+  },
+  {
+   "label": "rule",
+   "value": {
+    "type": "rule"
+   },
+   "rendered": "type: rule"
+  },
+  {
+   "label": "media",
+   "value": {
+    "type": "media",
+    "attrs": {
+     "id": "media-1",
+     "type": "file",
+     "collection": "jira"
+    }
+   },
+   "rendered": "type: media\nattrs: type: file\ncollection: jira"
+  },
+  {
+   "label": "mediaSingle",
+   "value": {
+    "type": "mediaSingle",
+    "attrs": {
+     "layout": "center"
+    },
+    "content": [
+     {
+      "type": "media",
+      "attrs": {
+       "id": "m",
+       "type": "file"
+      }
+     }
+    ]
+   },
+   "rendered": "type: media\nattrs: type: file"
+  },
+  {
+   "label": "doc",
+   "value": {
+    "type": "doc",
+    "version": 1,
+    "content": [
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "문서 "
+       }
+      ]
+     },
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "끝"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "문서 \n끝"
+  },
+  {
+   "label": "content가 배열 아님",
+   "value": {
+    "type": "paragraph",
+    "content": "문자열"
+   },
+   "rendered": "type: paragraph\ncontent: 문자열"
+  },
+  {
+   "label": "content 안 일반 값",
+   "value": {
+    "type": "paragraph",
+    "content": [
+     "가",
+     3,
+     null
+    ]
+   },
+   "rendered": "가3"
+  },
+  {
+   "label": "displayName 우선",
+   "value": {
+    "displayName": "표시 이름",
+    "name": "이름",
+    "value": "값"
+   },
+   "rendered": "표시 이름"
+  },
+  {
+   "label": "name",
+   "value": {
+    "name": "이름",
+    "value": "값"
+   },
+   "rendered": "이름"
+  },
+  {
+   "label": "value",
+   "value": {
+    "value": "값",
+    "id": "10"
+   },
+   "rendered": "값"
+  },
+  {
+   "label": "filename",
+   "value": {
+    "filename": "a.txt",
+    "title": "제목"
+   },
+   "rendered": "a.txt"
+  },
+  {
+   "label": "title",
+   "value": {
+    "title": "제목",
+    "self": "https://x"
+   },
+   "rendered": "제목"
+  },
+  {
+   "label": "name 비문자열이면 다음 키",
+   "value": {
+    "name": 3,
+    "title": "제목"
+   },
+   "rendered": "제목"
+  },
+  {
+   "label": "일반 객체(숨기는 키)",
+   "value": {
+    "self": "https://x",
+    "id": "1",
+    "accountId": "a",
+    "avatarUrls": {
+     "x": "y"
+    },
+    "emailAddress": "e@x",
+    "timeSpent": "2h",
+    "count": 0
+   },
+   "rendered": "timeSpent: 2h\ncount: 0"
+  },
+  {
+   "label": "중첩 객체",
+   "value": {
+    "author": {
+     "self": "https://synthetic.atlassian.net/rest/api/3/user?accountId=acct-작성자",
+     "accountId": "acct-작성자",
+     "emailAddress": "작성자@example.test",
+     "avatarUrls": {
+      "48x48": "https://example.test/avatar.png"
+     },
+     "displayName": "작성자",
+     "active": true
+    },
+    "items": [
+     {
+      "field": "status",
+      "fromString": "할 일",
+      "toString": "완료"
+     }
+    ]
+   },
+   "rendered": "author: 작성자\nitems: field: status\nfromString: 할 일\ntoString: 완료"
+  },
+  {
+   "label": "정수 키 순서",
+   "value": {
+    "2": "이",
+    "10": "십",
+    "b": "둘",
+    "a": "하나"
+   },
+   "rendered": "2: 이\n10: 십\nb: 둘\na: 하나"
+  },
+  {
+   "label": "빈 객체",
+   "value": {},
+   "rendered": ""
+  },
+  {
+   "label": "emoji text 수",
+   "value": {
+    "type": "emoji",
+    "attrs": {
+     "text": 5
+    }
+   },
+   "rendered": "5"
+  },
+  {
+   "label": "emoji text 불리언",
+   "value": {
+    "type": "emoji",
+    "attrs": {
+     "text": true
+    }
+   },
+   "rendered": "true"
+  },
+  {
+   "label": "inlineCard url 객체",
+   "value": {
+    "type": "inlineCard",
+    "attrs": {
+     "url": {
+      "href": "x"
+     }
+    }
+   },
+   "rendered": "[object Object]"
+  },
+  {
+   "label": "inlineCard url 배열",
+   "value": {
+    "type": "inlineCard",
+    "attrs": {
+     "url": [
+      "a",
+      null,
+      [
+       "b",
+       1
+      ]
+     ]
+    }
+   },
+   "rendered": "a,,b,1"
+  },
+  {
+   "label": "type이 문자열 아님",
+   "value": {
+    "type": 5,
+    "content": [
+     {
+      "type": "text",
+      "text": "가"
+     },
+     {
+      "type": "text",
+      "text": "나"
+     }
+    ]
+   },
+   "rendered": "가\n나"
+  },
+  {
+   "label": "type 배열 paragraph",
+   "value": {
+    "type": [
+     "paragraph"
+    ],
+    "content": [
+     {
+      "type": "text",
+      "text": "가"
+     },
+     {
+      "type": "text",
+      "text": "나"
+     }
+    ]
+   },
+   "rendered": "가나"
+  },
+  {
+   "label": "type 배열 listItem",
+   "value": {
+    "type": [
+     "listItem"
+    ],
+    "content": [
+     {
+      "type": "text",
+      "text": "가"
+     }
+    ]
+   },
+   "rendered": "가"
+  },
+  {
+   "label": "type 배열 tableRow",
+   "value": {
+    "type": [
+     "tableRow"
+    ],
+    "content": [
+     {
+      "type": "text",
+      "text": "가"
+     },
+     {
+      "type": "text",
+      "text": "나"
+     }
+    ]
+   },
+   "rendered": "가\n나"
+  },
+  {
+   "label": "type 배열 text",
+   "value": {
+    "type": [
+     "text"
+    ],
+    "text": "t"
+   },
+   "rendered": "type: text\ntext: t"
+  },
+  {
+   "label": "type 배열 hardBreak",
+   "value": {
+    "type": [
+     "hardBreak"
+    ]
+   },
+   "rendered": "type: hardBreak"
+  },
+  {
+   "label": "type 배열 mention",
+   "value": {
+    "type": [
+     "mention"
+    ],
+    "attrs": {
+     "text": "@담당"
+    }
+   },
+   "rendered": "type: mention\nattrs: text: @담당"
+  },
+  {
+   "label": "type 배열 emoji",
+   "value": {
+    "type": [
+     "emoji"
+    ],
+    "attrs": {
+     "text": "🔥"
+    }
+   },
+   "rendered": "type: emoji\nattrs: text: 🔥"
+  },
+  {
+   "label": "type 배열 inlineCard",
+   "value": {
+    "type": [
+     "inlineCard"
+    ],
+    "attrs": {
+     "url": "https://example.test/c"
+    }
+   },
+   "rendered": "type: inlineCard\nattrs: url: https://example.test/c"
+  },
+  {
+   "label": "링크 표식 type 배열",
+   "value": {
+    "type": "text",
+    "text": "x",
+    "marks": [
+     {
+      "type": [
+       "link"
+      ],
+      "attrs": {
+       "href": "https://example.test/l"
+      }
+     }
+    ]
+   },
+   "rendered": "x"
+  },
+  {
+   "label": "status",
+   "value": {
+    "type": "paragraph",
+    "content": [
+     {
+      "type": "text",
+      "text": "상태 "
+     },
+     {
+      "type": "status",
+      "attrs": {
+       "text": "진행 중",
+       "color": "blue",
+       "localId": "s1"
+      }
+     }
+    ]
+   },
+   "rendered": "상태 type: status\nattrs: text: 진행 중\ncolor: blue\nlocalId: s1"
+  },
+  {
+   "label": "date",
+   "value": {
+    "type": "paragraph",
+    "content": [
+     {
+      "type": "text",
+      "text": "마감 "
+     },
+     {
+      "type": "date",
+      "attrs": {
+       "timestamp": "1760486400000"
+      }
+     }
+    ]
+   },
+   "rendered": "마감 type: date\nattrs: timestamp: 1760486400000"
+  },
+  {
+   "label": "taskList",
+   "value": {
+    "type": "taskList",
+    "attrs": {
+     "localId": "tl"
+    },
+    "content": [
+     {
+      "type": "taskItem",
+      "attrs": {
+       "localId": "t1",
+       "state": "DONE"
+      },
+      "content": [
+       {
+        "type": "text",
+        "text": "완료한 일"
+       }
+      ]
+     },
+     {
+      "type": "taskItem",
+      "attrs": {
+       "localId": "t2",
+       "state": "TODO"
+      },
+      "content": [
+       {
+        "type": "text",
+        "text": "남은 일"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "완료한 일\n남은 일"
+  },
+  {
+   "label": "expand",
+   "value": {
+    "type": "expand",
+    "attrs": {
+     "title": "자세히"
+    },
+    "content": [
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "접힌 본문"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "접힌 본문"
+  },
+  {
+   "label": "mediaGroup",
+   "value": {
+    "type": "mediaGroup",
+    "content": [
+     {
+      "type": "media",
+      "attrs": {
+       "id": "m1",
+       "type": "file",
+       "collection": "jira"
+      }
+     },
+     {
+      "type": "media",
+      "attrs": {
+       "id": "m2",
+       "type": "file",
+       "collection": "jira"
+      }
+     }
+    ]
+   },
+   "rendered": "type: media\nattrs: type: file\ncollection: jira\ntype: media\nattrs: type: file\ncollection: jira"
+  },
+  {
+   "label": "decisionList",
+   "value": {
+    "type": "decisionList",
+    "attrs": {
+     "localId": "dl"
+    },
+    "content": [
+     {
+      "type": "decisionItem",
+      "attrs": {
+       "localId": "d1",
+       "state": "DECIDED"
+      },
+      "content": [
+       {
+        "type": "text",
+        "text": "롤백한다"
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "롤백한다"
+  },
+  {
+   "label": "설명 전체(데이터셋 이슈 40001)",
+   "value": {
+    "type": "doc",
+    "version": 1,
+    "content": [
+     {
+      "type": "heading",
+      "attrs": {
+       "level": 2
+      },
+      "content": [
+       {
+        "type": "text",
+        "text": "결제 "
+       },
+       {
+        "type": "text",
+        "text": "장애",
+        "marks": [
+         {
+          "type": "strong"
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "text": " 개요"
+       }
+      ]
+     },
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "text",
+        "text": "원인은 "
+       },
+       {
+        "type": "text",
+        "text": "배포 절차",
+        "marks": [
+         {
+          "type": "link",
+          "attrs": {
+           "href": "https://example.test/deploy"
+          }
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "text": " 누락이다. 내부 링크 "
+       },
+       {
+        "type": "text",
+        "text": "열기",
+        "marks": [
+         {
+          "type": "link",
+          "attrs": {
+           "href": "javascript:alert(1)"
+          }
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "text": "는 링크로 쓰지 않는다."
+       },
+       {
+        "type": "hardBreak"
+       },
+       {
+        "type": "text",
+        "text": "담당 "
+       },
+       {
+        "type": "mention",
+        "attrs": {
+         "id": "acct-1",
+         "text": "@운영 담당"
+        }
+       },
+       {
+        "type": "text",
+        "text": " "
+       },
+       {
+        "type": "emoji",
+        "attrs": {
+         "shortName": ":fire:",
+         "text": "🔥"
+        }
+       },
+       {
+        "type": "emoji",
+        "attrs": {
+         "shortName": ":warning:"
+        }
+       }
+      ]
+     },
+     {
+      "type": "bulletList",
+      "content": [
+       {
+        "type": "listItem",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "커넥션 풀 고갈"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "type": "listItem",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "알림 누락"
+           }
+          ]
+         },
+         {
+          "type": "bulletList",
+          "content": [
+           {
+            "type": "listItem",
+            "content": [
+             {
+              "type": "paragraph",
+              "content": [
+               {
+                "type": "text",
+                "text": "중첩 항목"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "type": "orderedList",
+      "attrs": {
+       "order": 1
+      },
+      "content": [
+       {
+        "type": "listItem",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "감지"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "type": "listItem",
+        "content": [
+         {
+          "type": "paragraph",
+          "content": [
+           {
+            "type": "text",
+            "text": "복구"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "type": "table",
+      "content": [
+       {
+        "type": "tableRow",
+        "content": [
+         {
+          "type": "tableHeader",
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "지표"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "type": "tableHeader",
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "값"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "type": "tableRow",
+        "content": [
+         {
+          "type": "tableCell",
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "오류율"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "type": "tableCell",
+          "content": [
+           {
+            "type": "paragraph",
+            "content": [
+             {
+              "type": "text",
+              "text": "12%"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "type": "codeBlock",
+      "attrs": {
+       "language": "sql"
+      },
+      "content": [
+       {
+        "type": "text",
+        "text": "SELECT count(*)\nFROM payments;"
+       }
+      ]
+     },
+     {
+      "type": "panel",
+      "attrs": {
+       "panelType": "info"
+      },
+      "content": [
+       {
+        "type": "paragraph",
+        "content": [
+         {
+          "type": "text",
+          "text": "재발 방지 대책은 아래 링크"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "type": "paragraph",
+      "content": [
+       {
+        "type": "inlineCard",
+        "attrs": {
+         "url": "https://example.test/runbook"
+        }
+       }
+      ]
+     },
+     {
+      "type": "blockCard",
+      "attrs": {
+       "url": "https://example.test/postmortem"
+      }
+     },
+     {
+      "type": "rule"
+     },
+     {
+      "type": "paragraph",
+      "content": []
+     },
+     {
+      "type": "mediaSingle",
+      "content": [
+       {
+        "type": "media",
+        "attrs": {
+         "id": "media-1",
+         "type": "file",
+         "collection": "jira"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "rendered": "결제 장애 개요\n원인은 [배포 절차](https://example.test/deploy) 누락이다. 내부 링크 열기는 링크로 쓰지 않는다.\n담당 @운영 담당 🔥:warning:\n- 커넥션 풀 고갈\n- 알림 누락\n- 중첩 항목\n- 감지\n- 복구\n지표 | 값\n오류율 | 12%\nSELECT count(*)\nFROM payments;\n재발 방지 대책은 아래 링크\nhttps://example.test/runbook\nhttps://example.test/postmortem\ntype: rule\n\ntype: media\nattrs: type: file\ncollection: jira"
+  }
+ ],
+ "rawCases": [
+  {
+   "label": "정수 키가 뒤에 있는 원문",
+   "json": "{\"b\":\"둘\",\"10\":\"십\",\"a\":\"하나\",\"2\":\"이\"}",
+   "rendered": "2: 이\n10: 십\nb: 둘\na: 하나"
+  },
+  {
+   "label": "배열 인덱스 상한과 앞 0",
+   "json": "{\"b\":\"1\",\"4294967295\":\"x\",\"10\":\"t\",\"4294967294\":\"y\",\"a\":\"2\",\"01\":\"lead\"}",
+   "rendered": "10: t\n4294967294: y\nb: 1\n4294967295: x\na: 2\n01: lead"
+  }
+ ]
+}

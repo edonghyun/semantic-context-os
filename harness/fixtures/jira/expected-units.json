@@ -1,0 +1,1224 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-jira-fixture.ts",
+ "units": [
+  {
+   "id": "694e46b9e08fd147",
+   "partition": "/knowledge",
+   "title": "OPS 칸반",
+   "content": "# OPS 칸반\n\nid: 10\n\nname: OPS 칸반\n\ntype: kanban",
+   "contentHash": "bedf887c001f362e281cab2009e88b5e61cc6ae40d7d139388eced17e8bc29d1",
+   "tokens": 22,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "board:10",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "96f5ad4806893a25",
+   "partition": "/knowledge",
+   "title": "OPS 팀 관리 보드",
+   "content": "# OPS 팀 관리 보드\n\nid: 11\n\nname: OPS 팀 관리 보드\n\ntype: simple",
+   "contentHash": "eb688d5da6b9c27ca2a417e9bb132bcda70915808392872852a97eb9f1e5b068",
+   "tokens": 23,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "board:11",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "e46d0f1f005d8e27",
+   "partition": "/knowledge",
+   "title": "PAY 스크럼",
+   "content": "# PAY 스크럼\n\nid: 9\n\nname: PAY 스크럼\n\ntype: scrum\n\nlocation: 결제 플랫폼 (PAY)",
+   "contentHash": "2d8f8c0d2af35ef35a7bfa542ffbd671800eea9a64f0bd60fca04475c940410b",
+   "tokens": 30,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "board:9",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "9e10936b59c4c6c8",
+   "partition": "/knowledge",
+   "title": "결제 API",
+   "content": "# 결제 API\n\nid: 20000\n\nname: 결제 API\n\ndescription: 외부 결제 요청\n\nlead: 리드",
+   "contentHash": "135fb68e6c7eee2ec3b7274c16ed6ea73303634b5bb0243d649f0d09aff3d1ca",
+   "tokens": 29,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "component:20000",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "4a71867356319b8f",
+   "partition": "/knowledge",
+   "title": "운영 대시보드",
+   "content": "# 운영 대시보드\n\nid: 10200\n\nname: 운영 대시보드\n\nisFavourite: true\n\npopularity: 3",
+   "contentHash": "768adab4ecac98bcf565aa99bf1d155ec31a2e85646a5e4420d6d7ebc535d286",
+   "tokens": 31,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "dashboard:10200",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c056e6c208488c01",
+   "partition": "/knowledge",
+   "title": "열린 결제 장애",
+   "content": "# 열린 결제 장애\n\nid: 10100\n\nname: 열린 결제 장애\n\ndescription: PAY 장애 중 미해결\n\njql: project = PAY AND status != Done\n\nowner: 필터주인",
+   "contentHash": "6bd366ea30227a92b490ca8514b0d7f0d7c1206e701307a5e14c9bb7f15060ba",
+   "tokens": 45,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "filter:10100",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "1357916b697da76d",
+   "partition": "/knowledge",
+   "title": "PAY-1: 결제 승인 지연 장애",
+   "content": "# PAY-1: 결제 승인 지연 장애\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900\n\nDescription: 결제 장애 개요\n원인은 [배포 절차](https://example.test/deploy) 누락이다. 내부 링크 열기는 링크로 쓰지 않는다.\n담당 @운영 담당 🔥:warning:\n- 커넥션 풀 고갈\n- 알림 누락\n- 중첩 항목\n- 감지\n- 복구\n지표 | 값\n오류율 | 12%\nSELECT count(*)\nFROM payments;\n재발 방지 대책은 아래 링크\nhttps://example.test/runbook\nhttps://example.test/postmortem\ntype: rule\n\ntype: media\nattrs: type: file\ncollection: jira\n\nStatus: 진행 중\n\nPriority: High\n\nAssignee: 담당자\n\nLabels: incident\npayments\n\nStory Points: 5\n\nSprint: Sprint 8",
+   "contentHash": "831b62f6691c1df2772383acbe33b3214c4474474bb76f7d95dfad81655652df",
+   "tokens": 226,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40001",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "54baf7828b72c2ee",
+   "partition": "/knowledge",
+   "title": "PAY-1: 결제 승인 지연 장애 > 댓글",
+   "content": "## 댓글\nauthor: 검토자\nbody: 재현 절차를 추가했다.\ncreated: 2026-10-01T10:00:00.000+0900\nupdated: 2026-10-01T10:00:00.000+0900",
+   "contentHash": "87eaa29d1d573654bbcf66c25379d30dc0b5d1372fef82879f01e2f132726ad6",
+   "tokens": 60,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40001",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f60c71b93a1f8a1a",
+   "partition": "/knowledge",
+   "title": "PAY-1: 결제 승인 지연 장애 > 변경 이력",
+   "content": "## 변경 이력\nauthor: 담당자\ncreated: 2026-10-01T12:00:00.000+0900\nitems: field: status\nfromString: 할 일\ntoString: 진행 중",
+   "contentHash": "ecf76357e3c7ae380f9bd9572fe1874777a3b779911571b49133e63a014acdd0",
+   "tokens": 48,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40001",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "1aad5a443fa37693",
+   "partition": "/knowledge",
+   "title": "PAY-1: 결제 승인 지연 장애 > 작업 기록",
+   "content": "## 작업 기록\nauthor: 담당자\ntimeSpent: 2h\ncomment: 원인 분석",
+   "contentHash": "074eb12c599ba914a2bc960dc23efe0f015e5b66a19cbd4b57892b8c55b74bc1",
+   "tokens": 21,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40001",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "12e736cef66b7a5a",
+   "partition": "/knowledge",
+   "title": "PAY-1: 결제 승인 지연 장애 > 관련 링크",
+   "content": "## 관련 링크\nobject: 결제 런북",
+   "contentHash": "56921ef2174a38abbcf21196448d4eb8f66070278a3ac65e86cd563a38402861",
+   "tokens": 11,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40001",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "70b2720cdea94d03",
+   "partition": "/knowledge",
+   "title": "PAY-1: 결제 승인 지연 장애 > 첨부파일 (본문 미추출)",
+   "content": "## 첨부파일 (본문 미추출)\n\nerror-log.txt (text/plain, 38 bytes)",
+   "contentHash": "55d90c11ab96cd5f06f3352d9ab3e77eb9339c768e6b33daf2f558716a9262ed",
+   "tokens": 22,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40001",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "96c3cb3fea684282",
+   "partition": "/knowledge",
+   "title": "PAY-2: 정산 배치 지연",
+   "content": "# PAY-2: 정산 배치 지연\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900",
+   "contentHash": "c9b77bfc5bc83e39d25b8b279ae6a610edc55632edd33fc89fd5a9a757bf58f7",
+   "tokens": 53,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40002",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "60b4268a39758a4a",
+   "partition": "/knowledge",
+   "title": "PAY-2: 정산 배치 지연 > 댓글",
+   "content": "## 댓글\nauthor: 가\nbody: 첫 댓글\ncreated: 2026-10-01T10:00:00.000+0900\nupdated: 2026-10-01T10:00:00.000+0900\nauthor: 나\nbody: 둘째 댓글\ncreated: 2026-10-01T10:05:00.000+0900\nupdated: 2026-10-01T10:05:00.000+0900\nauthor: 다\nbody: 평문 댓글(ADF 아님)\ncreated: 2026-10-01T10:10:00.000+0900\nupdated: 2026-10-01T10:10:00.000+0900",
+   "contentHash": "5cf1857df265841f4387b0f126532dc8b060822b96c6fdcb2b864dd5d0a775ba",
+   "tokens": 161,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40002",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "35bdd6410d2ee0bd",
+   "partition": "/knowledge",
+   "title": "PAY-4: 영수증 이미지 깨짐",
+   "content": "# PAY-4: 영수증 이미지 깨짐\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900",
+   "contentHash": "81aa54a5c7b2172a552e70c82e67ffaa8e803bd9dea2f1a43c6999a0df50c36d",
+   "tokens": 53,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40004",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-4",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "6222fa3ca0cef960",
+   "partition": "/knowledge",
+   "title": "PAY-4: 영수증 이미지 깨짐 > 첨부파일 (본문 미추출)",
+   "content": "## 첨부파일 (본문 미추출)\n\nreceipt.png (image/png, 16 bytes)\n\ndump.bin (application/octet-stream, 62914560 bytes)",
+   "contentHash": "889407b4209f735826cde3c1154db15eef843fc36ae7dd92a265a557c4c4fb3c",
+   "tokens": 34,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40004",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-4",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "1086440754c15987",
+   "partition": "/knowledge",
+   "title": "PAY-6: 후속 작업 PAY-6",
+   "content": "# PAY-6: 후속 작업 PAY-6\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900\n\nStatus: 할 일",
+   "contentHash": "e49dfb8a72e4225811a1a057ebce61dfbf7c55e25bbc603499597b62e3bf5964",
+   "tokens": 58,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40006",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-6",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "93ed6f6215ce4f6c",
+   "partition": "/knowledge",
+   "title": "PAY-7: 후속 작업 PAY-7",
+   "content": "# PAY-7: 후속 작업 PAY-7\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900\n\nStatus: 할 일\n\ncustomfield_10020: 10: 2\nb: 앱 값\na: 1: 2\n2: 1\nz: 0\nbig: 123456789012345680\nexp: 1e+21\nneg: 0",
+   "contentHash": "143ee0f0a5e53616c8cbedfdbfe31b62eaffacdf4705960d75149c49893d8c31",
+   "tokens": 116,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40007",
+    "uri": "https://synthetic.atlassian.net/browse/PAY-7",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "27c16c7f98c8b571",
+   "partition": "/knowledge",
+   "title": "OPS-1: 온콜 교대 정리",
+   "content": "# OPS-1: 온콜 교대 정리\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900\n\nDescription: 교대 시각은 09:00이다.\n\nStory Points: 1.5",
+   "contentHash": "3e3f7dc08b9fc420cc84c77afbb2efe4bf22abdffd3e8f504e705473a04c223c",
+   "tokens": 74,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40010",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0e220a1363f1c4d9",
+   "partition": "/knowledge",
+   "title": "OPS-1: 온콜 교대 정리 > 작업 기록",
+   "content": "## 작업 기록\ntimeSpent: 1h\ntimeSpent: 30m\ncomment: 인수인계",
+   "contentHash": "2782463a071ae29ca4adef87d5e58f9ef280360e2c63d719b1fe752e0ca4421c",
+   "tokens": 24,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40010",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-1",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "06ec464782e6630f",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력)",
+   "content": "# OPS-2: 결제 대사 배치 개편(긴 변경 이력)\n\nCreated: 2026-10-01T09:00:00.000+0900\n\nUpdated: 2026-10-02T09:00:00.000+0900\n\nDescription: 대사 배치를 일 단위에서 시간 단위로 바꾼다.",
+   "contentHash": "2e612e359908c3e20b8c5c472ace4b3ee6c45479e0363d92e352cd714b606a17",
+   "tokens": 81,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0daa9fdcc447f83f",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 1)",
+   "content": "## 변경 이력\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 0\ntoString: 단계 1\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 1\ntoString: 단계 2\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 2\ntoString: 단계 3\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 3\ntoString: 단계 4\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 4\ntoString: 단계 5\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 5\ntoString: 단계 6\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 6\ntoString: 단계 7\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 7\ntoString: 단계 8\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 8\ntoString: 단계 9\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 9\ntoString: 단계 10\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 10\ntoString: 단계 11\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 11\ntoString: 단계 12\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\n",
+   "contentHash": "0e1a81b9492704c46d2faa07291e3ed53b72f65008784993b1a85b3a99c24d3c",
+   "tokens": 596,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c121192111948e5d",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 2)",
+   "content": "items: field: status\nfromString: 단계 12\ntoString: 단계 13\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 13\ntoString: 단계 14\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 14\ntoString: 단계 15\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 15\ntoString: 단계 16\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 16\ntoString: 단계 17\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 17\ntoString: 단계 18\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 18\ntoString: 단계 19\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 19\ntoString: 단계 20\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 20\ntoString: 단계 21\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 21\ntoString: 단계 22\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 22\ntoString: 단계 23\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 23\ntoString: 단계 24\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 24\ntoString: 단계 25\nauthor: 배치 담당\n",
+   "contentHash": "dc009513ea1785bac50a866af0d9601db7d487f4b37fb1dce76ed45c49e72a79",
+   "tokens": 590,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "515d879c1a388ff8",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 3)",
+   "content": "created: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 25\ntoString: 단계 26\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 26\ntoString: 단계 27\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 27\ntoString: 단계 28\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 28\ntoString: 단계 29\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 29\ntoString: 단계 30\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 30\ntoString: 단계 31\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 31\ntoString: 단계 32\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 32\ntoString: 단계 33\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 33\ntoString: 단계 34\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 34\ntoString: 단계 35\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 35\ntoString: 단계 36\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 36\ntoString: 단계 37\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\n",
+   "contentHash": "281e89c460f6385bef13b845e9320540dc5527c5d71260239b58ca7af763e71e",
+   "tokens": 591,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "6eac40c0780e5896",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 4)",
+   "content": "fromString: 단계 37\ntoString: 단계 38\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 38\ntoString: 단계 39\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 39\ntoString: 단계 40\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 40\ntoString: 단계 41\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 41\ntoString: 단계 42\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 42\ntoString: 단계 43\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 43\ntoString: 단계 44\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 44\ntoString: 단계 45\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 45\ntoString: 단계 46\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 46\ntoString: 단계 47\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 47\ntoString: 단계 48\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 48\ntoString: 단계 49\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 49\ntoString: 단계 50\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\n",
+   "contentHash": "a90bc9b2d7b38631199de77cc1090e8ebf56386753f0af9b3aa9896f2880a8e3",
+   "tokens": 605,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "a2cee05823d79023",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 5)",
+   "content": "items: field: status\nfromString: 단계 50\ntoString: 단계 51\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 51\ntoString: 단계 52\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 52\ntoString: 단계 53\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 53\ntoString: 단계 54\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 54\ntoString: 단계 55\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 55\ntoString: 단계 56\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 56\ntoString: 단계 57\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 57\ntoString: 단계 58\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 58\ntoString: 단계 59\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 59\ntoString: 단계 60\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 60\ntoString: 단계 61\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 61\ntoString: 단계 62\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 62\ntoString: 단계 63\n",
+   "contentHash": "6b38cab49bf80de7d368b398d010a3fbb742eb6d82ad84a32f4ab4387a706674",
+   "tokens": 584,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b657bf40e0b3b176",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 6)",
+   "content": "author: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 63\ntoString: 단계 64\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 64\ntoString: 단계 65\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 65\ntoString: 단계 66\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 66\ntoString: 단계 67\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 67\ntoString: 단계 68\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 68\ntoString: 단계 69\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 69\ntoString: 단계 70\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 70\ntoString: 단계 71\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 71\ntoString: 단계 72\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 72\ntoString: 단계 73\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 73\ntoString: 단계 74\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 74\ntoString: 단계 75\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\n",
+   "contentHash": "12e7c441bf0951a2f9c0b95fa1affdc64da1ed7261514737d4c469107a9d9e64",
+   "tokens": 597,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c0f758687d6a459b",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 7)",
+   "content": "fromString: 단계 75\ntoString: 단계 76\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 76\ntoString: 단계 77\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 77\ntoString: 단계 78\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 78\ntoString: 단계 79\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 79\ntoString: 단계 80\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 80\ntoString: 단계 81\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 81\ntoString: 단계 82\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 82\ntoString: 단계 83\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 83\ntoString: 단계 84\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 84\ntoString: 단계 85\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 85\ntoString: 단계 86\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 86\ntoString: 단계 87\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 87\ntoString: 단계 88\nauthor: 배치 담당\n",
+   "contentHash": "c7c10fcb01e41ae9000687392034de79884b663a41a61a3bf7cc3660ba5e4c0c",
+   "tokens": 584,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "7c80b9fd41ca50a8",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 8)",
+   "content": "created: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 88\ntoString: 단계 89\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 89\ntoString: 단계 90\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 90\ntoString: 단계 91\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 91\ntoString: 단계 92\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 92\ntoString: 단계 93\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 93\ntoString: 단계 94\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 94\ntoString: 단계 95\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 95\ntoString: 단계 96\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 96\ntoString: 단계 97\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 97\ntoString: 단계 98\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 98\ntoString: 단계 99\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 99\ntoString: 단계 100\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 100\ntoString: 단계 101\nauthor: 배치 담당\n",
+   "contentHash": "e4a6e5a32eb879ee4cc26cacf6f4e3764d5b233e00f0c697279f8d67aac2bf26",
+   "tokens": 611,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "015ac3ee0117337f",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 9)",
+   "content": "created: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 101\ntoString: 단계 102\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 102\ntoString: 단계 103\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 103\ntoString: 단계 104\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 104\ntoString: 단계 105\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 105\ntoString: 단계 106\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 106\ntoString: 단계 107\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 107\ntoString: 단계 108\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 108\ntoString: 단계 109\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 109\ntoString: 단계 110\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 110\ntoString: 단계 111\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 111\ntoString: 단계 112\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 112\ntoString: 단계 113\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\n",
+   "contentHash": "b0e1781e3531b13961a229fabfb36d6209c02ffda26610aa7fbe73f777d4b3a6",
+   "tokens": 585,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "1c6b6fc1595f7130",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 10)",
+   "content": "items: field: status\nfromString: 단계 113\ntoString: 단계 114\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 114\ntoString: 단계 115\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 115\ntoString: 단계 116\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 116\ntoString: 단계 117\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 117\ntoString: 단계 118\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 118\ntoString: 단계 119\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 119\ntoString: 단계 120\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 120\ntoString: 단계 121\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 121\ntoString: 단계 122\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 122\ntoString: 단계 123\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 123\ntoString: 단계 124\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 124\ntoString: 단계 125\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 125\n",
+   "contentHash": "f1603340083f3aee317209aa070b8254d3ae69bd008b4bb07e95b3b975ca1d3f",
+   "tokens": 577,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "5f3ec6261241f254",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 11)",
+   "content": "toString: 단계 126\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 126\ntoString: 단계 127\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 127\ntoString: 단계 128\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 128\ntoString: 단계 129\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 129\ntoString: 단계 130\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 130\ntoString: 단계 131\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 131\ntoString: 단계 132\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 132\ntoString: 단계 133\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 133\ntoString: 단계 134\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 134\ntoString: 단계 135\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 135\ntoString: 단계 136\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 136\ntoString: 단계 137\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 137\ntoString: 단계 138\nauthor: 배치 담당\n",
+   "contentHash": "d8a0ae652d5f780fa01a62fa23fa71f49ea2968f2da98c0d7e36b6de20cf6de5",
+   "tokens": 577,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "0ab0e6e9c3df0d4d",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 12)",
+   "content": "created: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 138\ntoString: 단계 139\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 139\ntoString: 단계 140\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 140\ntoString: 단계 141\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 141\ntoString: 단계 142\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 142\ntoString: 단계 143\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 143\ntoString: 단계 144\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 144\ntoString: 단계 145\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 145\ntoString: 단계 146\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 146\ntoString: 단계 147\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 147\ntoString: 단계 148\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 148\ntoString: 단계 149\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 149\ntoString: 단계 150\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 150\n",
+   "contentHash": "185fd8d660844ede16bde2e82803174f9c7b33ea21152cec766547014af6d0f3",
+   "tokens": 598,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2fca5f333b7b7cee",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 13)",
+   "content": "toString: 단계 151\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 151\ntoString: 단계 152\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 152\ntoString: 단계 153\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 153\ntoString: 단계 154\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 154\ntoString: 단계 155\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 155\ntoString: 단계 156\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 156\ntoString: 단계 157\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 157\ntoString: 단계 158\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 158\ntoString: 단계 159\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 159\ntoString: 단계 160\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 160\ntoString: 단계 161\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 161\ntoString: 단계 162\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 162\ntoString: 단계 163\nauthor: 배치 담당\n",
+   "contentHash": "3b6389e9627b2139adaf431e80a97b016e3e92f20dcf3cd65c79b153ff62e88d",
+   "tokens": 577,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "a65e8665e1f07b15",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 14)",
+   "content": "created: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 163\ntoString: 단계 164\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 164\ntoString: 단계 165\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 165\ntoString: 단계 166\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 166\ntoString: 단계 167\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 167\ntoString: 단계 168\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 168\ntoString: 단계 169\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 169\ntoString: 단계 170\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 170\ntoString: 단계 171\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 171\ntoString: 단계 172\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 172\ntoString: 단계 173\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 173\ntoString: 단계 174\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 174\ntoString: 단계 175\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 175\n",
+   "contentHash": "cbc45134581288f9b3693640012af39c7266e65fe41745971290b7c820c1d497",
+   "tokens": 598,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "32c1f00a7c7a663c",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 15)",
+   "content": "toString: 단계 176\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 176\ntoString: 단계 177\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 177\ntoString: 단계 178\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 178\ntoString: 단계 179\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 179\ntoString: 단계 180\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 180\ntoString: 단계 181\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 181\ntoString: 단계 182\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 182\ntoString: 단계 183\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 183\ntoString: 단계 184\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 184\ntoString: 단계 185\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 185\ntoString: 단계 186\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 186\ntoString: 단계 187\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 187\ntoString: 단계 188\nauthor: 배치 담당\n",
+   "contentHash": "499219bc80b27e746ce4c8434a7f344242e3335b0397ddce75fd6de135e649d1",
+   "tokens": 577,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c6573ef92169b7b5",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 16)",
+   "content": "created: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 188\ntoString: 단계 189\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 189\ntoString: 단계 190\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 190\ntoString: 단계 191\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 191\ntoString: 단계 192\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 192\ntoString: 단계 193\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 193\ntoString: 단계 194\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 194\ntoString: 단계 195\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 195\ntoString: 단계 196\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 196\ntoString: 단계 197\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 197\ntoString: 단계 198\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 198\ntoString: 단계 199\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 199\ntoString: 단계 200\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 200\n",
+   "contentHash": "b0f20a84a894799db1775788552b4d388754f330d0ea522e0b72911cd36b1109",
+   "tokens": 598,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "4cd478be9e98c440",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 17)",
+   "content": "toString: 단계 201\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 201\ntoString: 단계 202\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 202\ntoString: 단계 203\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 203\ntoString: 단계 204\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 204\ntoString: 단계 205\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 205\ntoString: 단계 206\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 206\ntoString: 단계 207\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 207\ntoString: 단계 208\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 208\ntoString: 단계 209\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 209\ntoString: 단계 210\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 210\ntoString: 단계 211\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 211\ntoString: 단계 212\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 212\ntoString: 단계 213\nauthor: 배치 담당\n",
+   "contentHash": "ba4abd83feb40fc07738f0d49710854aaf69b19d0a6da513adb5f2acff11d70f",
+   "tokens": 577,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "03f88c2ecd2c6f32",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 18)",
+   "content": "created: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 213\ntoString: 단계 214\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 214\ntoString: 단계 215\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 215\ntoString: 단계 216\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 216\ntoString: 단계 217\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 217\ntoString: 단계 218\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 218\ntoString: 단계 219\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 219\ntoString: 단계 220\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 220\ntoString: 단계 221\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 221\ntoString: 단계 222\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 222\ntoString: 단계 223\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 223\ntoString: 단계 224\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 224\ntoString: 단계 225\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\n",
+   "contentHash": "47f41f51a4e2747b7d37eb6ddb555d228e1b9e606666c2a5f546bbc231e13a20",
+   "tokens": 591,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "195cfd02eacc64d0",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 19)",
+   "content": "fromString: 단계 225\ntoString: 단계 226\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 226\ntoString: 단계 227\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 227\ntoString: 단계 228\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 228\ntoString: 단계 229\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 229\ntoString: 단계 230\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 230\ntoString: 단계 231\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 231\ntoString: 단계 232\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 232\ntoString: 단계 233\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 233\ntoString: 단계 234\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 234\ntoString: 단계 235\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 235\ntoString: 단계 236\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 236\ntoString: 단계 237\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 237\ntoString: 단계 238\n",
+   "contentHash": "0394d912945a278219b923d8ca718b126c8988cc14493971b48b24da22349555",
+   "tokens": 578,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "eee600159102f593",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 20)",
+   "content": "author: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 238\ntoString: 단계 239\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 239\ntoString: 단계 240\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 240\ntoString: 단계 241\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 241\ntoString: 단계 242\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 242\ntoString: 단계 243\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 243\ntoString: 단계 244\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 244\ntoString: 단계 245\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 245\ntoString: 단계 246\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 246\ntoString: 단계 247\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 247\ntoString: 단계 248\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 248\ntoString: 단계 249\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 249\ntoString: 단계 250\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\n",
+   "contentHash": "743d07a1d51deb33b12aa58db979dd16c7dafe5fe70ae5d782b6fd018a196bbc",
+   "tokens": 591,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "bcf611b8c6f180ec",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 21)",
+   "content": "items: field: status\nfromString: 단계 250\ntoString: 단계 251\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 251\ntoString: 단계 252\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 252\ntoString: 단계 253\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 253\ntoString: 단계 254\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 254\ntoString: 단계 255\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 255\ntoString: 단계 256\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 256\ntoString: 단계 257\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 257\ntoString: 단계 258\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 258\ntoString: 단계 259\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 259\ntoString: 단계 260\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 260\ntoString: 단계 261\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 261\ntoString: 단계 262\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\n",
+   "contentHash": "62acbaf4f584f77f942ae91c83571bbc5c9e3eee0572c4648751197a7eca44a5",
+   "tokens": 570,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "68545256732f7801",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 22)",
+   "content": "fromString: 단계 262\ntoString: 단계 263\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 263\ntoString: 단계 264\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 264\ntoString: 단계 265\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 265\ntoString: 단계 266\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 266\ntoString: 단계 267\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 267\ntoString: 단계 268\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 268\ntoString: 단계 269\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 269\ntoString: 단계 270\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 270\ntoString: 단계 271\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 271\ntoString: 단계 272\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 272\ntoString: 단계 273\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 273\ntoString: 단계 274\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 274\ntoString: 단계 275\nauthor: 배치 담당\n",
+   "contentHash": "b71b1ead10caf5477945af0a1f26ee5ed95c26578cc06a3f320d7e7933ffdc2b",
+   "tokens": 584,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "7ecb81bc37654a3f",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 23)",
+   "content": "created: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 275\ntoString: 단계 276\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 276\ntoString: 단계 277\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 277\ntoString: 단계 278\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 278\ntoString: 단계 279\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 279\ntoString: 단계 280\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 280\ntoString: 단계 281\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 281\ntoString: 단계 282\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 282\ntoString: 단계 283\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 283\ntoString: 단계 284\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 284\ntoString: 단계 285\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 285\ntoString: 단계 286\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 286\ntoString: 단계 287\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\n",
+   "contentHash": "34e49831075143020cfed5784506df88ab4ef70b71a006aeabf35698c84de692",
+   "tokens": 585,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "85c0057b87a89dcb",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 24)",
+   "content": "items: field: status\nfromString: 단계 287\ntoString: 단계 288\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 288\ntoString: 단계 289\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 289\ntoString: 단계 290\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 290\ntoString: 단계 291\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 291\ntoString: 단계 292\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 292\ntoString: 단계 293\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 293\ntoString: 단계 294\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 294\ntoString: 단계 295\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 295\ntoString: 단계 296\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 296\ntoString: 단계 297\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 297\ntoString: 단계 298\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 298\ntoString: 단계 299\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 299\ntoString: 단계 300\nauthor: 배치 담당\n",
+   "contentHash": "3115e16cc94d8e786d3464b8d76c0cf13fb4134f7a2a7b885626b3a8fbcc6eb9",
+   "tokens": 590,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "5f3d3a702ff78e33",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 25)",
+   "content": "created: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 300\ntoString: 단계 301\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 301\ntoString: 단계 302\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 302\ntoString: 단계 303\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 303\ntoString: 단계 304\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 304\ntoString: 단계 305\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 305\ntoString: 단계 306\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 306\ntoString: 단계 307\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 307\ntoString: 단계 308\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 308\ntoString: 단계 309\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 309\ntoString: 단계 310\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 310\ntoString: 단계 311\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 311\ntoString: 단계 312\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\n",
+   "contentHash": "6b89f1ce6e6ee12fcc6bf23aebd94ae964efe1135ea85c89d32841c685fe973d",
+   "tokens": 585,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "59ab1f144253880d",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 26)",
+   "content": "items: field: status\nfromString: 단계 312\ntoString: 단계 313\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 313\ntoString: 단계 314\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 314\ntoString: 단계 315\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 315\ntoString: 단계 316\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 316\ntoString: 단계 317\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 317\ntoString: 단계 318\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 318\ntoString: 단계 319\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 319\ntoString: 단계 320\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 320\ntoString: 단계 321\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 321\ntoString: 단계 322\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 322\ntoString: 단계 323\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 323\ntoString: 단계 324\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 324\ntoString: 단계 325\n",
+   "contentHash": "8e8402667105c35352aa8818e41128ada8989e4ac17a6e7baebe556c3251a7ac",
+   "tokens": 584,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "801a0776e0e42be5",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 27)",
+   "content": "author: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 325\ntoString: 단계 326\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 326\ntoString: 단계 327\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 327\ntoString: 단계 328\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 328\ntoString: 단계 329\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 329\ntoString: 단계 330\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 330\ntoString: 단계 331\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 331\ntoString: 단계 332\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 332\ntoString: 단계 333\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 333\ntoString: 단계 334\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 334\ntoString: 단계 335\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 335\ntoString: 단계 336\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 336\ntoString: 단계 337\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\n",
+   "contentHash": "42124909c2d62770f57bbe0a45306c875db370c7b43cb99fdb92627e709d2b20",
+   "tokens": 591,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b24637ef1000c189",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 28)",
+   "content": "items: field: status\nfromString: 단계 337\ntoString: 단계 338\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 338\ntoString: 단계 339\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 339\ntoString: 단계 340\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 340\ntoString: 단계 341\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 341\ntoString: 단계 342\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 342\ntoString: 단계 343\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 343\ntoString: 단계 344\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 344\ntoString: 단계 345\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 345\ntoString: 단계 346\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 346\ntoString: 단계 347\nauthor: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 347\ntoString: 단계 348\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 348\ntoString: 단계 349\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 349\ntoString: 단계 350\n",
+   "contentHash": "638f5a744430841218eeabeff4feaa327a92a51a989636dd020b57d59d3bde9b",
+   "tokens": 584,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "00edf7cffd806713",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 29)",
+   "content": "author: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 350\ntoString: 단계 351\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 351\ntoString: 단계 352\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 352\ntoString: 단계 353\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 353\ntoString: 단계 354\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 354\ntoString: 단계 355\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 355\ntoString: 단계 356\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 356\ntoString: 단계 357\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 357\ntoString: 단계 358\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 358\ntoString: 단계 359\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\nitems: field: status\nfromString: 단계 359\ntoString: 단계 360\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 360\ntoString: 단계 361\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 361\ntoString: 단계 362\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\n",
+   "contentHash": "00c73c2d14a0898f3db207c0330655f0c1710b60bd02d7294f5d45200b7cb63c",
+   "tokens": 591,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "c4e9bc14da798bb5",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 30)",
+   "content": "items: field: status\nfromString: 단계 362\ntoString: 단계 363\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 363\ntoString: 단계 364\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 364\ntoString: 단계 365\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 365\ntoString: 단계 366\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 366\ntoString: 단계 367\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 367\ntoString: 단계 368\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 368\ntoString: 단계 369\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 369\ntoString: 단계 370\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 370\ntoString: 단계 371\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 371\ntoString: 단계 372\nauthor: 배치 담당\ncreated: 2026-09-09T09:00:00.000+0900\nitems: field: status\nfromString: 단계 372\ntoString: 단계 373\nauthor: 배치 담당\ncreated: 2026-09-10T09:00:00.000+0900\nitems: field: status\nfromString: 단계 373\ntoString: 단계 374\nauthor: 배치 담당\ncreated: 2026-09-11T09:00:00.000+0900\nitems: field: status\nfromString: 단계 374\ntoString: 단계 375\n",
+   "contentHash": "61cc79c66d2cc9e7c7f78d3b76056ba0601ea1d383ea44762d8c106cd960202b",
+   "tokens": 584,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "7dcd6c02fde4755c",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 31)",
+   "content": "author: 배치 담당\ncreated: 2026-09-12T09:00:00.000+0900\nitems: field: status\nfromString: 단계 375\ntoString: 단계 376\nauthor: 배치 담당\ncreated: 2026-09-13T09:00:00.000+0900\nitems: field: status\nfromString: 단계 376\ntoString: 단계 377\nauthor: 배치 담당\ncreated: 2026-09-14T09:00:00.000+0900\nitems: field: status\nfromString: 단계 377\ntoString: 단계 378\nauthor: 배치 담당\ncreated: 2026-09-15T09:00:00.000+0900\nitems: field: status\nfromString: 단계 378\ntoString: 단계 379\nauthor: 배치 담당\ncreated: 2026-09-16T09:00:00.000+0900\nitems: field: status\nfromString: 단계 379\ntoString: 단계 380\nauthor: 배치 담당\ncreated: 2026-09-17T09:00:00.000+0900\nitems: field: status\nfromString: 단계 380\ntoString: 단계 381\nauthor: 배치 담당\ncreated: 2026-09-18T09:00:00.000+0900\nitems: field: status\nfromString: 단계 381\ntoString: 단계 382\nauthor: 배치 담당\ncreated: 2026-09-19T09:00:00.000+0900\nitems: field: status\nfromString: 단계 382\ntoString: 단계 383\nauthor: 배치 담당\ncreated: 2026-09-20T09:00:00.000+0900\nitems: field: status\nfromString: 단계 383\ntoString: 단계 384\nauthor: 배치 담당\ncreated: 2026-09-21T09:00:00.000+0900\nitems: field: status\nfromString: 단계 384\ntoString: 단계 385\nauthor: 배치 담당\ncreated: 2026-09-22T09:00:00.000+0900\nitems: field: status\nfromString: 단계 385\ntoString: 단계 386\nauthor: 배치 담당\ncreated: 2026-09-23T09:00:00.000+0900\nitems: field: status\nfromString: 단계 386\ntoString: 단계 387\nauthor: 배치 담당\ncreated: 2026-09-24T09:00:00.000+0900\n",
+   "contentHash": "4f1fa1ba090b75149c61c5c9c283aad806934a17b84f3f299b88988a59ff96b7",
+   "tokens": 591,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "b4ec7a28371a872a",
+   "partition": "/knowledge",
+   "title": "OPS-2: 결제 대사 배치 개편(긴 변경 이력) > 변경 이력 (part 32)",
+   "content": "items: field: status\nfromString: 단계 387\ntoString: 단계 388\nauthor: 배치 담당\ncreated: 2026-09-25T09:00:00.000+0900\nitems: field: status\nfromString: 단계 388\ntoString: 단계 389\nauthor: 배치 담당\ncreated: 2026-09-26T09:00:00.000+0900\nitems: field: status\nfromString: 단계 389\ntoString: 단계 390\nauthor: 배치 담당\ncreated: 2026-09-27T09:00:00.000+0900\nitems: field: status\nfromString: 단계 390\ntoString: 단계 391\nauthor: 배치 담당\ncreated: 2026-09-28T09:00:00.000+0900\nitems: field: status\nfromString: 단계 391\ntoString: 단계 392\nauthor: 배치 담당\ncreated: 2026-09-01T09:00:00.000+0900\nitems: field: status\nfromString: 단계 392\ntoString: 단계 393\nauthor: 배치 담당\ncreated: 2026-09-02T09:00:00.000+0900\nitems: field: status\nfromString: 단계 393\ntoString: 단계 394\nauthor: 배치 담당\ncreated: 2026-09-03T09:00:00.000+0900\nitems: field: status\nfromString: 단계 394\ntoString: 단계 395\nauthor: 배치 담당\ncreated: 2026-09-04T09:00:00.000+0900\nitems: field: status\nfromString: 단계 395\ntoString: 단계 396\nauthor: 배치 담당\ncreated: 2026-09-05T09:00:00.000+0900\nitems: field: status\nfromString: 단계 396\ntoString: 단계 397\nauthor: 배치 담당\ncreated: 2026-09-06T09:00:00.000+0900\nitems: field: status\nfromString: 단계 397\ntoString: 단계 398\nauthor: 배치 담당\ncreated: 2026-09-07T09:00:00.000+0900\nitems: field: status\nfromString: 단계 398\ntoString: 단계 399\nauthor: 배치 담당\ncreated: 2026-09-08T09:00:00.000+0900\nitems: field: status\nfromString: 단계 399\ntoString: 단계 400",
+   "contentHash": "051768cd64a75524a95ae3f53305132a7034037d433254658a6932751c971b5b",
+   "tokens": 583,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "issue:40011",
+    "uri": "https://synthetic.atlassian.net/browse/OPS-2",
+    "capturedAt": "2026-10-02T09:00:00.000+0900"
+   },
+   "importance": 8,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "f94db0f5dfe3fd7d",
+   "partition": "/knowledge",
+   "title": "결제 플랫폼",
+   "content": "# 결제 플랫폼\n\nid: 10000\n\nkey: PAY\n\nname: 결제 플랫폼\n\ndescription: 결제·정산 시스템\n\nprojectTypeKey: software\n\nself: https://synthetic.atlassian.net/rest/api/3/project/10000",
+   "contentHash": "1c3a9a2fa31e5392e194eebf656dd78052fe8b0c496f0eb9a39fc2fa0bce724a",
+   "tokens": 54,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "project:10000",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "514ee4da7b2e41d6",
+   "partition": "/knowledge",
+   "title": "운영",
+   "content": "# 운영\n\nid: 10001\n\nkey: OPS\n\nname: 운영\n\nprojectTypeKey: business",
+   "contentHash": "9b4d41f1468dbb1e71d3167ac0d5da3bca98f3db7c8bd0c6e59c4c822b32564b",
+   "tokens": 22,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "project:10001",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "4f65aca7794519e3",
+   "partition": "/knowledge",
+   "title": "Sprint 8",
+   "content": "# Sprint 8\n\nid: 301\n\nname: Sprint 8\n\nstate: active\n\ngoal: 장애 재발 방지",
+   "contentHash": "dfb29196eb6c038b8ee6e689e4ae4b168956154b3d0ac0015919d52cc3aeb2db",
+   "tokens": 27,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "sprint:301",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "317e33442166386e",
+   "partition": "/knowledge",
+   "title": "OPS 주간",
+   "content": "# OPS 주간\n\nid: 302\n\nname: OPS 주간\n\nstate: closed",
+   "contentHash": "006e1b4f14679ea97cd57a4f19bf7540571f00f0befa8cfbf479b10906b2ceb6",
+   "tokens": 19,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "sprint:302",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 5,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  },
+  {
+   "id": "2272599dc139e8bf",
+   "partition": "/knowledge",
+   "title": "v1.0",
+   "content": "# v1.0\n\nid: 30000\n\nname: v1.0\n\nreleased: true\n\nreleaseDate: 2026-09-30",
+   "contentHash": "af6ad614c3a9528bd328789a1efc73648080cc98a36e983e05f7428cecdf8736",
+   "tokens": 33,
+   "tier": "raw",
+   "provenance": {
+    "sourceId": "jira-synthetic",
+    "documentId": "version:30000",
+    "uri": "https://synthetic.atlassian.net",
+    "capturedAt": "2026-10-15T00:00:00.000Z"
+   },
+   "importance": 7,
+   "links": [],
+   "tags": [],
+   "stats": {
+    "retrievalCount": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,613 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-jira-fixture.ts",
+ "now": "2026-10-15T00:00:00.000Z",
+ "configCases": [
+  {
+   "label": "최소 설정",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test"
+   },
+   "accepted": true,
+   "message": null,
+   "origin": "https://synthetic.atlassian.net"
+  },
+  {
+   "label": "첨부 끔",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test",
+    "downloadAttachments": false
+   },
+   "accepted": true,
+   "message": null,
+   "origin": "https://synthetic.atlassian.net"
+  },
+  {
+   "label": "끝 슬래시",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net/",
+    "email": "fixture@example.test"
+   },
+   "accepted": true,
+   "message": null,
+   "origin": "https://synthetic.atlassian.net"
+  },
+  {
+   "label": "대문자 호스트",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://Synthetic.Atlassian.NET",
+    "email": "fixture@example.test"
+   },
+   "accepted": true,
+   "message": null,
+   "origin": "https://synthetic.atlassian.net"
+  },
+  {
+   "label": "기본 포트 443",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net:443",
+    "email": "fixture@example.test"
+   },
+   "accepted": true,
+   "message": null,
+   "origin": "https://synthetic.atlassian.net"
+  },
+  {
+   "label": "cloudId",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test",
+    "cloudId": "0a1b2c3d-0000-4000-8000-00000000c10d"
+   },
+   "accepted": true,
+   "message": null,
+   "origin": "https://synthetic.atlassian.net"
+  },
+  {
+   "label": "다른 호스트",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://attacker.example",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "http",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "http://synthetic.atlassian.net",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "다른 포트",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net:8443",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "사용자 정보",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://user:pw@synthetic.atlassian.net",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "쿼리",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net/?a=1",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "프래그먼트",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net/#x",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "경로",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net/jira",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "하위 도메인 둘",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://a.b.atlassian.net",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Jira siteUrl must be an Atlassian Cloud site origin",
+   "origin": null
+  },
+  {
+   "label": "URL 아님",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "not a url",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid URL",
+   "origin": null
+  },
+  {
+   "label": "siteUrl 없음",
+   "schemaVersion": 1,
+   "value": {
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Jira source configuration",
+   "origin": null
+  },
+  {
+   "label": "email에 @ 없음",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture.example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Jira source configuration",
+   "origin": null
+  },
+  {
+   "label": "email에 콜론",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "a:b@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Jira source configuration",
+   "origin": null
+  },
+  {
+   "label": "email에 줄바꿈",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "a@example.test\n"
+   },
+   "accepted": false,
+   "message": "Invalid Jira source configuration",
+   "origin": null
+  },
+  {
+   "label": "email 숫자",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": 7
+   },
+   "accepted": false,
+   "message": "Invalid Jira source configuration",
+   "origin": null
+  },
+  {
+   "label": "cloudId 형식",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test",
+    "cloudId": "0A1B2C3D-0000-4000-8000-00000000C10D"
+   },
+   "accepted": false,
+   "message": "Invalid Jira cloudId",
+   "origin": null
+  },
+  {
+   "label": "cloudId 숫자",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test",
+    "cloudId": 7
+   },
+   "accepted": false,
+   "message": "Invalid Jira cloudId",
+   "origin": null
+  },
+  {
+   "label": "첨부 설정 문자열",
+   "schemaVersion": 1,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test",
+    "downloadAttachments": "yes"
+   },
+   "accepted": false,
+   "message": "Invalid Jira attachment setting",
+   "origin": null
+  },
+  {
+   "label": "스키마 2",
+   "schemaVersion": 2,
+   "value": {
+    "siteUrl": "https://synthetic.atlassian.net",
+    "email": "fixture@example.test"
+   },
+   "accepted": false,
+   "message": "Invalid Jira source configuration",
+   "origin": null
+  },
+  {
+   "label": "값이 배열",
+   "schemaVersion": 1,
+   "value": [],
+   "accepted": false,
+   "message": "Invalid Jira object",
+   "origin": null
+  }
+ ],
+ "authorization": "Basic Zml4dHVyZUBleGFtcGxlLnRlc3Q6amlyYS1zeW50aGV0aWMtdG9rZW4=",
+ "statusCases": [
+  {
+   "status": 400,
+   "retryAfter": null,
+   "failure": {
+    "kind": "invalid_provider_response",
+    "retryable": false,
+    "message": "Jira request failed (HTTP 400)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 401,
+   "retryAfter": null,
+   "failure": {
+    "kind": "authentication_failed",
+    "retryable": false,
+    "message": "Jira request failed (HTTP 401)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 403,
+   "retryAfter": null,
+   "failure": {
+    "kind": "permission_denied",
+    "retryable": false,
+    "message": "Jira request failed (HTTP 403)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 404,
+   "retryAfter": null,
+   "failure": {
+    "kind": "permission_denied",
+    "retryable": false,
+    "message": "Jira request failed (HTTP 404)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 409,
+   "retryAfter": null,
+   "failure": {
+    "kind": "invalid_provider_response",
+    "retryable": false,
+    "message": "Jira request failed (HTTP 409)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": null,
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "12",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 12000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "0",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 0
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 0
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": " 5 ",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 5000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "1.5",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 1500
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "-3",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 0
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "Thu, 15 Oct 2026 00:00:30 GMT",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "Wed, 14 Oct 2026 23:59:00 GMT",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 0
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "Thursday, 15-Oct-26 00:00:30 GMT",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "Thu Oct 15 00:00:30 2026",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "15 Oct 2026 00:00:30 GMT",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "Thu, 15 Oct 2026 00:00:30 +0000",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "Thu, 15 Oct 2026 00:00:30 UTC",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "2026-10-15T00:00:30Z",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "2026-10-15T00:00:30.500+00:00",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30500
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "2026-10-15T09:00:30+09:00",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "2026-10-15T00:00:30",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 30000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "2026-10-16",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": 86400000
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "2026-13-40",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 429,
+   "retryAfter": "not a date",
+   "failure": {
+    "kind": "rate_limited",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 429)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 500,
+   "retryAfter": null,
+   "failure": {
+    "kind": "dependency_unavailable",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 500)",
+    "retryAfterMs": null
+   }
+  },
+  {
+   "status": 503,
+   "retryAfter": "7",
+   "failure": {
+    "kind": "dependency_unavailable",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 503)",
+    "retryAfterMs": null
+   }
+  }
+ ],
+ "invalidBodyCases": [
+  {
+   "name": "JSON이 아닌 본문",
+   "status": 200,
+   "body": "not json",
+   "failure": {
+    "kind": "dependency_unavailable",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 502)"
+   }
+  },
+  {
+   "name": "빈 본문",
+   "status": 200,
+   "body": "",
+   "failure": {
+    "kind": "dependency_unavailable",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 502)"
+   }
+  },
+  {
+   "name": "공백뿐인 본문",
+   "status": 200,
+   "body": " \n",
+   "failure": {
+    "kind": "dependency_unavailable",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 502)"
+   }
+  },
+  {
+   "name": "204 본문 없음",
+   "status": 204,
+   "body": "",
+   "failure": {
+    "kind": "dependency_unavailable",
+    "retryable": true,
+    "message": "Jira request failed (HTTP 502)"
+   }
+  }
+ ],
+ "transportFailure": {
+  "kind": "dependency_unavailable",
+  "retryable": true,
+  "message": "Jira transport failed"
+ }
+}

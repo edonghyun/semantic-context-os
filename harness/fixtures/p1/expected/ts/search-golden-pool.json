@@ -1,0 +1,6 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\": [\n    {\n      \"title\": \"인덱스 튜닝\",\n      \"excerpt\": \"주문 테이블의 조회 지연을 인덱스 튜닝으로 개선했다. 복합 인덱스를 추가해 풀스캔을 제거했다.\",\n      \"source\": \"unknown\",\n      \"documentId\": \"db-index-tuning.md\",\n      \"capturedAt\": \"2026-10-11T00:00:00.000Z\",\n      \"score\": 0.016\n    },\n    {\n      \"title\": \"3월 결제 장애 기록\",\n      \"excerpt\": \"3월 결제 장애의 원인은 커넥션 풀 고갈로 인한 타임아웃이었다. 풀 크기를 20으로 늘리고 알림 임계값을 낮춰 재발을 방지했다. 사후 분석 문서는 온콜 채널에 공유됐다.\",\n      \"source\": \"unknown\",\n      \"documentId\": \"incident-2026-03.md\",\n      \"capturedAt\": \"2026-10-10T12:00:00.000Z\",\n      \"score\": 0.016\n    }\n  ],\n  \"freshness\": {\n    \"latestCapturedAt\": \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\": 1,\n    \"stale\": false\n  }\n}"
+  } ]
+}

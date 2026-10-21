@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\" : [ {\n    \"title\" : \"백업 정책\",\n    \"excerpt\" : \"백업 주기를 반드시 준수해야 하며 스냅샷은 30일간 보관한다. 복구 리허설은 분기마다 수행한다.\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"backup-policy.md\",\n    \"capturedAt\" : \"2026-10-11T18:00:00.000Z\",\n    \"score\" : 0.016\n  } ],\n  \"freshness\" : {\n    \"latestCapturedAt\" : \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\" : 1.0,\n    \"stale\" : false\n  }\n}"
+  } ],
+  "isError" : false
+}

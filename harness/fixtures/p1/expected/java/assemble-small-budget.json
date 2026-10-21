@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"units\" : [ {\n    \"title\" : \"연결 항목 1\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-linked\",\n    \"content\" : \"허브에서 연결된 항목 1 — 정산 배치 일정\"\n  }, {\n    \"title\" : \"연결 항목 2\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-linked\",\n    \"content\" : \"허브에서 연결된 항목 2 — 정산 배치 일정\"\n  }, {\n    \"title\" : \"과금 규정\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"billing-rules.md\",\n    \"content\" : \"과금 내역은 매월 정산서와 대조해야 한다. 불일치가 발견되면 3영업일 안에 정정 처리한다.\"\n  }, {\n    \"title\" : \"결제 모듈 마이그레이션\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"payments-migration.md\",\n    \"content\" : \"결제 모듈 마이그레이션은 검토 끝에 Y 방식으로 확정했다. 전환 일정은 2분기이며 롤백 계획을 함께 준비한다.\\n과거 장애 이력은 [장애 기록](incident-2026-03.md)을 참조한다.\"\n  }, {\n    \"title\" : \"정산 배치\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"settlement-batch.md\",\n    \"content\" : \"정산 배치는 매일 자정에 실행되고 실패 시 재시도는 3회까지 허용된다. 재시도가 모두 실패하면 온콜에게 페이지가 간다.\"\n  }, {\n    \"title\" : \"링크 원본 문서\",\n    \"source\" : \"slack\",\n    \"documentId\" : \"fx-hub\",\n    \"content\" : \"정산 배치와 결제 오류 대응을 연결하는 허브 문서\"\n  } ],\n  \"tokensUsed\" : 100,\n  \"truncated\" : false,\n  \"freshness\" : {\n    \"latestCapturedAt\" : \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\" : 1.0,\n    \"stale\" : false\n  }\n}"
+  } ],
+  "isError" : false
+}

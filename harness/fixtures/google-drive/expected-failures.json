@@ -1,0 +1,173 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-google-drive-fixture.ts",
+ "runs": [
+  {
+   "label": "변경 피드 503이 계속되면",
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 503,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"error\":{\"code\":503,\"message\":\"private provider detail\",\"errors\":[{\"reason\":\"backendError\",\"message\":\"private provider detail\"}]}}"
+     }
+    }
+   ],
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "google-drive-synthetic",
+    "status": "failed",
+    "pagesApplied": 0,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "errorKind": "dependency_unavailable",
+   "errorSummary": "Google API request failed (HTTP 503)",
+   "waits": [
+    2000,
+    4000,
+    8000,
+    16000
+   ],
+   "requestCount": 8
+  },
+  {
+   "label": "변경 피드 403 rateLimitExceeded(Retry-After 300)가 계속되면",
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/changes",
+     "reply": {
+      "status": 403,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8",
+       "retry-after": "300"
+      },
+      "text": "{\"error\":{\"code\":403,\"message\":\"private provider detail\",\"errors\":[{\"reason\":\"rateLimitExceeded\",\"message\":\"private provider detail\"}]}}"
+     }
+    }
+   ],
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "google-drive-synthetic",
+    "status": "failed",
+    "pagesApplied": 0,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "errorKind": "rate_limited",
+   "errorSummary": "Google API request failed (HTTP 403, rate_limited)",
+   "waits": [
+    300000,
+    300000,
+    300000,
+    300000
+   ],
+   "requestCount": 8
+  },
+  {
+   "label": "토큰 갱신이 invalid_grant로 거절되면",
+   "overrides": [
+    {
+     "origin": "https://oauth2.googleapis.com",
+     "path": "/token",
+     "reply": {
+      "status": 400,
+      "text": "{\"error\":\"invalid_grant\"}"
+     }
+    }
+   ],
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "google-drive-synthetic",
+    "status": "failed",
+    "pagesApplied": 0,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "errorKind": "authentication_failed",
+   "errorSummary": "Google API request failed (HTTP 401)",
+   "waits": [],
+   "requestCount": 1
+  },
+  {
+   "label": "OAuth 계정이 설정과 다르면",
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/about",
+     "reply": {
+      "status": 200,
+      "headers": {
+       "content-type": "application/json; charset=UTF-8"
+      },
+      "text": "{\"user\":{\"emailAddress\":\"other@example.test\",\"permissionId\":\"other\"}}"
+     }
+    }
+   ],
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "google-drive-synthetic",
+    "status": "failed",
+    "pagesApplied": 0,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+   },
+   "errorKind": "Error",
+   "errorSummary": "Google OAuth account does not match the configured Drive account",
+   "waits": [],
+   "requestCount": 2
+  },
+  {
+   "label": "원본 다운로드 크기가 계속 메타데이터와 다르면",
+   "overrides": [
+    {
+     "origin": "https://www.googleapis.com",
+     "path": "/drive/v3/files/pdf-1",
+     "media": true,
+     "reply": {
+      "status": 200,
+      "text": "short"
+     }
+    }
+   ],
+   "report": {
+    "runId": "run-1",
+    "sourceInstanceId": "google-drive-synthetic",
+    "status": "partially_succeeded",
+    "pagesApplied": 11,
+    "upserted": 7,
+    "deleted": 2,
+    "unchanged": 0,
+    "rejected": 2,
+    "errorCount": 1
+   },
+   "errorKind": "dependency_unavailable",
+   "errorSummary": "Google API request failed (HTTP 502, incomplete_download)",
+   "waits": [
+    1000,
+    2000,
+    4000,
+    8000,
+    16000
+   ],
+   "requestCount": 38
+  }
+ ]
+}

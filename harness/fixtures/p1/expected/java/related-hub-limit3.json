@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"related\" : [ {\n    \"documentId\" : \"fx-linked\",\n    \"title\" : \"연결 항목 1\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.033,\n    \"via\" : \"both\"\n  }, {\n    \"documentId\" : \"settlement-batch.md\",\n    \"title\" : \"정산 배치\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.033,\n    \"via\" : \"both\"\n  }, {\n    \"documentId\" : \"fx-long\",\n    \"title\" : \"긴 문서 단락 1\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  } ]\n}"
+  } ],
+  "isError" : false
+}

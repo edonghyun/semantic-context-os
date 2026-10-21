@@ -1,0 +1,1333 @@
+{
+ "version": 1,
+ "generatedBy": "harness/ts/make-google-drive-fixture.ts",
+ "cases": [
+  {
+   "label": "본문이 객체가 아니면 건너뛴다",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:a"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:a",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": []
+     }
+    }
+   ],
+   "documents": [
+    {
+     "documentId": "file:a",
+     "skipped": true
+    }
+   ]
+  },
+  {
+   "label": "file에 id가 없으면 건너뛴다",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:a"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "e0244d7fbf9319a6f8a5e235e8bf25fe7efb9cbd76a7ff5814b2c0f1005b7ea5",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:a",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "name": "이름만"
+       },
+       "extraction": "metadata_only",
+       "limitations": []
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "documentId": "file:a",
+     "skipped": true
+    }
+   ]
+  },
+  {
+   "label": "이름·url·시각이 없으면 문서 id·gdrive 주소·관찰 시각",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:a"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "4b8fe9f7059743d374baa554ed2512af350fc1318b3454bea172990e62a48759",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {},
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "a"
+       },
+       "extraction": "metadata_only",
+       "limitations": []
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:a",
+     "title": "file:a",
+     "body": "# file:a",
+     "uri": "gdrive://google-drive-synthetic/file:a",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "metadata_only",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "설명·형식·부모·바로가기 줄",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:b"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "80ed464e5f516b382a4d97811ec8b1e8bd09ea2b17a18866a17f4c33ecd7190e",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "sourceCreatedAt": "2026-10-01T00:00:00.000Z",
+     "sourceUpdatedAt": "2026-10-02T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:b",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "b",
+        "name": "바로가기",
+        "description": 7,
+        "mimeType": "application/vnd.google-apps.shortcut",
+        "parents": [
+         "p1",
+         null,
+         3
+        ],
+        "shortcutDetails": {
+         "targetId": "a b/c"
+        }
+       },
+       "extraction": "metadata_only",
+       "limitations": []
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:b",
+     "title": "바로가기",
+     "body": "# 바로가기\n\n파일 형식: application/vnd.google-apps.shortcut\n\n상위 폴더 ID: p1, , 3\n\n바로가기 대상: https://drive.google.com/file/d/a%20b%2Fc",
+     "uri": "https://drive.google.com/file/d/file:b",
+     "createdAt": "2026-10-01T00:00:00.000Z",
+     "updatedAt": "2026-10-02T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "application/vnd.google-apps.shortcut",
+      "extraction": "metadata_only",
+      "limitations": [],
+      "createdAtBasis": "provider",
+      "updatedAtBasis": "provider"
+     }
+    }
+   ]
+  },
+  {
+   "label": "공유 드라이브 원본",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "drive:d1"
+     },
+     "resourceType": "gdrive.drive",
+     "sourceVersion": "835a09655ef29cd4f49fb974e1c077587b3790cf00b6fe190a9c36c910f96287",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/drive/folders/d1"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "id": "d1",
+       "name": "팀 드라이브"
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "drive:d1",
+     "title": "팀 드라이브",
+     "body": "# 팀 드라이브",
+     "uri": "https://drive.google.com/drive/folders/d1",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.drive",
+      "mimeType": "shared_drive",
+      "extraction": "metadata_only",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "탭 없는 Docs의 머리말 순서·링크·trim·리치 링크·사람·표·목차",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:c"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "c5e01eab406e0064922e9eee94cdf776c202c60ed74a3b686d274a55ba4b3cd3",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:c",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "c",
+        "name": "문서",
+        "mimeType": "application/vnd.google-apps.document"
+       },
+       "extraction": "google_docs",
+       "limitations": [],
+       "workspace": {
+        "body": {
+         "content": [
+          {
+           "paragraph": {
+            "elements": [
+             {
+              "textRun": {
+               "content": "링크  \n",
+               "textStyle": {
+                "link": {
+                 "url": "https://example.test/l"
+                }
+               }
+              }
+             },
+             {
+              "textRun": {
+               "content": "끝"
+              }
+             }
+            ]
+           }
+          },
+          {
+           "paragraph": {
+            "elements": [
+             {
+              "textRun": {
+               "content": "줄바꿈 없는 링크",
+               "textStyle": {
+                "link": {
+                 "url": "https://example.test/m"
+                }
+               }
+              }
+             }
+            ]
+           }
+          },
+          {
+           "paragraph": {
+            "elements": [
+             {
+              "richLink": {
+               "richLinkProperties": {
+                "title": "제목만"
+               }
+              }
+             },
+             {
+              "person": {
+               "personProperties": {
+                "name": "사람"
+               }
+              }
+             },
+             {
+              "other": {}
+             },
+             {
+              "textRun": {
+               "content": "\n"
+              }
+             }
+            ]
+           }
+          },
+          {
+           "paragraph": {
+            "bullet": {},
+            "elements": [
+             {
+              "textRun": {
+               "content": "항목\n"
+              }
+             }
+            ]
+           }
+          },
+          {
+           "table": {
+            "tableRows": [
+             {
+              "tableCells": [
+               {
+                "content": [
+                 {
+                  "paragraph": {
+                   "elements": [
+                    {
+                     "textRun": {
+                      "content": "  a  \n"
+                     }
+                    }
+                   ]
+                  }
+                 }
+                ]
+               },
+               {
+                "content": []
+               },
+               {}
+              ]
+             },
+             {}
+            ]
+           }
+          },
+          {
+           "tableOfContents": {
+            "content": [
+             {
+              "paragraph": {
+               "elements": [
+                {
+                 "textRun": {
+                  "content": "목차\n"
+                 }
+                }
+               ]
+              }
+             }
+            ]
+           }
+          },
+          {
+           "sectionBreak": {}
+          },
+          "문자열 요소"
+         ]
+        },
+        "headers": {
+         "2": {
+          "content": [
+           {
+            "paragraph": {
+             "elements": [
+              {
+               "textRun": {
+                "content": "머리말 2\n"
+               }
+              }
+             ]
+            }
+           }
+          ]
+         },
+         "10": {
+          "content": [
+           {
+            "paragraph": {
+             "elements": [
+              {
+               "textRun": {
+                "content": "머리말 10\n"
+               }
+              }
+             ]
+            }
+           }
+          ]
+         },
+         "b": {
+          "content": [
+           {
+            "paragraph": {
+             "elements": [
+              {
+               "textRun": {
+                "content": "머리말 b\n"
+               }
+              }
+             ]
+            }
+           }
+          ]
+         }
+        },
+        "footers": {
+         "f": {
+          "content": []
+         },
+         "g": "꼬리말 아님"
+        },
+        "footnotes": "각주 아님"
+       }
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:c",
+     "title": "문서",
+     "body": "# 문서\n\n파일 형식: application/vnd.google-apps.document\n\n[링크](https://example.test/l)\n끝[줄바꿈 없는 링크](https://example.test/m)사람\n- 항목\na |  | \n\n목차\n\n\n### 머리말\n머리말 2\n\n머리말 10\n\n머리말 b\n",
+     "uri": "https://drive.google.com/file/d/file:c",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "application/vnd.google-apps.document",
+      "extraction": "google_docs",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "빈 탭 배열이면 최상위 본문, 탭 제목·하위 탭",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:d"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "95deccf0a1794e5804e99dc75e611968314f6f39de9a0a77a195e17efa0fd861",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:d",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "d",
+        "name": "빈 탭"
+       },
+       "extraction": "google_docs",
+       "limitations": [],
+       "workspace": {
+        "tabs": [],
+        "body": {
+         "content": [
+          {
+           "paragraph": {
+            "elements": [
+             {
+              "textRun": {
+               "content": "최상위\n"
+              }
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:e"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "1e0664c7a39a9bc0b9bff9a36a29cd05795a6b3aaacac55f8de3b0efa8596b1a",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:e",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "e",
+        "name": "중첩 탭"
+       },
+       "extraction": "google_docs",
+       "limitations": [],
+       "workspace": {
+        "tabs": [
+         {
+          "tabProperties": {},
+          "documentTab": {},
+          "childTabs": [
+           {
+            "tabProperties": {
+             "title": "하위"
+            },
+            "documentTab": {
+             "body": {
+              "content": [
+               {
+                "paragraph": {
+                 "elements": [
+                  {
+                   "textRun": {
+                    "content": "하위 본문\n"
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "childTabs": [
+             {}
+            ]
+           }
+          ]
+         },
+         "탭 아님"
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:d",
+     "title": "빈 탭",
+     "body": "# 빈 탭\n\n최상위\n",
+     "uri": "https://drive.google.com/file/d/file:d",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "google_docs",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    },
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:e",
+     "title": "중첩 탭",
+     "body": "# 중첩 탭\n\n## \n\n## 하위\n\n하위 본문\n\n\n## \n\n## ",
+     "uri": "https://drive.google.com/file/d/file:e",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "google_docs",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "시트 범위: 버전 불일치·빠진 범위·수 키·Number 행·열 이름",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:s"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "9a9378d6cfd2fdd7e8340e64c6067ed141711a14880085e578360c6e2353a905",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:s",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "s",
+        "name": "시트",
+        "version": "3",
+        "mimeType": "application/vnd.google-apps.spreadsheet"
+       },
+       "extraction": "google_sheets",
+       "limitations": [],
+       "workspace": {
+        "sheets": [
+         {
+          "properties": {
+           "title": "첫 시트"
+          }
+         },
+         {
+          "properties": {}
+         },
+         "시트 아님"
+        ]
+       },
+       "sheetRangeKeys": [
+        "sheet:s:k1",
+        "sheet:s:k2",
+        "sheet:s:k3",
+        5,
+        "sheet:s:k4"
+       ]
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "sheet:s:k1"
+     },
+     "resourceType": "gdrive.sheet",
+     "sourceVersion": "909d04e29929cb70ee8ec8f7165e9246c2679955662e5c6b00a6cf0978210c1b",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "fileId": "s"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "version": "3",
+       "fileId": "s",
+       "workspace": {
+        "sheets": [
+         {
+          "properties": {
+           "title": "첫 시트"
+          },
+          "data": [
+           {
+            "startRow": "5",
+            "startColumn": 24,
+            "rowData": [
+             {
+              "values": [
+               {
+                "note": "메모만"
+               },
+               {
+                "userEnteredValue": {
+                 "formulaValue": "=A1"
+                }
+               },
+               {
+                "hyperlink": "https://example.test/h"
+               },
+               {},
+               {
+                "formattedValue": "모두",
+                "userEnteredValue": {
+                 "formulaValue": "=B2"
+                },
+                "note": "n",
+                "hyperlink": "https://example.test/x"
+               }
+              ]
+             },
+             {
+              "values": []
+             },
+             "행 아님",
+             {
+              "values": [
+               {
+                "formattedValue": 3
+               },
+               {
+                "formattedValue": ""
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "sheet:s:k2"
+     },
+     "resourceType": "gdrive.sheet",
+     "sourceVersion": "b345df96419cf25b9b4464fd2ecc2ae6afb5b00821831fcc9697f43d1231d9aa",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "fileId": "s"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "version": "2",
+       "fileId": "s",
+       "workspace": {
+        "sheets": [
+         {
+          "properties": {
+           "title": "옛 버전"
+          }
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "sheet:s:k4"
+     },
+     "resourceType": "gdrive.sheet",
+     "sourceVersion": "b4115a288a3e2d36584ad53c09001bc7949946d413e11e448b9b4d378b151742",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "fileId": "s"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "version": "3",
+       "fileId": "s",
+       "workspace": {
+        "sheets": [
+         {
+          "properties": {
+           "title": "숫자 아닌 행"
+          },
+          "data": [
+           {
+            "startRow": "x",
+            "rowData": [
+             {
+              "values": [
+               {
+                "formattedValue": "v"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "startColumn": -1,
+            "startRow": null,
+            "rowData": [
+             {
+              "values": [
+               {
+                "formattedValue": "w"
+               },
+               {
+                "formattedValue": "u"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "sheet:gone:k"
+     },
+     "resourceType": "gdrive.sheet",
+     "sourceVersion": "d4f97a201d8656b4ae11c3149f06d4df0c73121895b0111ec8eac4d5d198a512",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "fileId": "gone"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "version": "1",
+       "fileId": "gone",
+       "workspace": {}
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "binary:s"
+     },
+     "resourceType": "gdrive.binary",
+     "sourceVersion": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "fileId": "s"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {}
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:s",
+     "title": "시트",
+     "body": "# 시트\n\n파일 형식: application/vnd.google-apps.spreadsheet\n\n## 첫 시트\n\n## \n\n## \n\n## 첫 시트\nY6:  (메모: 메모만) | Z6:  (수식: =A1) | AA6:  (https://example.test/h) | AC6: 모두 (수식: =B2) (메모: n) (https://example.test/x)\n\n## 숫자 아닌 행\nANaN: v\n1: w | A1: u\n\n## 수집 제한\n시트 범위 3개 미수집 또는 버전 불일치",
+     "uri": "https://drive.google.com/file/d/file:s",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "application/vnd.google-apps.spreadsheet",
+      "extraction": "google_sheets",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "시트 범위 키가 배열이 아니면 메타데이터만",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:t"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "4a63f4d6e131c4557447babd5a3e73b6ad7b5703abe28521f6acee7936a321e2",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:t",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "t",
+        "name": "시트"
+       },
+       "extraction": "google_sheets",
+       "limitations": [],
+       "workspace": {
+        "sheets": [
+         {
+          "properties": {
+           "title": "탭"
+          }
+         }
+        ]
+       },
+       "sheetRangeKeys": "아님"
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:t",
+     "title": "시트",
+     "body": "# 시트\n\n## 탭",
+     "uri": "https://drive.google.com/file/d/file:t",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "google_sheets",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "Slides: 발표자 노트 id 일치(없음끼리 포함)·그룹·표·제목·설명",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:p"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "87902f0788e1e7d5e95b19e850e50997bfa1a7fe6d5b46664cfba85895e21258",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:p",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "p",
+        "name": "발표"
+       },
+       "extraction": "google_slides",
+       "limitations": [],
+       "workspace": {
+        "slides": [
+         {
+          "pageElements": [
+           {
+            "shape": {
+             "text": {
+              "textElements": [
+               {
+                "textRun": {
+                 "content": "도형"
+                }
+               },
+               {
+                "paragraphMarker": {}
+               }
+              ]
+             }
+            },
+            "title": "제목",
+            "description": "설명"
+           },
+           {
+            "table": {
+             "tableRows": [
+              {
+               "tableCells": [
+                {
+                 "text": {
+                  "textElements": [
+                   {
+                    "textRun": {
+                     "content": " 칸 \n"
+                    }
+                   }
+                  ]
+                 }
+                },
+                {}
+               ]
+              }
+             ]
+            }
+           },
+           {
+            "elementGroup": {
+             "children": [
+              {
+               "elementGroup": {
+                "children": [
+                 {
+                  "shape": {
+                   "text": {
+                    "textElements": [
+                     {
+                      "textRun": {
+                       "content": "깊은 도형"
+                      }
+                     }
+                    ]
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             ]
+            }
+           },
+           {}
+          ],
+          "slideProperties": {
+           "notesPage": {
+            "notesProperties": {},
+            "pageElements": [
+             {
+              "shape": {
+               "text": {
+                "textElements": [
+                 {
+                  "textRun": {
+                   "content": "id 없는 노트"
+                  }
+                 }
+                ]
+               }
+              }
+             },
+             {
+              "objectId": "x",
+              "shape": {
+               "text": {
+                "textElements": [
+                 {
+                  "textRun": {
+                   "content": "다른 노트"
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         {},
+         {
+          "slideProperties": {
+           "notesPage": {
+            "notesProperties": {
+             "speakerNotesObjectId": 7
+            },
+            "pageElements": [
+             {
+              "objectId": 7,
+              "shape": {
+               "text": {
+                "textElements": [
+                 {
+                  "textRun": {
+                   "content": "수 id 노트"
+                  }
+                 }
+                ]
+               }
+              }
+             },
+             {
+              "objectId": "7",
+              "shape": {
+               "text": {
+                "textElements": [
+                 {
+                  "textRun": {
+                   "content": "문자 id"
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:p",
+     "title": "발표",
+     "body": "# 발표\n\n## 슬라이드 1\n\n도형\n제목\n설명\n칸 | \n깊은 도형\n\n### 발표자 노트\nid 없는 노트\n\n## 슬라이드 2\n\n## 슬라이드 3\n\n### 발표자 노트\n수 id 노트",
+     "uri": "https://drive.google.com/file/d/file:p",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "google_slides",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  },
+  {
+   "label": "텍스트·댓글·답글·제한",
+   "items": [
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:x"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "3bd8b0e762548b8b90f3bebd109fdf57e0c45f4be466cbddd1f93a5cd6a7b86f",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:x",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "x",
+        "name": "메모"
+       },
+       "extraction": "text",
+       "limitations": [
+        1,
+        null,
+        "content: 제한"
+       ],
+       "text": 42,
+       "comments": [
+        {
+         "content": "작성자 없음"
+        },
+        {
+         "deleted": true,
+         "content": "지움"
+        },
+        {
+         "author": {
+          "displayName": "가"
+         },
+         "content": "본문",
+         "replies": [
+          {
+           "author": {
+            "displayName": "나"
+           },
+           "content": "답"
+          },
+          {
+           "deleted": true,
+           "content": "지운 답"
+          },
+          "답 아님"
+         ]
+        },
+        "댓글 아님"
+       ]
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:y"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "92f2ddb1a08bacbaa4e27720242890a2e82402127a54e5ca0cff78af8f56a073",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:y",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "y",
+        "name": "텍스트"
+       },
+       "extraction": "text",
+       "limitations": [],
+       "text": "본문 텍스트",
+       "comments": "아님"
+      }
+     }
+    },
+    {
+     "key": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "externalId": "file:z"
+     },
+     "resourceType": "gdrive.file",
+     "sourceVersion": "951881ae3401e4b6f4592d1860daa364343916e88c96afe6ac554a091cfe686d",
+     "observedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "url": "https://drive.google.com/file/d/file:z",
+      "accountEmail": "reader@example.test"
+     },
+     "content": {
+      "storage": "inline",
+      "mediaType": "application/json",
+      "value": {
+       "file": {
+        "id": "z",
+        "name": "추출 없음"
+       },
+       "extraction": "metadata_only",
+       "limitations": [],
+       "workspace": {
+        "body": {
+         "content": [
+          {
+           "paragraph": {
+            "elements": [
+             {
+              "textRun": {
+               "content": "보이지 않음"
+              }
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   ],
+   "documents": [
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:x",
+     "title": "메모",
+     "body": "# 메모\n\n## 댓글\n\n: 작성자 없음\n\n가: 본문\n\n  ↳ 나: 답\n\n  ↳ : \n\n: \n\n## 수집 제한\n1\nnull\ncontent: 제한",
+     "uri": "https://drive.google.com/file/d/file:x",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "text",
+      "limitations": [
+       1,
+       null,
+       "content: 제한"
+      ],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    },
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:y",
+     "title": "텍스트",
+     "body": "# 텍스트\n\n본문 텍스트",
+     "uri": "https://drive.google.com/file/d/file:y",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "text",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    },
+    {
+     "sourceId": "google-drive-synthetic",
+     "documentId": "file:z",
+     "title": "추출 없음",
+     "body": "# 추출 없음",
+     "uri": "https://drive.google.com/file/d/file:z",
+     "createdAt": "2026-10-16T00:00:00.000Z",
+     "updatedAt": "2026-10-16T00:00:00.000Z",
+     "metadata": {
+      "sourceInstanceId": "google-drive-synthetic",
+      "resourceType": "gdrive.file",
+      "mimeType": "shared_drive",
+      "extraction": "metadata_only",
+      "limitations": [],
+      "createdAtBasis": "observed",
+      "updatedAtBasis": "observed"
+     }
+    }
+   ]
+  }
+ ]
+}

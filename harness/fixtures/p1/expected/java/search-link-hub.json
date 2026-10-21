@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\" : [ {\n    \"title\" : \"3월 결제 장애 기록\",\n    \"excerpt\" : \"3월 결제 장애의 원인은 커넥션 풀 고갈로 인한 타임아웃이었다. 풀 크기를 20으로 늘리고 알림 임계값을 낮춰 재발을 방지했다. 사후 분석 문서는 온콜 채널에 공유됐다.\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"incident-2026-03.md\",\n    \"capturedAt\" : \"2026-10-10T12:00:00.000Z\",\n    \"score\" : 0.016\n  }, {\n    \"title\" : \"연결 항목 2\",\n    \"excerpt\" : \"허브에서 연결된 항목 2 — 정산 배치 일정\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-linked\",\n    \"capturedAt\" : \"2026-10-11T00:00:00.000Z\",\n    \"score\" : 0.016\n  }, {\n    \"title\" : \"연결 항목 1\",\n    \"excerpt\" : \"허브에서 연결된 항목 1 — 정산 배치 일정\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-linked\",\n    \"capturedAt\" : \"2026-10-11T00:00:00.000Z\",\n    \"score\" : 0.016\n  }, {\n    \"title\" : \"정산 배치\",\n    \"excerpt\" : \"정산 배치는 매일 자정에 실행되고 실패 시 재시도는 3회까지 허용된다. 재시도가 모두 실패하면 온콜에게 페이지가 간다.\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"settlement-batch.md\",\n    \"capturedAt\" : \"2026-10-09T06:00:00.000Z\",\n    \"score\" : 0.015\n  }, {\n    \"title\" : \"긴 문서 단락 2\",\n    \"excerpt\" : \"긴 문서 본문 2 — 페이지 조회 경계 검증용 단락\",\n    \"source\" : \"unknown\",\n    \"documentId\" : \"fx-long\",\n    \"capturedAt\" : \"2026-10-11T00:00:00.000Z\",\n    \"score\" : 0.015\n  } ],\n  \"freshness\" : {\n    \"latestCapturedAt\" : \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\" : 1.0,\n    \"stale\" : false\n  }\n}"
+  } ],
+  "isError" : false
+}

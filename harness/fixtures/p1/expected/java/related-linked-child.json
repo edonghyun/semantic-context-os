@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"related\" : [ {\n    \"documentId\" : \"fx-hub\",\n    \"title\" : \"링크 원본 문서\",\n    \"source\" : \"slack\",\n    \"score\" : 0.033,\n    \"via\" : \"both\"\n  }, {\n    \"documentId\" : \"fx-long\",\n    \"title\" : \"긴 문서 단락 1\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"settlement-batch.md\",\n    \"title\" : \"정산 배치\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"fx-capped\",\n    \"title\" : \"마감 점검 1\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.016,\n    \"via\" : \"embedding\"\n  }, {\n    \"documentId\" : \"fx-invalid\",\n    \"title\" : \"무효화된 배포 문서\",\n    \"source\" : \"unknown\",\n    \"score\" : 0.015,\n    \"via\" : \"embedding\"\n  } ]\n}"
+  } ],
+  "isError" : false
+}

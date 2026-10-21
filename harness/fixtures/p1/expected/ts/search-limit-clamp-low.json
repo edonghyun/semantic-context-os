@@ -1,0 +1,6 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "{\n  \"hits\": [\n    {\n      \"title\": \"옛 결제 오류\",\n      \"excerpt\": \"결제 오류 대응 절차의 옛 버전\",\n      \"source\": \"notion\",\n      \"documentId\": \"fx-archived\",\n      \"capturedAt\": \"2026-09-26T08:00:00.000Z\",\n      \"score\": 0.016\n    }\n  ],\n  \"freshness\": {\n    \"latestCapturedAt\": \"2026-10-12T23:00:00.000Z\",\n    \"staleHours\": 1,\n    \"stale\": false\n  }\n}"
+  } ]
+}

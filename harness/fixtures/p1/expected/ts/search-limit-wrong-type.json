@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "MCP error -32602: Input validation error: Invalid arguments for tool search_context: Invalid input: expected number, received string at limit"
+  } ],
+  "isError" : true
+}

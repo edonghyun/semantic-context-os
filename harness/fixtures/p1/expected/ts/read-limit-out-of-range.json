@@ -1,0 +1,7 @@
+{
+  "content" : [ {
+    "type" : "text",
+    "text" : "MCP error -32602: Input validation error: Invalid arguments for tool read_document: Too big: expected number to be <=100 at limit"
+  } ],
+  "isError" : true
+}

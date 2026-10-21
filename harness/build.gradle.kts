@@ -29,7 +29,7 @@ tasks.test {
     testLogging { events("passed", "failed", "skipped"); exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL; showStandardStreams = true }
     systemProperty("harness.java.home", javaLauncher.get().metadata.installationPath.asFile.absolutePath)
     // PostgresImageTest가 읽는 backend 이미지 상수(TESTING §6). 입력으로 선언해야 backend만 바꾼 digest 상향에서도 test가 다시 돈다
-    val backendPostgresSupport = layout.projectDirectory.file("../backend/src/test/java/io/scos/collection/internal/postgres/PostgresSupport.java")
+    val backendPostgresSupport = layout.projectDirectory.file("../backend/scos-collection/src/testFixtures/java/io/scos/collection/internal/postgres/PostgresSupport.java")
     inputs.file(backendPostgresSupport).withPropertyName("backendPostgresSupport").withPathSensitivity(PathSensitivity.RELATIVE)
     systemProperty("harness.backend.postgresSupport", backendPostgresSupport.asFile.absolutePath)
 }

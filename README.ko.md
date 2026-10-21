@@ -108,7 +108,7 @@ MCP 클라이언트 연결법, 키 없는 임베더의 동작 방식과 한계, 
 | `import` | 미리 만든 유닛 JSON 파일을 적재합니다(데모가 씁니다) |
 | `status`, `raw …`, `maintenance` | 소스와 실행 상태를 조회하고 정리합니다 |
 
-설정은 환경 변수로 합니다. 예를 들면 `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `GEMINI_API_KEY`, `SCOS_SPACE_ID`입니다. 전체 기본값은 `backend/src/main/resources/application.yml`에 있습니다. 설정 레퍼런스와 커넥터 설정 안내는 아직 없습니다.
+설정은 환경 변수로 합니다. 예를 들면 `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `GEMINI_API_KEY`, `SCOS_SPACE_ID`입니다. 전체 기본값은 `backend/scos-server/src/main/resources/application.yml`에 있습니다. 설정 레퍼런스와 커넥터 설정 안내는 아직 없습니다.
 
 ## 구조
 
@@ -127,28 +127,28 @@ flowchart LR
   engine --> spi
 ```
 
-화살표는 의존 방향입니다. 패키지는 모두 `backend/src/main/java`의 `io.scos` 아래에 있습니다.
+화살표는 의존 방향입니다. 패키지는 모두 `io.scos` 아래에 있고, 패키지마다 `backend/` 아래의 Gradle 모듈 하나에 들어 있습니다.
 
-| 패키지 | 역할 |
-| --- | --- |
-| `spi` (`connector`, `store`, `embedding`, `projection`) | 포트: 커넥터, 유닛 저장소, 키워드·벡터 색인, 임베더, 투영기. JDK 타입만 씁니다. |
-| `engine` | 읽기 파사드 `ContextEngine`과 값 타입, 검색 파이프라인(`internal`), 공용 도우미(`support`) |
-| `collection` | 수집 런타임: 점유, 페이지 커밋, 체크포인트, 스케줄, 투영 |
-| `connector/{slack,notion,jira,googledrive,tiro}` | 소스 어댑터와 투영기 |
-| `store/{postgres,memory}` | 저장소 구현. `memory`는 테스트·실험용입니다. |
-| `provider/gemini` | Gemini API 임베더와 텍스트 생성기 |
-| `mcp` | MCP stdio 서버와 도구 정의 |
-| `server`, `boot` | Spring Boot 애플리케이션, CLI 명령, 조립 |
+| 패키지 | 모듈 | 역할 |
+| --- | --- | --- |
+| `spi` (`connector`, `store`, `embedding`, `projection`) | `scos-spi` | 포트: 커넥터, 유닛 저장소, 키워드·벡터 색인, 임베더, 투영기. JDK 타입만 씁니다. |
+| `engine` | `scos-engine` | 읽기 파사드 `ContextEngine`과 값 타입, 검색 파이프라인(`internal`), 공용 도우미(`support`) |
+| `collection` | `scos-collection` | 수집 런타임: 점유, 페이지 커밋, 체크포인트, 스케줄, 투영 |
+| `connector/{slack,notion,jira,googledrive,tiro}` | `scos-connector-{slack,notion,jira,google-drive,tiro}` | 소스 어댑터와 투영기 |
+| `store/{postgres,memory}` | `scos-store-{postgres,memory}` | 저장소 구현. `memory`는 테스트·실험용입니다. |
+| `provider/gemini` | `scos-provider-gemini` | Gemini API 임베더와 텍스트 생성기 |
+| `mcp` | `scos-mcp` | MCP stdio 서버와 도구 정의 |
+| `server`, `boot` | `scos-server`, `scos-spring-boot-starter` | Spring Boot 애플리케이션, CLI 명령, 조립 |
 
-경계 규칙은 ArchUnit 테스트 [`PublicBoundaryRulesTest`](backend/src/test/java/io/scos/PublicBoundaryRulesTest.java)가 강제하며, 빠른 테스트 층에서 돕니다.
+경계는 `./gradlew check`가 세 가지로 강제합니다.
 
-- `spi`는 JDK와 자기 자신에만 의존합니다.
-- Spring Boot는 `boot`와 `server`에서만 씁니다.
-- `internal` 패키지는 자기 모듈 안(그리고 `boot`/`server` 조립 코드)에서만 씁니다.
-- `engine`과 `spi`의 public 시그니처에는 `internal`·`support` 타입이 나오지 않습니다.
-- `engine`은 `collection`에 의존하지 않습니다.
-- 커넥터끼리는 서로 의존하지 않습니다.
-- `boot`는 `server`에 의존하지 않습니다.
+- 모듈마다 의존하는 모듈을 선언하므로, 선언하지 않은 모듈을 쓰는 코드는 컴파일되지 않습니다. `checkModuleGraph`는 이 선언을 [`backend/build.gradle.kts`](backend/build.gradle.kts)의 허용 표와 비교합니다. 그래서 `engine`은 `collection`에 의존하지 않고, 커넥터끼리는 서로 의존하지 않으며, `boot`는 `server`에 의존하지 않습니다. `spi`에 외부 의존이 없는지, 제품 모듈 가운데 컴파일 클래스패스에 Spring Boot가 있는 모듈이 `boot`와 `server`뿐인지도 확인합니다.
+- [`ModuleLocationRulesTest`](backend/verification/src/test/java/io/scos/ModuleLocationRulesTest.java)는 패키지가 위 표의 모듈에 있는지 확인합니다. 그래서 여러 모듈에 나뉜 패키지가 없습니다.
+- [`PublicBoundaryRulesTest`](backend/verification/src/test/java/io/scos/PublicBoundaryRulesTest.java)의 ArchUnit 규칙은 모듈 의존으로는 보이지 않는 것을 확인합니다. 빠른 테스트 층에서 돕니다.
+  - `spi`는 JDK와 자기 자신에만 의존합니다.
+  - Spring Boot는 다른 라이브러리가 클래스패스에 넣더라도 `boot`와 `server`에서만 씁니다.
+  - `internal` 패키지는 자기 모듈 안(그리고 `boot`/`server` 조립 코드)에서만 씁니다.
+  - `engine`과 `spi`의 public 시그니처에는 `internal`·`support` 타입이 나오지 않습니다.
 
 ## 라이브러리로 쓰기
 
@@ -250,7 +250,7 @@ cd backend
 - LY Corporation Tech Blog. *시멘틱 컨텍스트 OS 설계: 에이전트 시스템의 토큰 스터핑을 넘어.* Tech-Verse 2026. [techblog.lycorp.co.jp/ko/techverse2026-59](https://techblog.lycorp.co.jp/ko/techverse2026-59)
   SCOS가 출발한 문제를 코딩 에이전트 쪽에서 다룬 글입니다. [배경](#배경)을 보세요.
 - *Model Context Protocol* 명세. [modelcontextprotocol.io/specification](https://modelcontextprotocol.io/specification)
-  서빙 인터페이스입니다. 도구 네 개를 stdio로 제공합니다(`backend/src/main/java/io/scos/mcp`).
+  서빙 인터페이스입니다. 도구 네 개를 stdio로 제공합니다(`backend/scos-mcp/src/main/java/io/scos/mcp`).
 
 ### 평가
 

@@ -1,6 +1,6 @@
 # Allowlist: the image build needs only the backend sources.
 *
 !backend/
-backend/build/
-backend/.gradle/
+backend/**/build/
+backend/**/.gradle/
 backend/demo-out/

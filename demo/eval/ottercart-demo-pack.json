@@ -1,7 +1,7 @@
 {
   "name" : "ottercart-demo",
   "version" : 1,
-  "generatedBy" : "backend/src/test/java/io/scos/demo/DemoCorpus.java",
+  "generatedBy" : "backend/scos-server/src/test/java/io/scos/demo/DemoCorpus.java",
   "docs" : [ {
     "id" : "jira/OTC-275",
     "title" : "OTC-275 재고 동기화를 CDC 이벤트 기반으로 전환",

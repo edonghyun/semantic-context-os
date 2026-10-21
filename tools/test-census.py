@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""테스트 가독성 census — backend·harness Java 테스트의 정량 지표(TESTING §2.5·§13.1).
+"""테스트 가독성 census — backend(모듈별 test·testFixtures)·harness Java 테스트의 정량 지표(TESTING §2.5·§13.1).
 
 사용:
   python3 tools/test-census.py [저장소 루트] [--out 표.md] [--list-connective] [--list-multi-subject]
@@ -21,10 +21,12 @@
   적합        본문 최장 ≤ 12, 단언 ≤ 3, 다계약 0, FQCN 0, 노출 0, 리터럴 ≤ 테스트 수.
 """
 import argparse
+import glob
 import os
 import re
 
-DIRS = ["backend/src/test/java", "harness/src/test/java"]
+# backend는 모듈마다 test와 testFixtures(모듈 사이 공용 테스트 코드)를 본다.
+DIRS = ["backend/*/src/test/java", "backend/*/src/testFixtures/java", "harness/src/test/java"]
 # 규칙 표본 패키지(위반 표본을 일부러 담는다) — 규칙 테스트처럼 대상 밖이다.
 RULE_SAMPLE_PACKAGES = {"scosrules", "harnessrules"}
 FQ = re.compile(r'(?<![\w."/])(?:io\.scos|java|javax|org|com|tools)(?:\.[a-z]\w*)+\.[A-Z]\w*')
@@ -238,8 +240,8 @@ def tests(src):
 
 def census(root):
     rows, connective_titles, multi_subject = [], [], []
-    for d in DIRS:
-        for dp, _, fs in os.walk(os.path.join(root, d)):
+    for d in sorted(p for pattern in DIRS for p in glob.glob(os.path.join(root, pattern))):
+        for dp, _, fs in os.walk(d):
             if os.path.basename(dp) in RULE_SAMPLE_PACKAGES:
                 continue
             for f in fs:
@@ -250,7 +252,7 @@ def census(root):
                 t = tests(src)
                 if not t:
                     continue
-                rel = os.path.relpath(p, root).replace("src/test/java/io/scos/", "")
+                rel = re.sub(r"src/(?:test|testFixtures)/java/io/scos/", "", os.path.relpath(p, root))
                 for x in t:
                     if x["connective"]:
                         connective_titles.append((rel, x["line"], x["title"]))

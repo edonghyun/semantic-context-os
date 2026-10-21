@@ -147,7 +147,7 @@ class WiringTest(unittest.TestCase):
     def test_census_totals_spec_shape(self):
         with tempfile.TemporaryDirectory() as root:
             for name, src in (("SampleTest.java", SAMPLE), ("BareTest.java", NO_CLASS_TITLE)):
-                path = os.path.join(root, "backend/src/test/java/io/scos/sample", name)
+                path = os.path.join(root, "backend/scos-sample/src/test/java/io/scos/sample", name)
                 os.makedirs(os.path.dirname(path), exist_ok=True)
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(src)
@@ -155,6 +155,20 @@ class WiringTest(unittest.TestCase):
         by_file = {r["file"].split("/")[-1]: (r["class_dn"], r["no_gwt"], r["given_fail"]) for r in rows}
         self.assertEqual(by_file, {"SampleTest.java": (True, 1, 1), "BareTest.java": (False, 0, 0)})
         self.assertEqual([t for _, _, t in connective_titles], ["원본을 읽고 유닛을 쓰며 요청을 지운다"])
+
+
+    def test_census_reads_test_and_test_fixtures_of_every_module(self):
+        with tempfile.TemporaryDirectory() as root:
+            for d in ("backend/scos-a/src/test/java", "backend/scos-b/src/testFixtures/java", "harness/src/test/java"):
+                path = os.path.join(root, d, "io/scos/sample/SampleTest.java")
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(SAMPLE)
+            rows, _, _ = census.census(root)
+        self.assertEqual(
+            sorted(r["file"] for r in rows),
+            ["backend/scos-a/sample/SampleTest.java", "backend/scos-b/sample/SampleTest.java", "harness/sample/SampleTest.java"],
+        )
 
 
 if __name__ == "__main__":

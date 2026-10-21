@@ -11,7 +11,7 @@
 난수는 random.Random(SEED).random()만 쓴다(파이썬 버전이 바뀌어도 같은 수열). 같은 상수면 같은 파일이다.
 출력: 첫 줄 주석(생성기·통계), 이어서 "단어<TAB>횟수"를 횟수 내림차순(같으면 단어 순).
 
-usage: python3 tools/make-korean-vocabulary.py > backend/src/test/resources/perf/korean-vocabulary.tsv
+usage: python3 tools/make-korean-vocabulary.py > backend/scos-engine/src/test/resources/perf/korean-vocabulary.tsv
 """
 import math, random, sys
 

@@ -1,6 +1,6 @@
 {
   "version" : 1,
-  "generatedBy" : "backend/src/test/java/io/scos/demo/DemoCorpus.java",
+  "generatedBy" : "backend/scos-server/src/test/java/io/scos/demo/DemoCorpus.java",
   "units" : [ {
     "id" : "9aea8fb74c175224",
     "partition" : "/knowledge",

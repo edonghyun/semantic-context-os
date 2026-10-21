@@ -107,7 +107,7 @@ The server is one Spring Boot application with these commands:
 | `import` | Load pre-built units from a JSON file (the demo uses this) |
 | `status`, `raw …`, `maintenance` | Inspect sources and runs, and clean up |
 
-You configure it with environment variables, for example `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `GEMINI_API_KEY` and `SCOS_SPACE_ID`. All the defaults are in `backend/src/main/resources/application.yml`. There is no configuration reference or connector setup guide yet.
+You configure it with environment variables, for example `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `GEMINI_API_KEY` and `SCOS_SPACE_ID`. All the defaults are in `backend/scos-server/src/main/resources/application.yml`. There is no configuration reference or connector setup guide yet.
 
 ## Architecture
 
@@ -126,28 +126,28 @@ flowchart LR
   engine --> spi
 ```
 
-Arrows point from a package to the packages it depends on. All packages are under `io.scos` in `backend/src/main/java`:
+Arrows point from a package to the packages it depends on. All packages are under `io.scos`, and each lives in its own Gradle module under `backend/`:
 
-| Package | Role |
-| --- | --- |
-| `spi` (`connector`, `store`, `embedding`, `projection`) | Ports: connector, unit store, keyword and vector index, embedder, projector. JDK types only. |
-| `engine` | `ContextEngine` read facade, value types, search pipeline (`internal`), shared helpers (`support`) |
-| `collection` | Collection runtime: leases, page commits, checkpoints, scheduling, projection |
-| `connector/{slack,notion,jira,googledrive,tiro}` | Source adapters and projectors |
-| `store/{postgres,memory}` | Store implementations. `memory` is for tests and experiments. |
-| `provider/gemini` | Embedder and text generator over the Gemini API |
-| `mcp` | MCP stdio server and tool definitions |
-| `server`, `boot` | Spring Boot application, CLI commands, wiring |
+| Package | Module | Role |
+| --- | --- | --- |
+| `spi` (`connector`, `store`, `embedding`, `projection`) | `scos-spi` | Ports: connector, unit store, keyword and vector index, embedder, projector. JDK types only. |
+| `engine` | `scos-engine` | `ContextEngine` read facade, value types, search pipeline (`internal`), shared helpers (`support`) |
+| `collection` | `scos-collection` | Collection runtime: leases, page commits, checkpoints, scheduling, projection |
+| `connector/{slack,notion,jira,googledrive,tiro}` | `scos-connector-{slack,notion,jira,google-drive,tiro}` | Source adapters and projectors |
+| `store/{postgres,memory}` | `scos-store-{postgres,memory}` | Store implementations. `memory` is for tests and experiments. |
+| `provider/gemini` | `scos-provider-gemini` | Embedder and text generator over the Gemini API |
+| `mcp` | `scos-mcp` | MCP stdio server and tool definitions |
+| `server`, `boot` | `scos-server`, `scos-spring-boot-starter` | Spring Boot application, CLI commands, wiring |
 
-ArchUnit enforces these boundaries in [`PublicBoundaryRulesTest`](backend/src/test/java/io/scos/PublicBoundaryRulesTest.java), which runs in the fast test tier:
+`./gradlew check` enforces these boundaries in three ways:
 
-- `spi` depends only on the JDK and itself.
-- Spring Boot is used only in `boot` and `server`.
-- An `internal` package is used only inside its own module (and by the `boot`/`server` wiring).
-- Public signatures in `engine` and `spi` never mention `internal` or `support` types.
-- `engine` does not depend on `collection`.
-- Connectors do not depend on each other.
-- `boot` does not depend on `server`.
+- Each module declares the modules it depends on, so code that uses an undeclared module does not compile. `checkModuleGraph` compares the declarations with the allowed table in [`backend/build.gradle.kts`](backend/build.gradle.kts). So `engine` does not depend on `collection`, connectors do not depend on each other, and `boot` does not depend on `server`. It also checks that `spi` has no external dependencies, and that among the product modules only `boot` and `server` have Spring Boot on the compile classpath.
+- [`ModuleLocationRulesTest`](backend/verification/src/test/java/io/scos/ModuleLocationRulesTest.java) checks that each package is in the module listed above, so no package is split across modules.
+- ArchUnit rules in [`PublicBoundaryRulesTest`](backend/verification/src/test/java/io/scos/PublicBoundaryRulesTest.java) check what module dependencies cannot see. They run in the fast test tier:
+  - `spi` depends only on the JDK and itself.
+  - Spring Boot is used only in `boot` and `server`, even when another library puts it on the classpath.
+  - An `internal` package is used only inside its own module (and by the `boot`/`server` wiring).
+  - Public signatures in `engine` and `spi` never mention `internal` or `support` types.
 
 ## Using the engine as a library
 
@@ -249,7 +249,7 @@ Each entry says where the idea shows up in this code. "Not in 0.1" means the wor
 - LY Corporation Tech Blog. *Architecting Semantic Context OS: Beyond token stuffing in agentic systems.* Tech-Verse 2026. [techblog.lycorp.co.jp/en/techverse2026-59](https://techblog.lycorp.co.jp/en/techverse2026-59)
   The problem SCOS started from, approached on the coding-agent side. See [Background](#background).
 - *Model Context Protocol* specification. [modelcontextprotocol.io/specification](https://modelcontextprotocol.io/specification)
-  The serving interface: four tools over stdio (`backend/src/main/java/io/scos/mcp`).
+  The serving interface: four tools over stdio (`backend/scos-mcp/src/main/java/io/scos/mcp`).
 
 ### Evaluation
 

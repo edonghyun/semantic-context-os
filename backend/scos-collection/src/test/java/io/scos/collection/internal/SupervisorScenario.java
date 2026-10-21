@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,6 +48,9 @@ final class SupervisorScenario implements AutoCloseable {
   /** 데몬 poll 자리 — 틱이 열린 사이클의 끝을 기다리는 상한. */
   static final Duration TICK_WAIT = Duration.ofMillis(20);
 
+  /** CANCELS_CYCLE_AND_LINGERS가 취소 뒤 수집 안에 머무는 상한 — 감독의 취소 확인 간격(100ms)보다 넉넉히 길다. */
+  static final Duration LINGER = Duration.ofMillis(500);
+
   /** 소스별 수집기 행동. 기본은 SUCCEEDS. */
   enum Collect {
     SUCCEEDS,
@@ -58,6 +62,10 @@ final class SupervisorScenario implements AutoCloseable {
     FINISHES_WITH_ERRORS,
     /** 토큰을 취소한 뒤 성공한다(사이클 중 stop 요청의 모사). */
     CANCELS_CYCLE,
+    /**
+     * 토큰을 취소한 뒤 감독 호출이 돌아올 때까지(최대 LINGER) 수집 안에 머물다 성공한다 — 취소를 본 호출이 이 시도의 마감을 기다리지 않으면 그 사이에 돌아온다.
+     */
+    CANCELS_CYCLE_AND_LINGERS,
     /** 성공하지만, 이어지는 다음 판정의 소스 목록 읽기가 한 번 JUDGEMENT_FAILURE로 실패한다(수집을 마친 worker가 다음 소스를 집을 때). */
     BREAKS_NEXT_JUDGEMENT
   }
@@ -79,6 +87,7 @@ final class SupervisorScenario implements AutoCloseable {
   private final AtomicInteger inFlight = new AtomicInteger();
   private final AtomicInteger maxInFlight = new AtomicInteger();
   private final CancellationToken cycleToken = new CancellationToken();
+  private final CountDownLatch callReturned = new CountDownLatch(1);
 
   private HoldGate gate;
   private Optional<Duration> snapshotInterval = Optional.empty();
@@ -159,8 +168,7 @@ final class SupervisorScenario implements AutoCloseable {
 
   /** 사이클 하나를 끝까지 돌린다. WAIT_LIMIT 안에 끝나지 않으면 실패한다. */
   SourceSupervisor.Cycle runCycle() {
-    return supervisor()
-        .runDueSources(cycleToken, WAIT_LIMIT)
+    return call(WAIT_LIMIT)
         .orElseThrow(() -> new AssertionError("사이클이 " + WAIT_LIMIT + " 안에 끝나지 않았다"));
   }
 
@@ -169,8 +177,7 @@ final class SupervisorScenario implements AutoCloseable {
    * 틱의 대기 상한이 듣지 않아도 테스트가 실패로 끝나게. 틱이 던진 예외는 그대로 던진다.
    */
   Optional<SourceSupervisor.Cycle> tick() {
-    Future<Optional<SourceSupervisor.Cycle>> tick =
-        caller.submit(() -> supervisor().runDueSources(cycleToken, TICK_WAIT));
+    Future<Optional<SourceSupervisor.Cycle>> tick = caller.submit(() -> call(TICK_WAIT));
     try {
       return tick.get(WAIT_LIMIT.toMillis(), TimeUnit.MILLISECONDS);
     } catch (ExecutionException e) {
@@ -310,6 +317,14 @@ final class SupervisorScenario implements AutoCloseable {
     return supervisor;
   }
 
+  private Optional<SourceSupervisor.Cycle> call(Duration wait) {
+    try {
+      return supervisor().runDueSources(cycleToken, wait);
+    } finally {
+      callReturned.countDown();
+    }
+  }
+
   private List<SourceInstance> listEnabled() {
     if (failNextListing.getAndSet(false)) throw JUDGEMENT_FAILURE;
     List<SourceInstance> enabled = sources.listEnabled();
@@ -332,11 +347,24 @@ final class SupervisorScenario implements AutoCloseable {
         cancel.cancel();
         yield succeed(source, mode);
       }
+      case CANCELS_CYCLE_AND_LINGERS -> {
+        cancel.cancel();
+        lingerUntilCallReturns();
+        yield succeed(source, mode);
+      }
       case BREAKS_NEXT_JUDGEMENT -> {
         failNextListing.set(true);
         yield succeed(source, mode);
       }
     };
+  }
+
+  private void lingerUntilCallReturns() {
+    try {
+      callReturned.await(LINGER.toMillis(), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   private CollectionRuntime.Report succeed(SourceInstanceId source, CollectionMode mode) {

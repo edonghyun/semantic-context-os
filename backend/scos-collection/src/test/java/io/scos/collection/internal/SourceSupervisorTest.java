@@ -3,6 +3,7 @@ package io.scos.collection.internal;
 import static io.scos.collection.internal.SupervisorScenario.Collect.ALREADY_RUNNING;
 import static io.scos.collection.internal.SupervisorScenario.Collect.BREAKS_NEXT_JUDGEMENT;
 import static io.scos.collection.internal.SupervisorScenario.Collect.CANCELS_CYCLE;
+import static io.scos.collection.internal.SupervisorScenario.Collect.CANCELS_CYCLE_AND_LINGERS;
 import static io.scos.collection.internal.SupervisorScenario.Collect.FINISHES_WITH_ERRORS;
 import static io.scos.collection.internal.SupervisorScenario.Collect.THROWS;
 import static io.scos.collection.internal.SupervisorScenario.INJECTED;
@@ -116,6 +117,32 @@ class SourceSupervisorTest {
 
     // then
     assertThat(cycle.attempts()).extracting(Attempt::source).containsExactly(first);
+  }
+
+  @Test
+  @DisplayName("시도 안에서 토큰이 취소되면 그 시도를 마감한 뒤 사이클을 닫는다")
+  void cancellationWaitsForAttemptInFlight() {
+    // given
+    SourceInstanceId first = scenario.givenSource("a", CANCELS_CYCLE_AND_LINGERS);
+
+    // when
+    Cycle cycle = scenario.runCycle();
+
+    // then
+    assertThat(cycle.attempts()).extracting(Attempt::source).containsExactly(first);
+  }
+
+  @Test
+  @DisplayName("취소 뒤 수집 중인 시도가 대기 상한까지 끝나지 않으면 끝난 시도만으로 사이클을 닫는다")
+  void cancellationClosesCycleAtWaitLimit() {
+    // given
+    scenario.givenSource("a", CANCELS_CYCLE_AND_LINGERS);
+
+    // when
+    Optional<Cycle> cycle = scenario.tick();
+
+    // then
+    assertThat(cycle).hasValueSatisfying(closed -> assertThat(closed.attempts()).isEmpty());
   }
 
   @Nested

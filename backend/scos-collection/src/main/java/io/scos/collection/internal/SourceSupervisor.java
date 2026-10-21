@@ -216,14 +216,20 @@ public final class SourceSupervisor {
     return awaitCycleEnd(cancel, wait);
   }
 
-  /** 열린 사이클의 시작 시점 due 소스가 전부 시도를 마칠 때까지(또는 취소·인터럽트·상한까지) 기다린다. */
+  /**
+   * 열린 사이클의 시작 시점 due 소스가 전부 시도를 마칠 때까지(또는 인터럽트·상한까지) 기다린다. 취소되면 남은 due 소스는 집지 않으므로, 수집 중인 시도가 마감될
+   * 때까지만 기다렸다 닫는다 — 시도 안에서 취소돼도 그 시도는 이 사이클에 실린다. 그동안 상한이 지나면 끝난 시도만으로 닫는다.
+   */
   private Optional<Cycle> awaitCycleEnd(CancellationToken cancel, Duration wait) {
     long deadline = System.nanoTime() + wait.toNanos();
     synchronized (lock) {
       try {
-        while (!open.pending.isEmpty() && !cancel.isCancelled()) {
+        while (cancel.isCancelled() ? !inFlight.isEmpty() : !open.pending.isEmpty()) {
           long remaining = deadline - System.nanoTime();
-          if (remaining <= 0) return Optional.empty();
+          if (remaining <= 0) {
+            if (cancel.isCancelled()) break;
+            return Optional.empty();
+          }
           // 취소는 토큰만 바꾸고 이 모니터를 깨우지 않는다 — 기다림을 잘게 나눠 토큰을 다시 본다
           TimeUnit.NANOSECONDS.timedWait(lock, Math.min(remaining, CANCEL_CHECK.toNanos()));
         }

@@ -20,32 +20,15 @@ import org.junit.jupiter.api.Test;
  */
 @DisplayName("제품 패키지는 정해진 모듈에 있다(단계 4)")
 class ModuleLocationRulesTest {
-  /** 패키지 접두어 → 모듈. 클래스는 가장 긴 접두어의 모듈에 속한다. */
-  static final Map<String, String> MODULE_OF_PACKAGE =
-      Map.ofEntries(
-          Map.entry("io.scos.spi", "scos-spi"),
-          Map.entry("io.scos.engine", "scos-engine"),
-          Map.entry("io.scos.store.memory", "scos-store-memory"),
-          Map.entry("io.scos.store.postgres", "scos-store-postgres"),
-          Map.entry("io.scos.collection", "scos-collection"),
-          Map.entry("io.scos.connector.slack", "scos-connector-slack"),
-          Map.entry("io.scos.connector.notion", "scos-connector-notion"),
-          Map.entry("io.scos.connector.jira", "scos-connector-jira"),
-          Map.entry("io.scos.connector.googledrive", "scos-connector-google-drive"),
-          Map.entry("io.scos.connector.tiro", "scos-connector-tiro"),
-          Map.entry("io.scos.provider.gemini", "scos-provider-gemini"),
-          Map.entry("io.scos.mcp", "scos-mcp"),
-          Map.entry("io.scos.boot", "scos-spring-boot-starter"),
-          Map.entry("io.scos.server", "scos-server"),
-          Map.entry("io.scos.harness", "scos-server"));
-
-  /** 제품 모듈 14개 → main 최상위 클래스 수 하한(모듈 표의 main 파일 수, server는 하네스 소스셋을 빼고 센다). */
+  /** 제품 모듈 17개 → main 최상위 클래스 수 하한(모듈 표의 main 파일 수, server는 하네스 소스셋을 빼고 센다). */
   static final Map<String, Integer> MIN_CLASSES =
       Map.ofEntries(
           Map.entry("scos-spi", 48),
           Map.entry("scos-engine", 66),
           Map.entry("scos-store-memory", 5),
           Map.entry("scos-store-postgres", 7),
+          Map.entry("scos-store-sqlite", 11),
+          Map.entry("scos-client", 17),
           Map.entry("scos-collection", 70),
           Map.entry("scos-connector-slack", 9),
           Map.entry("scos-connector-notion", 17),
@@ -53,6 +36,7 @@ class ModuleLocationRulesTest {
           Map.entry("scos-connector-google-drive", 27),
           Map.entry("scos-connector-tiro", 9),
           Map.entry("scos-provider-gemini", 3),
+          Map.entry("scos-provider-openai-compatible", 3),
           Map.entry("scos-mcp", 7),
           Map.entry("scos-spring-boot-starter", 16),
           Map.entry("scos-server", 17));
@@ -126,10 +110,6 @@ class ModuleLocationRulesTest {
 
   /** 가장 긴 접두어의 모듈. 표에 없는 패키지는 "(표에 없음)"이라 어느 모듈과도 맞지 않는다. */
   static String expectedModule(String packageName) {
-    String best = null;
-    for (String prefix : MODULE_OF_PACKAGE.keySet())
-      if ((packageName.equals(prefix) || packageName.startsWith(prefix + "."))
-          && (best == null || prefix.length() > best.length())) best = prefix;
-    return best == null ? "(표에 없음: " + packageName + ")" : MODULE_OF_PACKAGE.get(best);
+    return ProductModules.moduleOf(packageName).orElse("(표에 없음: " + packageName + ")");
   }
 }

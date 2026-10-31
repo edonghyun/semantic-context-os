@@ -15,10 +15,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
 
-/**
- * Drive 소스 설정(TS configuration): TS validateConfig가 받거나 거부하는 표(expected-cases.json configCases)와
- * 같다.
- */
+/** Drive 소스 설정: TS validateConfig가 받거나 거부하는 표(expected-cases.json configCases)와 같다. */
 @DisplayName("Drive 소스 설정은 TS validateConfig 표와 같다")
 class GoogleDriveConfigurationTest {
   static Stream<Arguments> configCases(boolean accepted) {

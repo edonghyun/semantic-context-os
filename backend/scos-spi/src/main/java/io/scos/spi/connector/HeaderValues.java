@@ -8,8 +8,8 @@ public final class HeaderValues {
   private HeaderValues() {}
 
   /**
-   * 헤더로 보낼 수 있는 값인가: HTAB, 0x20–0x7E, 0x80–0xFF만. JDK HttpRequest와 TS undici가 받는 문자 집합이다 — 그
-   * 밖(줄바꿈·NUL·그 밖의 제어 문자·0xFF를 넘는 문자)은 JDK가 값 전체를 담은 예외로 거부한다.
+   * 헤더로 보낼 수 있는 값인가: HTAB, 0x20–0x7E, 0x80–0xFF만. JDK HttpRequest가 받는 문자 집합이다 — 그 밖(줄바꿈·NUL·그 밖의 제어
+   * 문자·0xFF를 넘는 문자)은 JDK가 값 전체를 담은 예외로 거부한다.
    */
   public static boolean isSendable(String value) {
     return value

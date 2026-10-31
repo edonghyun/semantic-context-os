@@ -692,6 +692,48 @@ class TiroAdapterFixtureTest {
   }
 
   @Nested
+  @DisplayName("다음 커서가 이미 요청한 커서로 돌아오면(- → page:1 → page:0 → page:1)")
+  class CursorCycle {
+    /** 둘째 페이지(page:1) 응답이 첫 페이지 커서(page:0)를 다음 커서로 준다 — page:0은 다시 page:1을 가리킨다. */
+    static final Fault BACK_TO_FIRST_PAGE =
+        new Fault(200, Optional.empty(), "{\"content\":[],\"nextCursor\":\"page:0\"}");
+
+    @Test
+    @DisplayName("노트 목록 순환의 실패 메시지는 그 목록과 자취를 싣는다")
+    void listCycleNamesWalk() {
+      // given
+      tiro.failOnCursor(LIST, "page:1", 1, BACK_TO_FIRST_PAGE);
+
+      // when
+      Collection collection = tiro.collect();
+
+      // then
+      assertThat(collection.failureMessage())
+          .contains(
+              "Tiro pagination did not advance (cursor cycle:"
+                  + " list=/v1/external/workspaces/ws-synthetic/notes"
+                  + " trail=[-,00f08177,0d620557] next=00f08177 length=3)");
+    }
+
+    @Test
+    @DisplayName("문단 페이지 순환의 실패 메시지는 그 노트의 문단 목록과 자취를 싣는다")
+    void paragraphCycleNamesWalk() {
+      // given
+      tiro.failOnCursor(note("n-alpha", "paragraphs"), "page:1", 1, BACK_TO_FIRST_PAGE);
+
+      // when
+      Collection collection = tiro.collect();
+
+      // then
+      assertThat(collection.failureMessage())
+          .contains(
+              "Tiro paragraph pagination did not advance (cursor cycle:"
+                  + " list=/v1/external/notes/n-alpha/paragraphs"
+                  + " trail=[-,00f08177,0d620557] next=00f08177 length=3)");
+    }
+  }
+
+  @Nested
   @DisplayName("노트 자원마다 수정 시각이 다르면")
   class SourceUpdatedAt {
     static final String DOCUMENT = note("n-alpha", "documents", "11");

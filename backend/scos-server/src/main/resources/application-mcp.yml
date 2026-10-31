@@ -1,5 +1,9 @@
 # `mcp` 명령(조립 루트가 프로필 mcp를 켠다): 스키마를 바꾸지 않고(Flyway validate만 — McpRuntimeConfiguration) 읽기 전용 연결만 쓴다(CONTRACTS A6, ADR-0005, 리뷰 I-1).
 spring:
+  # stderr는 MCP 클라이언트가 받아 파일·창에 그대로 남긴다 — 터미널에서 띄워도 색 코드를 쓰지 않는다(logging.md §1)
+  output:
+    ansi:
+      enabled: never
   datasource:
     hikari:
       read-only: true

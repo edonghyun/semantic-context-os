@@ -9,6 +9,7 @@ import io.scos.collection.internal.OutboxPort;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.embedding.FixedEmbedder;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +31,8 @@ class ProjectionRunCancellationTest {
   static Embedder failingEmbedder(Runnable before, Embedder.EmbedderException failure) {
     return new Embedder() {
       @Override
-      public int dim() {
-        return EMBEDDING_DIM;
+      public EmbedderIdentity identity() {
+        return new EmbedderIdentity("test", "cancellation", EMBEDDING_DIM);
       }
 
       @Override

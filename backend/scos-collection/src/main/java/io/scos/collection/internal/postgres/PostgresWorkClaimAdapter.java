@@ -5,6 +5,8 @@ import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.collection.internal.WorkClaimPort;
 import io.scos.spi.connector.SourceInstanceId;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -152,7 +154,7 @@ public final class PostgresWorkClaimAdapter implements WorkClaimPort {
   }
 
   static final class ClaimRow {
-    static WorkClaim map(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
+    static WorkClaim map(ResultSet rs, int rowNum) throws SQLException {
       return new WorkClaim(
           new SourceInstanceId(rs.getString("source_instance_id")),
           new OwnerId(rs.getString("owner_id")),

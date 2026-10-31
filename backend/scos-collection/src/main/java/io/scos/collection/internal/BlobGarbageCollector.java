@@ -3,10 +3,7 @@ package io.scos.collection.internal;
 import java.time.Clock;
 import java.time.Instant;
 
-/**
- * F9(TS BlobGarbageCollector.sweep): 참조 밖이고 유예보다 오래된 blob만 지운다. DRY_RUN은 지우지 않고 지울 수를 보고한다(TS와 같이
- * deleted·bytesFreed는 "지울/지운" 수).
- */
+/** F9: 참조 밖이고 유예보다 오래된 blob만 지운다. DRY_RUN은 지우지 않고 지울 수를 보고한다(deleted·bytesFreed는 "지울/지운" 수). */
 public final class BlobGarbageCollector {
   public record Report(
       long scanned,

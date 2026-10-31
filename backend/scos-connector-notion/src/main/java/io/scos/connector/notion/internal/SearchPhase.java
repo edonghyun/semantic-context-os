@@ -3,7 +3,7 @@ package io.scos.connector.notion.internal;
 import java.util.Locale;
 import java.util.Optional;
 
-/** Notion 검색의 휴지통 단계(TS `phase: "active" | "trash"`): 살아 있는 페이지를 다 본 뒤 휴지통 페이지를 본다. */
+/** Notion 검색의 휴지통 단계: 살아 있는 페이지를 다 본 뒤 휴지통 페이지를 본다. */
 enum SearchPhase {
   ACTIVE,
   TRASH;

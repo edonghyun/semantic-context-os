@@ -1,5 +1,6 @@
 package io.scos.engine.internal.search;
 
+import static io.scos.engine.internal.search.SearchSettingsBuilder.DEFAULT_PLAN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -7,8 +8,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.projection.UnitImporter;
+import io.scos.engine.internal.search.plan.SearchSettings;
+import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
+import io.scos.spi.embedding.EmbeddingGeneration;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SearchFilter;
@@ -25,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -64,7 +71,7 @@ class SearchScaleProbeTest {
   static final int MEASURED_ROUNDS = 4;
 
   static final int POOL_SIZE = 6;
-  static final SearchFilter CANDIDATES = new SearchFilter(true, null);
+  static final SearchFilter CANDIDATES = new SearchFilter(true, null, AccessScope.singleUser());
   static final Clock CLOCK = Clock.fixed(Instant.parse("2026-10-15T00:00:00Z"), ZoneOffset.UTC);
 
   /**
@@ -171,8 +178,8 @@ class SearchScaleProbeTest {
     QuestionSearch parallel = questionSearch(registry, lexicalExecutor, embedLatency);
     for (int r = 0; r < WARMUP_ROUNDS; r++)
       for (String q : queries) {
-        sequential.search(AccessScope.singleUser(), S, q);
-        parallel.search(AccessScope.singleUser(), S, q);
+        sequential.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10);
+        parallel.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10);
       }
     List<Long> seqFirst = new ArrayList<>();
     List<Long> seqSecond = new ArrayList<>();
@@ -182,15 +189,19 @@ class SearchScaleProbeTest {
       for (int i = 0; i < queries.size(); i++) {
         String q = queries.get(i);
         if ((r + i) % 2 == 0) {
-          seqFirst.add(timed(() -> sequential.search(AccessScope.singleUser(), S, q)));
-          parSecond.add(timed(() -> parallel.search(AccessScope.singleUser(), S, q)));
+          seqFirst.add(
+              timed(() -> sequential.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10)));
+          parSecond.add(
+              timed(() -> parallel.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10)));
         } else {
-          parFirst.add(timed(() -> parallel.search(AccessScope.singleUser(), S, q)));
-          seqSecond.add(timed(() -> sequential.search(AccessScope.singleUser(), S, q)));
+          parFirst.add(
+              timed(() -> parallel.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10)));
+          seqSecond.add(
+              timed(() -> sequential.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10)));
         }
       }
     registry.clear();
-    for (String q : queries) parallel.search(AccessScope.singleUser(), S, q);
+    for (String q : queries) parallel.search(AccessScope.singleUser(), S, q, DEFAULT_PLAN, 10);
     return new RecipeComparison(
         embedLatency,
         Latency.of(concat(seqFirst, seqSecond)),
@@ -231,16 +242,22 @@ class SearchScaleProbeTest {
   }
 
   private long load() {
+    EmbeddingGeneration generation =
+        EmbeddingGeneration.of(
+            new CorpusEmbedder(corpus, Duration.ZERO).identity(),
+            EmbeddingGenerationCheck.INPUT_FORMAT);
     UnitImporter importer =
         new UnitImporter(
             new TransactionTemplate(new DataSourceTransactionManager(pool)),
-            units,
+            PostgresTestAdapters.unitMaintenance(pool),
             keywords,
-            vectors);
+            vectors,
+            PostgresTestAdapters.spaceMeta(pool),
+            generation);
     long t0 = System.nanoTime();
     int step = Math.max(1, corpus.documents() / 10);
     for (int d = 0; d < corpus.documents(); d++) {
-      importer.importUnits(S, corpus.document(d));
+      importer.importUnits(S, corpus.document(d), Optional.of(generation));
       if ((d + 1) % step == 0)
         log.info(
             "load {}/{} documents {}ms",
@@ -297,13 +314,13 @@ class SearchScaleProbeTest {
 
   private QuestionSearch questionSearch(
       SimpleMeterRegistry registry, Executor executor, Duration embedLatency) {
-    return new QuestionSearch(
+    return QuestionSearches.of(
         units,
+        PostgresTestAdapters.unitMaintenance(pool),
         keywords,
         vectors,
         new CorpusEmbedder(corpus, embedLatency),
         Reranker.DISABLED,
-        SearchSettings.DEFAULT,
         CLOCK,
         SearchMetrics.of(registry),
         executor);
@@ -350,8 +367,8 @@ class SearchScaleProbeTest {
     private static final CountDownLatch NEVER = new CountDownLatch(1);
 
     @Override
-    public int dim() {
-      return SyntheticCorpus.DIM;
+    public EmbedderIdentity identity() {
+      return new EmbedderIdentity("test", "synthetic", SyntheticCorpus.DIM);
     }
 
     @Override

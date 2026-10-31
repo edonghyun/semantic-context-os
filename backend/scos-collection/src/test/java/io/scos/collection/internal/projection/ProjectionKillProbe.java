@@ -8,9 +8,10 @@ import io.scos.engine.internal.projection.HashVectors;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SpaceId;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.store.postgres.PostgresTestAdapters;
 import io.scos.support.ChildJvm;
 import io.scos.support.RealTimeScheduler;
@@ -41,8 +42,8 @@ public final class ProjectionKillProbe {
     }
 
     @Override
-    public int dim() {
-      return HashVectors.DIM;
+    public EmbedderIdentity identity() {
+      return new EmbedderIdentity("test", "kill-probe", HashVectors.DIM);
     }
 
     @Override
@@ -66,7 +67,7 @@ public final class ProjectionKillProbe {
     String phase = args[5];
     var adapters = PostgresCollectionConfiguration.adapters(ds);
     Clock clock = Clock.systemUTC();
-    UnitStore units = PostgresTestAdapters.unitStore(ds);
+    UnitMaintenance units = PostgresTestAdapters.unitMaintenance(ds);
     ProjectionRun projection =
         PostgresProjection.over(ds, clock, new GatingEmbedder(markers, phase.equals("run")))
             .leaseTtl(Duration.ofSeconds(2))

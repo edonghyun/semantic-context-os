@@ -2,13 +2,14 @@ package io.scos.mcp;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.boot.AccessParts;
 import io.scos.boot.RerankProperties;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.KeywordIndex;
-import io.scos.spi.store.UnitStore;
-import io.scos.spi.store.VectorIndex;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.store.memory.MemoryKeywordIndex;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import java.time.Clock;
@@ -23,8 +24,18 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(RerankProperties.class)
 class McpMemoryEngine {
   @Bean
-  UnitStore unitStore() {
+  MemoryUnitStore unitStore() {
     return new MemoryUnitStore();
+  }
+
+  @Bean
+  UnitMaintenance unitMaintenance(MemoryUnitStore units, MemoryVectorIndex vectors) {
+    return new MemoryUnitMaintenance(units, vectors);
+  }
+
+  @Bean
+  AccessParts accessParts(UnitMaintenance maintenance) {
+    return new AccessParts.Unrestricted(maintenance);
   }
 
   @Bean
@@ -33,7 +44,7 @@ class McpMemoryEngine {
   }
 
   @Bean
-  VectorIndex vectorIndex() {
+  MemoryVectorIndex vectorIndex() {
     return new MemoryVectorIndex();
   }
 

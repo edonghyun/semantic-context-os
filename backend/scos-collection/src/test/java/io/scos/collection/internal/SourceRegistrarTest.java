@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,8 +20,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * 소스 등록(TS SourceRegistrar): 어댑터 설정 검증 뒤 저장한다. credentialRef는 풀지 않지만 스킴 접두사(`<scheme>:`) 모양은 등록 때
- * 본다 — 접두사 없는 ref는 해석 단계에서 거부되므로(ADR-0022 §2) 등록부터 받지 않는다(F4 리뷰 B-M8).
+ * 소스 등록: 어댑터 설정 검증 뒤 저장한다. credentialRef는 풀지 않지만 스킴 접두사(`<scheme>:`) 모양은 등록 때 본다 — 접두사 없는 ref는 해석
+ * 단계에서 거부되므로(ADR-0022 §2) 등록부터 받지 않는다(F4 리뷰 B-M8).
  */
 @DisplayName("소스 등록은 설정을 검증해 저장하고, ref는 스킴 모양만 본다(ADR-0022 §2)")
 class SourceRegistrarTest {
@@ -149,18 +150,7 @@ class SourceRegistrarTest {
     @DisplayName("enabled와 수정 시각만 바뀐다")
     void changesOnlyEnabledAndUpdatedAt() {
       // then
-      assertThat(sources.get(SOURCE))
-          .contains(
-              new SourceInstance(
-                  registered.id(),
-                  registered.kind(),
-                  registered.displayName(),
-                  registered.config(),
-                  registered.credentialRef(),
-                  false,
-                  registered.schedule(),
-                  registered.createdAt(),
-                  clock.instant()));
+      assertThat(sources.get(SOURCE)).contains(registered.withEnabled(false, clock.instant()));
     }
 
     @Test
@@ -172,6 +162,28 @@ class SourceRegistrarTest {
       // then
       assertThat(sources.listEnabled()).extracting(SourceInstance::id).containsExactly(SOURCE);
     }
+  }
+
+  @Test
+  @DisplayName("켜고 꺼도 소스별 축소 기준은 그대로다")
+  void togglingKeepsShrinkGuard() {
+    // given
+    var guard = new SnapshotShrinkOverrides(Optional.of(3), Optional.of(10));
+    registrar.register(
+        SOURCE,
+        SourceInstances.NOOP_KIND,
+        "a",
+        CONFIG,
+        "env:TOKEN",
+        SourceSchedule.DAEMON_DEFAULTS,
+        guard);
+
+    // when
+    registrar.setEnabled(SOURCE, false);
+    registrar.setEnabled(SOURCE, true);
+
+    // then
+    assertThat(sources.get(SOURCE)).map(SourceInstance::shrinkGuard).contains(guard);
   }
 
   @Test

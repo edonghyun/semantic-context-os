@@ -21,8 +21,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Tiro 노트 원본 → 문서 규칙(TS tiro-projector.spec.ts): 잠긴 문단·협업자 이메일·화자 귀속 전 전사는 본문에 넣지 않고, 화자 이름이 없으면
- * 라벨, AI 요약과 회의 문서는 제목으로 구분한다. 형식이 틀린 원본은 조용히 버리지 않고 실패한다.
+ * Tiro 노트 원본 → 문서 규칙: 잠긴 문단·협업자 이메일·화자 귀속 전 전사는 본문에 넣지 않고, 화자 이름이 없으면 라벨, AI 요약과 회의 문서는 제목으로 구분한다.
+ * 형식이 틀린 원본은 조용히 버리지 않고 실패한다.
  */
 @DisplayName("Tiro 노트 원본은 TS 규칙대로 문서가 되고 틀린 형식은 실패한다(F8)")
 class TiroProjectorTest {

@@ -40,6 +40,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 import org.hibernate.validator.constraints.time.DurationMin;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -141,7 +142,7 @@ public class CollectionConfiguration {
       WorkClaimPort claims,
       CollectionProperties props,
       Clock clock,
-      TaskScheduler heartbeatScheduler,
+      @Qualifier("heartbeatScheduler") TaskScheduler heartbeatScheduler,
       CollectionMetrics metrics) {
     return new LeaseHeartbeats(claims, props.leaseTtl(), clock, heartbeatScheduler, metrics);
   }
@@ -165,8 +166,8 @@ public class CollectionConfiguration {
       RunCompletion completion,
       LeaseHeartbeats heartbeats,
       Clock clock,
-      CollectionMetrics metrics) {
-    OwnerId owner = owner();
+      CollectionMetrics metrics,
+      OwnerId owner) {
     return new CollectionRuntime(
         sources,
         adapters,
@@ -184,15 +185,10 @@ public class CollectionConfiguration {
         metrics);
   }
 
-  /** owner = 호스트:pid — 수집·투영 점유가 같은 주체를 쓴다. */
-  public static OwnerId owner() {
-    String host;
-    try {
-      host = java.net.InetAddress.getLocalHost().getHostName();
-    } catch (java.net.UnknownHostException e) {
-      host = "unknown-host";
-    }
-    return new OwnerId(host + ":" + ProcessHandle.current().pid());
+  /** owner = 호스트:pid — 수집·투영 점유가 이 빈 하나(같은 주체)를 쓴다. */
+  @Bean
+  OwnerId processOwner() {
+    return OwnerId.ofCurrentProcess();
   }
 
   @Bean

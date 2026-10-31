@@ -27,8 +27,7 @@ public final class ChildJvm {
   /** {@link #start}와 같되 JVM 옵션(예: 힙 상한 `-Xmx512m`)을 붙인다 — 자원 한계에서의 동작을 재는 프로브. */
   public static Process start(Class<?> main, List<String> jvmOptions, Path log, String... args)
       throws IOException {
-    String javaBin =
-        System.getProperty("scos.java.home", System.getProperty("java.home")) + "/bin/java";
+    String javaBin = javaBin();
     List<String> cmd = new ArrayList<>(List.of(javaBin));
     cmd.addAll(jvmOptions);
     cmd.addAll(List.of("-cp", System.getProperty("java.class.path"), main.getName()));
@@ -39,22 +38,17 @@ public final class ChildJvm {
   /** 실제 실행 JAR(`java -jar`)을 환경변수로 설정해 띄운다 — 운영 기동 경로 그대로(ADR-0020 §7). */
   public static Process startJar(Path jar, Path log, Map<String, String> env, String... args)
       throws IOException {
-    String javaBin =
-        System.getProperty("scos.java.home", System.getProperty("java.home")) + "/bin/java";
+    String javaBin = javaBin();
     List<String> cmd = new ArrayList<>(List.of(javaBin, "-jar", jar.toString()));
     cmd.addAll(List.of(args));
-    ProcessBuilder pb =
-        new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(log.toFile());
-    pb.environment().putAll(env);
-    return pb.start();
+    return startMerged(cmd, log, env);
   }
 
   /** {@link #startJar}와 같되 stdout과 stderr를 따로 받는다 — 조회 명령의 결과(stdout)에 로그가 섞이지 않는지 보는 곳. */
   public static Process startJarSeparated(
       Path jar, Path stdout, Path stderr, Map<String, String> env, String... args)
       throws IOException {
-    String javaBin =
-        System.getProperty("scos.java.home", System.getProperty("java.home")) + "/bin/java";
+    String javaBin = javaBin();
     List<String> cmd = new ArrayList<>(List.of(javaBin, "-jar", jar.toString()));
     cmd.addAll(List.of(args));
     ProcessBuilder pb =
@@ -70,8 +64,7 @@ public final class ChildJvm {
   public static Process startJarWithLoaderPath(
       Path jar, Path loaderPath, Path log, Map<String, String> env, String... args)
       throws IOException {
-    String javaBin =
-        System.getProperty("scos.java.home", System.getProperty("java.home")) + "/bin/java";
+    String javaBin = javaBin();
     List<String> cmd =
         new ArrayList<>(
             List.of(
@@ -81,6 +74,17 @@ public final class ChildJvm {
                 jar.toString(),
                 "org.springframework.boot.loader.launch.PropertiesLauncher"));
     cmd.addAll(List.of(args));
+    return startMerged(cmd, log, env);
+  }
+
+  /** toolchain JDK(scos.java.home, 없으면 이 JVM)의 java. */
+  private static String javaBin() {
+    return System.getProperty("scos.java.home", System.getProperty("java.home")) + "/bin/java";
+  }
+
+  /** stdout·stderr를 한 로그로 받고 환경변수를 더해 띄운다. */
+  private static Process startMerged(List<String> cmd, Path log, Map<String, String> env)
+      throws IOException {
     ProcessBuilder pb =
         new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(log.toFile());
     pb.environment().putAll(env);

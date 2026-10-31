@@ -6,7 +6,8 @@ import io.scos.connector.slack.SlackAdapter;
 import io.scos.connector.slack.SlackAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.connector.CallExecutor;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
@@ -32,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -46,6 +48,29 @@ final class SlackScenario implements AutoCloseable {
   static final Instant NOW = Instant.parse("2026-10-14T00:00:00Z");
   static final String PUBLIC_CHANNELS = SlackAssembly.PUBLIC_CHANNELS_NO_OVERLAP;
   static final String WRONG_TOKEN = "wrong-token";
+  static final Duration SINGLE_ATTEMPT_TIMEOUT = Duration.ofSeconds(5);
+
+  /** 시도 한 번: 실패는 분류만 해서 던진다. 재시도·대기·지표 없음. */
+  static final CallExecutor SINGLE_ATTEMPT =
+      new CallExecutor() {
+        @Override
+        public <T> T execute(
+            String operation,
+            Call<T> call,
+            Function<Exception, CallFailure> classify,
+            CancellationToken cancel) {
+          try {
+            return call.invoke(SINGLE_ATTEMPT_TIMEOUT);
+          } catch (Exception e) {
+            throw new CallFailureException(operation, classify.apply(e));
+          }
+        }
+
+        @Override
+        public Duration requestTimeout() {
+          return SINGLE_ATTEMPT_TIMEOUT;
+        }
+      };
 
   private final FakeSlackServer server;
   private final MutableClock clock = new MutableClock(NOW);
@@ -81,6 +106,16 @@ final class SlackScenario implements AutoCloseable {
     server.failNext(path, times, fault);
   }
 
+  /** 이 경로가 요청한 커서를 다음 커서로 다시 준다(커서가 전진하지 않는 공급자). */
+  void withRepeatedCursor(String path) {
+    server.repeatCursor(path);
+  }
+
+  /** 이 경로의 다음 커서가 이미 요청한 커서로 돌아온다(A → B → A). */
+  void withCyclingCursor(String path) {
+    server.cycleCursor(path);
+  }
+
   /** 참여 목록을 받은 뒤 채널이 사라졌다(history가 channel_not_found). */
   void withChannelGone(String channelId) {
     server.removeChannel(channelId);
@@ -89,6 +124,11 @@ final class SlackScenario implements AutoCloseable {
   /** history를 걸은 뒤 스레드가 사라졌다(replies가 thread_not_found). */
   void withThreadGone(String channelId, String threadTs) {
     server.removeThread(channelId, threadTs);
+  }
+
+  /** 스레드 replies 페이지에 다른 스레드를 가리키는 답글이 섞인다. */
+  void withStrayReply(String channelId, String threadTs, int pageIndex, String ts, String other) {
+    server.addReply(channelId, threadTs, pageIndex, ts, other);
   }
 
   // ---- 수집 ----
@@ -119,6 +159,16 @@ final class SlackScenario implements AutoCloseable {
   }
 
   Collection collect(Optional<Checkpoint> checkpoint, CollectionMode mode, String configJson) {
+    return collect(checkpoint, mode, configJson, calls);
+  }
+
+  /** 재시도·대기·지표 없이 시도 한 번만 하는 실행기로 처음부터 수집한다(제품 실행기 밖의 사용자). */
+  Collection collectWithSingleAttemptExecutor() {
+    return collect(Optional.empty(), CollectionMode.INCREMENTAL, PUBLIC_CHANNELS, SINGLE_ATTEMPT);
+  }
+
+  private Collection collect(
+      Optional<Checkpoint> checkpoint, CollectionMode mode, String configJson, CallExecutor with) {
     Collection out = new Collection();
     try {
       adapter()
@@ -127,7 +177,7 @@ final class SlackScenario implements AutoCloseable {
                   instance(configJson).descriptor(),
                   checkpoint,
                   mode,
-                  calls,
+                  with,
                   RawContentCapture.defaults(),
                   CancellationToken.none()),
               out.pages::add);
@@ -166,6 +216,14 @@ final class SlackScenario implements AutoCloseable {
     List<String> all = server.requests();
     return all.subList(mark, all.size()).stream()
         .filter(r -> r.startsWith("/api/conversations.history"))
+        .toList();
+  }
+
+  /** 받은 요청 가운데 mark번째부터 users.conversations를 뺀 요청(경로+쿼리, 받은 순서). */
+  List<String> messageRequestsSince(int mark) {
+    List<String> all = server.requests();
+    return all.subList(mark, all.size()).stream()
+        .filter(r -> !r.startsWith("/api/users.conversations"))
         .toList();
   }
 
@@ -251,6 +309,11 @@ final class SlackScenario implements AutoCloseable {
 
     Optional<String> failureMessage() {
       return Optional.ofNullable(failure).map(Throwable::getMessage);
+    }
+
+    /** 응답 검사 위반으로 끝났으면 그 위반 — collection.run.failed 이벤트의 violation이 된다. */
+    Optional<CallFailure.Violation> failureViolation() {
+      return Optional.ofNullable(failure).flatMap(f -> f.failure().violation());
     }
   }
 

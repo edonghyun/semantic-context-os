@@ -2,6 +2,7 @@ package io.scos.server;
 
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.RawRecord;
+import io.scos.collection.internal.SnapshotGuardStore;
 import io.scos.collection.internal.SnapshotShrinkGuard;
 import io.scos.collection.internal.SnapshotShrinkOverrides;
 import io.scos.collection.internal.SourceAdapters;
@@ -16,12 +17,14 @@ import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
+import io.scos.spi.embedding.EmbeddingGeneration;
 import io.scos.spi.store.SpaceId;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -29,10 +32,8 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * 조회 결과 → TS 조회 CLI와 같은 키 순서의 JSON(TS
- * source-list·SourceStatus·RecentRejection·RawSourceRecord·RawItemPage). 없는 선택 값은 키째 뺀다(TS
- * undefined). 시각은 toISOString 형식(UTC 밀리초). 어댑터 소유 JSON(metadata·content·locator)은 저장된 원문을 읽어 키 순서를
- * 그대로 둔다.
+ * 조회 결과 → 조회 CLI JSON. 키 순서는 기존 클라이언트가 읽는 출력 형식 그대로다(바꾸면 안 된다). 없는 선택 값은 키째 뺀다. 시각은 toISOString
+ * 형식(UTC 밀리초). 어댑터 소유 JSON(metadata·content·locator)은 저장된 원문을 읽어 키 순서를 그대로 둔다.
  */
 final class SourceQueryJson {
   private static final DateTimeFormatter ISO_MILLIS =
@@ -44,7 +45,7 @@ final class SourceQueryJson {
     this.json = json;
   }
 
-  /** TS listSources: 어댑터가 없으면 incremental·none. coverage는 모드·체크포인트 없이 묻는다. */
+  /** 어댑터가 없으면 incremental·none. coverage는 모드·체크포인트 없이 묻는다. */
   ArrayNode sources(List<SourceInstance> instances, SourceAdapters adapters) {
     ArrayNode out = json.createArrayNode();
     for (SourceInstance instance : instances) {
@@ -85,7 +86,7 @@ final class SourceQueryJson {
   }
 
   private static IllegalStateException notJson(
-      SourceInstance instance, ListingField field, Exception cause) {
+      SourceInstance instance, ListingField field, @Nullable Exception cause) {
     return new IllegalStateException(
         "listing field "
             + field.name()
@@ -95,7 +96,7 @@ final class SourceQueryJson {
         cause);
   }
 
-  /** TS SourceStatus. 없는 소스는 null. */
+  /** 소스 상태. 없는 소스는 null. */
   JsonNode status(Optional<SourceQueries.SourceStatus> status) {
     return status.<JsonNode>map(this::status).orElse(json.nullNode());
   }
@@ -108,11 +109,7 @@ final class SourceQueryJson {
     out.put("currentItemCount", s.currentItemCount());
     out.put("tombstoneCount", s.tombstoneCount());
     out.put("recentFailureCount", s.recentFailureCount());
-    // Slack 이벤트 수신함은 포팅 범위 밖이라 늘 0이다(ADR-0024 §2)
-    ObjectNode events = out.putObject("events");
-    events.put("pendingCount", 0);
-    events.put("processingCount", 0);
-    events.put("rejectedCount", 0);
+    events(out.putObject("events"));
     s.activeLeaseExpiresAt().ifPresent(at -> out.put("activeLeaseExpiresAt", iso(at)));
     s.lastCompleteSnapshot()
         .ifPresent(
@@ -129,29 +126,38 @@ final class SourceQueryJson {
               run.errorSummary().ifPresent(summary -> out.put("lastRunErrorSummary", summary));
             });
     s.lastSuccessAt().ifPresent(at -> out.put("lastSuccessAt", iso(at)));
-    // TS에 없는 키(스냅샷 축소 보호, ADR-0028) — 보호 중이거나 허용 대기 중일 때만 나온다
+    // 스냅샷 축소 보호 키(ADR-0028) — 보호 중이거나 허용 대기 중일 때만 나온다
     s.reconcileGuard()
-        .ifPresent(
-            guard -> {
-              ObjectNode g = out.putObject("snapshotReconcileGuard");
-              g.put("runId", guard.run().value());
-              g.put("guardedAt", iso(guard.guardedAt()));
-              g.put("unobservedCount", guard.unobservedCount());
-              g.put("activeCount", guard.activeCount());
-              g.put("consecutiveCount", guard.consecutiveCount());
-              g.put("repeated", guard.consecutiveCount() >= SnapshotShrinkGuard.REPEATED_AFTER);
-            });
+        .ifPresent(guard -> reconcileGuard(out.putObject("snapshotReconcileGuard"), guard));
     s.shrinkAcceptedAt().ifPresent(at -> out.put("shrinkAcceptedAt", iso(at)));
     // 소스별 기준(등록값)이 하나라도 있을 때만 — 없으면 데몬 기본값이다
-    if (!s.shrinkGuard().equals(SnapshotShrinkOverrides.DAEMON_DEFAULTS)) {
-      ObjectNode limits = out.putObject("snapshotGuardLimits");
-      s.shrinkGuard().minActive().ifPresent(v -> limits.put("minActive", v));
-      s.shrinkGuard().maxDeletePercent().ifPresent(v -> limits.put("maxDeletePercent", v));
-    }
+    if (!s.shrinkGuard().equals(SnapshotShrinkOverrides.DAEMON_DEFAULTS))
+      guardLimits(out.putObject("snapshotGuardLimits"), s.shrinkGuard());
     return out;
   }
 
-  /** CLI 한 줄: 격리 원문(quarantinedContent)은 뺀다(크고 민감할 수 있다 — TS와 같다). */
+  /** Slack 이벤트 수신함은 옮기지 않았다(ADR-0024 §2) — 개수는 늘 0이다. */
+  private static void events(ObjectNode out) {
+    out.put("pendingCount", 0);
+    out.put("processingCount", 0);
+    out.put("rejectedCount", 0);
+  }
+
+  private static void reconcileGuard(ObjectNode out, SnapshotGuardStore.Guarded guard) {
+    out.put("runId", guard.run().value());
+    out.put("guardedAt", iso(guard.guardedAt()));
+    out.put("unobservedCount", guard.unobservedCount());
+    out.put("activeCount", guard.activeCount());
+    out.put("consecutiveCount", guard.consecutiveCount());
+    out.put("repeated", guard.consecutiveCount() >= SnapshotShrinkGuard.REPEATED_AFTER);
+  }
+
+  private static void guardLimits(ObjectNode out, SnapshotShrinkOverrides limits) {
+    limits.minActive().ifPresent(v -> out.put("minActive", v));
+    limits.maxDeletePercent().ifPresent(v -> out.put("maxDeletePercent", v));
+  }
+
+  /** CLI 한 줄: 격리 원문(quarantinedContent)은 뺀다(크고 민감할 수 있다). */
   ObjectNode rejection(SourceQueries.RecentRejection entry) {
     ObjectNode out = json.createObjectNode();
     out.put("runId", entry.runId().value());
@@ -167,7 +173,7 @@ final class SourceQueryJson {
     return out;
   }
 
-  /** TS RawItemPage: {items, nextCursor?}. */
+  /** 원문 목록 한 페이지: {items, nextCursor?}. */
   ObjectNode page(SourceQueries.RawCatalogPage page) {
     ObjectNode out = json.createObjectNode();
     ArrayNode items = out.putArray("items");
@@ -180,7 +186,7 @@ final class SourceQueryJson {
     return entry.<JsonNode>map(this::record).orElse(json.nullNode());
   }
 
-  /** TS toRawSourceRecord: active는 {state, item}, deleted는 {state, key, …}. */
+  /** active는 {state, item}, deleted는 {state, key, …}. */
   ObjectNode record(SourceQueries.RawEntry entry) {
     ObjectNode out = json.createObjectNode();
     switch (entry.record()) {
@@ -201,66 +207,86 @@ final class SourceQueryJson {
     return out;
   }
 
-  /** 운영 개요(`status`, status.sh 대체): 소스별 상태·최근 run·점유·공간별 최신성·로그 경고. */
+  /** 운영 개요(`status`, status.sh 대체): 소스별 상태·최근 run·점유·공간별 최신성과 임베딩 세대·로그 경고. */
   ObjectNode overview(
       Instant now,
       List<SourceQueries.SourceStatus> statuses,
       List<CollectionRun> runs,
       List<WorkClaim> claims,
-      List<SpaceFreshness> freshness,
+      List<SpaceOverview> freshness,
       Optional<LogProblems> log) {
     ObjectNode out = json.createObjectNode();
     out.put("now", iso(now));
     ArrayNode sources = out.putArray("sources");
     statuses.forEach(s -> sources.add(status(s)));
     ArrayNode recent = out.putArray("recentRuns");
-    for (CollectionRun run : runs) {
-      ObjectNode r = recent.addObject();
-      r.put("runId", run.id().value());
-      r.put("sourceInstanceId", run.source().value());
-      r.put("status", run.status().wire());
-      r.put("startedAt", iso(run.startedAt()));
-      run.finishedAt().ifPresent(at -> r.put("finishedAt", iso(at)));
-      r.put("pagesApplied", run.pagesApplied());
-      r.put("upserted", run.upserted());
-      r.put("deleted", run.deleted());
-      r.put("rejected", run.rejected());
-      run.errorKind().ifPresent(kind -> r.put("errorKind", kind));
-      run.errorSummary().ifPresent(summary -> r.put("errorSummary", summary));
-    }
+    runs.forEach(run -> recentRun(recent.addObject(), run));
     ArrayNode leases = out.putArray("leases");
-    for (WorkClaim claim : claims) {
-      ObjectNode l = leases.addObject();
-      l.put("sourceInstanceId", claim.source().value());
-      l.put("ownerId", claim.owner().value());
-      l.put("fencingToken", claim.fencingToken());
-      l.put("expiresAt", iso(claim.expiresAt()));
-      l.put("active", claim.isActiveAt(now));
-    }
+    claims.forEach(claim -> lease(leases.addObject(), claim, now));
     ArrayNode spaces = out.putArray("freshness");
-    for (SpaceFreshness space : freshness) {
-      ObjectNode f = spaces.addObject();
-      f.put("space", space.space().value());
-      Freshness value = space.freshness();
-      if (value.latestCapturedAt().isPresent())
-        f.put("latestCapturedAt", value.latestCapturedAt().get());
-      else f.putNull("latestCapturedAt");
-      if (value.staleHours().isPresent()) f.put("staleHours", value.staleHours().get());
-      else f.putNull("staleHours");
-      f.put("stale", value.stale());
-    }
-    log.ifPresent(
-        problems -> {
-          ObjectNode l = out.putObject("log");
-          l.put("path", problems.path());
-          l.put("found", problems.found());
-          ArrayNode lines = l.putArray("problems");
-          problems.lines().forEach(lines::add);
-        });
+    freshness.forEach(space -> spaceOverview(spaces.addObject(), space));
+    log.ifPresent(problems -> logProblems(out.putObject("log"), problems));
     return out;
   }
 
-  record SpaceFreshness(SpaceId space, Freshness freshness) {}
+  private static void recentRun(ObjectNode out, CollectionRun run) {
+    out.put("runId", run.id().value());
+    out.put("sourceInstanceId", run.source().value());
+    out.put("status", run.status().wire());
+    out.put("startedAt", iso(run.startedAt()));
+    run.finishedAt().ifPresent(at -> out.put("finishedAt", iso(at)));
+    out.put("pagesApplied", run.pagesApplied());
+    out.put("upserted", run.upserted());
+    out.put("deleted", run.deleted());
+    out.put("rejected", run.rejected());
+    run.errorKind().ifPresent(kind -> out.put("errorKind", kind));
+    run.errorSummary().ifPresent(summary -> out.put("errorSummary", summary));
+  }
+
+  private static void lease(ObjectNode out, WorkClaim claim, Instant now) {
+    out.put("sourceInstanceId", claim.source().value());
+    out.put("ownerId", claim.owner().value());
+    out.put("fencingToken", claim.fencingToken());
+    out.put("expiresAt", iso(claim.expiresAt()));
+    out.put("active", claim.isActiveAt(now));
+  }
+
+  /** 공간 하나: 최신성(모르면 null 키)과 임베딩 세대(저장된 것이 없으면 null). */
+  private static void spaceOverview(ObjectNode out, SpaceOverview space) {
+    out.put("space", space.space().value());
+    Freshness value = space.freshness();
+    putOrNull(out, "latestCapturedAt", value.latestCapturedAt());
+    value
+        .staleHours()
+        .ifPresentOrElse(h -> out.put("staleHours", h), () -> out.putNull("staleHours"));
+    out.put("stale", value.stale());
+    ObjectNode generation = out.putObject("embeddingGeneration");
+    putOrNull(generation, "stored", space.storedGeneration());
+    generation.put("configured", space.configuredGeneration().value());
+  }
+
+  private static void logProblems(ObjectNode out, LogProblems problems) {
+    out.put("path", problems.path());
+    out.put("found", problems.found());
+    ArrayNode lines = out.putArray("problems");
+    problems.lines().forEach(lines::add);
+  }
+
+  private static void putOrNull(ObjectNode out, String key, Optional<String> value) {
+    value.ifPresentOrElse(v -> out.put(key, v), () -> out.putNull(key));
+  }
+
+  /**
+   * 공간 하나의 개요: 최신성과 임베딩 세대(stage2 §3.3).
+   *
+   * @param storedGeneration 공간에 저장된 세대({@code pending:} 표시 포함), 아직 임베딩하지 않은 공간이면 empty
+   * @param configuredGeneration 설정 임베더의 세대
+   */
+  record SpaceOverview(
+      SpaceId space,
+      Freshness freshness,
+      Optional<String> storedGeneration,
+      EmbeddingGeneration configuredGeneration) {}
 
   /** 로그 파일 끝의 warn·error 줄(found = 파일을 읽었다). */
   record LogProblems(String path, boolean found, List<String> lines) {}
@@ -278,8 +304,7 @@ final class SourceQueryJson {
   }
 
   /**
-   * TS RawContent: inline {storage, mediaType, value}, blob {storage, mediaType, blobKey, sha256,
-   * size}.
+   * 원문 내용: inline {storage, mediaType, value}, blob {storage, mediaType, blobKey, sha256, size}.
    */
   private ObjectNode content(RawContent content) {
     ObjectNode out = json.createObjectNode();
@@ -292,7 +317,7 @@ final class SourceQueryJson {
       case RawContent.Blob blob -> {
         out.put("storage", "blob");
         out.put("mediaType", blob.mediaType());
-        // TS FsBlobStore 키 형식(ADR-0024 §2): Java는 raw_blobs.sha256으로 찾지만 출력은 TS와 같게 둔다
+        // FsBlobStore 키 형식(ADR-0024 §2): 저장소는 raw_blobs.sha256으로 찾지만 출력 형식은 그대로 둔다
         out.put("blobKey", "sha256/" + blob.sha256());
         out.put("sha256", blob.sha256());
         out.put("size", blob.size());

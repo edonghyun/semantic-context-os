@@ -11,12 +11,18 @@ import io.scos.collection.internal.credentials.SchemeCredentialResolver;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.slack.SlackAssembly;
 import io.scos.connector.slack.internal.FakeSlackServer;
+import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.support.text.Text;
 import io.scos.server.ScosApplication;
 import io.scos.spi.connector.CredentialResolver;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
+import io.scos.spi.store.AccessScope;
+import io.scos.spi.store.ContextUnit;
+import io.scos.spi.store.ContextUnits;
+import io.scos.spi.store.IndexedUnit;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.postgres.PostgresTestAdapters;
 import java.io.IOException;
@@ -27,6 +33,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +58,10 @@ final class CommandScenario implements AutoCloseable {
   static final Path FIXTURES =
       Path.of(System.getProperty("scos.fixtures.p4.dir", "../harness/fixtures/p4"));
   static final SpaceId SPACE = new SpaceId("legacy");
+
+  /** 테스트 임베더({@link TestDoubles#testEmbedder})의 임베딩 세대 — 명령이 설정 세대로 보는 값. */
+  static final String GENERATION = "test:command-scenario:4:title+aliases+content";
+
   static final String PUBLIC_CHANNELS = "{\"conversationTypes\":[\"public_channel\"]}";
   private static final List<String> PROPERTIES =
       List.of(
@@ -160,6 +171,23 @@ final class CommandScenario implements AutoCloseable {
                 Instant.parse("2026-10-14T00:00:00Z")));
   }
 
+  /** `import --file`이 읽는 유닛 JSON(유닛마다 벡터 하나, 문서도 하나씩)을 만들고 경로를 돌려준다. */
+  Path unitsFile(double[]... embeddings) {
+    StringBuilder units = new StringBuilder();
+    for (int i = 0; i < embeddings.length; i++) {
+      if (i > 0) units.append(',');
+      units.append(
+          "{\"id\":\"u%d\",\"provenance\":{\"documentId\":\"doc-%d\"},\"title\":\"제목 %d\",\"content\":\"본문 %d\",\"embedding\":%s}"
+              .formatted(i, i, i, i, Arrays.toString(embeddings[i])));
+    }
+    try {
+      Path file = Files.createTempFile(configDir, "units-", ".json");
+      return Files.writeString(file, "{\"units\":[" + units + "]}");
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
   /** 참조 밖 blob 하나(stored_at = 실제 현재 − age) — 명령은 시스템 시계로 유예를 잰다. */
   void givenOrphanBlob(String sha, Duration age) {
     JdbcClient.create(PostgresSupport.dataSource())
@@ -171,7 +199,48 @@ final class CommandScenario implements AutoCloseable {
         .update();
   }
 
+  /** 이 세대로 임베딩된(벡터 {@code vector}) 유닛 n개가 있는 공간 — 설정을 바꾸기 전에 투영해 둔 공간. */
+  void givenEmbeddedSpace(int n, String generation, double[] vector) {
+    List<ContextUnit> all = new ArrayList<>();
+    for (int i = 0; i < n; i++)
+      all.add(
+          ContextUnits.unit("u" + i)
+              .inDocument("doc-" + i)
+              .titled("제목 " + i)
+              .content("본문 " + i)
+              .build());
+    var dataSource = PostgresSupport.dataSource();
+    PostgresTestAdapters.unitMaintenance(dataSource).upsert(SPACE, all);
+    PostgresTestAdapters.vectorIndex(dataSource)
+        .upsert(
+            SPACE,
+            all.stream()
+                .map(u -> new IndexedUnit(u.id(), u.documentId(), u.partition(), false, vector))
+                .toList());
+    PostgresTestAdapters.spaceMeta(dataSource)
+        .set(SPACE, EmbeddingGenerationCheck.META_KEY, generation);
+  }
+
   // ---- 관찰 ----
+
+  /** 공간에 저장된 임베딩 세대. */
+  Optional<String> storedGeneration() {
+    return PostgresTestAdapters.spaceMeta(PostgresSupport.dataSource())
+        .get(SPACE, EmbeddingGenerationCheck.META_KEY);
+  }
+
+  /** 공간의 모든 유닛 벡터(적재 순서). */
+  List<double[]> vectors() {
+    var dataSource = PostgresSupport.dataSource();
+    List<String> ids =
+        PostgresTestAdapters.unitMaintenance(dataSource).listAll(SPACE).stream()
+            .map(ContextUnit::id)
+            .toList();
+    Map<String, double[]> byId =
+        PostgresTestAdapters.vectorIndex(dataSource)
+            .vectorsOf(SPACE, AccessScope.singleUser(), ids);
+    return ids.stream().map(byId::get).toList();
+  }
 
   /** `source add` 뒤에 인자를 그대로 붙여 실행한다. */
   int sourceAdd(String... args) {
@@ -216,7 +285,7 @@ final class CommandScenario implements AutoCloseable {
   }
 
   int units() {
-    return PostgresTestAdapters.unitStore(PostgresSupport.dataSource()).listAll(SPACE).size();
+    return PostgresTestAdapters.unitMaintenance(PostgresSupport.dataSource()).listAll(SPACE).size();
   }
 
   Optional<String> latestErrorKind(String source) {
@@ -253,8 +322,8 @@ final class CommandScenario implements AutoCloseable {
     Embedder testEmbedder() {
       return new Embedder() {
         @Override
-        public int dim() {
-          return 4;
+        public EmbedderIdentity identity() {
+          return new EmbedderIdentity("test", "command-scenario", 4);
         }
 
         @Override

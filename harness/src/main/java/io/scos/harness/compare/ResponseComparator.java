@@ -24,10 +24,16 @@ public final class ResponseComparator {
       double scoreRelTolerance,
       double tieEpsilon,
       Set<String> scoreFields,
-      Set<String> identityFields) {
+      Set<String> identityFields,
+      Set<String> additiveFields) {
     public static Policy standard() {
       return new Policy(
-          1e-6, 1e-12, Set.of("score", "rankScore"), Set.of("documentId", "unitId", "id"));
+          1e-6,
+          1e-12,
+          Set.of("score", "rankScore"),
+          Set.of("documentId", "unitId", "id"),
+          // 의도적 추가 필드(검색 옵션): 기대(TS 녹화본) 어디에도 없으면 실제에서 뺀다
+          Set.of("applied", "capturedAt"));
     }
   }
 
@@ -54,7 +60,8 @@ public final class ResponseComparator {
       if (!e.equals(a)) diffs.add(new Difference("$.error", "kind " + e + " vs " + a));
       return diffs;
     }
-    compare("$", unwrap(expected), unwrap(actual), diffs);
+    JsonNode e = unwrap(expected);
+    compare("$", e, withoutAdditions(e, unwrap(actual)), diffs);
     return diffs;
   }
 
@@ -67,7 +74,7 @@ public final class ResponseComparator {
       JsonNode expected, JsonNode actual, io.scos.harness.fixture.FixtureSpec.ComparePolicy p) {
     if (isError(expected) || isError(actual)) return compareToolResult(expected, actual);
     JsonNode e = unwrap(expected).path("content").path(0).path("json");
-    JsonNode a = unwrap(actual).path("content").path(0).path("json");
+    JsonNode a = withoutAdditions(e, unwrap(actual).path("content").path(0).path("json"));
     List<Difference> diffs = new ArrayList<>();
     if (e.isMissingNode() || a.isMissingNode()) {
       diffs.add(new Difference("$", "policy requires JSON tool result"));
@@ -211,6 +218,33 @@ public final class ResponseComparator {
                 .createArrayNode()
                 .add(MAPPER.createObjectNode().put("type", "json").set("json", parsed)));
     return copy;
+  }
+
+  /** 추가 필드 중 기대 트리에 한 번도 나오지 않는 이름은 실제 트리에서 모두 뺀다(기대에 있는 이름은 그대로 비교). */
+  private JsonNode withoutAdditions(JsonNode expected, JsonNode actual) {
+    Set<String> ignored = new LinkedHashSet<>();
+    for (String f : policy.additiveFields()) if (!containsField(expected, f)) ignored.add(f);
+    if (ignored.isEmpty()) return actual;
+    JsonNode copy = actual.deepCopy();
+    removeFields(copy, ignored);
+    return copy;
+  }
+
+  private static boolean containsField(JsonNode n, String name) {
+    if (n.isObject()) {
+      if (n.has(name)) return true;
+      for (JsonNode c : n) if (containsField(c, name)) return true;
+    } else if (n.isArray()) {
+      for (JsonNode c : n) if (containsField(c, name)) return true;
+    }
+    return false;
+  }
+
+  private static void removeFields(JsonNode n, Set<String> names) {
+    if (n.isObject()) {
+      ((com.fasterxml.jackson.databind.node.ObjectNode) n).remove(names);
+      n.forEach(c -> removeFields(c, names));
+    } else if (n.isArray()) n.forEach(c -> removeFields(c, names));
   }
 
   private void compare(String path, JsonNode e, JsonNode a, List<Difference> diffs) {

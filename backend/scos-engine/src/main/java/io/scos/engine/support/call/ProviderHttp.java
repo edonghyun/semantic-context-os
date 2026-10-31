@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -75,17 +76,12 @@ public final class ProviderHttp {
 
   public Response get(URI uri, Map<String, String> headers, Duration timeout) {
     return response(
-        client(timeout)
-            .get()
-            .uri(uri)
-            .headers(h -> safe(headers).forEach(h::set))
-            .retrieve()
-            .toEntity(String.class));
+        client(timeout).get().uri(uri).headers(sending(headers)).retrieve().toEntity(String.class));
   }
 
   /**
-   * 실행기 정책의 요청 timeout을 기본으로 쓰는 교환(F4 리뷰 A-M7). RestClient 재사용은 시도 timeout이 이 값과 같을 때만 일어나므로, 두 값의
-   * 출처를 실행기 하나로 둔다.
+   * 실행기 정책의 요청 timeout을 기본으로 쓰는 교환. RestClient 재사용은 시도 timeout이 이 값과 같을 때만 일어나므로, 두 값의 출처를 실행기 하나로
+   * 둔다.
    */
   public static ProviderHttp of(HttpClient http, CallExecutor calls) {
     return new ProviderHttp(http, calls.requestTimeout());
@@ -97,8 +93,8 @@ public final class ProviderHttp {
   }
 
   /**
-   * application/x-www-form-urlencoded POST(OAuth 토큰 갱신 등). form은 넣은 순서대로, TS URLSearchParams와 같은
-   * 인코딩(공백은 +)으로 보낸다. 상태 코드와 무관하게 응답을 돌려준다.
+   * application/x-www-form-urlencoded POST(OAuth 토큰 갱신 등). form은 넣은 순서대로, WHATWG URLSearchParams와
+   * 같은 인코딩(공백은 +)으로 보낸다. 상태 코드와 무관하게 응답을 돌려준다.
    */
   public Response postForm(
       URI uri, Map<String, String> headers, Map<String, String> form, Duration timeout) {
@@ -110,7 +106,7 @@ public final class ProviderHttp {
         client(timeout)
             .post()
             .uri(uri)
-            .headers(h -> safe(headers).forEach(h::set))
+            .headers(sending(headers))
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(body)
             .retrieve()
@@ -127,7 +123,7 @@ public final class ProviderHttp {
     return client(timeout)
         .get()
         .uri(uri)
-        .headers(h -> safe(headers).forEach(h::set))
+        .headers(sending(headers))
         .exchange(
             (request, response) -> {
               byte[] body;
@@ -145,16 +141,11 @@ public final class ProviderHttp {
         client(timeout)
             .post()
             .uri(uri)
-            .headers(h -> safe(headers).forEach(h::set))
+            .headers(sending(headers))
             .contentType(MediaType.APPLICATION_JSON)
             .body(json)
             .retrieve()
             .toEntity(String.class));
-  }
-
-  /** 헤더로 보낼 수 있는 값인가 — {@link HeaderValues#isSendable}. */
-  public static boolean isSendableHeaderValue(String value) {
-    return HeaderValues.isSendable(value);
   }
 
   /**
@@ -164,9 +155,14 @@ public final class ProviderHttp {
   private static Map<String, String> safe(Map<String, String> headers) {
     headers.forEach(
         (name, value) -> {
-          if (!isSendableHeaderValue(value)) throw new UnsendableHeaderException(name);
+          if (!HeaderValues.isSendable(value)) throw new UnsendableHeaderException(name);
         });
     return headers;
+  }
+
+  /** 요청에 헤더를 싣는다(실을 때 {@link #safe}로 먼저 거른다). */
+  private static Consumer<HttpHeaders> sending(Map<String, String> headers) {
+    return h -> safe(headers).forEach(h::set);
   }
 
   private RestClient client(Duration timeout) {

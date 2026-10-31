@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * kind → 수집 어댑터 레지스트리(ADR-0022 §5, TS SourceAdapterResolver). 커넥터 추가 = {@link SourceAdapter} 빈 하나.
- * 같은 kind를 두 어댑터가 맡으면 조립 시점에 거부한다.
+ * kind → 수집 어댑터 레지스트리(ADR-0022 §5). 커넥터 추가 = {@link SourceAdapter} 빈 하나. 같은 kind를 두 어댑터가 맡으면 조립 시점에
+ * 거부한다.
  */
 public final class SourceAdapters {
   private final Map<String, SourceAdapter> byKind;

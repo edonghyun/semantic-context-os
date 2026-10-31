@@ -15,10 +15,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Jira 목록 봉투 읽기(TS readPage·completeEmbeddedCollection·identity): 잘리거나 빠진 봉투를 마지막 페이지로 부르지 않고 실패한다.
- * 목록은 startAt·total·isLast, 이슈 검색은 nextPageToken·isLast로 다음 위치를 정한다.
+ * Jira 목록 봉투 읽기: 잘리거나 빠진 봉투를 마지막 페이지로 부르지 않고 실패한다. 목록은 startAt·total·isLast, 이슈 검색은
+ * nextPageToken·isLast로 다음 위치를 정한다.
  */
-@DisplayName("Jira 목록 봉투는 TS readPage처럼 다음 위치를 정하고 잘림을 거부한다")
+@DisplayName("Jira 목록 봉투는 다음 위치를 정하고 잘림을 거부한다")
 class JiraPagesTest {
   static JsonNode json(String text) {
     return JiraFixtures.JSON.readTree(text);
@@ -150,7 +150,7 @@ class JiraPagesTest {
           datasetBody("/rest/api/3/search/jql", "jql", "project = 10000 ORDER BY id ASC");
 
       // when
-      Page page = JiraPages.search(first, Optional.empty());
+      Page page = JiraPages.search(first);
 
       // then
       assertThat(page.continuation()).contains(new Continuation.Cursor("tok-page-2"));
@@ -163,7 +163,7 @@ class JiraPagesTest {
       JsonNode second = datasetBody("/rest/api/3/search/jql", "nextPageToken", "tok-page-2");
 
       // when
-      Page page = JiraPages.search(second, Optional.of("tok-page-2"));
+      Page page = JiraPages.search(second);
 
       // then
       assertThat(page.continuation()).isEmpty();
@@ -173,25 +173,37 @@ class JiraPagesTest {
     @DisplayName("봉투 없는 배열 응답은 그 자체가 전부다")
     void bareArrayIsComplete() {
       // when
-      Page page = JiraPages.search(json("[{\"id\":\"40001\"}]"), Optional.empty());
+      Page page = JiraPages.search(json("[{\"id\":\"40001\"}]"));
 
       // then
       assertThat(page.entries()).hasSize(1);
       assertThat(page.continuation()).as("다음 페이지 없음").isEmpty();
     }
 
+    @Test
+    @DisplayName("요청한 토큰을 다음 토큰으로 다시 줘도 그 페이지를 돌려준다(순환은 걷기가 판정한다)")
+    void leavesCursorCycleToWalk() {
+      // given
+      JsonNode body = json("{\"issues\":[],\"isLast\":false,\"nextPageToken\":\"same\"}");
+
+      // when
+      Page page = JiraPages.search(body);
+
+      // then
+      assertThat(page.continuation()).contains(new Continuation.Cursor("same"));
+    }
+
     @ParameterizedTest(name = "{0}")
     @CsvSource(
         delimiter = '|',
         value = {
-          "같은 토큰|{\"issues\":[],\"isLast\":false,\"nextPageToken\":\"same\"}",
           "토큰 없음|{\"issues\":[],\"isLast\":false}",
           "빈 토큰|{\"issues\":[],\"nextPageToken\":\"\"}"
         })
-    @DisplayName("커서가 전진하지 않으면 실패한다")
+    @DisplayName("isLast가 아닌데 다음 토큰이 없거나 비면 실패한다")
     void rejectsStalledCursor(String label, String body) {
       // when·then
-      assertThatThrownBy(() -> JiraPages.search(json(body), Optional.of("same")))
+      assertThatThrownBy(() -> JiraPages.search(json(body)))
           .isInstanceOf(JiraProtocolException.class)
           .hasMessage("Jira search did not advance");
     }

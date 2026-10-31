@@ -14,8 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * Jira 커넥터 조립(F5): 어댑터 빈 하나를 등록하면 kind 레지스트리 `SourceAdapters`가 수집·등록에 jira를 더한다(ADR-0022 §5). API
- * 주소는 소스 설정에서 정한다(사이트 origin, cloudId가 있으면 Atlassian API gateway — TS와 같음). 공급자 교환은 수집 런타임과 같은 실행기의
- * 요청 timeout을 쓰는 {@link ProviderHttp}다.
+ * 주소는 소스 설정에서 정한다(사이트 origin, cloudId가 있으면 Atlassian API gateway). 공급자 교환은 수집 런타임과 같은 실행기의 요청
+ * timeout을 쓰는 {@link ProviderHttp}다.
  */
 @Configuration(proxyBeanMethods = false)
 public class JiraCollectionConfiguration {

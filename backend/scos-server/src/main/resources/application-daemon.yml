@@ -1,10 +1,18 @@
-# `daemon` 명령(조립 루트가 프로필 daemon을 켠다): Actuator health/readiness/metrics를 로컬 HTTP로만 노출한다(ADR-0020 §3).
-# 포트 0이면 임의 포트(프로세스 테스트) — 실제 포트는 io.scos 로그 "daemon http port=N"에 남는다.
+# `daemon` 명령: MCP·서버 포트와 Actuator health/readiness/metrics 관리 포트를 분리한다(다중 사용자 설계 §6.3).
+# 포트 0이면 임의 포트(프로세스 테스트) — 실제 포트는 "daemon http port=N"·"daemon management port=N" 로그에 남는다.
 # 웹 유형(servlet)은 ScosApplication.main이 정한다 — 프로필 yml의 spring.main.web-application-type은 기동 순서상 효력이 없다.
+spring:
+  # serve.log(사람 갈래)는 터미널이 아니어도 색 코드를 쓴다 — tail -f·less -R로 읽는다(logging.md §1.1). daemon은 stderr에 로그를 쓰지 않는다
+  output:
+    ansi:
+      enabled: always
 server:
   address: 127.0.0.1
   port: ${SCOS_DAEMON_PORT:8081}
 management:
+  server:
+    port: ${SCOS_MANAGEMENT_PORT:8082}
+    address: 127.0.0.1
   endpoints:
     web:
       exposure:
@@ -18,3 +26,13 @@ management:
         # readiness = Boot readinessState + 첫 사이클 완료(DaemonReadinessIndicator) — 첫 사이클 전 503
         readiness:
           include: readinessState,daemonReadiness
+scos:
+  mcp:
+    # 데몬 HTTP MCP(McpHttpConfiguration). 단일 사용자 모드에서는 공유 토큰 32자 이상 필수
+    http:
+      enabled: ${SCOS_MCP_HTTP_ENABLED:false}
+      token: ${SCOS_MCP_HTTP_TOKEN:}
+      allowed-hosts: ${SCOS_MCP_HTTP_ALLOWED_HOSTS:}
+      allowed-origins: ${SCOS_MCP_HTTP_ALLOWED_ORIGINS:}
+      read-pool-size: ${SCOS_MCP_HTTP_READ_POOL_SIZE:4}
+      connection-timeout: ${SCOS_DB_CONNECTION_TIMEOUT:5000}ms

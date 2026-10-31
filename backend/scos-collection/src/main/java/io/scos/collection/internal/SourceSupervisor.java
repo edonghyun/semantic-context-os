@@ -1,6 +1,6 @@
 package io.scos.collection.internal;
 
-import io.scos.engine.support.text.EventLog;
+import io.scos.engine.EventLog;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.SourceInstanceId;
@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,24 +22,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 감독(F11, TS SourceSupervisor): enabled 소스를 id 순으로 due 판정 → 빈 worker(최대 concurrency)가 due인 소스를 id
- * 순으로 집어 수집 → 소스별 격리(예외는 error 시도). worker는 시도를 마치면 **그 순간 다시 판정해** 다음 due 소스를 집고, 집을 것이 없으면 끝난다.
- * 사이클은 장벽이 아니다(ADR-0020 §1 "사이클"): 사이클은 시작 시점에 due였던 소스가 전부 시도를 마치면 끝나지만, 그동안에도 틱(데몬 poll)마다 새로
- * due가 된 소스를 빈 worker에 준다 — 긴 소스(Drive·Notion 스냅샷)가 worker 하나를 몇 시간 쥐어도 15분 주기 소스는 밀리지 않는다. 같은 소스는
- * 이 프로세스에서 동시에 두 번 집지 않는다(수집 중 표시, 판정과 함께 lock 안), 프로세스 사이는 점유(WorkClaimPort)가 막는다. due: 점유가 live면
- * 만료 시각, 마지막 시도가 없으면 즉시, 마지막 run이 failed·partially_succeeded·cancelled·running이면 min(retryMax,
- * retryBase·2^(max(0, 최근 실패 수−1))), 성공이면 interval(소스별 값이 있으면 그것, ADR-0022 §3). 스냅샷 모드는 마지막 complete
- * snapshot 완료·마지막 스냅샷 시도(메모리) 중 늦은 시각 + 간격(소스별 값 → 데몬 값)이 지났을 때(둘 다 없으면 즉시). 이벤트 처리 단계는 없다(폴링만,
- * ADR-0008). 순수 정책 — 실행기와 포트만 안다(ADR-0020 §1).
+ * 감독(F11): enabled 소스를 id 순으로 due 판정({@link DuePolicy}) → 빈 worker(최대 concurrency)가 due인 소스를 id 순으로
+ * 집어 수집 → 소스별 격리(예외는 error 시도). worker는 시도를 마치면 **그 순간 다시 판정해** 다음 due 소스를 집고, 집을 것이 없으면 끝난다. 사이클은
+ * 장벽이 아니다(ADR-0020 §1 "사이클"): 사이클은 시작 시점에 due였던 소스가 전부 시도를 마치면 끝나지만, 그동안에도 틱(데몬 poll)마다 새로 due가 된
+ * 소스를 빈 worker에 준다 — 긴 소스(Drive·Notion 스냅샷)가 worker 하나를 몇 시간 쥐어도 15분 주기 소스는 밀리지 않는다. 같은 소스는 이
+ * 프로세스에서 동시에 두 번 집지 않는다(수집 중 표시, 판정과 함께 lock 안), 프로세스 사이는 점유(WorkClaimPort)가 막는다. 이벤트 처리 단계는
+ * 없다(폴링만, ADR-0008). 실행기와 포트만 안다(ADR-0020 §1).
  */
 public final class SourceSupervisor {
   private static final Logger log = LoggerFactory.getLogger(SourceSupervisor.class);
 
-  /** 감독 설정(TS --interval-seconds 등). retryBase ≤ retryMax, 전부 양수. */
+  /** 감독 설정(데몬의 --interval-seconds 등). retryBase ≤ retryMax, 전부 양수. */
   public record Options(
       Duration interval,
       Duration retryBase,
@@ -97,15 +96,11 @@ public final class SourceSupervisor {
       Map<SourceInstanceId, Instant> deferred) {}
 
   private final SourceInstanceStore sources;
-  private final RunStore runs;
-  private final WorkClaimPort claims;
   private final Collector collector;
   private final Options options;
   private final Clock clock;
   private final ExecutorService workers;
-
-  /** 프로세스 메모리에만 — 재기동 시 한 번의 즉시 재시도는 허용(TS와 같다). */
-  private final Map<SourceInstanceId, Instant> lastSnapshotAttemptAt = new ConcurrentHashMap<>();
+  private final DuePolicy duePolicy;
 
   /** 취소 확인 간격 — 토큰 취소는 기다리는 틱을 깨우지 않는다. */
   private static final Duration CANCEL_CHECK = Duration.ofMillis(100);
@@ -130,7 +125,7 @@ public final class SourceSupervisor {
   private final AtomicReference<Throwable> workerFailure = new AtomicReference<>();
   private int activeWorkers;
   private long sequence;
-  private OpenCycle open;
+  private @Nullable OpenCycle open;
 
   private record Evaluation(List<SourceInstance> due, Map<SourceInstanceId, Instant> deferred) {}
 
@@ -169,12 +164,11 @@ public final class SourceSupervisor {
       Clock clock,
       ExecutorService workers) {
     this.sources = sources;
-    this.runs = runs;
-    this.claims = claims;
     this.collector = collector;
     this.options = options;
     this.clock = clock;
     this.workers = workers;
+    this.duePolicy = new DuePolicy(runs, claims, options);
   }
 
   /** 이 프로세스에서 지금 수집 중인 소스와 그 시도의 시작 시각(health가 시도별 진행을 본다). */
@@ -223,8 +217,11 @@ public final class SourceSupervisor {
   private Optional<Cycle> awaitCycleEnd(CancellationToken cancel, Duration wait) {
     long deadline = System.nanoTime() + wait.toNanos();
     synchronized (lock) {
+      // 사이클은 틱(호출 스레드 하나)이 열고 여기서만 닫는다 — runDueSources가 방금 열어 두었다
       try {
-        while (cancel.isCancelled() ? !inFlight.isEmpty() : !open.pending.isEmpty()) {
+        while (cancel.isCancelled()
+            ? !inFlight.isEmpty()
+            : !Objects.requireNonNull(open).pending.isEmpty()) {
           long remaining = deadline - System.nanoTime();
           if (remaining <= 0) {
             if (cancel.isCancelled()) break;
@@ -242,7 +239,9 @@ public final class SourceSupervisor {
               .map(Finished::attempt)
               .toList();
       finished.clear();
-      Cycle cycle = new Cycle(open.startedAt, clock.instant(), attempts, Map.copyOf(open.deferred));
+      OpenCycle closing = Objects.requireNonNull(open);
+      Cycle cycle =
+          new Cycle(closing.startedAt, clock.instant(), attempts, Map.copyOf(closing.deferred));
       open = null;
       return Optional.of(cycle);
     }
@@ -281,8 +280,8 @@ public final class SourceSupervisor {
         if (open != null) open.keepOnlyPending(evaluation, inFlight.keySet());
         if (!evaluation.due().isEmpty()) {
           SourceInstance instance = evaluation.due().getFirst();
-          CollectionMode mode = resolveMode(instance, now);
-          if (mode == CollectionMode.SNAPSHOT) lastSnapshotAttemptAt.put(instance.id(), now);
+          CollectionMode mode = duePolicy.modeAt(instance, now);
+          if (mode == CollectionMode.SNAPSHOT) duePolicy.snapshotAttempted(instance.id(), now);
           inFlight.put(instance.id(), now);
           picked = Optional.of(new Picked(instance.id(), mode, sequence++));
         }
@@ -296,7 +295,7 @@ public final class SourceSupervisor {
   }
 
   /** 시도를 마감하고(결과가 없으면 Error로 끝난 시도 — 싣지 않는다) 같은 임계 구역에서 다음 소스를 집는다. */
-  private Optional<Picked> finish(Picked p, Attempt result, CancellationToken cancel) {
+  private Optional<Picked> finish(Picked p, @Nullable Attempt result, CancellationToken cancel) {
     synchronized (lock) {
       inFlight.remove(p.source());
       attemptedSinceTick.add(p.source());
@@ -323,7 +322,7 @@ public final class SourceSupervisor {
     for (SourceInstance instance : enabled) {
       if (inFlight.containsKey(instance.id()) || attemptedSinceTick.contains(instance.id()))
         continue;
-      Optional<Instant> eligibleAt = nextEligibleAt(instance, now);
+      Optional<Instant> eligibleAt = duePolicy.nextEligibleAt(instance, now);
       if (eligibleAt.filter(t -> t.isAfter(now)).isPresent())
         deferred.put(instance.id(), eligibleAt.get());
       else due.add(instance);
@@ -343,59 +342,19 @@ public final class SourceSupervisor {
       // run이 되지 못한 실패(설정 드리프트·점유 전 저장소 오류 등)는 run 기록에 남지 않는다 — 원인 스택을 여기서 남긴다
       EventLog.error(log, "supervisor.source.error")
           .source(id)
-          .detail(EventLog.detail("message", errorMessage(e)))
+          .detail("message", errorMessage(e))
           .cause(e)
           .log();
       return new Attempt(id, mode, new AttemptOutcome.Failed(e));
     }
   }
 
-  /** 다음 자격 시각. 비어 있으면 지금 due. */
-  Optional<Instant> nextEligibleAt(SourceInstance instance, Instant now) {
-    SourceInstanceId id = instance.id();
-    Optional<WorkClaim> claim = claims.current(id).filter(c -> c.isActiveAt(now));
-    if (claim.isPresent()) return Optional.of(claim.get().expiresAt());
-    Optional<CollectionRun> last = runs.latest(id);
-    if (last.isEmpty()) return Optional.empty();
-    RunStatus status = last.get().status();
-    boolean retryable =
-        status == RunStatus.FAILED
-            || status == RunStatus.PARTIALLY_SUCCEEDED
-            || status == RunStatus.CANCELLED
-            || status == RunStatus.RUNNING;
-    Duration delay =
-        retryable
-            ? retryDelay(runs.recentFailureCount(id))
-            : instance.schedule().collectIntervalOr(options.interval());
-    return Optional.of(last.get().startedAt().plus(delay));
+  /** due 정책(테스트가 판정 규칙을 직접 본다). */
+  DuePolicy duePolicy() {
+    return duePolicy;
   }
 
-  /** min(retryMax, retryBase·2^(max(0, failures−1))). */
-  Duration retryDelay(int recentFailures) {
-    int exponent = Math.min(30, Math.max(0, recentFailures - 1));
-    Duration grown = options.retryBase().multipliedBy(1L << exponent);
-    return grown.compareTo(options.retryMax()) > 0 ? options.retryMax() : grown;
-  }
-
-  CollectionMode resolveMode(SourceInstance instance, Instant now) {
-    SourceInstanceId id = instance.id();
-    Optional<Duration> interval =
-        instance.schedule().snapshotIntervalOr(options.snapshotInterval());
-    if (interval.isEmpty()) return CollectionMode.INCREMENTAL;
-    Optional<Instant> completed =
-        runs.lastSnapshotCompletion(id).map(RunStore.SnapshotCompletion::completedAt);
-    Optional<Instant> attempted = Optional.ofNullable(lastSnapshotAttemptAt.get(id));
-    if (completed.isEmpty() && attempted.isEmpty()) return CollectionMode.SNAPSHOT;
-    Instant last =
-        completed.map(c -> attempted.filter(a -> a.isAfter(c)).orElse(c)).orElseGet(attempted::get);
-    return last.plus(interval.get()).isAfter(now)
-        ? CollectionMode.INCREMENTAL
-        : CollectionMode.SNAPSHOT;
-  }
-
-  /**
-   * TS `error instanceof Error ? error.message : "Source collection failed"`: 메시지가 없으면 TS 대체 문구.
-   */
+  /** 메시지가 없으면 대체 문구. */
   static String errorMessage(RuntimeException e) {
     return e.getMessage() == null ? "Source collection failed" : e.getMessage();
   }

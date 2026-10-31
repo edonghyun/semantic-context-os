@@ -7,6 +7,7 @@ import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.support.Eventually;
 import io.scos.support.TestMetrics;
 import java.io.IOException;
@@ -49,8 +50,8 @@ public final class RateLimitedProvider {
   public Embedder embedder(int dim) {
     return new Embedder() {
       @Override
-      public int dim() {
-        return dim;
+      public EmbedderIdentity identity() {
+        return new EmbedderIdentity("test", "rate-limited", dim);
       }
 
       @Override

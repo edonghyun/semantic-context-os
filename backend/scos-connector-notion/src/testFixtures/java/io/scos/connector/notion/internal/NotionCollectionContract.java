@@ -7,6 +7,7 @@ import io.scos.collection.internal.CheckpointPort;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawRecord;
+import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
 import io.scos.collection.internal.SnapshotGuardStore;
 import io.scos.collection.internal.SourceInstanceStore;
@@ -16,15 +17,18 @@ import io.scos.connector.notion.NotionAdapter;
 import io.scos.connector.notion.NotionAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionMode;
+import io.scos.support.FakeHttpServer.Response;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
@@ -39,13 +43,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Notion roots 수집을 실제 런타임(점유·페이지 커밋·완료 정리)으로 돌린 결과가 TS와 같다 — 메모리 포트(TESTING §3.6 5층, {@code
- * MemoryNotionCollectionTest})와 PostgreSQL(6층, {@code NotionCollectionTest})이 같은 사례를 지킨다(§3.6
- * "5·6층을 계약 하나로"). 삭제 계약(F6 T6.4)을 본다: 휴지통 객체는 tombstone, 거부가 남은 run은 정리하지 않고 거부가 없는 사이클 run만 보지 못한
- * 원본을 정리한다(complete_snapshot sweep), 중간 재개 run은 정리하지 않는다, 공유되지 않은 루트는 run 실패다. 구현 차이는 {@link
- * #newRuntime}에만 있다.
+ * Notion roots 수집을 실제 런타임(점유·페이지 커밋·완료 정리)으로 돌려 v4 계약과 의도된 TS 편차를 고정한다 — 메모리 포트(TESTING §3.6 5층,
+ * {@code MemoryNotionCollectionTest})와 PostgreSQL(6층, {@code NotionCollectionTest})이 같은 사례를
+ * 지킨다(§3.6 "5·6층을 계약 하나로"). 삭제 계약(F6 T6.4)을 본다: 휴지통 객체는 tombstone, 거부가 남은 run은 정리하지 않고 거부가 없는 사이클
+ * run만 보지 못한 원본을 정리한다(complete_snapshot sweep), 중간 재개 run은 정리하지 않는다, 공유되지 않은 루트는 run 실패다. 구현 차이는
+ * {@link #newRuntime}에만 있다.
  */
-@DisplayName("Notion roots 수집은 실제 런타임에서 TS와 같이 남고 정리된다(F6 T6.4)")
+@DisplayName("Notion roots 수집은 실제 런타임에서 v4 재조정 계약을 지킨다(F6 T6.4·F17-D34)")
 public abstract class NotionCollectionContract {
   /** 구현별 저장소 위의 실제 수집 런타임과 그 저장소(소스 등록·원본 관찰용). */
   public record Assembled(
@@ -63,7 +67,11 @@ public abstract class NotionCollectionContract {
   /** 장애 run의 시도 timeout(TS 빠른 정책 — 응답하지 않는 요청을 끊는다). */
   static final Duration FAST_TIMEOUT = NotionScenario.FAST_TIMEOUT;
 
+  // 같은 서버로 세 번의 전체 재조정을 실행한다. 안정성 재조회가 추가된 실측 요청량을 수용한다.
+  static final int MAX_FULL_CYCLES = 3;
+
   private final MutableClock clock = new MutableClock(NotionScenario.NOW);
+  private final JsonNode reports = NotionFixtures.read("expected-reconciliation-reports.json");
   private final JsonNode roots = NotionFixtures.read("expected-raw-items.json");
   private final JsonNode resume = NotionFixtures.read("expected-resume.json");
   private final JsonNode failures = NotionFixtures.read("expected-failures.json");
@@ -74,7 +82,9 @@ public abstract class NotionCollectionContract {
   @BeforeEach
   void setUpContract() {
     try {
-      server = new FakeNotionServer(NotionFixtures.dataset());
+      server =
+          new FakeNotionServer(
+              NotionFixtures.dataset(), FakeNotionServer.REQUEST_BUDGET * MAX_FULL_CYCLES);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -107,6 +117,12 @@ public abstract class NotionCollectionContract {
         .collect(NotionAssembly.SOURCE, CollectionMode.INCREMENTAL, CancellationToken.none());
   }
 
+  CollectionRuntime.Report snapshot() {
+    return runtime
+        .runtime()
+        .collect(NotionAssembly.SOURCE, CollectionMode.SNAPSHOT, CancellationToken.none());
+  }
+
   /** 다음 상황의 앞 단계: 수집 한 번이 성공으로 끝났다(거부 포함 — 아니면 given 준비 실패). */
   CollectionRuntime.Report givenCollected() {
     CollectionRuntime.Report report = collect();
@@ -117,7 +133,7 @@ public abstract class NotionCollectionContract {
 
   /** 재개의 앞 단계: 행 둘째 페이지에서 끊긴 run 하나를 남긴다(그 run이 성공하면 given 준비 실패). */
   CollectionRuntime.Report givenCrashedRun() {
-    server.crashAt(resume.get("crashAt"));
+    server.crashAt(NotionFixtures.reconciliationRequest(resume.get("crashAt")));
     CollectionRuntime.Report crashed = collect();
     if (crashed.status().isSuccess())
       throw new IllegalStateException("given 준비 실패: 행 둘째 페이지에서 끊긴 run이어야 한다 — " + crashed);
@@ -183,17 +199,70 @@ public abstract class NotionCollectionContract {
     return out;
   }
 
+  private void givenReconciliationRoot() {
+    runtime
+        .sources()
+        .save(NotionAssembly.instance("{\"rootPageIds\":[\"root-retro\"]}", clock.instant()));
+    var empty =
+        NotionFixtures.JSON
+            .createObjectNode()
+            .put("object", "list")
+            .put("has_more", false)
+            .putNull("next_cursor");
+    empty.putArray("results");
+    server.respond(
+        "GET",
+        "/v1/blocks/root-retro/children",
+        new Response(
+            HttpURLConnection.HTTP_OK, empty.deepCopy().put("type", "block").toString(), Map.of()));
+    server.respond(
+        "POST",
+        "/v1/search",
+        new Response(
+            HttpURLConnection.HTTP_OK,
+            empty.deepCopy().put("type", "page_or_data_source").toString(),
+            Map.of()));
+  }
+
+  @Test
+  @DisplayName("roots 실제 런타임은 같은 run의 부재 검증을 커밋한다")
+  void rootsRuntimeCommitsAbsenceVerification() {
+    // given
+    givenReconciliationRoot();
+    // when
+    var report = collect();
+    // then
+    assertThat(runtime.runs().absenceRequirement(report.runId())).isPresent();
+    assertThat(runtime.runs().absenceValidation(report.runId())).isPresent();
+  }
+
+  @Test
+  @DisplayName("roots 실제 런타임은 v4 재조정 확인점을 커밋한다")
+  void rootsRuntimeCommitsReconciliationCheckpoint() {
+    // when
+    collect();
+    // then
+    assertThat(
+            runtime
+                .checkpoints()
+                .read(NotionAssembly.SOURCE)
+                .checkpoint()
+                .orElseThrow()
+                .schemaVersion())
+        .isEqualTo(NotionReconciliationState.SCHEMA_VERSION);
+  }
+
   @Nested
   @DisplayName("처음 수집하면")
   class FirstCollection {
     @Test
-    @DisplayName("run 보고가 TS와 같다")
-    void reportMatchesTs() {
+    @DisplayName("v4 재조정 보고 전체를 고정한다(TS 대비 F17-D34 편차)")
+    void reportMatchesV4() {
       // when
       CollectionRuntime.Report report = collect();
 
       // then
-      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(roots.get("report")));
+      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(reports.get("first")));
     }
 
     @Test
@@ -219,7 +288,7 @@ public abstract class NotionCollectionContract {
 
     /** 저장소가 값 JSON을 다시 쓸 수 있다(PostgreSQL JSONB는 키 순서를 남기지 않는다) — 값으로 비교한다. */
     @Test
-    @DisplayName("저장된 체크포인트가 TS와 같은 값이다")
+    @DisplayName("v4 확인점은 끝난 전체 큐를 다시 시작하지 않는다")
     void storedCheckpointMatchesTs() {
       // when
       collect();
@@ -227,8 +296,8 @@ public abstract class NotionCollectionContract {
       // then
       Checkpoint stored =
           runtime.checkpoints().read(NotionAssembly.SOURCE).checkpoint().orElseThrow();
-      assertThat(NotionFixtures.JSON.readTree(stored.valueJson()))
-          .isEqualTo(roots.get("checkpoint").get("checkpoint").get("value"));
+      assertThat(stored.schemaVersion()).isEqualTo(NotionReconciliationState.SCHEMA_VERSION);
+      assertThat(NotionFixtures.JSON.readTree(stored.valueJson()).has("traversal")).isFalse();
     }
 
     @Test
@@ -255,23 +324,24 @@ public abstract class NotionCollectionContract {
     }
 
     @Test
-    @DisplayName("run은 succeeded_with_rejections로 TS와 같다")
-    void reportMatchesTs() {
+    @DisplayName("v4 재조정 보고 전체를 고정한다(TS 대비 F17-D34 편차)")
+    void reportMatchesV4() {
       // when
-      CollectionRuntime.Report report = collect();
+      CollectionRuntime.Report report = snapshot();
 
       // then
-      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(ts.get("report")));
+      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(reports.get("edited")));
     }
 
     @Test
     @DisplayName("보지 못한 원본을 정리하지 않는다")
     void doesNotSweep() {
       // when
-      collect();
+      snapshot();
 
       // then
-      assertThat(tombstones(strings(ts.get("tombstones")))).isEqualTo(TombstoneView.expected(ts));
+      assertThat(runtime.rawItems().get(NotionAssembly.SOURCE, "row-runbook"))
+          .hasValueSatisfying(raw -> assertThat(raw).isInstanceOf(RawRecord.Active.class));
     }
   }
 
@@ -284,38 +354,58 @@ public abstract class NotionCollectionContract {
     void givenSharedAfterEdit() {
       givenCollected();
       server.phase(FakeNotionServer.Phase.EDITED);
-      givenCollected();
+      snapshot();
       server.phase(FakeNotionServer.Phase.SHARED);
     }
 
     @Test
-    @DisplayName("run 보고가 TS와 같다")
-    void reportMatchesTs() {
-      // when
-      CollectionRuntime.Report report = collect();
-
+    @DisplayName("공유 후에도 404 부재 후보가 남으면 전체 정리 보류 사유를 보고한다")
+    void reportsDeferredAbsenceAfterShare() {
+      var report = snapshot();
       // then
-      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(ts.get("report")));
+      assertThat(report.errorKind()).contains("absence_verification_deferred");
     }
 
     @Test
-    @DisplayName("사라진 블록·행은 tombstone이 된다")
-    void sweepsUnobserved() {
+    @DisplayName("v4 재조정 보고 전체를 고정한다(TS 대비 F17-D34 편차)")
+    void reportMatchesV4() {
       // when
-      collect();
+      CollectionRuntime.Report report = snapshot();
 
       // then
-      assertThat(tombstones(strings(ts.get("tombstones")))).isEqualTo(TombstoneView.expected(ts));
+      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(reports.get("shared")));
+    }
+
+    @Test
+    @DisplayName("완료한 페이지 소유 본문의 사라진 블록은 부분 정리한다")
+    void completedBodyRemovesItsMissingBlock() {
+      // when
+      snapshot();
+      // then
+      assertThat(runtime.rawItems().get(NotionAssembly.SOURCE, "block:blk-retro-done"))
+          .hasValueSatisfying(raw -> assertThat(raw).isInstanceOf(RawRecord.Deleted.class));
+    }
+
+    @Test
+    @DisplayName("직접 조회 404인 행은 전체 부재로 지우지 않는다")
+    void unknownRowIsPreserved() {
+      // when
+      snapshot();
+      // then
+      assertThat(runtime.rawItems().get(NotionAssembly.SOURCE, "row-runbook"))
+          .hasValueSatisfying(raw -> assertThat(raw).isInstanceOf(RawRecord.Active.class));
     }
 
     @Test
     @DisplayName("active 원본이 TS와 같다")
     void activeItemsMatchTs() {
       // when
-      collect();
+      snapshot();
 
       // then
-      assertThat(activeIds()).containsExactlyInAnyOrderElementsOf(activeIdsOf(ts));
+      var expected = new ArrayList<>(activeIdsOf(ts));
+      expected.addAll(List.of("row-runbook", "block:blk-row-runbook"));
+      assertThat(activeIds()).containsExactlyInAnyOrderElementsOf(expected);
     }
   }
 
@@ -326,17 +416,17 @@ public abstract class NotionCollectionContract {
 
     @BeforeEach
     void givenCrashAtSecondRowPage() {
-      server.crashAt(resume.get("crashAt"));
+      server.crashAt(NotionFixtures.reconciliationRequest(resume.get("crashAt")));
     }
 
     @Test
-    @DisplayName("run은 TS처럼 partially_succeeded다")
-    void crashedRunMatchesTs() {
+    @DisplayName("v4 재조정 보고 전체를 고정한다(TS 대비 F17-D34 편차)")
+    void reportMatchesV4() {
       // when
       CollectionRuntime.Report report = collect();
 
       // then
-      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(first.get("report")));
+      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(reports.get("crashed")));
     }
 
     @Test
@@ -362,13 +452,13 @@ public abstract class NotionCollectionContract {
     }
 
     @Test
-    @DisplayName("재개한 run 보고가 TS와 같다")
-    void resumedRunMatchesTs() {
+    @DisplayName("v4 재조정 보고 전체를 고정한다(TS 대비 F17-D34 편차)")
+    void reportMatchesV4() {
       // when
       CollectionRuntime.Report report = collect();
 
       // then
-      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(second.get("report")));
+      assertThat(ReportView.of(report)).isEqualTo(ReportView.expected(reports.get("resumed")));
     }
 
     @Test
@@ -444,26 +534,32 @@ public abstract class NotionCollectionContract {
     /** TS 장애 run의 장애 각본을 걸고, 전송 실패면 닫힌 포트로 빠른 timeout 런타임을 다시 조립한다. */
     void givenOperationalFailure(String label) {
       JsonNode failure = failure(label);
-      failure.get("faults").forEach(server::fault);
+      failure
+          .get("faults")
+          .forEach(fault -> server.fault(NotionFixtures.reconciliationRequest(fault)));
       assemble(
           failure.get("transportDown").asBoolean() ? NotionAssembly.closedPort() : server.baseUrl(),
           FAST_TIMEOUT);
     }
 
-    /** TS run의 재시도 수: 바로 앞 요청과 같은 요청의 수(TS는 시도마다 요청을 남긴다 — 앞선 rate_limited 재시도 포함). */
-    int tsRetries(String label) {
-      List<JsonNode> requests = new ArrayList<>();
-      failure(label).get("requests").forEach(requests::add);
-      int retries = 0;
-      for (int i = 1; i < requests.size(); i++)
-        if (requests.get(i).equals(requests.get(i - 1))) retries++;
-      return retries;
+    int failedCallAttempts(String label) {
+      var failure = failure(label);
+      if (failure.path("transportDown").asBoolean()) return waits.size() + 1;
+      String path = failure.path("faults").get(0).path("path").asString();
+      return (int)
+          server.requests().stream().filter(request -> request.path().equals(path)).count();
+    }
+
+    int expectedFailureAttempts(String label) {
+      return label.equals("JSON 아닌 게이트웨이 오류")
+          ? 1
+          : ProviderCallPolicy.defaults(() -> 0.0).maxAttempts();
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("io.scos.connector.notion.internal.NotionCollectionContract#operationalFailures")
-    @DisplayName("run 보고가 TS와 같다")
-    void reportMatchesTs(String label) {
+    @DisplayName("v4 재조정 보고 전체를 고정한다(TS 대비 F17-D34 편차)")
+    void reportMatchesV4(String label) {
       // given
       givenOperationalFailure(label);
 
@@ -472,7 +568,7 @@ public abstract class NotionCollectionContract {
 
       // then
       assertThat(ReportView.of(report))
-          .isEqualTo(ReportView.expected(failure(label).get("report")));
+          .isEqualTo(ReportView.expected(reports.get("failure:" + label)));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -492,7 +588,7 @@ public abstract class NotionCollectionContract {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("io.scos.connector.notion.internal.NotionCollectionContract#operationalFailures")
-    @DisplayName("TS와 같은 수만큼 재시도한다")
+    @DisplayName("실패한 호출은 분류된 정책의 시도 한도만큼 재시도한다")
     void retriesLikeTs(String label) {
       // given
       givenOperationalFailure(label);
@@ -501,14 +597,13 @@ public abstract class NotionCollectionContract {
       collect();
 
       // then
-      assertThat(waits).hasSize(tsRetries(label));
+      assertThat(failedCallAttempts(label)).isEqualTo(expectedFailureAttempts(label));
     }
   }
 
   /**
-   * run 오류 요약(TS classifyRunError — 공급자 실패는 failure.message, 그 밖은 예외 메시지, 공용 fad8ffe)이 TS 저장값과 같은
-   * 경우. 시간 초과·전송 실패는 HTTP 클라이언트의 메시지라 TS("Provider call timed out: …"·"fetch failed")와
-   * 다르다(CONTRACTS F17-D5).
+   * run 오류 요약(공급자 실패는 failure.message, 그 밖은 예외 메시지, 공용 fad8ffe)이 TS 저장값과 같은 경우. 시간 초과·전송 실패는 HTTP
+   * 클라이언트의 메시지라 TS("Provider call timed out: …"·"fetch failed")와 다르다(CONTRACTS F17-D5).
    */
   @Nested
   @DisplayName("Notion API 오류나 프로토콜 위반으로 run이 끝나면")
@@ -526,7 +621,9 @@ public abstract class NotionCollectionContract {
     @DisplayName("run 오류 요약이 TS 저장값과 같다")
     void summaryMatchesTs(String label, String config) {
       // given: 빠른 timeout으로 다시 조립한 런타임의 이 설정 소스에 TS 장애 각본
-      failure(label).get("faults").forEach(server::fault);
+      failure(label)
+          .get("faults")
+          .forEach(fault -> server.fault(NotionFixtures.reconciliationRequest(fault)));
       assemble(server.baseUrl(), FAST_TIMEOUT);
       givenConfig(config);
 
@@ -595,7 +692,7 @@ public abstract class NotionCollectionContract {
       CollectionRuntime.Report report = collect();
 
       // then
-      assertThat(report.status().wire()).isEqualTo("succeeded");
+      assertThat(report.status()).isEqualTo(RunStatus.SUCCEEDED_WITH_REJECTIONS);
     }
   }
 

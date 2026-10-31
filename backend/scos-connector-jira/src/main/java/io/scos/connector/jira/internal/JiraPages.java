@@ -7,13 +7,14 @@ import java.util.Optional;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Jira 목록 봉투 읽기(TS readPage·completeEmbeddedCollection·identity, jira-adapter.ts:463-518). 잘리거나 빠진
- * 봉투를 마지막 페이지로 부르지 않는다 — 조용히 끝내면 남은 항목을 영영 놓친다. 위반은 {@link JiraProtocolException}(TS 메시지).
+ * Jira 목록 봉투 읽기. 잘리거나 빠진 봉투를 마지막 페이지로 부르지 않는다 — 조용히 끝내면 남은 항목을 영영 놓친다. 위반은 {@link
+ * JiraProtocolException}.
  *
  * <ul>
  *   <li>목록(startAt·total·isLast): 응답 startAt이 요청과 다르면 실패, isLast거나 받은 개수가 total에 닿으면 끝, 빈 페이지이거나
  *       (isLast가 false가 아니면서) total이 없으면 실패, 아니면 받은 개수만큼 뒤.
- *   <li>이슈 검색(nextPageToken·isLast): isLast면 끝, 아니면 비지 않고 직전과 다른 토큰이 다음 위치.
+ *   <li>이슈 검색(nextPageToken·isLast): isLast면 끝, 아니면 비지 않은 토큰이 다음 위치. 토큰이 이미 요청한 토큰으로 돌아오는지(A → A·A
+ *       → B → A)는 프로젝트 검색 걷기 전체를 아는 {@link JiraCollection}이 본다.
  *   <li>봉투 없는 배열은 그 자체가 전부다.
  * </ul>
  */
@@ -48,22 +49,19 @@ final class JiraPages {
     return new Page(entries, Optional.of(new Continuation.Offset(start + entries.size())));
   }
 
-  static Page search(JsonNode data, Optional<String> cursor) {
+  static Page search(JsonNode data) {
     if (data.isArray()) return Page.last(objects(data));
     List<JsonNode> entries = entries(data, "issues");
     if (isTrue(data.get("isLast"))) return Page.last(entries);
     JsonNode token = data.get("nextPageToken");
-    if (token == null
-        || !token.isString()
-        || token.asString().isEmpty()
-        || cursor.filter(token.asString()::equals).isPresent())
+    if (token == null || !token.isString() || token.asString().isEmpty())
       throw new JiraProtocolException("Jira search did not advance");
     return new Page(entries, Optional.of(new Continuation.Cursor(token.asString())));
   }
 
   /**
-   * 내장 자식 목록이 완전하면(total = 받은 개수, startAt 없음 또는 0) 그 목록, 아니면 empty — 끝점에서 다시 읽는다. TS의 "total은 안전한
-   * 정수"는 배열 길이와 같다는 조건에 들어 있다.
+   * 내장 자식 목록이 완전하면(total = 받은 개수, startAt 없음 또는 0) 그 목록, 아니면 empty — 끝점에서 다시 읽는다. "total은 안전한 정수"
+   * 조건은 배열 길이와 같다는 조건에 들어 있다.
    */
   static Optional<List<JsonNode>> completeEmbedded(JsonNode value, String key) {
     if (value == null || !value.isObject()) return Optional.empty();
@@ -80,7 +78,7 @@ final class JiraPages {
     return Optional.of(objects(entries));
   }
 
-  /** 문자열(비지 않은) 또는 숫자 id. TS {@code String(id)}라 수는 JS 표기다. */
+  /** 문자열(비지 않은) 또는 숫자 id. 수는 JS 표기({@code String(id)})다. */
   static String identity(JsonNode value) {
     JsonNode id = value.get("id");
     if (id == null || !(id.isString() || id.isNumber()) || id.asString().isEmpty())
@@ -88,7 +86,7 @@ final class JiraPages {
     return id.isNumber() ? JsJson.stringify(id) : id.asString();
   }
 
-  /** 객체여야 한다(TS object()). */
+  /** 객체여야 한다. */
   static JsonNode object(JsonNode value) {
     if (value == null || !value.isObject()) throw new JiraProtocolException("Invalid Jira object");
     return value;

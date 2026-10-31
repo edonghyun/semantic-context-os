@@ -2,16 +2,17 @@ package io.scos.connector.jira.internal;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Jira 작업 큐의 작업 종류(TS jira-adapter.ts의 JiraCollectionTask.kind와
- * ROOT_TASKS·REQUIRED_LISTINGS·listing 경로표). 작업 JSON의 `kind` 값, 모양(루트 목록·자식 목록·이슈·첨부), 필수 여부, 원본
- * 종류, 경로, 봉투 키, 고정 쿼리를 한 곳에 둔다 — 새 종류나 필수 여부는 여기만 바꾼다. 작업 JSON 자체(`ObjectNode`)는 TS 체크포인트와 같은 모양을
- * 지키려고 그대로 두고, 종류만 {@link #of}로 읽는다.
+ * Jira 작업 큐의 작업 종류. 작업 JSON의 `kind` 값, 모양(루트 목록·자식 목록·이슈·첨부), 필수 여부, 원본 종류, 경로, 봉투 키, 고정 쿼리를 한 곳에
+ * 둔다 — 새 종류나 필수 여부는 여기만 바꾼다. 작업 JSON 자체(`ObjectNode`)는 저장된 v1 체크포인트의 모양을 지키려고 그대로 두고, 종류만 {@link
+ * #of}로 읽는다.
  *
- * <p>선언 순서의 앞 다섯(루트)은 TS ROOT_TASKS 순서다: 처음 수집과 큐가 빈 체크포인트는 이 순서로 시작한다.
+ * <p>선언 순서의 앞 다섯이 루트다: 처음 수집과 큐가 빈 체크포인트는 이 순서로 시작한다.
  */
 enum WorkKind {
   FIELDS(
@@ -98,7 +99,7 @@ enum WorkKind {
     ATTACHMENT
   }
 
-  /** 400·403·404를 받았을 때: 필수면 run 실패, 선택이면 거부로 남기고 계속한다(TS REQUIRED_LISTINGS). */
+  /** 400·403·404를 받았을 때: 필수면 run 실패, 선택이면 거부로 남기고 계속한다. */
   enum Availability {
     REQUIRED,
     OPTIONAL
@@ -114,17 +115,19 @@ enum WorkKind {
   /** 고정 expand 쿼리. */
   final Optional<String> expand;
 
-  private final String pathTemplate;
-  private final String envelopeKey;
+  /** 목록 작업만 있다(이슈·첨부는 null). */
+  private final @Nullable String pathTemplate;
+
+  private final @Nullable String envelopeKey;
 
   WorkKind(
       String wire,
       Shape shape,
       Availability availability,
-      String resource,
-      String pathTemplate,
-      String envelopeKey,
-      String expand) {
+      @Nullable String resource,
+      @Nullable String pathTemplate,
+      @Nullable String envelopeKey,
+      @Nullable String expand) {
     this.wire = wire;
     this.shape = shape;
     this.availability = availability;
@@ -134,7 +137,7 @@ enum WorkKind {
     this.expand = Optional.ofNullable(expand);
   }
 
-  /** 처음 수집·빈 큐에서 시작하는 루트 작업(TS ROOT_TASKS 순서). */
+  /** 처음 수집·빈 큐에서 시작하는 루트 작업(선언 순서). */
   static List<WorkKind> roots() {
     return Arrays.stream(values()).filter(k -> k.shape == Shape.ROOT_LISTING).toList();
   }
@@ -148,17 +151,28 @@ enum WorkKind {
     return fromWire(work.get("kind").asString()).orElseThrow();
   }
 
+  /** 목록 항목 하나가 낳는 자식 작업의 종류: 프로젝트는 컴포넌트·버전·이슈 검색, scrum·simple 보드는 스프린트. */
+  List<WorkKind> childKindsOf(JsonNode entry) {
+    if (this == PROJECTS) return List.of(COMPONENTS, VERSIONS, ISSUES);
+    JsonNode type = entry.get("type");
+    if (this == BOARDS
+        && type != null
+        && (type.asString("").equals("scrum") || type.asString("").equals("simple")))
+      return List.of(SPRINTS);
+    return List.of();
+  }
+
   boolean batched() {
     return shape == Shape.ISSUE || shape == Shape.ATTACHMENT;
   }
 
   /** 목록 경로(인코딩한 부모 id를 넣는다). 목록 작업만 부른다(이슈·첨부에는 경로 틀이 없다). */
   String path(String encodedId) {
-    return pathTemplate.replace("{id}", encodedId);
+    return Objects.requireNonNull(pathTemplate).replace("{id}", encodedId);
   }
 
-  /** 목록 봉투에서 항목 배열의 키(TS readPage의 key). 목록 작업만 부른다. */
+  /** 목록 봉투에서 항목 배열의 키. 목록 작업만 부른다. */
   String envelopeKey() {
-    return envelopeKey;
+    return Objects.requireNonNull(envelopeKey);
   }
 }

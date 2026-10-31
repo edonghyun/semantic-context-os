@@ -80,8 +80,8 @@ public record ComparisonQuery(
     return resolved == Format.PACK ? pack(content) : queryLog(content);
   }
 
-  /** 문서 전체가 queries 배열을 가진 JSON 객체 하나면 pack, 아니면 JSONL. */
-  static Format detect(String content) {
+  /** 문서 전체가 queries 배열을 가진 JSON 객체 하나면 pack, 아니면 JSONL. evaluate가 질의 로그를 거르는 데도 쓴다. */
+  public static Format detect(String content) {
     try {
       JsonNode whole = JSON.readTree(content);
       if (whole != null && whole.isObject() && whole.has("queries")) return Format.PACK;

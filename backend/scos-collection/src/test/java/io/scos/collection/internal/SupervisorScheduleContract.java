@@ -18,8 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * 소스별 감독 주기(ADR-0022 §3, TS `--interval-seconds-for`·`snapshotIntervalMsBySource`)의 due 계약. 주기는 등록
- * 저장소를 거쳐 감독에 닿으므로, 같은 사례를 메모리 포트와 PostgreSQL 포트 양쪽으로 돌린다.
+ * 소스별 감독 주기(ADR-0022 §3)의 due 계약. 주기는 등록 저장소를 거쳐 감독에 닿으므로, 같은 사례를 메모리 포트와 PostgreSQL 포트 양쪽으로 돌린다.
  */
 @DisplayName("감독은 소스별 수집·스냅샷 주기로 due를 정한다(ADR-0022 §3)")
 public abstract class SupervisorScheduleContract {
@@ -76,12 +75,10 @@ public abstract class SupervisorScheduleContract {
         .runs()
         .finish(
             run,
-            status,
+            new RunOutcome(
+                status, status == RunStatus.SUCCEEDED ? 0 : 1, Optional.empty(), Optional.empty()),
             CollectionCoverage.INCREMENTAL,
             STARTED.plusSeconds(1),
-            status == RunStatus.SUCCEEDED ? 0 : 1,
-            Optional.empty(),
-            Optional.empty(),
             0);
   }
 

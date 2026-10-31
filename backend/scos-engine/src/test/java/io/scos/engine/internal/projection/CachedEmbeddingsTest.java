@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.store.EmbeddingCache;
 import io.scos.store.memory.MemoryEmbeddingCache;
 import java.util.List;
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test;
 /** 임베딩 입력 한 배치의 벡터(F9, ADR-0026): 캐시에 있으면 캐시 벡터, 없으면 그 입력의 임베더 벡터. 입력마다 다른 벡터를 내는 임베더로 본다. */
 @DisplayName("임베딩 배치는 캐시에 있으면 캐시 벡터, 없으면 임베더 벡터를 받는다(ADR-0026)")
 class CachedEmbeddingsTest {
-  static final String GENERATION = DocumentIngestor.embeddingGeneration(4);
+  static final String GENERATION = "test:recording:4:title+aliases+content";
   static final double[] CACHED = {9, 8, 7, 6};
   static final double[] SHORT = {9, 8, 7};
 
@@ -123,8 +124,8 @@ class CachedEmbeddingsTest {
     Embedder short1 =
         new Embedder() {
           @Override
-          public int dim() {
-            return 4;
+          public EmbedderIdentity identity() {
+            return new EmbedderIdentity("test", "cached", 4);
           }
 
           @Override

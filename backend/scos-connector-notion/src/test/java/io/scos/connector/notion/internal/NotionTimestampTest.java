@@ -13,9 +13,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
 
 /**
- * 편집 시각 정규화(TS normalizedTimestamp — `new Date(v).toISOString()`, 표 expected-client.json
- * timestampCases): 원본 순서 position이 TS와 같고, TS가 읽지 못하는 값은 같은 메시지로 실패한다. 오프셋 없는 시각은 TS가 프로세스 지역 시각으로
- * 읽으므로 Java는 받지 않는다(CONTRACTS F17-D2).
+ * 편집 시각 정규화(`new Date(v).toISOString()`, 표 expected-client.json timestampCases): 원본 순서 position이
+ * TS와 같고, TS가 읽지 못하는 값은 같은 메시지로 실패한다. 오프셋 없는 시각은 TS가 프로세스 지역 시각으로 읽으므로 Java는 받지 않는다(CONTRACTS
+ * F17-D2).
  */
 @DisplayName("Notion 편집 시각은 TS normalizedTimestamp처럼 정규화한다(F17-D2)")
 class NotionTimestampTest {

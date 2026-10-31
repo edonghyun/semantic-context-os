@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
@@ -27,10 +27,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 수집 런타임의 운영 이벤트 로그(TS collection-runtime.ts의 logger.log — 데몬 JSON 로그): 거부 항목마다 warn
- * `collection.item.rejected`, 실패한 run은 error `collection.run.failed`, 취소된 run은 info
- * `collection.run.cancelled`. detail은 TS와 같은 필드(status·errorKind·errorSummary /
- * failureKind·message·providerLocator)다.
+ * 수집 런타임의 운영 이벤트 로그(데몬 JSON 로그): 거부 항목마다 warn `collection.item.rejected`, 실패한 run은 error
+ * `collection.run.failed`, 취소된 run은 info `collection.run.cancelled`. detail은 TS와 같은
+ * 필드(status·errorKind·errorSummary / failureKind·message·providerLocator)다.
  */
 @DisplayName("수집 런타임 운영 이벤트 — 거부·실패·취소를 TS와 같은 줄로 남긴다")
 // 제품 클래스의 공용 로거에 appender를 단다 — 같은 JVM의 다른 테스트가 남긴 줄이 섞이지 않게 혼자 돈다(TESTING §6.3)
@@ -134,7 +133,83 @@ class CollectionRuntimeEventLogTest {
             json(
                 "{\"level\":\"error\",\"event\":\"collection.run.failed\",\"sourceInstanceId\":\"src-a\","
                     + "\"runId\":\"run-events\",\"detail\":{\"status\":\"failed\",\"errorKind\":\"dependency_unavailable\","
-                    + "\"errorSummary\":\"HTTP 503\"}}"));
+                    + "\"errorSummary\":\"HTTP 503\",\"operation\":\"jira.read\"}}"));
+  }
+
+  @Test
+  @DisplayName("위치를 단 공급자 실패면 collection.run.failed가 그 위치를 싣는다")
+  void logsFailedRunLocation() {
+    // given
+    SourceAdapter adapter =
+        SourceInstances.adapter(
+            input -> {
+              throw new CallFailureException(
+                      "jira.read",
+                      CallFailure.of(CallFailure.Kind.DEPENDENCY_UNAVAILABLE, "HTTP 503"))
+                  .at(LOCATOR);
+            });
+
+    // when
+    collectWith(adapter);
+
+    // then
+    assertThat(log.events("collection.run.failed"))
+        .singleElement()
+        .satisfies(
+            line -> assertThat(line.get("detail").get("providerLocator")).isEqualTo(json(LOCATOR)));
+  }
+
+  @Test
+  @DisplayName("응답 검사 위반이면 collection.run.failed가 검사 이름과 항목 인덱스를 싣는다")
+  void logsFailedRunViolation() {
+    // given
+    SourceAdapter adapter =
+        SourceInstances.adapter(
+            input -> {
+              throw new CallFailureException(
+                  "notion.search.pages",
+                  CallFailure.invalidResponse(
+                      "Notion API error: invalid_provider_response",
+                      Optional.of(CallFailure.Violation.item("item_shape", 3))));
+            });
+
+    // when
+    collectWith(adapter);
+
+    // then
+    assertThat(log.events("collection.run.failed"))
+        .singleElement()
+        .satisfies(
+            line ->
+                assertThat(line.get("detail"))
+                    .isEqualTo(
+                        json(
+                            "{\"status\":\"failed\",\"errorKind\":\"invalid_provider_response\","
+                                + "\"errorSummary\":\"Notion API error: invalid_provider_response\","
+                                + "\"operation\":\"notion.search.pages\",\"violation\":\"item_shape\","
+                                + "\"itemIndex\":3}")));
+  }
+
+  @Test
+  @DisplayName("공급자 호출이 아닌 실패의 collection.run.failed에는 위치가 없다")
+  void logsFailedRunWithoutLocation() {
+    // given
+    SourceAdapter adapter =
+        SourceInstances.adapter(
+            input -> {
+              throw new IllegalStateException("boom");
+            });
+
+    // when
+    collectWith(adapter);
+
+    // then
+    assertThat(log.events("collection.run.failed"))
+        .singleElement()
+        .satisfies(
+            line ->
+                assertThat(line.get("detail").propertyNames())
+                    .containsExactly("status", "errorKind", "errorSummary"));
   }
 
   @Test

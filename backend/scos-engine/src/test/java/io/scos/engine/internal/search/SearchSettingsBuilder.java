@@ -1,7 +1,14 @@
 package io.scos.engine.internal.search;
 
-/** 테스트용: SearchSettings.DEFAULT에서 시작해 테스트가 보는 값만 바꾼다(15개 위치 인자를 본문에서 지운다). */
+import io.scos.engine.Effort;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
+import io.scos.engine.internal.search.plan.SearchSettings;
+
+/** 테스트용: SearchSettings.DEFAULT에서 시작해 테스트가 보는 값만 바꿔 검색 계획을 만든다(15개 위치 인자를 본문에서 지운다). */
 final class SearchSettingsBuilder {
+  /** 기본 설정의 검색 계획(중간 노력, 재순위 켬). */
+  static final RetrievalPlan DEFAULT_PLAN = defaults().buildPlan();
+
   private double vectorMinScore = SearchSettings.DEFAULT.vectorMinScore();
   private double vectorWeight = SearchSettings.DEFAULT.vectorWeight();
   private boolean linksEnabled = SearchSettings.DEFAULT.linksEnabled();
@@ -61,5 +68,9 @@ final class SearchSettingsBuilder {
         perDocument,
         tierPriority,
         d.rerankTopK());
+  }
+
+  RetrievalPlan buildPlan() {
+    return new RetrievalPlan(Effort.MEDIUM, build(), false, true);
   }
 }

@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 /**
- * 헤딩 분할(TS core/ingestion/heading-segmenter.ts, G3·C4): `#`~`######` 경계·경로 스택·펜스 무시, 800 토큰 초과는 문단
- * → 행 → 반분으로 `(part n)`. 4096자 초과 조각은 토크나이저에 넘기지 않는다.
+ * 헤딩 분할(G3·C4): `#`~`######` 경계·경로 스택·펜스 무시, 800 토큰 초과는 문단 → 행 → 반분으로 `(part n)`. 4096자 초과 조각은
+ * 토크나이저에 넘기지 않는다.
  */
 final class HeadingSegmenter {
   static final int DEFAULT_MAX_TOKENS = 800;
@@ -47,7 +48,13 @@ final class HeadingSegmenter {
 
   private static Segment segment(String headingPath, String title, Measured m, Frontmatter fm) {
     return new Segment(
-        headingPath, title, m.content, m.tokens, fm.tags(), "/knowledge", fm.partition());
+        headingPath,
+        title,
+        m.content,
+        m.tokens,
+        fm.tags(),
+        SegmentFilters.DEFAULT_PARTITION,
+        fm.partition());
   }
 
   private static List<RawSection> splitByHeadings(String body, String docTitle) {
@@ -82,35 +89,22 @@ final class HeadingSegmenter {
   /** 문단 경계를 우선하고, 긴 문단은 행·문자 경계에서 한도 안으로 나눈다. */
   private void splitOversized(
       String text, String base, String title, Frontmatter fm, List<Segment> out) {
-    Measured[] buf = {null};
-    int[] part = {1};
-    Runnable flush =
-        () -> {
-          if (buf[0] == null) return;
-          out.add(
-              segment(
-                  base + " (part " + part[0] + ")", title + " (part " + part[0] + ")", buf[0], fm));
-          part[0]++;
-          buf[0] = null;
-        };
+    PartBuffer parts = new PartBuffer(base, title, fm, out);
     for (String p : PARAGRAPH.split(text, -1)) {
       Optional<Measured> measured = measure(p);
       if (measured.isEmpty()) {
-        flush.run();
+        parts.flush();
         List<Measured> chunks = new ArrayList<>();
         splitLongParagraph(p, chunks);
-        for (Measured chunk : chunks) {
-          buf[0] = chunk;
-          flush.run();
-        }
+        for (Measured chunk : chunks) parts.emit(chunk);
         continue;
       }
       Optional<Measured> combined =
-          buf[0] != null ? measure(buf[0].content + "\n\n" + p) : measured;
-      if (combined.isEmpty()) flush.run();
-      buf[0] = combined.orElse(measured.get());
+          parts.held().isPresent() ? measure(parts.held().get().content + "\n\n" + p) : measured;
+      if (combined.isEmpty()) parts.flush();
+      parts.hold(combined.orElse(measured.get()));
     }
-    flush.run();
+    parts.flush();
   }
 
   private Optional<Measured> measure(String content) {
@@ -137,6 +131,44 @@ final class HeadingSegmenter {
   }
 
   private record Measured(String content, int tokens) {}
+
+  /** 큰 섹션의 `(part n)` 조각: 담아 둔 조각이 있으면 flush가 다음 번호를 붙여 내보낸다. */
+  private static final class PartBuffer {
+    private final String base;
+    private final String title;
+    private final Frontmatter fm;
+    private final List<Segment> out;
+    private @Nullable Measured held;
+    private int part = 1;
+
+    PartBuffer(String base, String title, Frontmatter fm, List<Segment> out) {
+      this.base = base;
+      this.title = title;
+      this.fm = fm;
+      this.out = out;
+    }
+
+    Optional<Measured> held() {
+      return Optional.ofNullable(held);
+    }
+
+    void hold(Measured m) {
+      held = m;
+    }
+
+    /** 이 조각을 곧바로 다음 번호로 내보낸다. */
+    void emit(Measured m) {
+      hold(m);
+      flush();
+    }
+
+    void flush() {
+      if (held == null) return;
+      out.add(segment(base + " (part " + part + ")", title + " (part " + part + ")", held, fm));
+      part++;
+      held = null;
+    }
+  }
 
   private record Heading(int level, String text) {}
 

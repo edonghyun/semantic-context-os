@@ -1,17 +1,19 @@
 package io.scos.engine.internal.search;
 
 import static io.scos.engine.internal.search.SearchFixture.S;
+import static io.scos.engine.internal.search.SearchSettingsBuilder.DEFAULT_PLAN;
 import static io.scos.spi.store.ContextUnits.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.scos.engine.internal.search.QuestionSearch.Candidate;
+import io.scos.engine.Effort;
+import io.scos.engine.Profile;
 import io.scos.engine.internal.search.QuestionSearch.Result;
+import io.scos.engine.internal.search.plan.PlanResolver;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.SpaceId;
-import io.scos.support.TestExecutors;
-import io.scos.support.TestMetrics;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -38,35 +40,22 @@ class QuestionSearchTest {
 
   SearchFixture fx = new SearchFixture();
 
-  QuestionSearch search(Embedder embedder) {
-    return search(embedder, SearchSettings.DEFAULT);
+  /** 질의 문구가 최신성을 정하던 옛 랭커와 같은 판단으로 계획을 만든다. */
+  static RetrievalPlan planFor(String query) {
+    return new PlanResolver().forSearch(query, Effort.MEDIUM, Profile.AUTO, NOW.instant());
   }
 
-  QuestionSearch search(Embedder embedder, SearchSettings settings) {
-    return new QuestionSearch(
-        fx.units,
-        fx.keywords,
-        fx.vectors,
-        embedder,
-        Reranker.DISABLED,
-        settings,
-        NOW,
-        TestMetrics.search(),
-        TestExecutors.CALLER_THREAD);
+  QuestionSearch search(Embedder embedder) {
+    return QuestionSearchBuilder.over(fx).embedder(embedder).clock(NOW).build();
   }
 
   /** 운영 조립처럼 키워드 채널을 별 스레드에서 돌리는 검색. */
   QuestionSearch searchOnLexicalThread(Embedder embedder) {
-    return new QuestionSearch(
-        fx.units,
-        fx.keywords,
-        fx.vectors,
-        embedder,
-        Reranker.DISABLED,
-        SearchSettings.DEFAULT,
-        NOW,
-        TestMetrics.search(),
-        lexicalThread);
+    return QuestionSearchBuilder.over(fx)
+        .embedder(embedder)
+        .clock(NOW)
+        .lexicalOn(lexicalThread)
+        .build();
   }
 
   final ExecutorService lexicalThread = Executors.newSingleThreadExecutor();
@@ -116,7 +105,7 @@ class QuestionSearchTest {
           unit("e-1").inDocument("e").content("온보딩 가이드").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("a-1");
@@ -134,7 +123,7 @@ class QuestionSearchTest {
           unit("b-1").inDocument("b").content("정산 규정").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then: a-* 셋은 동점이라 적재 순으로 앞의 둘만 남는다
       assertThat(ids(r)).containsExactlyInAnyOrder("a-1", "a-2", "b-1");
@@ -151,7 +140,7 @@ class QuestionSearchTest {
           unit("a-2").inDocument("a").content("정산 배치 2").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactlyInAnyOrder("a-sum", "a-1", "a-2");
@@ -167,7 +156,7 @@ class QuestionSearchTest {
           unit("b-sum").inDocument("b").content("정산 요약").compacted().build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("b-sum", "a-1");
@@ -190,7 +179,7 @@ class QuestionSearchTest {
               .build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("a-1");
@@ -203,7 +192,7 @@ class QuestionSearchTest {
       givenArchivedLoadedBeforeRaw();
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("raw", "arch");
@@ -216,7 +205,7 @@ class QuestionSearchTest {
       givenArchivedLoadedBeforeRaw();
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(r.candidates())
@@ -242,7 +231,7 @@ class QuestionSearchTest {
           unit("strong").inDocument("s").content("정산 정산 정산 정산").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("strong", "weak");
@@ -260,7 +249,7 @@ class QuestionSearchTest {
           unit("b-1").inDocument("b").content("정산").capturedAt("2026-10-05T00:00:00.000Z").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(r.freshness().latestCapturedAt()).contains("2026-10-05T00:00:00.000Z");
@@ -285,12 +274,14 @@ class QuestionSearchTest {
               .content("정산 현황 새")
               .capturedAt("2026-10-12T00:00:00.000Z")
               .build());
-      Result plain = search(ZERO).search(AccessScope.singleUser(), S, "정산 현황");
+      Result plain =
+          search(ZERO).search(AccessScope.singleUser(), S, "정산 현황", planFor("정산 현황"), 10);
       if (!ids(plain).equals(List.of("old-1", "new-1")))
         throw new IllegalStateException("given 준비 실패: 표지 없는 질의는 동점이라 적재 순이어야 한다 — " + ids(plain));
 
       // when
-      Result recent = search(ZERO).search(AccessScope.singleUser(), S, "최근 정산 현황");
+      Result recent =
+          search(ZERO).search(AccessScope.singleUser(), S, "최근 정산 현황", planFor("최근 정산 현황"), 10);
 
       // then
       assertThat(ids(recent)).containsExactly("new-1", "old-1");
@@ -309,14 +300,16 @@ class QuestionSearchTest {
     @DisplayName("키워드 채널을 별 스레드에서 돌려도 후보와 점수는 호출 스레드와 같다")
     void lexicalThreadGivesSameCandidates() {
       // given: 호출 스레드 결과에 키워드·벡터·링크 후보가 모두 있다
-      Result onCallerThread = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산 배치");
+      Result onCallerThread =
+          search(EMBEDDER).search(AccessScope.singleUser(), S, "정산 배치", DEFAULT_PLAN, 10);
       if (!ids(onCallerThread).containsAll(List.of("kw-1", "vec-1", "child-1")))
         throw new IllegalStateException(
             "given 준비 실패: 키워드·벡터·링크 후보가 모두 있어야 한다 — " + ids(onCallerThread));
 
       // when
       Result onLexicalThread =
-          searchOnLexicalThread(EMBEDDER).search(AccessScope.singleUser(), S, "정산 배치");
+          searchOnLexicalThread(EMBEDDER)
+              .search(AccessScope.singleUser(), S, "정산 배치", DEFAULT_PLAN, 10);
 
       // then
       assertThat(onLexicalThread.candidates()).isEqualTo(onCallerThread.candidates());
@@ -336,7 +329,7 @@ class QuestionSearchTest {
           unit("t-1").inDocument("t").titled("온보딩").content("온보딩 안내").embedding(0, 1).build());
 
       // when
-      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("s-1");
@@ -358,7 +351,7 @@ class QuestionSearchTest {
               .build());
 
       // when
-      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("match");
@@ -380,7 +373,7 @@ class QuestionSearchTest {
               .build());
 
       // when
-      Result r = search(four).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(four).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("half");
@@ -394,7 +387,7 @@ class QuestionSearchTest {
       fx.load(S, unit("both").inDocument("b").content("정산").embedding(1, 0).build());
 
       // when
-      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(r.candidates().get(0).baseScore()).isEqualTo(1.0 / 61 + 1.0 / 61);
@@ -405,10 +398,10 @@ class QuestionSearchTest {
     void channelWeightScalesRrfTerm() {
       // given
       fx.load(S, unit("s-1").inDocument("s").titled("결제").content("결제").embedding(1, 0).build());
-      SearchSettings halfVector = SearchSettingsBuilder.defaults().vectorWeight(0.5).build();
+      RetrievalPlan halfVector = SearchSettingsBuilder.defaults().vectorWeight(0.5).buildPlan();
 
       // when
-      Result r = search(EMBEDDER, halfVector).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", halfVector, 10);
 
       // then
       assertThat(r.candidates().get(0).baseScore()).isEqualTo(0.5 / 61);
@@ -423,10 +416,10 @@ class QuestionSearchTest {
           unit("b-1").inDocument("b").content("정산 정산").build(),
           unit("a-lex").inDocument("a").content("정산").build(),
           unit("a-vec").inDocument("a").titled("결제").content("결제").embedding(1, 0).build());
-      SearchSettings onePerDoc = SearchSettingsBuilder.defaults().perDocument(1).build();
+      RetrievalPlan onePerDoc = SearchSettingsBuilder.defaults().perDocument(1).buildPlan();
 
       // when
-      Result r = search(EMBEDDER, onePerDoc).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", onePerDoc, 10);
 
       // then: a-vec(벡터 rank0 → 1/61) > a-lex(키워드 rank1 → 1/62): 문서 a의 자리는 a-vec
       assertThat(ids(r)).containsExactly("b-1", "a-vec");
@@ -450,7 +443,7 @@ class QuestionSearchTest {
               .build());
 
       // when
-      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("m-1");
@@ -475,7 +468,7 @@ class QuestionSearchTest {
           unit("ch-1").inDocument("child").titled("자식").content("링크된 자식 문서").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("p-1", "ch-1");
@@ -493,7 +486,7 @@ class QuestionSearchTest {
           unit("ch-1").inDocument("child").content("정산").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then: ch-1의 키워드 점수(rank 2 → 1/63) + 최고 부모(rank 0)의 기여 1/66 — 두 부모의 합(1/66 + 1/67)이 아니다
       assertThat(candidate(r, "ch-1").baseScore()).isEqualTo(1.0 / 63 + 1.0 / 66);
@@ -509,10 +502,10 @@ class QuestionSearchTest {
           unit("p-low").inDocument("low").content("정산").linksTo("b").build(),
           unit("a-1").inDocument("a").content("문서 a").build(),
           unit("b-1").inDocument("b").content("문서 b").build());
-      SearchSettings window1 = SearchSettingsBuilder.defaults().linkParentWindow(1).build();
+      RetrievalPlan window1 = SearchSettingsBuilder.defaults().linkParentWindow(1).buildPlan();
 
       // when
-      Result r = search(ZERO, window1).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", window1, 10);
 
       // then
       assertThat(ids(r)).containsExactly("p-top", "p-low", "a-1");
@@ -530,7 +523,7 @@ class QuestionSearchTest {
           unit("cr-1").inDocument("cr").content("자식 r").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then: raw 부모 rank 0 → 1/66, archived 부모 rank 1 → 1/67
       assertThat(List.of(candidate(r, "cr-1"), candidate(r, "ca-1")))
@@ -548,10 +541,10 @@ class QuestionSearchTest {
       // given
       fx.load(
           S, unit("low").inDocument("l").titled("결제").content("결제").embedding(0.1, 0.995).build());
-      SearchSettings noMin = SearchSettingsBuilder.defaults().vectorMinScore(0).build();
+      RetrievalPlan noMin = SearchSettingsBuilder.defaults().vectorMinScore(0).buildPlan();
 
       // when
-      Result r = search(EMBEDDER, noMin).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(EMBEDDER).search(AccessScope.singleUser(), S, "정산", noMin, 10);
 
       // then
       assertThat(ids(r)).containsExactly("low");
@@ -565,10 +558,10 @@ class QuestionSearchTest {
           S,
           unit("p-1").inDocument("p").content("정산").linksTo("child").build(),
           unit("ch-1").inDocument("child").content("자식").build());
-      SearchSettings noLinks = SearchSettingsBuilder.defaults().linksDisabled().build();
+      RetrievalPlan noLinks = SearchSettingsBuilder.defaults().linksDisabled().buildPlan();
 
       // when
-      Result r = search(ZERO, noLinks).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", noLinks, 10);
 
       // then
       assertThat(ids(r)).containsExactly("p-1");
@@ -584,11 +577,11 @@ class QuestionSearchTest {
           unit("a-2").inDocument("a").content("정산 정산").build(),
           unit("a-3").inDocument("a").content("정산").build(),
           unit("b-sum").inDocument("b").content("정산 요약").compacted().build());
-      SearchSettings relaxed =
-          SearchSettingsBuilder.defaults().perDocument(0).tierPriorityDisabled().build();
+      RetrievalPlan relaxed =
+          SearchSettingsBuilder.defaults().perDocument(0).tierPriorityDisabled().buildPlan();
 
       // when
-      Result r = search(ZERO, relaxed).search(AccessScope.singleUser(), S, "정산");
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, "정산", relaxed, 10);
 
       // then
       assertThat(ids(r)).containsExactly("a-1", "a-2", "a-3", "b-sum");
@@ -610,7 +603,7 @@ class QuestionSearchTest {
           unit("part").inDocument("p").content("배포 절차").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, QUERY);
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, QUERY, DEFAULT_PLAN, 10);
 
       // then
       assertThat(ids(r)).containsExactly("full", "part");
@@ -627,7 +620,7 @@ class QuestionSearchTest {
           unit("x").inDocument("x").content("배포 절차 배포 절차").build());
 
       // when
-      Result r = search(ZERO).search(AccessScope.singleUser(), S, QUERY);
+      Result r = search(ZERO).search(AccessScope.singleUser(), S, QUERY, DEFAULT_PLAN, 10);
 
       // then: y는 원질의 rank0 1/61 > 변형 0.9/61, x는 원질의 rank1 1/62 > 변형 '배포 절차' rank0 0.9/61
       assertThat(List.of(candidate(r, "y"), candidate(r, "x")))

@@ -9,8 +9,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * 공간 메타 포트 계약(ADR-0018 §6, CONTRACTS G9·G6): 임베딩 세대·소스 커서를 공간별 키로 둔다. 메모리 대역과 PostgreSQL 어댑터가 같이
- * 지킨다 — DocumentIngestorTest가 메모리 대역에서 읽은 세대·커서로 판정하므로(tr-projection-engine High 3).
+ * 공간 메타 포트 계약(ADR-0018 §6, CONTRACTS G9·G6): 임베딩 세대·소스 커서를 공간별 키로 둔다. 첫 세대 기록은 putIfAbsent로 먼저 쓴 쪽만
+ * 남긴다(stage2 §1.5.4). 메모리 대역과 PostgreSQL 어댑터가 같이 지킨다 — DocumentIngestorTest가 메모리 대역에서 읽은 세대·커서로
+ * 판정하므로(tr-projection-engine High 3).
  */
 @DisplayName("공간 메타는 공간별 키 하나에 값 하나를 둔다(ADR-0018 §6)")
 public abstract class SpaceMetaContract {
@@ -34,6 +35,17 @@ public abstract class SpaceMetaContract {
 
     // then
     assertThat(value).isEmpty();
+  }
+
+  @Test
+  @DisplayName("putIfAbsent는 값이 없을 때만 쓴다")
+  void putIfAbsentWritesOnlyWhenMissing() {
+    // when
+    meta.putIfAbsent(A, "embedding:version", "v1");
+    meta.putIfAbsent(A, "embedding:version", "v2");
+
+    // then
+    assertThat(meta.get(A, "embedding:version")).contains("v1");
   }
 
   @Nested
@@ -68,6 +80,26 @@ public abstract class SpaceMetaContract {
 
       // then
       assertThat(meta.get(A, "embedding:version")).contains("v2");
+    }
+
+    @Test
+    @DisplayName("getLocked는 get과 같은 값을 돌려준다")
+    void lockedReadMatchesGet() {
+      // when
+      var value = meta.getLocked(A, "embedding:version");
+
+      // then
+      assertThat(value).contains("v1");
+    }
+
+    @Test
+    @DisplayName("putIfAbsent는 이미 있으면 기존 값을 돌려준다")
+    void putIfAbsentReturnsExisting() {
+      // when
+      String value = meta.putIfAbsent(A, "embedding:version", "v2");
+
+      // then
+      assertThat(value).isEqualTo("v1");
     }
 
     @Test

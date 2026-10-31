@@ -3,12 +3,13 @@ package io.scos.harness.o2;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.scos.harness.testing.FakeMcpServer;
+import io.scos.harness.testing.FakeServerLauncher;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -30,40 +31,21 @@ class ParallelComparisonMainTest {
   final Map<String, String> environment = new HashMap<>();
 
   /** B 서버 행동: n번째 호출에서 죽는다. */
-  static String diesOnCall(int n) {
-    return "export FAKE_DIE_AFTER=" + n;
+  static Map<String, String> diesOnCall(int n) {
+    return Map.of("FAKE_DIE_AFTER", String.valueOf(n));
   }
 
   /** B 서버 행동: 받은 SCOS_QUERY_LOG를 log에 적는다. */
-  static String recordsEnvTo(Path log) {
-    return "export FAKE_ENV_LOG='" + log + "'";
+  static Map<String, String> recordsEnvTo(Path log) {
+    return Map.of("FAKE_ENV_LOG", log.toString());
   }
 
-  /** FAKE_RESPONSE로 정해진 hits를 내는 가짜 서버를 띄우는 실행 파일. extra는 스크립트 안에서 더 내보낼 변수. */
-  Path server(String name, String extra, String... documentIds) throws Exception {
-    String result = ParallelComparisonProcessTest.searchResult(documentIds);
-    String java =
-        Path.of(
-                System.getProperty("harness.java.home", System.getProperty("java.home")),
-                "bin",
-                "java")
-            .toString();
-    Path script = dir.resolve(name + ".sh");
-    Files.writeString(
-        script,
-        "#!/bin/bash\nexport FAKE_RESPONSE='"
-            + result.replace("'", "'\\''")
-            + "'\n"
-            + extra
-            + "\nexec '"
-            + java
-            + "' -cp '"
-            + System.getProperty("java.class.path")
-            + "' "
-            + FakeMcpServer.class.getName()
-            + "\n");
-    Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwx------"));
-    return script;
+  /** FAKE_RESPONSE로 정해진 hits를 내는 가짜 서버 실행 파일. extra는 스크립트 안에서 더 내보낼 변수. */
+  Path server(String name, Map<String, String> extra, String... documentIds) throws Exception {
+    Map<String, String> env = new LinkedHashMap<>();
+    env.put("FAKE_RESPONSE", ParallelComparisonProcessTest.searchResult(documentIds));
+    env.putAll(extra);
+    return FakeServerLauncher.script(dir, name, env);
   }
 
   Path queries() throws Exception {
@@ -75,7 +57,7 @@ class ParallelComparisonMainTest {
         """);
   }
 
-  int run(String bExtra, String... extra) throws Exception {
+  int run(Map<String, String> bExtra, String... extra) throws Exception {
     List<String> args =
         new ArrayList<>(
             List.of(
@@ -84,7 +66,7 @@ class ParallelComparisonMainTest {
                 "--a-name",
                 "ts",
                 "--a-command",
-                server("a", "", "d1", "d2").toString(),
+                server("a", Map.of(), "d1", "d2").toString(),
                 "--b-name",
                 "java",
                 "--b-command",
@@ -103,7 +85,7 @@ class ParallelComparisonMainTest {
   @DisplayName("기준이 없고 오류가 없으면 0으로 끝난다")
   void passesWithoutThresholds() throws Exception {
     // when
-    int code = run("");
+    int code = run(Map.of());
 
     // then
     assertThat(code).isEqualTo(PASS);
@@ -113,7 +95,7 @@ class ParallelComparisonMainTest {
   @DisplayName("기준을 밑돌면 1로 끝난다")
   void violatedThresholdExitsOne() throws Exception {
     // when
-    int code = run("", "--min-mean-jaccard", "0.8");
+    int code = run(Map.of(), "--min-mean-jaccard", "0.8");
 
     // then
     assertThat(code).isEqualTo(VIOLATIONS);
@@ -123,7 +105,7 @@ class ParallelComparisonMainTest {
   @DisplayName("겹침이 낮은 질의를 분류 대상으로만 뽑으면")
   class ListLowOverlap {
     int listLowOverlap() throws Exception {
-      return run("", "--list-jaccard-below", "0.5");
+      return run(Map.of(), "--list-jaccard-below", "0.5");
     }
 
     @Test
@@ -186,7 +168,7 @@ class ParallelComparisonMainTest {
   @DisplayName("기간 필터는 그 기간의 질의만 비교한다")
   void filtersByDate() throws Exception {
     // when
-    run("", "--since", "2026-10-17", "--until", "2026-10-18");
+    run(Map.of(), "--since", "2026-10-17", "--until", "2026-10-18");
 
     // then
     assertThat(Files.readAllLines(dir.resolve("out/rows.jsonl"))).hasSize(1);
@@ -209,7 +191,7 @@ class ParallelComparisonMainTest {
   @DisplayName("서버 stderr 파일은 600이다")
   void stderrFileIs600() throws Exception {
     // when
-    run("");
+    run(Map.of());
 
     // then
     assertThat(
@@ -227,7 +209,7 @@ class ParallelComparisonMainTest {
     Files.setPosixFilePermissions(log, PosixFilePermissions.fromString("rw-r--r--"));
 
     // when
-    run("");
+    run(Map.of());
 
     // then
     assertThat(PosixFilePermissions.toString(Files.getPosixFilePermissions(log)))

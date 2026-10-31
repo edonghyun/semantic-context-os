@@ -3,10 +3,7 @@ package io.scos.spi.store;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 컨텍스트 유닛(TS ContextUnit의 Java 값). 임베딩은 입력에만 실리고 저장은 벡터 색인이 맡는다(VectorIndex). links는 대상 documentId
- * 목록. 컬렉션은 방어 복사한다.
- */
+/** 컨텍스트 유닛. 임베딩은 입력에만 실리고 저장은 벡터 색인이 맡는다(VectorIndex). links는 대상 documentId 목록. 컬렉션은 방어 복사한다. */
 public record ContextUnit(
     String id,
     String partition,

@@ -14,13 +14,12 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Slack 소스 설정(TS readSlackConfiguration, slack-adapter.ts:161-205): schemaVersion 1,
- * conversationTypes(기본 public·private, 4종, 중복 없음, im/mpim은 channelIds 필수), channelIds(비어 있지 않고 중복
- * 없음), historySince(ISO UTC → Slack ts), historyOverlapSeconds(0 이상 정수), eventSigningSecretRef(비어
- * 있지 않은 문자열 — 있으면 삭제를 공급자 이벤트로 안다).
+ * Slack 소스 설정: schemaVersion 1, conversationTypes(기본 public·private, 4종, 중복 없음, im/mpim은 channelIds
+ * 필수), channelIds(비어 있지 않고 중복 없음), historySince(ISO UTC → Slack ts), historyOverlapSeconds(0 이상
+ * 정수), eventSigningSecretRef(비어 있지 않은 문자열 — 있으면 삭제를 공급자 이벤트로 안다).
  */
 public record SlackConfiguration(
-    Optional<String> historySince,
+    Optional<SlackTs> historySince,
     List<String> conversationTypes,
     Optional<List<String>> channelIds,
     int historyOverlapSeconds,
@@ -65,7 +64,7 @@ public record SlackConfiguration(
         || (types.stream().anyMatch(t -> t.equals("im") || t.equals("mpim"))
             && channelIds.isEmpty()))
       throw invalid("DM collection requires explicit conversationTypes and channelIds");
-    Optional<String> historySince =
+    Optional<SlackTs> historySince =
         value.has("historySince")
             ? Optional.of(historySinceTimestamp(value.get("historySince")))
             : Optional.empty();
@@ -81,7 +80,7 @@ public record SlackConfiguration(
   }
 
   /** ISO UTC(밀리초 선택) → Slack ts "초.마이크로초". 정규형이 아니면 거부. */
-  static String historySinceTimestamp(JsonNode node) {
+  static SlackTs historySinceTimestamp(JsonNode node) {
     if (!node.isString() || !ISO_UTC.matcher(node.asString()).matches())
       throw invalid("historySince must be an ISO UTC timestamp");
     String value = node.asString();
@@ -92,14 +91,11 @@ public record SlackConfiguration(
       throw invalid("Invalid historySince timestamp");
     }
     if (millis < 0) throw invalid("Invalid historySince timestamp");
-    String canonical =
-        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            .withZone(java.time.ZoneOffset.UTC)
-            .format(Instant.ofEpochMilli(millis));
+    SlackTs since = SlackTs.ofEpochMillis(millis);
+    String canonical = since.toIsoMillis();
     if (!value.equals(canonical) && !value.equals(canonical.replace(".000Z", "Z")))
       throw invalid("Invalid historySince timestamp");
-    return SlackTimestamps.format(
-        java.math.BigInteger.valueOf(millis).multiply(java.math.BigInteger.valueOf(1000)));
+    return since;
   }
 
   static CallFailureException invalid(String message) {

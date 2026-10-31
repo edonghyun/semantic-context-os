@@ -24,16 +24,14 @@ class DaemonProjectorCoverageTest {
   @DisplayName("모든 어댑터 kind에 투영기가 있으면 통과한다")
   void passesWhenEveryKindIsProjected() {
     // when·then
-    assertThatCode(() -> DaemonConfiguration.requireProjectors(Set.of("slack"), SLACK_ONLY))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> SLACK_ONLY.requireCovering(Set.of("slack"))).doesNotThrowAnyException();
   }
 
   @Test
   @DisplayName("투영기가 없는 어댑터 kind를 밝혀 기동을 거부한다")
   void rejectsKindWithoutProjector() {
     // when·then
-    assertThatThrownBy(
-            () -> DaemonConfiguration.requireProjectors(Set.of("jira", "slack"), SLACK_ONLY))
+    assertThatThrownBy(() -> SLACK_ONLY.requireCovering(Set.of("jira", "slack")))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("source adapter kinds without a projector: [jira]");
   }

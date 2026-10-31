@@ -226,7 +226,7 @@ class CredentialHeaderContractTest {
       // then: 헤더 지점(headerValue)을 빠뜨려도 마지막 방어가 재시도 없이 막지만 operation이 자격 증명이 아니라
       // invalid_configuration으로 남는다 — 이 단언이 헤더 지점 호출을 고정한다
       assertThat(failure).isNotNull();
-      assertThat(CollectionRuntime.classify(failure)).isEqualTo("Error");
+      assertThat(RunFailure.of(failure).kind()).isEqualTo("Error");
     }
   }
 }

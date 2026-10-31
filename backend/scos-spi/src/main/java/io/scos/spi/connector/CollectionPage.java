@@ -1,11 +1,41 @@
 package io.scos.spi.connector;
 
 import java.util.List;
+import java.util.Optional;
 
-/** 어댑터가 낸 페이지(TS CollectionPage): 변경·거부 항목과 그 뒤의 재개 위치. 커밋은 셋을 함께만 반영한다(F2). */
+/** 어댑터가 낸 페이지: 변경·거부 항목과 그 뒤의 재개 위치. 커밋은 셋을 함께만 반영한다(F2). */
 public record CollectionPage(
-    List<RawMutation> mutations, List<RejectedItem> rejections, Checkpoint nextCheckpoint) {
+    List<RawMutation> mutations,
+    List<RejectedItem> rejections,
+    Checkpoint nextCheckpoint,
+    List<BodyObservation> bodies,
+    Optional<AbsenceVerification> absenceVerification,
+    List<ReconciliationObservation> reconciliations) {
+  public CollectionPage(
+      List<RawMutation> mutations,
+      List<RejectedItem> rejections,
+      Checkpoint nextCheckpoint,
+      List<BodyObservation> bodies,
+      Optional<AbsenceVerification> absenceVerification) {
+    this(mutations, rejections, nextCheckpoint, bodies, absenceVerification, List.of());
+  }
+
+  public CollectionPage(
+      List<RawMutation> mutations,
+      List<RejectedItem> rejections,
+      Checkpoint nextCheckpoint,
+      List<BodyObservation> bodies) {
+    this(mutations, rejections, nextCheckpoint, bodies, Optional.empty());
+  }
+
+  public CollectionPage(
+      List<RawMutation> mutations, List<RejectedItem> rejections, Checkpoint nextCheckpoint) {
+    this(mutations, rejections, nextCheckpoint, List.of(), Optional.empty());
+  }
+
   public CollectionPage {
+    bodies = List.copyOf(bodies);
+    reconciliations = List.copyOf(reconciliations);
     mutations = mutations == null ? List.of() : List.copyOf(mutations);
     rejections = rejections == null ? List.of() : List.copyOf(rejections);
     if (nextCheckpoint == null)

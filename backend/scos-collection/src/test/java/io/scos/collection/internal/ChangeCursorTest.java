@@ -19,7 +19,7 @@ class ChangeCursorTest {
   @DisplayName("범위 밖 after·limit은 IllegalArgumentException")
   void rejectsOutOfRange(long after, int limit, long floor, long head) {
     // when·then
-    assertThatThrownBy(() -> ChangeCursor.validate(after, limit, floor, head))
+    assertThatThrownBy(() -> new ChangeCursor(after, limit).checkWithin(floor, head))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -28,7 +28,7 @@ class ChangeCursorTest {
   @DisplayName("범위 끝값의 after·limit과 after = floor는 통과한다")
   void acceptsBoundaries(long after, int limit, long floor, long head) {
     // when·then
-    assertThatCode(() -> ChangeCursor.validate(after, limit, floor, head))
+    assertThatCode(() -> new ChangeCursor(after, limit).checkWithin(floor, head))
         .doesNotThrowAnyException();
   }
 
@@ -39,7 +39,7 @@ class ChangeCursorTest {
     @DisplayName("ChangeCursorExpiredException이다")
     void expiredBelowFloor() {
       // when·then
-      assertThatThrownBy(() -> ChangeCursor.validate(2, 10, 3, 10))
+      assertThatThrownBy(() -> new ChangeCursor(2, 10).checkWithin(3, 10))
           .isInstanceOf(ChangeCursorExpiredException.class);
     }
 
@@ -49,7 +49,7 @@ class ChangeCursorTest {
       // when
       ChangeCursorExpiredException expired =
           catchThrowableOfType(
-              ChangeCursorExpiredException.class, () -> ChangeCursor.validate(2, 10, 3, 10));
+              ChangeCursorExpiredException.class, () -> new ChangeCursor(2, 10).checkWithin(3, 10));
 
       // then
       assertThat(expired.retainedAfter()).isEqualTo(3);

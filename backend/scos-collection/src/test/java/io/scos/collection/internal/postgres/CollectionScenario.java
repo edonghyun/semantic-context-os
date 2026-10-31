@@ -8,7 +8,7 @@ import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStore;
 import io.scos.connector.slack.SlackAssembly;
 import io.scos.connector.slack.internal.FakeSlackServer;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.SourceInstanceId;

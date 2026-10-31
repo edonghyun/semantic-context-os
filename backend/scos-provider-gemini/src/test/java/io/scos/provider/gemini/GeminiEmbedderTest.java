@@ -1,18 +1,19 @@
 package io.scos.provider.gemini;
 
-import static io.scos.provider.gemini.GeminiFakes.BUDGET;
-import static io.scos.provider.gemini.GeminiFakes.MAX_ATTEMPTS;
-import static io.scos.provider.gemini.GeminiFakes.executor;
-import static io.scos.provider.gemini.GeminiFakes.startHttp;
 import static io.scos.support.FakeHttpServer.inOrder;
 import static io.scos.support.FakeHttpServer.ok;
 import static io.scos.support.FakeHttpServer.status;
+import static io.scos.support.ProviderCallFakes.BUDGET;
+import static io.scos.support.ProviderCallFakes.MAX_ATTEMPTS;
+import static io.scos.support.ProviderCallFakes.executor;
+import static io.scos.support.ProviderCallFakes.startHttp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.support.BackgroundThread;
 import io.scos.support.Eventually;
 import io.scos.support.FakeHttpServer;
@@ -50,7 +51,14 @@ class GeminiEmbedderTest {
   static final int UNAUTHORIZED = 401;
 
   final FakeHttpServer http = startHttp();
-  final GeminiEmbedder embedder = new GeminiEmbedder(http.baseUrl(), API_KEY, executor(), JSON);
+  final GeminiEmbedder embedder =
+      new GeminiEmbedder(
+          http.baseUrl(),
+          API_KEY,
+          GeminiEmbedder.DEFAULT_MODEL,
+          GeminiEmbedder.DEFAULT_DIM,
+          executor(),
+          JSON);
 
   @AfterEach
   void stop() {
@@ -58,7 +66,6 @@ class GeminiEmbedderTest {
     http.close();
   }
 
-  /** 재시도 3회·대기 없음(지터 0, waiter 즉시 반환) — 결정적. */
   /** n개 벡터 응답. i번째 벡터의 값은 전부 i+1. */
   static String vectors(int n, int dim) {
     StringBuilder sb = new StringBuilder("{\"embeddings\":[");
@@ -81,6 +88,16 @@ class GeminiEmbedderTest {
   /** 첫 요청의 본문. */
   JsonNode sentBody() {
     return JSON.readTree(http.received().get(0).body());
+  }
+
+  @Test
+  @DisplayName("identity는 gemini·gemini-embedding-001·768이다")
+  void identityIsGeminiDefaultModelAndDim() {
+    // when
+    EmbedderIdentity identity = embedder.identity();
+
+    // then
+    assertThat(identity).isEqualTo(new EmbedderIdentity("gemini", "gemini-embedding-001", 768));
   }
 
   @Nested
@@ -382,6 +399,8 @@ class GeminiEmbedderTest {
       return new GeminiEmbedder(
           http.baseUrl(),
           API_KEY,
+          GeminiEmbedder.DEFAULT_MODEL,
+          GeminiEmbedder.DEFAULT_DIM,
           executor(
               (delay, cancel) -> {
                 waits.add(delay);
@@ -449,6 +468,8 @@ class GeminiEmbedderTest {
           new GeminiEmbedder(
               http.baseUrl(),
               API_KEY,
+              GeminiEmbedder.DEFAULT_MODEL,
+              GeminiEmbedder.DEFAULT_DIM,
               executor((d, c) -> c.awaitCancellation(d), LONG_BUDGET),
               JSON);
       caller =

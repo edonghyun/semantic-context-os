@@ -1,5 +1,6 @@
 package io.scos.engine.support.text;
 
+import io.scos.engine.support.PureFunctions;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -12,12 +13,13 @@ import java.util.regex.Pattern;
 import tools.jackson.databind.JsonNode;
 
 /**
- * TS `JSON.stringify`와 바이트 단위로 같은 직렬화(공백 없음). 커넥터 원본의 sourceVersion은 TS에서 이 문자열의
- * sha256이라(Jira·Tiro), 같은 응답이면 TS와 같은 버전이 나와야 한다(F12 저장 호환 — 이전한 원본이 다시 수집해도 unchanged).
- * Jira·Tiro·질의 로그·구조화 로그가 함께 쓴다. 키 순서는 JS 객체 순회 순서({@link #entries}), 문자열 이스케이프는 `"`·`\`·제어 문자(짧은
- * 형식 또는 소문자 `\\u00xx`)·홀로 남은 서로게이트만(비ASCII는 그대로), 수는 JS `Number#toString` — 안전 정수 범위 밖 정수와 소수는
- * 배정밀도로 읽은 값의 최단 표기(`1e-7`, `1e+21`), `-0`은 `0`.
+ * JS `JSON.stringify`와 바이트 단위로 같은 직렬화(공백 없음). 커넥터 원본의 sourceVersion은 이 문자열의 sha256이라(Jira·Tiro), 같은
+ * 응답이면 저장된 것과 같은 버전이 나와야 한다(F12 저장 호환 — 이전한 원본이 다시 수집해도 unchanged). Jira·Tiro·질의 로그·구조화 로그가 함께 쓴다.
+ * 키 순서는 JS 객체 순회 순서({@link #entries}), 문자열 이스케이프는 `"`·`\`·제어 문자(짧은 형식 또는 소문자 `\\u00xx`)·홀로 남은
+ * 서로게이트만(비ASCII는 그대로), 수는 JS `Number#toString` — 안전 정수 범위 밖 정수와 소수는 배정밀도로 읽은 값의 최단 표기(`1e-7`,
+ * `1e+21`), `-0`은 `0`.
  */
+@PureFunctions
 public final class JsJson {
   /** 2^53 − 1: JS가 정수를 정확히 담는 상한. */
   public static final long MAX_SAFE_INTEGER = 9_007_199_254_740_991L;
@@ -59,7 +61,7 @@ public final class JsJson {
   }
 
   /**
-   * TS {@code JSON.stringify(값, null, 2)}: 들여쓰기 2칸, 빈 객체·배열은 {@code {}}·{@code []}, 키 뒤 {@code ":
+   * JS {@code JSON.stringify(값, null, 2)}: 들여쓰기 2칸, 빈 객체·배열은 {@code {}}·{@code []}, 키 뒤 {@code ":
    * "}.
    */
   public static String pretty(JsonNode node) {

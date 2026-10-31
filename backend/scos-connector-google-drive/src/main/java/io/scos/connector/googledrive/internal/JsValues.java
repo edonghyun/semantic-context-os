@@ -2,21 +2,22 @@ package io.scos.connector.googledrive.internal;
 
 import io.scos.engine.support.text.JsJson;
 import io.scos.engine.support.text.JsStrings;
+import io.scos.engine.support.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 import tools.jackson.databind.JsonNode;
 
 /**
- * TS가 응답 값을 다루는 JS 의미 — {@code String(값)}과 {@code typeof 값 === "string"}처럼 Drive 어댑터가 비교·식별에 쓰는 것만.
- * 없는 값(Java null)은 JS undefined다.
+ * 응답 값을 다루는 JS 의미 —{@code String(값)}과 {@code typeof 값 === "string"}처럼 Drive 어댑터가 비교·식별에 쓰는 것만. 없는
+ * 값(Java null)은 JS undefined다.
  */
 final class JsValues {
-  /** JS `\\s`·`String#trim`이 공백으로 보는 문자(공용 {@link JsStrings#WHITESPACE}). */
-  static final String JS_WHITESPACE = JsStrings.WHITESPACE;
+  /** JS `\\s`·`String#trim`이 공백으로 보는 문자(공용 {@link Text#whitespaceChars}). */
+  static final String JS_WHITESPACE = Text.whitespaceChars();
 
   private JsValues() {}
 
-  /** TS googleObject: 객체가 아니면(null·배열 포함) "Invalid Google API object". */
+  /** 객체가 아니면(null·배열 포함) "Invalid Google API object". */
   static JsonNode object(JsonNode value) {
     if (value == null || !value.isObject())
       throw new GoogleProtocolException("Invalid Google API object");
@@ -40,17 +41,17 @@ final class JsValues {
     return Double.isFinite(d) && d == Math.rint(d);
   }
 
-  /** 문자열이고 이 값과 같다(TS `v === "…"`). */
+  /** 문자열이고 이 값과 같다(JS `v === "…"`). */
   static boolean is(JsonNode value, String expected) {
     return value != null && value.isString() && value.asString().equals(expected);
   }
 
-  /** 거짓 false다(TS `v === false`). */
+  /** 거짓 false다(JS `v === false`). */
   static boolean isFalse(JsonNode value) {
     return value != null && value.isBoolean() && !value.asBoolean();
   }
 
-  /** 참 true다(TS `v === true`). */
+  /** 참 true다(JS `v === true`). */
   static boolean isTrue(JsonNode value) {
     return value != null && value.isBoolean() && value.asBoolean();
   }
@@ -71,12 +72,12 @@ final class JsValues {
     return "[object Object]";
   }
 
-  /** 문자열이고 비어 있지 않다(TS `typeof v === "string" && v`). */
+  /** 문자열이고 비어 있지 않다(JS `typeof v === "string" && v`). */
   static boolean nonEmptyString(JsonNode value) {
     return value != null && value.isString() && !value.asString().isEmpty();
   }
 
-  /** JS 참 값인지(TS `if (v)`): undefined·null·false·0·NaN·""만 거짓. */
+  /** JS 참 값인지(`if (v)`):undefined·null·false·0·NaN·""만 거짓. */
   static boolean truthy(JsonNode value) {
     if (value == null || value.isMissingNode() || value.isNull()) return false;
     if (value.isBoolean()) return value.asBoolean();

@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +53,7 @@ class CommandProcessTest {
   static final Duration WITHIN_GRACE = Duration.ofDays(29);
 
   Finished invalidGraceDays;
+  Finished invalidGraceDaysOnTerminal;
   Finished dryRun;
   List<String> blobsAfterDryRun;
   long changesAfterDryRun;
@@ -67,6 +69,12 @@ class CommandProcessTest {
     PostgresSupport.truncateAll();
     invalidGraceDays =
         run(dir.resolve("invalid-grace-days.log"), "maintenance", "--grace-days=abc");
+    invalidGraceDaysOnTerminal =
+        run(
+            dir.resolve("invalid-grace-days-tty.log"),
+            onTerminal(env()),
+            "maintenance",
+            "--grace-days=abc");
     adapters = PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource());
     givenOrphanBlob("old-orphan", BEYOND_GRACE);
     givenOrphanBlob("young-orphan", WITHIN_GRACE);
@@ -118,7 +126,11 @@ class CommandProcessTest {
   }
 
   Finished run(Path log, String... args) throws Exception {
-    Process p = ChildJvm.startJar(JAR, log, env(), args);
+    return run(log, env(), args);
+  }
+
+  Finished run(Path log, Map<String, String> env, String... args) throws Exception {
+    Process p = ChildJvm.startJar(JAR, log, env, args);
     if (!p.waitFor(PROCESS_LIMIT.toSeconds(), TimeUnit.SECONDS))
       throw new IllegalStateException("given 준비 실패: 프로세스가 끝나지 않았다 " + List.of(args));
     return new Finished(p.exitValue(), ChildJvm.readLog(log));
@@ -130,6 +142,13 @@ class CommandProcessTest {
         "SCOS_DB_USER", PostgresSupport.username(),
         "SCOS_DB_PASSWORD", PostgresSupport.password(),
         "GEMINI_API_KEY", "unused-in-test");
+  }
+
+  /** 터미널에 붙은 것으로 본다(spring.output.ansi.console-available — detect가 이 값을 본다). */
+  static Map<String, String> onTerminal(Map<String, String> env) {
+    Map<String, String> out = new HashMap<>(env);
+    out.put("SPRING_OUTPUT_ANSI_CONSOLE_AVAILABLE", "true");
+    return out;
   }
 
   @Nested
@@ -148,6 +167,20 @@ class CommandProcessTest {
       // then
       assertThat(invalidGraceDays.log())
           .contains("--grace-days must be a non-negative integer: abc");
+    }
+
+    @Test
+    @DisplayName("터미널이 아니면 로그에 색 코드를 쓰지 않는다")
+    void noColorWithoutTerminal() {
+      // then
+      assertThat(invalidGraceDays.log()).doesNotContain("\u001B[");
+    }
+
+    @Test
+    @DisplayName("터미널이면 로그 수준에 Spring Boot 기본 색을 입힌다")
+    void colorsOnTerminal() {
+      // then
+      assertThat(invalidGraceDaysOnTerminal.log()).contains("\u001B[31mERROR\u001B[0;39m");
     }
   }
 
@@ -196,11 +229,12 @@ class CommandProcessTest {
     }
 
     @Test
-    @DisplayName("이미 수집 중이라는 메시지를 로그에 남긴다")
+    @DisplayName("이미 수집 중이라는 error 이벤트를 로그에 남긴다")
     void logsAlreadyRunning() {
       // then
       assertThat(collectWhileRunning.log())
-          .contains("Source collection is already running: " + SOURCE.value());
+          .containsPattern(
+              " ERROR .*: command\\.collect\\.already_running source=" + SOURCE.value());
     }
   }
 
@@ -215,11 +249,11 @@ class CommandProcessTest {
     }
 
     @Test
-    @DisplayName("그 소스를 건너뛰었다고 로그에 남긴다")
+    @DisplayName("그 소스를 건너뛰었다는 warn 이벤트를 로그에 남긴다")
     void logsSkipped() {
       // then
       assertThat(cycleWhileRunning.log())
-          .contains("collect skipped (already running): " + SOURCE.value());
+          .containsPattern(" WARN .*: command\\.collect\\.skipped source=" + SOURCE.value());
     }
   }
 

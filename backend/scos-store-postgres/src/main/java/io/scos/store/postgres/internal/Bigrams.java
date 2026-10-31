@@ -1,5 +1,6 @@
 package io.scos.store.postgres.internal;
 
+import io.scos.engine.support.PureFunctions;
 import io.scos.engine.support.text.Text;
 import io.scos.spi.store.IndexedText;
 import java.util.LinkedHashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 /**
  * 키워드 어댑터의 순수 함수(SQL 없음): 색인 본문 정규화, 공백 제거 2-gram 계수, LIKE 이스케이프. 단위·변이 테스트 대상(TESTING §12 4순위).
  */
+@PureFunctions
 public final class Bigrams {
   private Bigrams() {}
 

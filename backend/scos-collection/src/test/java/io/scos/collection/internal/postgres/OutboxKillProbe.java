@@ -1,6 +1,7 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.CollectionStores;
 import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.PageCommit;
@@ -60,19 +61,10 @@ public final class OutboxKillProbe {
             CollectionPage.ofItems(items, new Checkpoint(1, "{\"after\":\"i6\"}"));
         RunId run = new RunId("probe-run");
         adapters.runs().start(run, SOURCE, clock.instant());
-        TransactionTemplate tx = new TransactionTemplate(new DataSourceTransactionManager(ds));
+        CollectionStores stores =
+            adapters.stores(new TransactionTemplate(new DataSourceTransactionManager(ds)));
         if (assembly.equals("correct")) {
-          new PageCommit(
-                  tx,
-                  adapters.claims(),
-                  adapters.runs(),
-                  adapters.rawItems(),
-                  adapters.checkpoints(),
-                  adapters.outbox(),
-                  clock,
-                  TestMetrics.collection(),
-                  adapters.changes(),
-                  new Progress(clock))
+          new PageCommit(stores, clock, TestMetrics.collection(), new Progress(clock))
               .commit(claim, run, 0, page);
           ChildJvm.touch(markers.resolve("committed"));
         } else {
@@ -82,15 +74,9 @@ public final class OutboxKillProbe {
                       new DriverManagerDataSource(args[0], args[1], args[2]))
                   .outbox();
           new PageCommit(
-                  tx,
-                  adapters.claims(),
-                  adapters.runs(),
-                  adapters.rawItems(),
-                  adapters.checkpoints(),
-                  noOutbox(),
+                  stores.withOutbox(noOutbox()),
                   clock,
                   TestMetrics.collection(),
-                  adapters.changes(),
                   new Progress(clock))
               .commit(claim, run, 0, page);
           ChildJvm.touch(markers.resolve("committed"));

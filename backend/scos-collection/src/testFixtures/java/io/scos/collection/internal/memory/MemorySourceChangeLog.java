@@ -30,7 +30,7 @@ public final class MemorySourceChangeLog implements SourceChangeLog {
 
   @Override
   public synchronized Page read(Optional<SourceInstanceId> source, long after, int limit) {
-    ChangeCursor.validate(after, limit, floor, head);
+    new ChangeCursor(after, limit).checkWithin(floor, head);
     List<Change> page =
         changes.stream()
             .filter(c -> c.seq() > after)

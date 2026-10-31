@@ -7,6 +7,7 @@ import io.scos.collection.internal.CollectionMetrics;
 import io.scos.collection.internal.projection.ProjectionMetrics;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import java.time.Duration;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,7 @@ public class MetricsConfiguration {
     LoggingRegistryConfig config =
         new LoggingRegistryConfig() {
           @Override
-          public String get(String key) {
+          public @Nullable String get(String key) {
             return null;
           }
 

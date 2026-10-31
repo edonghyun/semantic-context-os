@@ -10,8 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Notion 투영기 경계(TS NotionProjector, 표 expected-projector.json): 표본마다 원본 묶음과 문서가 TS와 같다 — 제목 없음, 빈
- * 페이지, uri 대체, 시각 대체·최댓값, 하위 페이지, database 행과 container, 부모 페이지가 없는 블록, 순환, 페이지가 아닌 문서 id.
+ * Notion 투영기 경계(표 expected-projector.json): 표본마다 원본 묶음과 문서가 TS와 같다 — 제목 없음, 빈 페이지, uri 대체, 시각
+ * 대체·최댓값, 하위 페이지, database 행과 container, 부모 페이지가 없는 블록, 순환, 페이지가 아닌 문서 id.
  */
 @DisplayName("Notion 투영기는 경계 사례에서 묶음·문서가 TS와 같다(F6)")
 class NotionProjectorTest {

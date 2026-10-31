@@ -2,6 +2,7 @@ package io.scos.spi.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.scos.spi.access.AclStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -11,11 +12,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * 키워드 색인 포트 계약(CONTRACTS B3 순서 성질, TS search-contract-testkit `lexical` 블록의 Java 판). 점수 값은 보지 않는다.
- * EVENTUAL 어댑터는 {@link #awaitVisible()}로 반영을 기다린다(폴링 상한은 구현이 정한다).
+ * 키워드 색인 포트 계약(CONTRACTS B3 순서 성질). 점수 값은 보지 않는다. EVENTUAL 어댑터는 {@link #awaitVisible()}로 반영을
+ * 기다린다(폴링 상한은 구현이 정한다).
  */
 @DisplayName("키워드 색인은 질의 토큰을 포함하는 유닛을 적재 순서로 고른다(CONTRACTS B3)")
 public abstract class KeywordIndexContract {
+  private static final SearchFilter ACTIVE =
+      new SearchFilter(false, null, AccessScope.singleUser());
   protected static final SpaceId A = new SpaceId("a");
   protected static final SpaceId B = new SpaceId("b");
 
@@ -28,6 +31,8 @@ public abstract class KeywordIndexContract {
   protected KeywordIndex index;
 
   protected abstract KeywordIndex newIndex();
+
+  protected abstract AclStore aclStore();
 
   /** EVENTUAL 어댑터가 재정의한다 — upsert가 검색에 보일 때까지 기다린다. */
   protected void awaitVisible() {}
@@ -55,6 +60,108 @@ public abstract class KeywordIndexContract {
   }
 
   @Nested
+  @DisplayName("문서마다 ACL이 있을 때")
+  class DocumentAccess {
+    KeywordAccessScenario access;
+
+    @BeforeEach
+    void givenDocumentAcls() {
+      access = new KeywordAccessScenario(index, aclStore(), A, B);
+      access.givenDocuments();
+      awaitVisible();
+      access.requireSearchableDocuments();
+    }
+
+    @Test
+    @DisplayName("제한 범위는 키가 겹치는 OK 문서만 찾는다")
+    void findsOnlyMatchingOkDocument() {
+      // when
+      List<String> got = access.search(KeywordAccessScenario.ALICE);
+
+      // then
+      assertThat(got).containsExactly("d1");
+    }
+
+    @Test
+    @DisplayName("UNKNOWN·FAILED 문서는 키가 겹쳐도 찾지 않는다")
+    void excludesUnknownAndFailedDocuments() {
+      // when
+      List<String> got = access.search(KeywordAccessScenario.ALICE);
+
+      // then
+      assertThat(got).contains("d1").doesNotContain("d3", "d4");
+    }
+
+    @Test
+    @DisplayName("ACL 행이 없는 문서는 찾지 않는다")
+    void excludesDocumentWithoutAcl() {
+      // when
+      List<String> got = access.search(KeywordAccessScenario.ALICE);
+
+      // then
+      assertThat(got).contains("d1").doesNotContain("d6");
+    }
+
+    @Test
+    @DisplayName("UNSUPPORTED 문서는 scope 키로 찾는다")
+    void findsUnsupportedWithScopeKey() {
+      // when
+      List<String> got = access.search(KeywordAccessScenario.ORG);
+
+      // then
+      assertThat(got).containsExactly("d5");
+    }
+
+    @Test
+    @DisplayName("빈 키의 제한 범위는 아무것도 찾지 않는다")
+    void emptyKeysFindNothing() {
+      // when
+      List<String> got = access.search(KeywordAccessScenario.NO_KEYS);
+
+      // then
+      assertThat(got).isEmpty();
+    }
+
+    @Test
+    @DisplayName("필터는 top-k 이전이라 막힌 문서가 앞서도 보이는 문서를 찾는다")
+    void filtersBeforeTopK() {
+      // given
+      access.givenHigherScoringBlockedDocument();
+      awaitVisible();
+      access.requireBlockedDocumentRanksFirst();
+
+      // when
+      List<String> got = access.search(KeywordAccessScenario.ALICE, 1);
+
+      // then
+      assertThat(got).containsExactly("d1");
+    }
+
+    @Test
+    @DisplayName("무제한 범위는 ACL과 관계없이 모든 문서를 찾는다")
+    void unrestrictedIgnoresAcls() {
+      // when
+      List<String> got = access.search(AccessScope.singleUser());
+
+      // then
+      assertThat(got).containsExactly("d1", "d2", "d3", "d4", "d5", "d6");
+    }
+
+    @Test
+    @DisplayName("다른 공간의 같은 문서 id ACL은 쓰이지 않는다")
+    void ignoresAclInOtherSpace() {
+      // given
+      access.givenAclOnlyInOtherSpace();
+
+      // when
+      List<String> got = access.search(KeywordAccessScenario.ALICE);
+
+      // then
+      assertThat(got).isEmpty();
+    }
+  }
+
+  @Nested
   @DisplayName("\"정산 재시도\"의 토큰을 0·1·2개 가진 유닛이 있을 때")
   class ZeroOneAndTwoTokens {
     @BeforeEach
@@ -72,7 +179,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("질의 토큰을 더 많이 포함하는 유닛이 앞선다")
     void containingUnitsRankAboveOthers() {
       // when
-      List<String> got = ids(A, "정산 재시도", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "정산 재시도", TOP_K, ACTIVE);
 
       // then
       assertThat(got).startsWith("both");
@@ -82,7 +189,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("질의 토큰이 없는 유닛은 결과에 없다")
     void unitsWithoutTokensAreAbsent() {
       // when
-      List<String> got = ids(A, "정산 재시도", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "정산 재시도", TOP_K, ACTIVE);
 
       // then
       assertThat(got).contains("one").doesNotContain("none");
@@ -102,7 +209,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // when
-    List<String> got = ids(A, "호출한도", TOP_K, SearchFilter.NONE);
+    List<String> got = ids(A, "호출한도", TOP_K, ACTIVE);
 
     // then
     assertThat(got).containsExactly("exact", "compact");
@@ -125,7 +232,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("한국어 2글자 질의는 그 토큰을 포함하는 유닛만 찾는다")
     void twoCharKoreanQueryFinds() {
       // when
-      List<String> got = ids(A, "결제", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "결제", TOP_K, ACTIVE);
 
       // then
       assertThat(got).containsExactly("pay");
@@ -135,11 +242,11 @@ public abstract class KeywordIndexContract {
     @DisplayName("한국어 2글자 질의의 토큰이 어디에도 없으면 결과가 없다")
     void twoCharKoreanQueryMisses() {
       // given
-      if (!ids(A, "입사", TOP_K, SearchFilter.NONE).contains("other"))
+      if (!ids(A, "입사", TOP_K, ACTIVE).contains("other"))
         throw new IllegalStateException("given 준비 실패: other 유닛이 색인돼 있어야 한다");
 
       // when
-      List<String> got = ids(A, "권한", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "권한", TOP_K, ACTIVE);
 
       // then
       assertThat(got).isEmpty();
@@ -168,11 +275,11 @@ public abstract class KeywordIndexContract {
     @DisplayName("bigram만 겹치는 유닛은 질의 토큰을 포함하지 않으므로 결과에 없다")
     void bigramOverlapIsNotAMatch() {
       // given
-      if (!ids(A, "리드", TOP_K, SearchFilter.NONE).contains("shares-bigram"))
+      if (!ids(A, "리드", TOP_K, ACTIVE).contains("shares-bigram"))
         throw new IllegalStateException("given 준비 실패: shares-bigram 유닛이 색인돼 있어야 한다");
 
       // when
-      List<String> got = ids(A, "하이브리드", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "하이브리드", TOP_K, ACTIVE);
 
       // then
       assertThat(got).containsExactly("contains");
@@ -182,11 +289,11 @@ public abstract class KeywordIndexContract {
     @DisplayName("단어 경계를 넘는 2글자 매치는 결과에 없다")
     void crossBoundaryTwoCharIsNotAMatch() {
       // given
-      if (!ids(A, "배포", TOP_K, SearchFilter.NONE).contains("cross-boundary"))
+      if (!ids(A, "배포", TOP_K, ACTIVE).contains("cross-boundary"))
         throw new IllegalStateException("given 준비 실패: cross-boundary 유닛이 색인돼 있어야 한다");
 
       // when
-      List<String> got = ids(A, "포장", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "포장", TOP_K, ACTIVE);
 
       // then
       assertThat(got).isEmpty();
@@ -196,7 +303,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("3글자 이상 붙여쓰기 질의는 공백 소실 매치를 허용한다")
     void compactQueryMatchesAcrossSpaces() {
       // when
-      List<String> got = ids(A, "하이브리드검색", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "하이브리드검색", TOP_K, ACTIVE);
 
       // then
       assertThat(got).containsExactly("contains");
@@ -216,8 +323,8 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // when·then
-    assertThat(ids(A, "스냅샷보관", TOP_K, SearchFilter.NONE)).containsExactly("exact", "partial");
-    assertThat(ids(A, "스냅샷보관 기간", TOP_K, SearchFilter.NONE)).containsExactly("exact", "partial");
+    assertThat(ids(A, "스냅샷보관", TOP_K, ACTIVE)).containsExactly("exact", "partial");
+    assertThat(ids(A, "스냅샷보관 기간", TOP_K, ACTIVE)).containsExactly("exact", "partial");
   }
 
   @Test
@@ -231,7 +338,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // when
-    List<String> got = ids(A, "결제 오류　대응", TOP_K, SearchFilter.NONE);
+    List<String> got = ids(A, "결제 오류　대응", TOP_K, ACTIVE);
 
     // then
     assertThat(got).containsExactly("both");
@@ -249,7 +356,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // when
-    List<String> got = ids(A, "카나리 배포", TOP_K, SearchFilter.NONE);
+    List<String> got = ids(A, "카나리 배포", TOP_K, ACTIVE);
 
     // then
     assertThat(got).containsExactly("z-first", "a-second");
@@ -274,7 +381,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("archived 제외는 top-k 이전에 적용된다")
     void archivedFilterBeforeTopK() {
       // when
-      List<String> got = ids(A, "세션 만료", 1, SearchFilter.NONE);
+      List<String> got = ids(A, "세션 만료", 1, ACTIVE);
 
       // then
       assertThat(got).containsExactly("rules");
@@ -284,7 +391,8 @@ public abstract class KeywordIndexContract {
     @DisplayName("partition 필터는 top-k 이전에 적용된다")
     void partitionFilterBeforeTopK() {
       // when
-      List<String> got = ids(A, "세션 만료", 1, new SearchFilter(false, List.of("/")));
+      List<String> got =
+          ids(A, "세션 만료", 1, new SearchFilter(false, List.of("/"), AccessScope.singleUser()));
 
       // then
       assertThat(got).containsExactly("root");
@@ -294,7 +402,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("archived 포함 필터는 archived 유닛도 돌려준다")
     void includeArchived() {
       // when
-      List<String> got = ids(A, "세션 만료", 3, new SearchFilter(true, null));
+      List<String> got = ids(A, "세션 만료", 3, new SearchFilter(true, null, AccessScope.singleUser()));
 
       // then
       assertThat(got).containsExactly("arch", "rules", "root");
@@ -312,8 +420,8 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // then: 새 본문 매치는 지우기만 하는 구현을 거른다
-    assertThat(ids(A, "스냅샷", TOP_K, SearchFilter.NONE)).containsExactly("x");
-    assertThat(ids(A, "인덱스", TOP_K, SearchFilter.NONE)).isEmpty();
+    assertThat(ids(A, "스냅샷", TOP_K, ACTIVE)).containsExactly("x");
+    assertThat(ids(A, "인덱스", TOP_K, ACTIVE)).isEmpty();
   }
 
   @Test
@@ -327,7 +435,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // when
-    List<String> got = ids(A, "스냅샷보관", TOP_K, SearchFilter.NONE);
+    List<String> got = ids(A, "스냅샷보관", TOP_K, ACTIVE);
 
     // then
     assertThat(got).as("동점이면 먼저 적재한 fresh가 앞선다").containsExactly("fresh", "x");
@@ -348,7 +456,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("A에서는 다시 넣은 본문으로 찾는다")
     void replaceWithSameUnitIdInAnotherSpace() {
       // when
-      List<String> got = ids(A, "스냅샷", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "스냅샷", TOP_K, ACTIVE);
 
       // then
       assertThat(got).containsExactly("x");
@@ -358,7 +466,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("B의 결과는 그대로다")
     void replaceInAnotherSpaceKeepsThisSpace() {
       // when
-      List<String> got = ids(B, "과금", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(B, "과금", TOP_K, ACTIVE);
 
       // then
       assertThat(got).containsExactly("x");
@@ -376,7 +484,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // then
-    assertThat(ids(A, "스냅샷", TOP_K, SearchFilter.NONE)).containsExactly("x");
+    assertThat(ids(A, "스냅샷", TOP_K, ACTIVE)).containsExactly("x");
   }
 
   @Nested
@@ -397,11 +505,11 @@ public abstract class KeywordIndexContract {
     @DisplayName("마지막 본문만 찾는다")
     void repeatedUnitInBatchKeepsLastText() {
       // given
-      if (!ids(A, "카나리", TOP_K, SearchFilter.NONE).contains("x"))
+      if (!ids(A, "카나리", TOP_K, ACTIVE).contains("x"))
         throw new IllegalStateException("given 준비 실패: 새 본문으로 x를 찾아야 한다");
 
       // when
-      List<String> got = ids(A, "인덱스", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "인덱스", TOP_K, ACTIVE);
 
       // then
       assertThat(got).isEmpty();
@@ -411,7 +519,7 @@ public abstract class KeywordIndexContract {
     @DisplayName("적재 순서는 처음 자리다")
     void repeatedUnitInBatchKeepsFirstLoadOrder() {
       // when
-      List<String> got = ids(A, "카나리 배포", TOP_K, SearchFilter.NONE);
+      List<String> got = ids(A, "카나리 배포", TOP_K, ACTIVE);
 
       // then
       assertThat(got).containsExactly("x", "y");
@@ -435,7 +543,7 @@ public abstract class KeywordIndexContract {
     List<String> loadOrder = givenLargeBatchOfTies();
 
     // when
-    List<String> got = ids(A, "카나리", LARGE_BATCH, SearchFilter.NONE);
+    List<String> got = ids(A, "카나리", LARGE_BATCH, ACTIVE);
 
     // then
     assertThat(got).containsExactlyElementsOf(loadOrder);
@@ -447,7 +555,7 @@ public abstract class KeywordIndexContract {
     // given
     index.upsert(A, List.of(unit("x", "d1", "백업 정책", "스냅샷은 30일간 보관한다")));
     awaitVisible();
-    if (!ids(A, "스냅샷", TOP_K, SearchFilter.NONE).equals(List.of("x")))
+    if (!ids(A, "스냅샷", TOP_K, ACTIVE).equals(List.of("x")))
       throw new IllegalStateException("given 준비 실패: 삭제 전에는 x 하나를 찾아야 한다");
 
     // when
@@ -455,7 +563,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // then
-    assertThat(ids(A, "스냅샷", TOP_K, SearchFilter.NONE)).isEmpty();
+    assertThat(ids(A, "스냅샷", TOP_K, ACTIVE)).isEmpty();
   }
 
   @Test
@@ -465,7 +573,7 @@ public abstract class KeywordIndexContract {
     index.upsert(A, List.of(unit("x", "d1", "과금 규정", "과금 내역은 매월 정산서와 대조한다")));
     index.upsert(B, List.of(unit("x", "d1", "과금 규정", "과금 내역은 매월 정산서와 대조한다")));
     awaitVisible();
-    if (!ids(B, "과금", TOP_K, SearchFilter.NONE).equals(List.of("x")))
+    if (!ids(B, "과금", TOP_K, ACTIVE).equals(List.of("x")))
       throw new IllegalStateException("given 준비 실패: 삭제 전에는 B에서 x를 찾아야 한다");
 
     // when
@@ -473,7 +581,7 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // then
-    assertThat(ids(B, "과금", TOP_K, SearchFilter.NONE)).containsExactly("x");
+    assertThat(ids(B, "과금", TOP_K, ACTIVE)).containsExactly("x");
   }
 
   @Test
@@ -485,8 +593,8 @@ public abstract class KeywordIndexContract {
     awaitVisible();
 
     // when
-    List<String> inA = ids(A, "과금", TOP_K, SearchFilter.NONE);
-    List<String> inB = ids(B, "과금", TOP_K, SearchFilter.NONE);
+    List<String> inA = ids(A, "과금", TOP_K, ACTIVE);
+    List<String> inB = ids(B, "과금", TOP_K, ACTIVE);
 
     // then
     assertThat(inA).containsExactly("mine");

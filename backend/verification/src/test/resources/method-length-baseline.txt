@@ -1,0 +1,8 @@
+# 메서드 길이 고정 목록(TESTING §13.2): 상한을 넘는 기존 제품 main 메서드와 본문 코드 줄 수. 줄을 더하거나 수를 늘리지 않는다.
+# 갱신(줄어든 것만 낮추거나 지운다): ./gradlew :verification:fastTest --tests io.scos.MethodLengthRulesTest -Pscos.freeze.update=true
+59	scos-collection/src/main/java/io/scos/collection/internal/postgres/PostgresSourceQueries.java PostgresSourceQueries.rawList(RawCatalogQuery)
+42	scos-connector-google-drive/src/main/java/io/scos/connector/googledrive/internal/GoogleDriveCollection.java GoogleDriveCollection.collect(PageSink)
+45	scos-connector-google-drive/src/main/java/io/scos/connector/googledrive/internal/SheetRanges.java SheetRanges.of(JsonNode)
+41	scos-connector-slack/src/main/java/io/scos/connector/slack/SlackProjector.java SlackProjector.project(String, String, List<RawItem>, ContentReader)
+47	scos-connector-slack/src/main/java/io/scos/connector/slack/internal/SlackConfiguration.java SlackConfiguration.read(ObjectMapper, SourceConfig)
+42	scos-engine/src/main/java/io/scos/engine/internal/projection/SpaceReembedding.java SpaceReembedding.run(SpaceId)

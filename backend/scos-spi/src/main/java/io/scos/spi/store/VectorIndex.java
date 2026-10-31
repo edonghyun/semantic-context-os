@@ -24,6 +24,7 @@ public interface VectorIndex {
 
   void delete(SpaceId space, List<String> unitIds);
 
-  /** 저장된 벡터를 돌려준다(문서→문서 검색의 시드 벡터). 없는 id는 생략. 근사·float4 어댑터는 저장 정밀도 그대로. */
-  java.util.Map<String, double[]> vectorsOf(SpaceId space, List<String> unitIds);
+  /** 저장된 벡터를 돌려준다(문서→문서 검색의 시드 벡터). 없는 id와 접근이 막힌 문서의 유닛은 생략. 근사·float4 어댑터는 저장 정밀도 그대로. */
+  java.util.Map<String, double[]> vectorsOf(
+      SpaceId space, AccessScope access, List<String> unitIds);
 }

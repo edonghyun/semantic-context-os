@@ -18,9 +18,9 @@ import java.util.Optional;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Google Drive 수집 어댑터(TS GoogleDriveAdapter). 내 파일 전체와 접근 가능한 공유 드라이브를 각각 명시적으로 걷고, 변경 피드(사용자·드라이브별
- * startPageToken)로 삭제·접근 상실을 받는다. 목록에 없다는 것은 삭제의 증거가 아니다 — coverage는 늘 incremental이다(TS
- * deletionDetection "provider_events"). 실제 걷기는 run 하나가 소유하는 {@link GoogleDriveCollection}이 한다.
+ * Google Drive 수집 어댑터. 내 파일 전체와 접근 가능한 공유 드라이브를 각각 명시적으로 걷고, 변경 피드(사용자·드라이브별 startPageToken)로 삭제·접근
+ * 상실을 받는다. 목록에 없다는 것은 삭제의 증거가 아니다 — coverage는 늘 incremental이다(deletionDetection "provider_events").
+ * 실제 걷기는 run 하나가 소유하는 {@link GoogleDriveCollection}이 한다.
  */
 public final class GoogleDriveAdapter implements SourceAdapter {
   public static final String KIND = "google-drive";
@@ -54,7 +54,7 @@ public final class GoogleDriveAdapter implements SourceAdapter {
     return CollectionCoverage.INCREMENTAL;
   }
 
-  /** TS deletionDetection "provider_events": 삭제·접근 상실은 변경 피드가 알린다(목록의 부재는 근거가 아니다). */
+  /** deletionDetection "provider_events":삭제·접근 상실은 변경 피드가 알린다(목록의 부재는 근거가 아니다). */
   @Override
   public DeletionDetection deletionDetection(SourceConfig config) {
     return DeletionDetection.PROVIDER_EVENTS;

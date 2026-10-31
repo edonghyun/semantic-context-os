@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.spi.embedding.TextGenerator;
 import io.scos.support.FakeHttpServer;
+import io.scos.support.ProviderCallFakes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,7 @@ class GeminiTextGeneratorTest {
   static final String PRO = "gemini-2.5-pro";
   static final int MAX_TOKENS = 100;
   static final int SMALL_MAX_TOKENS = 10;
-  final FakeHttpServer http = GeminiFakes.startHttp();
+  final FakeHttpServer http = ProviderCallFakes.startHttp();
 
   @AfterEach
   void stop() {
@@ -49,7 +50,8 @@ class GeminiTextGeneratorTest {
   }
 
   GeminiTextGenerator generator(String model) {
-    return new GeminiTextGenerator(http.baseUrl(), API_KEY, model, GeminiFakes.executor(), JSON);
+    return new GeminiTextGenerator(
+        http.baseUrl(), API_KEY, model, ProviderCallFakes.executor(), JSON);
   }
 
   @Nested

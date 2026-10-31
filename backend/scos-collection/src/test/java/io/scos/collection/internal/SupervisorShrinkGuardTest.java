@@ -57,12 +57,9 @@ class SupervisorShrinkGuardTest {
     runs.start(new RunId(id), SOURCE, started);
     runs.finish(
         new RunId(id),
-        status,
+        new RunOutcome(status, status.isSuccess() ? 0 : 1, kind, Optional.empty()),
         CollectionCoverage.COMPLETE_SNAPSHOT,
         started.plusSeconds(1),
-        status.isSuccess() ? 0 : 1,
-        kind,
-        Optional.empty(),
         0);
   }
 

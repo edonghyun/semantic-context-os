@@ -17,13 +17,13 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Jira 원본 → 문서(TS source-projector/src/jira-projector.ts). `jira.` 원본 가운데 첨부·필드를 뺀 원본 하나가 문서 하나이고
- * 문서 id는 원본 externalId다. 본문은 `# 제목`, 필드마다 `이름: 값`(이슈는 names의 표시 이름), 이슈면 `## 댓글`·`## 변경 이력`·`## 작업
- * 기록`·`## 관련 링크`와 `## 첨부파일 (본문 미추출)` 목록을 빈 줄로 잇는다. 값 평문화는 {@link JiraValueRenderer}다.
+ * Jira 원본 → 문서. `jira.` 원본 가운데 첨부·필드를 뺀 원본 하나가 문서 하나이고 문서 id는 원본 externalId다. 본문은 `# 제목`, 필드마다 `이름:
+ * 값`(이슈는 names의 표시 이름), 이슈면 `## 댓글`·`## 변경 이력`·`## 작업 기록`·`## 관련 링크`와 `## 첨부파일 (본문 미추출)` 목록을 빈 줄로
+ * 잇는다. 값 평문화는 {@link JiraValueRenderer}다.
  *
  * <ul>
  *   <li>제목: 이슈는 {@code `${key}: ${평문화(summary)}`}, 그 밖은 평문화(name ?? title)이고 비면 문서 id.
- *   <li>내용이 객체가 아니거나 이슈 fields가 객체가 아니면 건너뛴다(TS null). 내용을 읽을 수 없어도 건너뛴다.
+ *   <li>내용이 객체가 아니거나 이슈 fields가 객체가 아니면 건너뛴다. 내용을 읽을 수 없어도 건너뛴다.
  *   <li>필드 순서는 JS 객체 순서({@link JsJson#entries}), summary·comment·worklog·attachment와
  *       집계(watches·votes· progress·aggregateprogress)는 쓰지 않는다.
  *   <li>uri는 메타데이터 url(문자열)이고 없으면 {@code jira://<소스>/<문서 id>}. 시각은 공급자 시각, 없으면 관측 시각.
@@ -54,6 +54,7 @@ public final class JiraProjector implements Projector {
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
   private final ObjectMapper json;
+  private final JiraValueRenderer values = new JiraValueRenderer();
 
   public JiraProjector(ObjectMapper json) {
     this.json = json;
@@ -102,22 +103,21 @@ public final class JiraProjector implements Projector {
             item.sourceUpdatedAt().orElse(observedAt)));
   }
 
-  private static String title(JsonNode content, JsonNode fields, boolean issue, String documentId) {
+  private String title(JsonNode content, JsonNode fields, boolean issue, String documentId) {
     if (issue)
-      return JiraValueRenderer.templateString(content.get("key"))
+      return values.templateString(content.get("key"))
           + ": "
-          + JiraValueRenderer.render(fields.get("summary"));
+          + values.render(fields.get("summary"));
     JsonNode name = content.get("name");
-    String rendered =
-        JiraValueRenderer.render(name == null || name.isNull() ? content.get("title") : name);
+    String rendered = values.render(name == null || name.isNull() ? content.get("title") : name);
     return rendered.isEmpty() ? documentId : rendered;
   }
 
-  private static List<String> fieldLines(JsonNode fields, JsonNode names) {
+  private List<String> fieldLines(JsonNode fields, JsonNode names) {
     List<String> lines = new ArrayList<>();
     for (Map.Entry<String, JsonNode> field : JsJson.entries(fields)) {
       if (SKIPPED_FIELDS.contains(field.getKey())) continue;
-      String text = JiraValueRenderer.render(field.getValue());
+      String text = values.render(field.getValue());
       if (text.isEmpty()) continue;
       JsonNode name = names.get(field.getKey());
       lines.add((name != null && name.isString() ? name.asString() : field.getKey()) + ": " + text);
@@ -125,10 +125,10 @@ public final class JiraProjector implements Projector {
     return lines;
   }
 
-  private static List<String> issueDetails(JsonNode content, JsonNode fields) {
+  private List<String> issueDetails(JsonNode content, JsonNode fields) {
     List<String> lines = new ArrayList<>();
     for (Map.Entry<String, String> section : ISSUE_SECTIONS) {
-      String text = JiraValueRenderer.render(content.get(section.getKey()));
+      String text = values.render(content.get(section.getKey()));
       if (!text.isEmpty()) lines.add("## " + section.getValue() + "\n" + text);
     }
     JsonNode attachments = fields.get("attachment");
@@ -137,11 +137,11 @@ public final class JiraProjector implements Projector {
       for (JsonNode attachment : attachments)
         if (attachment.isObject())
           lines.add(
-              JiraValueRenderer.render(attachment.get("filename"))
+              values.render(attachment.get("filename"))
                   + " ("
-                  + JiraValueRenderer.render(attachment.get("mimeType"))
+                  + values.render(attachment.get("mimeType"))
                   + ", "
-                  + JiraValueRenderer.render(attachment.get("size"))
+                  + values.render(attachment.get("size"))
                   + " bytes)");
     }
     return lines;

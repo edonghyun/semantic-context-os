@@ -70,6 +70,45 @@ class FakeNotionServerTest {
     }
   }
 
+  static final String LATER_EDIT_BOUND = "2026-10-26T00:00:00Z";
+
+  @Test
+  @DisplayName("빈 응답이 등록되어 있어도 더 늦은 하한은 미등록 요청이다")
+  void laterEditedRangeIsUnmatched() throws Exception {
+    // when
+    var reply = post(TASKS_QUERY, editedQuery(LATER_EDIT_BOUND));
+    // then
+    assertThat(reply.status()).isEqualTo(404);
+  }
+
+  @Test
+  @DisplayName("빈 것으로 아는 범위보다 앞선 하한을 임의로 빈 목록 처리하지 않는다")
+  void earlierUnknownEditedRangeIsUnmatched() throws Exception {
+    // when
+    var reply = post(TASKS_QUERY, editedQuery("2026-10-14T23:29:59Z"));
+    // then
+    assertThat(reply.status()).isEqualTo(404);
+  }
+
+  @Test
+  @DisplayName("정렬 조건이 다른 요청은 새 빈 범위 매칭으로 통과시키지 않는다")
+  void changedSortIsStillUnmatched() throws Exception {
+    // given
+    var query = editedQuery(LATER_EDIT_BOUND).replace("ascending", "descending");
+    // when
+    var reply = post(TASKS_QUERY, query);
+    // then
+    assertThat(reply.status()).isEqualTo(404);
+  }
+
+  private String editedQuery(String lowerBound) {
+    return """
+        {"page_size":100,"sorts":[{"timestamp":"created_time","direction":"ascending"}],
+         "filter":{"timestamp":"last_edited_time","last_edited_time":{"on_or_after":"%s"}}}
+        """
+        .formatted(lowerBound);
+  }
+
   @AfterEach
   void stop() {
     notion.abandon();
@@ -123,6 +162,17 @@ class FakeNotionServerTest {
     return HttpClient.newHttpClient()
         .send(request, HttpResponse.BodyHandlers.discarding())
         .statusCode();
+  }
+
+  @Test
+  @DisplayName("중단 요청의 JSON 필드 순서가 달라도 같은 요청을 중단한다")
+  void crashMatchesEquivalentJsonBody() throws Exception {
+    // given
+    notion.crashAt(TASKS_SECOND_PAGE_REQUEST);
+    // when
+    var reply = post(TASKS_QUERY, "{\"start_cursor\":\"cur-rows-2\",\"page_size\":100}");
+    // then
+    assertThat(reply.status()).isEqualTo(401);
   }
 
   @Test

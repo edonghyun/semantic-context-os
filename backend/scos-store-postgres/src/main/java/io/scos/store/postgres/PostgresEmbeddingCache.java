@@ -31,8 +31,7 @@ public final class PostgresEmbeddingCache implements EmbeddingCache {
         .param("keys", inputKeys.toArray(String[]::new))
         .query(
             (rs, i) ->
-                Map.entry(
-                    rs.getString("input_sha256"), PostgresVectorIndex.parse(rs.getString("v"))))
+                Map.entry(rs.getString("input_sha256"), PgVectorLiteral.parse(rs.getString("v"))))
         .list()
         .forEach(e -> out.put(e.getKey(), e.getValue()));
     return out;
@@ -53,7 +52,7 @@ public final class PostgresEmbeddingCache implements EmbeddingCache {
                         new MapSqlParameterSource()
                             .addValue("g", generation)
                             .addValue("key", e.getKey())
-                            .addValue("vec", PostgresVectorIndex.literal(e.getValue())))
+                            .addValue("vec", PgVectorLiteral.format(e.getValue())))
                 .toArray(SqlParameterSource[]::new));
     int inserted = 0;
     for (int c : counts) inserted += Math.max(c, 0);

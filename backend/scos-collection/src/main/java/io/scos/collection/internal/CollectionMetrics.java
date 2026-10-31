@@ -11,6 +11,9 @@ import java.util.Optional;
  * 저카디널리티만 — 소스 id·본문·질의 금지. 지표 백엔드 실패는 기능에 영향이 없어야 하므로 등록만 하고 값을 읽지 않는다.
  */
 public final class CollectionMetrics {
+  public static final String RECONCILIATION_ELIGIBLE = "scos.collection.reconciliation.eligible";
+  public static final String RECONCILIATION_DISCOVERED =
+      "scos.collection.reconciliation.discovered";
   public static final String RUNS = "scos.collection.runs";
   public static final String CLAIM_CONTENTION = "scos.collection.claim_contention";
   public static final String PAGE_COMMIT = "scos.collection.page_commit";
@@ -62,6 +65,35 @@ public final class CollectionMetrics {
   /** 스냅샷 축소 보호가 정리를 건너뛴 완료 하나(ADR-0028). */
   public void reconcileGuarded() {
     Counter.builder(SNAPSHOT_RECONCILE_GUARDED).register(registry).increment();
+  }
+
+  public void reconciliation(ReconciliationDiscovery.Summary summary) {
+    Counter.builder(RECONCILIATION_ELIGIBLE)
+        .tag("path", "full")
+        .tag("kind", "page")
+        .tag("result", summary.partial() ? "partial" : "complete")
+        .register(registry)
+        .increment((double) summary.eligiblePages());
+    if (summary.eligiblePages() > 0)
+      Counter.builder(RECONCILIATION_DISCOVERED)
+          .tag("path", "full")
+          .tag("kind", "page")
+          .tag("classification", "incremental_miss")
+          .tag("reason", "none")
+          .tag("result", summary.partial() ? "partial" : "complete")
+          .register(registry);
+    for (var count : summary.discovered()) {
+      boolean missed =
+          count.classification() == ReconciliationDiscovery.Classification.INCREMENTAL_MISS;
+      Counter.builder(RECONCILIATION_DISCOVERED)
+          .tag("path", "full")
+          .tag("classification", missed ? "incremental_miss" : "other")
+          .tag("reason", missed ? "none" : count.classification().name().toLowerCase(Locale.ROOT))
+          .tag("kind", count.kind().wire())
+          .tag("result", summary.partial() ? "partial" : "complete")
+          .register(registry)
+          .increment((double) count.states());
+    }
   }
 
   public void heartbeat(HeartbeatOutcome outcome) {

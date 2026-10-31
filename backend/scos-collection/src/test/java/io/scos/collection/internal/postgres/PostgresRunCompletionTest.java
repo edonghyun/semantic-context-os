@@ -7,24 +7,22 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.ClaimLostException;
 import io.scos.collection.internal.CollectionRun;
+import io.scos.collection.internal.CommitContext;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.PageCommit;
-import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.RawRecord;
 import io.scos.collection.internal.RunCompletion;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStatus;
-import io.scos.collection.internal.SnapshotShrinkGuard;
-import io.scos.collection.internal.SnapshotShrinkLimits;
 import io.scos.collection.internal.SourceChangeLog;
 import io.scos.collection.internal.WorkClaim;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.SourceInstanceId;
-import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -38,8 +36,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /** F5·불변식 6: 삭제(reconcile)의 근거는 succeeded + complete_snapshot인 run의 관측 집합뿐이다. */
 @DisplayName("reconcile 근거는 succeeded + complete_snapshot의 관측뿐이다(F5·불변식 6)")
@@ -59,35 +55,13 @@ class PostgresRunCompletionTest {
     ds = PostgresSupport.dataSource();
     adapters = PostgresCollectionConfiguration.adapters(ds);
     clock = new MutableClock(Instant.parse("2026-10-14T00:00:00Z"));
-    var tx = new TransactionTemplate(new DataSourceTransactionManager(ds));
-    pageCommit =
-        new PageCommit(
-            tx,
-            adapters.claims(),
-            adapters.runs(),
-            adapters.rawItems(),
-            adapters.checkpoints(),
-            adapters.outbox(),
-            clock,
-            TestMetrics.collection(),
-            adapters.changes(),
-            new Progress(clock));
+    pageCommit = new CommitContext(CommitContext.Ports.postgres(ds), clock).pageCommit();
     completion = completion(adapters.changes());
   }
 
   RunCompletion completion(SourceChangeLog changes) {
-    return new RunCompletion(
-        new TransactionTemplate(new DataSourceTransactionManager(ds)),
-        adapters.claims(),
-        adapters.runs(),
-        adapters.rawItems(),
-        adapters.outbox(),
-        changes,
-        new SnapshotShrinkGuard(
-            adapters.sources(),
-            adapters.guards(),
-            SnapshotShrinkLimits.DEFAULTS,
-            TestMetrics.collection()));
+    return new CommitContext(CommitContext.Ports.postgres(ds).withChanges(changes), clock)
+        .completion();
   }
 
   CollectionPage page(String... ids) {
@@ -115,14 +89,7 @@ class PostgresRunCompletionTest {
     pageCommit.commit(first, r0, 0, page("a", "b", "c"));
     completion.complete(
         new RunCompletion.Input(
-            first,
-            r0,
-            RunStatus.SUCCEEDED,
-            CollectionCoverage.INCREMENTAL,
-            clock.instant(),
-            0,
-            Optional.empty(),
-            Optional.empty()));
+            first, r0, RunOutcome.succeeded(0), CollectionCoverage.INCREMENTAL, clock.instant()));
     adapters.claims().release(first, clock.instant());
     WorkClaim claim =
         adapters.claims().tryClaim(SOURCE, new OwnerId("w1"), TTL, clock.instant()).orElseThrow();
@@ -148,12 +115,9 @@ class PostgresRunCompletionTest {
         new RunCompletion.Input(
             claim,
             run,
-            status,
+            new RunOutcome(status, status.isSuccess() ? 0 : 1, Optional.empty(), Optional.empty()),
             coverage,
-            clock.instant(),
-            status.isSuccess() ? 0 : 1,
-            Optional.empty(),
-            Optional.empty()));
+            clock.instant()));
   }
 
   @Nested
@@ -234,12 +198,9 @@ class PostgresRunCompletionTest {
                           new RunCompletion.Input(
                               claim,
                               run,
-                              RunStatus.SUCCEEDED,
+                              RunOutcome.succeeded(0),
                               CollectionCoverage.COMPLETE_SNAPSHOT,
-                              clock.instant(),
-                              0,
-                              Optional.empty(),
-                              Optional.empty())));
+                              clock.instant())));
       if (!(thrown instanceof IllegalStateException e)
           || !e.getMessage().equals(FailingChangeLog.MESSAGE))
         throw new IllegalStateException("given 준비 실패: 완료가 변경 로그에서 실패하지 않았다", thrown);
@@ -400,12 +361,9 @@ class PostgresRunCompletionTest {
           new RunCompletion.Input(
               claim,
               run,
-              RunStatus.FAILED,
+              RunOutcome.failed(RunStatus.FAILED, "claim_lost", "x".repeat(700)),
               CollectionCoverage.COMPLETE_SNAPSHOT,
-              clock.instant(),
-              1,
-              Optional.of("claim_lost"),
-              Optional.of("x".repeat(700))));
+              clock.instant()));
     }
 
     @Test

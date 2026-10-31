@@ -12,6 +12,7 @@ import io.scos.server.DaemonProcessScenario.Http;
 import io.scos.server.DaemonProcessScenario.Settings;
 import io.scos.server.fault.DaemonLoopFault;
 import io.scos.spi.connector.SourceInstanceId;
+import jakarta.servlet.http.HttpServletResponse;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.JsonNode;
 
 /**
  * ADR-0020 §7 완료 기준 (a)(b)(c): 실제 bootJar를 `java -jar … daemon`으로 띄워 SIGTERM 정상 종료, kill -9 뒤 새 PID
@@ -42,6 +44,49 @@ class DaemonProcessTest {
     @AfterAll
     void close() {
       if (daemons != null) daemons.close();
+    }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  @DisplayName("데몬의 HTTP 서버가 준비되면")
+  class ManagementEndpoints extends Situation {
+    int serverHealthStatus;
+    Http managementHealth;
+    String startupLog;
+
+    @BeforeAll
+    void start(@TempDir Path dir) throws Exception {
+      daemons = new DaemonProcessScenario(dir);
+      Daemon daemon = daemons.start("management", Settings.defaults());
+      daemon.awaitReady();
+      serverHealthStatus = daemon.serverStatus("/actuator/health");
+      managementHealth = daemon.get("/actuator/health");
+      startupLog = daemon.log();
+      daemon.sigterm();
+    }
+
+    @Test
+    @DisplayName("MCP·서버 포트의 Actuator health는 404다")
+    void actuatorIsAbsentFromServerPort() {
+      // then
+      assertThat(serverHealthStatus).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("Actuator health는 관리 포트에서 정상 응답한다")
+    void healthRespondsOnManagementPort() {
+      // then
+      assertThat(managementHealth)
+          .extracting(Http::status, Http::healthStatus)
+          .containsExactly(HttpServletResponse.SC_OK, "UP");
+    }
+
+    @Test
+    @DisplayName("관리 포트 로그는 127.0.0.1 바인드를 알린다")
+    void managementBindsToLoopback() {
+      // then
+      assertThat(startupLog).containsPattern("daemon management port=\\d+ address=127\\.0\\.0\\.1");
     }
   }
 
@@ -105,6 +150,9 @@ class DaemonProcessTest {
     Http health;
     int exitCode;
     String log;
+    String serveLog;
+    String console;
+    List<JsonNode> jsonLines;
 
     @BeforeAll
     void startThenSigterm(@TempDir Path dir) throws Exception {
@@ -120,6 +168,9 @@ class DaemonProcessTest {
       health = daemon.get("/actuator/health");
       exitCode = daemon.sigterm();
       log = daemon.log();
+      serveLog = daemon.serveLog();
+      console = daemon.console();
+      jsonLines = daemon.jsonLines();
     }
 
     @Test
@@ -179,22 +230,43 @@ class DaemonProcessTest {
     }
 
     @Test
-    @DisplayName("로그는 줄마다 TS serve.log 형식 JSON(ts·level·event)이다")
-    void logsTsJsonLines() {
+    @DisplayName("serve.jsonl은 줄마다 ADR-0023 JSON(ts·level·event)이다")
+    void jsonlHasJsonLines() {
       // then
-      assertThat(DaemonProcessScenario.logLines(log))
+      assertThat(jsonLines)
           .isNotEmpty()
           .allSatisfy(line -> assertThat(line.propertyNames()).startsWith("ts", "level", "event"));
     }
 
     @Test
-    @DisplayName("취소된 run은 info collection.run.cancelled 줄로 남는다")
-    void logsCancelledRunEvent() {
+    @DisplayName("취소된 run은 serve.jsonl에 info collection.run.cancelled 줄로 남는다")
+    void jsonlHasCancelledRunEvent() {
       // then
-      assertThat(DaemonProcessScenario.logLines(log))
+      assertThat(jsonLines)
           .filteredOn(line -> line.get("event").asString().equals("collection.run.cancelled"))
           .singleElement()
           .satisfies(line -> assertThat(line.get("level").asString()).isEqualTo("info"));
+    }
+
+    @Test
+    @DisplayName("serve.log에는 취소된 run이 이벤트 메시지 줄로 남는다")
+    void serveLogHasCancelledRunLine() {
+      // then
+      assertThat(serveLog).contains(" collection.run.cancelled source=" + SOURCE.value() + " run=");
+    }
+
+    @Test
+    @DisplayName("serve.log는 터미널이 아니어도 Spring Boot 기본 색을 입힌다")
+    void serveLogIsColored() {
+      // then
+      assertThat(serveLog).contains("\u001B[32m INFO\u001B[0;39m");
+    }
+
+    @Test
+    @DisplayName("stdout·stderr에는 로그를 쓰지 않는다")
+    void consoleCarriesNoLog() {
+      // then
+      assertThat(console).isBlank();
     }
   }
 

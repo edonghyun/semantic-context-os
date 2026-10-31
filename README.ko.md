@@ -49,14 +49,16 @@ CoALA([Sumers 외, 2024](#긴-컨텍스트와-에이전트-기억))는 언어 �
 - **하이브리드 검색**
   - 문서를 제목(heading) 기준으로 나눠 유닛을 만듭니다.
   - 후보는 두 채널에서 찾습니다. 키워드 채널은 일반 PostgreSQL 테이블에 둔 글자 bigram 색인을 쓰고, 벡터 채널은 pgvector를 씁니다. 두 결과는 RRF(reciprocal rank fusion)로 합칩니다.
-  - 필요하면 LLM 재정렬(Gemini)로 상위 결과의 순서를 다시 매깁니다. `SCOS_RERANK_PROVIDER=none`으로 끕니다.
+  - 필요하면 LLM 재정렬(Gemini 또는 OpenAI 호환 채팅 모델)로 상위 결과의 순서를 다시 매깁니다. `SCOS_RERANK_PROVIDER=none`으로 끕니다.
 - **MCP 도구:** `search_context`, `read_document`, `related_documents`, `assemble_context`. 검색과 조립 결과에는 수집 데이터가 얼마나 최신인지도 함께 실립니다.
+- **임베딩 공급자:** Gemini API(`gemini-embedding-001`, 768차원), 또는 OpenAI 호환 임베딩 API(`POST <base>/embeddings`)를 쓰는 서버(Ollama, 호스팅 API 등). 데이터 공간마다 어떤 공급자·모델·차원으로 벡터를 만들었는지 기록하고, 서로 섞이지 않게 막습니다([임베딩 세대](#임베딩-세대) 참고).
+- **평가:** 자기 판정셋으로 Recall@k, MRR, nDCG@k를 재고 CI 게이트로 쓸 수 있습니다([평가](#평가) 참고).
 
-임베딩은 지금은 Gemini API(`gemini-embedding-001`, 768차원)만 씁니다. 아래 데모는 이를 로컬 대체 임베더로 바꿔서 API 키 없이 돌아갑니다.
+아래 데모는 로컬 OpenAI 호환 대체 임베더를 써서 API 키 없이 돌아갑니다.
 
 ## 빠른 시작 (데모, API 키 불필요)
 
-데모는 Docker로 PostgreSQL + pgvector, 로컬 대체 임베더, SCOS 서버를 띄우고, 가상의 회사를 다룬 합성 문서 52개를 넣습니다. Docker(Compose v2)와 Python 3이 있으면 됩니다. 이미지는 Docker 안에서 빌드하므로 JDK는 없어도 됩니다.
+데모는 Docker로 PostgreSQL + pgvector, 키 없는 대체 임베더, SCOS 서버를 띄웁니다. 대체 임베더는 OpenAI 호환 임베딩 API로 답하므로, 서버는 실제 OpenAI 호환 모델을 쓸 때와 똑같이 돕니다. 가상의 회사를 다룬 합성 문서 52개를 넣습니다. Docker(Compose v2, BuildKit 포함 — Docker Desktop과 최신 Docker Engine에는 들어 있습니다)와 Python 3이 있으면 됩니다. 이미지는 Docker 안에서 빌드하므로 JDK는 없어도 됩니다.
 
 저장소 루트에서 실행합니다.
 
@@ -71,7 +73,7 @@ docker compose -f demo/compose.yaml up -d --wait
 docker compose -f demo/compose.yaml run --rm corpus
 
 # 4. SCOS에 적재합니다(처음 실행할 때 DB 마이그레이션이 돕니다).
-docker compose -f demo/compose.yaml run --rm scos import --file=/work/units.embedded.json --space=demo
+docker compose -f demo/compose.yaml run --rm scos import --file=/work/units.embedded.json --space=demo --embedding-generation=openai-compatible:scos-demo-hashing:768:title+aliases+content
 
 # 5. MCP stdio로 질문합니다.
 python3 demo/mcp_search.py "결제 중복 승인 장애 원인" -- docker compose -f demo/compose.yaml run --rm -T scos mcp
@@ -93,7 +95,9 @@ search_context("결제 중복 승인 장애 원인", limit=5) -> 5 hits
 docker compose -f demo/compose.yaml --profile tools down -v
 ```
 
-MCP 클라이언트 연결법, 키 없는 임베더의 동작 방식과 한계, 코퍼스 편집 방법은 [demo/README.md](demo/README.md)(영어)에 있습니다. 데모의 해싱 벡터는 뜻이 아니라 철자가 겹치는지를 보므로, 데모 결과로 검색 품질을 판단하지 마세요.
+CI는 `backend/`, `harness/`, `demo/`가 바뀔 때마다 같은 명령을 돌립니다([`demo/smoke.sh`](demo/smoke.sh)).
+
+MCP 클라이언트 연결법, 키 없는 임베더의 동작 방식과 한계, 실제 모델로 바꾸는 법, 코퍼스 편집 방법은 [demo/README.md](demo/README.md)(영어)에 있습니다. 데모의 해싱 벡터는 뜻이 아니라 철자가 겹치는지를 보므로, 데모 결과로 검색 품질을 판단하지 마세요.
 
 ## 서버 실행
 
@@ -106,9 +110,45 @@ MCP 클라이언트 연결법, 키 없는 임베더의 동작 방식과 한계, 
 | `source …` | 소스를 추가하거나 켜고 끕니다 |
 | `collect`, `project`, `cycle` | 수집, 투영, 또는 둘 다를 한 번 직접 돌립니다 |
 | `import` | 미리 만든 유닛 JSON 파일을 적재합니다(데모가 씁니다) |
-| `status`, `raw …`, `maintenance` | 소스와 실행 상태를 조회하고 정리합니다 |
+| `reembed --space=<id> [--dry-run]` | 공간의 모든 유닛을 설정한 임베더로 다시 임베딩합니다([임베딩 세대](#임베딩-세대) 참고) |
+| `status`, `raw …`, `maintenance` | 소스, 실행 상태, 임베딩 세대를 조회하고 정리합니다 |
 
-설정은 환경 변수로 합니다. 예를 들면 `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `GEMINI_API_KEY`, `SCOS_SPACE_ID`입니다. 전체 기본값은 `backend/scos-server/src/main/resources/application.yml`에 있습니다. 설정 레퍼런스와 커넥터 설정 안내는 아직 없습니다.
+설정은 환경 변수로 합니다. 예를 들면 `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `SCOS_SPACE_ID`입니다. 전체 기본값은 `backend/scos-server/src/main/resources/application.yml`에 있습니다. 전체 설정 레퍼런스와 커넥터 설정 안내는 아직 없습니다.
+
+다중 사용자 설정·TLS 배치·신뢰 경계·롤백은 [운영 안내](docs/operations/multi-user.md)를 참고하세요. 0.2-b 접근 수집과 0.2-c 사용자·토큰 관리 완료 전에는 운영 다중 사용자 모드를 켜지 않습니다.
+
+### 공급자 선택
+
+임베더와 재정렬기는 따로 고릅니다.
+
+| 변수 | 값 | 설명 |
+| --- | --- | --- |
+| `SCOS_EMBEDDER_PROVIDER` | `gemini`(기본), `openai-compatible` | |
+| `GEMINI_API_KEY` | 키 | 어느 한쪽 공급자라도 `gemini`이면 필요합니다. |
+| `SCOS_EMBEDDER_BASE_URL` | 예: `http://localhost:11434/v1`, `https://api.openai.com/v1` | `openai-compatible`에서만 쓰고, 필수입니다. 서버는 `<base>/embeddings`로 보냅니다. 끝 슬래시 하나만 떼고 아무것도 덧붙이지 않으므로 `/v1`은 직접 넣습니다. |
+| `SCOS_EMBEDDER_MODEL` | 모델 이름 | `openai-compatible`에서는 필수입니다. `gemini`의 기본값은 `gemini-embedding-001`입니다. |
+| `SCOS_EMBEDDER_DIM` | 벡터 길이 | `openai-compatible`에서는 필수입니다. `gemini`의 기본값은 768입니다. 서버는 `dimensions`를 보내지 않고, 돌아온 벡터마다 이 길이인지 확인합니다. |
+| `SCOS_EMBEDDER_API_KEY` | 키 | 선택입니다. `Authorization: Bearer`로 보냅니다. 로컬 서버면 비워 둡니다. |
+| `SCOS_RERANK_PROVIDER` | `gemini`(기본), `openai-compatible`, `none` | `none`이면 재정렬을 끕니다. |
+| `SCOS_RERANK_MODEL` | 모델 이름 | `gemini`의 기본값은 `gemini-2.5-flash`입니다. `openai-compatible`에서는 필수입니다. |
+| `SCOS_RERANK_BASE_URL`, `SCOS_RERANK_API_KEY` | | `openai-compatible`에서만 씁니다. 재정렬기는 `<base>/chat/completions`로 보냅니다. |
+
+필수값이 빠지면 서버는 그 변수 이름을 말하며 기동을 멈춥니다. OpenAI 호환 재정렬기는 `max_tokens`를 보냅니다. `max_completion_tokens`만 받는 모델은 0.1에서 지원하지 않습니다.
+
+### 임베딩 세대
+
+다른 모델이 만든 벡터, 또는 같은 모델이라도 차원이 다른 벡터는 서로 비교할 수 없습니다. SCOS는 공간마다 벡터를 만든 *임베딩 세대*를 `provider:model:dim:input-format` 형식으로 기록합니다. 데모의 세대는 `openai-compatible:scos-demo-hashing:768:title+aliases+content`이고, 기본 Gemini 설정의 세대는 `gemini:gemini-embedding-001:768:title+aliases+content`입니다. `status`는 공간마다 저장된 세대와 설정한 세대를 보여 줍니다.
+
+- **기동 검사.** 공간에 저장된 세대가 설정한 임베더와 다르면 `mcp`와 `daemon`은 기동을 거부하고(종료 코드 1) 고치는 법을 알려 줍니다: `Run 'scos reembed --space=<id>' or restore SCOS_EMBEDDER_* settings.` 섞인 벡터로 검색하는 일은 없습니다.
+- **모델을 바꿀 때.** 공간을 다시 임베딩합니다.
+  1. 공간을 읽거나 쓰는 것을 모두 멈춥니다. 데몬과 모든 MCP 서버입니다. 재임베딩 중에 검색하면 옛 벡터와 새 벡터를 비교하게 됩니다.
+  2. `SCOS_EMBEDDER_*` 설정을 바꿉니다.
+  3. `reembed --space=<id> --dry-run`은 쓰지 않고 유닛 수와 저장 세대·목표 세대를 출력합니다.
+  4. `reembed --space=<id>`는 모든 유닛을 다시 임베딩한 뒤 새 세대를 기록합니다. 임베딩 캐시에 없는 유닛을 한 번에 최대 100개씩 묶어 임베더를 부릅니다.
+  5. `status`에서 저장 세대와 설정 세대가 같은지 확인하고, 데몬과 MCP를 다시 띄웁니다.
+
+  `reembed`가 중간에 실패하면 공간이 pending으로 남고, 다시 `reembed`를 돌릴 때까지 서버가 기동을 거부합니다. 공간을 잠그므로, 같은 때 투영이 돌고 있으면 바로 실패합니다. 잠시 뒤 다시 돌리면 됩니다. 한 공간에는 `reembed`를 한 번에 하나만 돌립니다.
+- **`import`.** 파일의 유닛에 벡터가 들어 있으면 `import`에 그 벡터를 만든 세대를 `--embedding-generation=<세대>`로 알려 줘야 합니다. 세대가 설정한 임베더나 공간의 세대와 다르면 거부합니다. 세대를 기록하지 않던 옛 `import`로 적재한 공간은 검사하지 않습니다. 한 번 `reembed`를 돌려 세대를 기록해 두세요.
 
 ## 구조
 
@@ -118,7 +158,7 @@ flowchart LR
   boot --> collection
   boot --> connector["connector/*"]
   boot --> store["store/*"]
-  boot --> provider["provider/gemini"]
+  boot --> provider["provider/{gemini,openai}"]
   mcp --> engine
   collection --> engine
   connector --> spi
@@ -137,6 +177,7 @@ flowchart LR
 | `connector/{slack,notion,jira,googledrive,tiro}` | `scos-connector-{slack,notion,jira,google-drive,tiro}` | 소스 어댑터와 투영기 |
 | `store/{postgres,memory}` | `scos-store-{postgres,memory}` | 저장소 구현. `memory`는 테스트·실험용입니다. |
 | `provider/gemini` | `scos-provider-gemini` | Gemini API 임베더와 텍스트 생성기 |
+| `provider/openai` | `scos-provider-openai-compatible` | OpenAI 호환 HTTP API(`/embeddings`, `/chat/completions`) 임베더와 텍스트 생성기 |
 | `mcp` | `scos-mcp` | MCP stdio 서버와 도구 정의 |
 | `server`, `boot` | `scos-server`, `scos-spring-boot-starter` | Spring Boot 애플리케이션, CLI 명령, 조립 |
 
@@ -186,7 +227,11 @@ SearchResult result =
 result.hits().forEach(hit -> System.out.println(hit.documentId() + "  " + hit.title()));
 ```
 
-엔진에는 이 밖에 `read`, `related`, `assemble`, `freshness`가 있고, MCP 도구와 하나씩 대응합니다. 모든 호출은 첫 인자로 `Principal`을 받습니다. 0.1에서는 이를 전달만 하고 아무것도 거르지 않습니다. 빌더의 선택 설정으로 `reranker(TextGenerator, ObjectMapper)`, `clock`, `meterRegistry`, `lexicalExecutor`가 있습니다. `Embedder`는 메서드 두 개(`dim()`, `embed(texts)`)짜리 인터페이스라서, 다른 임베딩 공급자를 붙이려면 이것만 구현하면 됩니다.
+엔진에는 이 밖에 `read`, `related`, `assemble`, `freshness`가 있고, MCP 도구와 하나씩 대응합니다. 모든 호출은 첫 인자로 `Principal`을 받습니다. 0.1에서는 이를 전달만 하고 아무것도 거르지 않습니다. 빌더의 선택 설정으로 `reranker(TextGenerator, ObjectMapper)`, `clock`, `meterRegistry`, `lexicalExecutor`가 있습니다.
+
+엔진을 넣어 쓸 때는 위처럼 `ContextEngine.builder()`로 직접 조립합니다. `embedder`는 두 공급자 모듈 중 하나이거나 직접 구현한 `Embedder`입니다. 그 `identity()`(공급자, 모델, 차원)는 공간에 저장된 [임베딩 세대](#임베딩-세대)와 맞아야 합니다.
+
+0.1에는 라이브러리 사용자를 위한 쓰기 경로가 없습니다. 데이터는 커넥터 수집(데몬, `collect`, `project`)과, 벡터를 함께 담은 유닛의 `import`로만 들어갑니다.
 
 ## 빌드와 테스트
 
@@ -209,14 +254,28 @@ cd backend
 
 `perfTest`(측정 프로브)는 `check`에 들어가지 않습니다.
 
+## 평가
+
+[`harness/`](harness/README.md)의 `evaluate` 태스크는 판정셋의 질의를 MCP 서버 하나에 보내 Recall@k, MRR, nDCG@k를 냅니다. `--min-recall`, `--min-mrr`, `--min-ndcg`를 주면 하한 아래에서 종료 1로 끝나므로, 자기 데이터로 CI 게이트를 걸 수 있습니다. 판정셋 형식, 지표, 종료 코드는 [docs/public/evaluation.md](docs/public/evaluation.md)(영어)에 있습니다. CI는 데모 코퍼스로 이를 돌립니다([demo/README.md](demo/README.md#evaluation)).
+
 ## 로드맵
+
+0.1에서 끝낸 것: OpenAI 호환 임베더와 재정렬기(Ollama 같은 로컬 서버도 붙습니다), 임베딩 세대와 `reembed`, `evaluate` 하네스.
 
 계획이며 일정은 정하지 않았습니다.
 
 - **다중 사용자:** MCP HTTP 전송, 인증, 원천 시스템 권한(ACL)에 따른 접근 필터
 - **메모리 층:** 수집한 문서 위에 사용자별·팀별 기억을 두는 층
-- **임베딩 공급자 추가:** OpenAI 호환 HTTP 임베더. Ollama 같은 로컬 서버도 이것으로 붙일 수 있습니다.
 - 아티팩트와 컨테이너 이미지 배포
+
+0.2 계획:
+
+- 자동 구성을 갖춘 Spring Boot starter, testkit, 커넥터·투영기 계약 테스트, 예제 커넥터와 SPI 안내, Maven Central 아티팩트
+- 라이브러리 쓰기 경로(자기 코드에서 문서를 넣고, 지우고, 다시 임베딩)
+- 판정셋의 등급 관련도(graded nDCG), 세대 값 객체를 키로 쓰는 임베딩 캐시
+- OpenAI 요청 옵션 추가: `dimensions`, `max_completion_tokens`
+- 모든 임베더에 공통인 벡터 길이 검사, `Embedder.maxBatchSize()`, 데몬 주소 설정
+- MCP 결과의 소스 이름
 
 ## 참고문헌
 

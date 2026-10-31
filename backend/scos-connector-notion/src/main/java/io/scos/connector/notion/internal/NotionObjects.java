@@ -1,17 +1,27 @@
 package io.scos.connector.notion.internal;
 
+import java.util.Locale;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Notion 객체 모양 검사(TS isNotionPage·isNotionBlock·isNotionDatabase·isNotionDataSource): object 이름, 빈
- * 값이 아닌 문자열 id, 문자열 created_time·last_edited_time, 불리언 in_trash. 블록은 빈 값이 아닌 type과 불리언
- * has_children, database는 {id(빈 값 아님), name(문자열)} 배열 data_sources를 더 본다. 나머지 필드는 보지 않고 원문 그대로 둔다.
+ * Notion 객체 모양 검사: object 이름, 빈 값이 아닌 문자열 id, 문자열 created_time·last_edited_time, 불리언 in_trash. 블록은
+ * 빈 값이 아닌 type과 불리언 has_children, database는 {id(빈 값 아님), name(문자열)} 배열 data_sources를 더 본다. 나머지 필드는
+ * 보지 않고 원문 그대로 둔다.
  */
 final class NotionObjects {
   static final String PAGE = "page";
   static final String DATA_SOURCE = "data_source";
 
   private NotionObjects() {}
+
+  static boolean sameId(String first, String second) {
+    return idKey(first).equals(idKey(second));
+  }
+
+  static String idKey(String id) {
+    String compact = id.replace("-", "");
+    return compact.matches("[0-9a-fA-F]{32}") ? compact.toLowerCase(Locale.ROOT) : id;
+  }
 
   static boolean isPage(JsonNode value) {
     return timestamped(value, PAGE);

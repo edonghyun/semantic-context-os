@@ -8,7 +8,7 @@ import io.scos.connector.tiro.TiroAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;

@@ -1,0 +1,2 @@
+-- 무제한 범위의 SQL — 0.2 접근 필터 뒤에도 바뀌면 안 된다(설계 §4.3)
+SELECT max(NULLIF(captured_at, '') COLLATE "C") FROM units WHERE space_id = :space

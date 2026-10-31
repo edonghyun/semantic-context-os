@@ -3,10 +3,13 @@ plugins {
     id("scos.java-module")
 }
 
+scosNullAway { enabled = true }
+
 dependencies {
     implementation(project(":scos-spi"))
     implementation(project(":scos-engine"))
 
     testImplementation(testFixtures(project(":scos-spi")))
+    testFixturesImplementation(testFixtures(project(":scos-spi")))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

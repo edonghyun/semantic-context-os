@@ -1,6 +1,7 @@
 package io.scos.store.postgres;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.access.AclStore;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.KeywordIndexContract;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,11 @@ class PostgresKeywordIndexTest extends KeywordIndexContract {
   @BeforeEach
   void clean() {
     PostgresSupport.truncateAll();
+  }
+
+  @Override
+  protected AclStore aclStore() {
+    return new PostgresAclStore(JdbcClient.create(PostgresSupport.dataSource()));
   }
 
   @Override

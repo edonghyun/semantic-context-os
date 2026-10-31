@@ -134,7 +134,8 @@ public final class PostgresCollectionRuntime {
   public CollectionRuntime build() {
     if (adapter == null) throw new IllegalStateException("adapter가 없다");
     var adapters = PostgresCollectionConfiguration.adapters(dataSource);
-    var tx = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+    var stores =
+        adapters.stores(new TransactionTemplate(new DataSourceTransactionManager(dataSource)));
     String runOwner = owner;
     AtomicInteger counter = runCounter;
     return new CollectionRuntime(
@@ -151,24 +152,9 @@ public final class PostgresCollectionRuntime {
         adapters.claims(),
         checkpointReads == null ? adapters.checkpoints() : checkpointReads,
         adapters.runs(),
-        new PageCommit(
-            tx,
-            adapters.claims(),
-            adapters.runs(),
-            adapters.rawItems(),
-            adapters.checkpoints(),
-            adapters.outbox(),
-            clock,
-            metrics,
-            adapters.changes(),
-            new Progress(clock)),
+        new PageCommit(stores, clock, metrics, new Progress(clock)),
         new RunCompletion(
-            tx,
-            adapters.claims(),
-            adapters.runs(),
-            adapters.rawItems(),
-            adapters.outbox(),
-            adapters.changes(),
+            stores,
             new SnapshotShrinkGuard(
                 adapters.sources(), adapters.guards(), SnapshotShrinkLimits.DEFAULTS, metrics)),
         new OwnerId(runOwner),

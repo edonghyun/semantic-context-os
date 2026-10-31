@@ -35,7 +35,7 @@ import org.springframework.web.client.ResourceAccessException;
  */
 @DisplayName("공급자 HTTP 교환은 응답을 그대로 돌려주고, 시도 timeout을 지킨다(ADR-0022 §4)")
 class ProviderHttpTest {
-  /** 요청 timeout 30초 — 실행기 기본 정책(TS 기본값)과 같은 손 값. */
+  /** 요청 timeout 30초 — 실행기 기본 정책과 같은 손 값. */
   static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
   /** 붙잡힌 응답보다 짧은 시도 timeout. */
@@ -438,7 +438,7 @@ class ProviderHttpTest {
   @Test
   @DisplayName("실행기로 만들면 실행기 정책의 요청 timeout을 기본으로 쓴다")
   void takesRequestTimeoutFromExecutor() {
-    // given: 기본 정책의 요청 timeout은 30초다(TS 기본값)
+    // given: 기본 정책의 요청 timeout은 30초다
     ProviderCallExecutor executor =
         ProviderCallExecutor.defaults(Clock.systemUTC(), TestMetrics.providerCalls());
 

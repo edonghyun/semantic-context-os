@@ -1,25 +1,28 @@
 package io.scos.connector.googledrive.internal;
 
+import io.scos.engine.support.PureFunctions;
 import io.scos.engine.support.text.JsJson;
-import io.scos.engine.support.text.JsStrings;
+import io.scos.engine.support.text.Text;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.DoubleNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 
 /**
- * TS Drive 투영기의 관대한 값 읽기와 JS 문자열 의미: object(객체가 아니면 빈 객체)·objects(배열이 아니면 빈 배열, 원소도
- * object)·text(문자열이 아니면 "")·참 값·{@code String(v)}·{@code Number(v)}·엄격 같음·JS trim(공백 집합이 Java와 다르다
- * — NBSP·BOM·U+2028을 뗀다).
+ * Drive 투영기의 관대한 값 읽기와 JS 문자열 의미: object(객체가 아니면 빈 객체)·objects(배열이 아니면 빈 배열, 원소도 object)·text(문자열이
+ * 아니면 "")·엄격 같음·JS trim(공백 집합이 Java와 다르다 — NBSP·BOM·U+2028을 뗀다). 참 값·{@code String(v)}·{@code
+ * Number(v)}는 수집과 같은 {@link JsValues}의 것이다.
  */
+@PureFunctions
 public final class JsText {
   private static final JsonNode EMPTY = JsonNodeFactory.instance.objectNode();
 
   private JsText() {}
 
   /** 객체(배열 아님)면 그대로, 아니면 빈 객체. */
-  public static JsonNode object(JsonNode value) {
+  public static JsonNode object(@Nullable JsonNode value) {
     return value != null && value.isObject() ? value : EMPTY;
   }
 
@@ -40,16 +43,13 @@ public final class JsText {
     return value != null && value.isString() ? value.asString() : otherwise;
   }
 
+  /** JS 참 값인지(`if (v)`). 파싱한 JSON의 수에는 NaN이 없다. */
   public static boolean truthy(JsonNode value) {
-    if (value == null || value.isMissingNode() || value.isNull()) return false;
-    if (value.isBoolean()) return value.asBoolean();
-    if (value.isNumber()) return value.asDouble() != 0 && !Double.isNaN(value.asDouble());
-    if (value.isString()) return !value.asString().isEmpty();
-    return true;
+    return JsValues.truthy(value);
   }
 
   public static boolean isTrue(JsonNode value) {
-    return value != null && value.isBoolean() && value.asBoolean();
+    return JsValues.isTrue(value);
   }
 
   /** JS {@code a === b}: 둘 다 없음, 같은 문자열·수·불리언, 둘 다 null. 객체·배열은 같지 않다(참조 비교). */
@@ -66,13 +66,7 @@ public final class JsText {
 
   /** JS {@code String(v)}. */
   public static String string(JsonNode value) {
-    if (value == null || value.isMissingNode()) return "undefined";
-    if (value.isNull()) return "null";
-    if (value.isString()) return value.asString();
-    if (value.isNumber()) return number(value.asDouble());
-    if (value.isBoolean()) return Boolean.toString(value.asBoolean());
-    if (value.isArray()) return join(value, ",");
-    return "[object Object]";
+    return JsValues.string(value);
   }
 
   /** JS {@code array.join(sep)}: null·undefined 원소는 "". */
@@ -92,19 +86,14 @@ public final class JsText {
 
   /** JS {@code Number(v)}(undefined는 NaN, null은 0). */
   static double toNumber(JsonNode value) {
-    if (value == null || value.isMissingNode()) return Double.NaN;
-    if (value.isNull()) return 0;
-    if (value.isNumber()) return value.asDouble();
-    if (value.isBoolean()) return value.asBoolean() ? 1 : 0;
-    if (!value.isString() && !value.isArray()) return Double.NaN;
-    return JsStrings.number(string(value));
+    return JsValues.number(value);
   }
 
   static String trim(String s) {
-    return JsStrings.trim(s);
+    return Text.jsTrim(s);
   }
 
   static String trimEnd(String s) {
-    return JsStrings.trimEnd(s);
+    return Text.jsTrimEnd(s);
   }
 }

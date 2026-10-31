@@ -113,7 +113,7 @@ public final class DemoCorpus {
     return documents.stream().flatMap(d -> pipeline.apply(d.toSource()).stream()).toList();
   }
 
-  /** `import --file`이 읽는 형식(UnitJsonImport: TS ContextUnit JSON의 {@code units} 배열). */
+  /** `import --file`이 읽는 형식(UnitJsonImport: ContextUnit JSON의 {@code units} 배열). */
   public String unitsJson() {
     Map<String, Object> file = new LinkedHashMap<>();
     file.put("version", 1);

@@ -1,0 +1,8 @@
+-- 무제한 범위의 SQL — 0.2 접근 필터 뒤에도 바뀌면 안 된다(설계 §4.3)
+anyPartition=Boolean:false
+archived=Boolean:false
+dim=Integer:3
+k=Integer:10
+partitions=String[]:[p2, p1]
+q=String:[1.0,0.5,-0.25]
+space=String:s1

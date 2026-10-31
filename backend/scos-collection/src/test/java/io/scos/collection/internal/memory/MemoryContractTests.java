@@ -12,6 +12,7 @@ import io.scos.collection.internal.SourceChangeLog;
 import io.scos.collection.internal.SourceChangeLogContract;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.SourceInstanceStoreContract;
+import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.SupervisorScheduleContract;
 import io.scos.collection.internal.WorkClaimContract;
 import io.scos.collection.internal.WorkClaimPort;
@@ -100,6 +101,16 @@ class MemoryContractTests {
     protected Ports newPorts() {
       return new Ports(
           new MemorySourceInstanceStore(), new MemoryRunStore(), new MemoryWorkClaimPort());
+    }
+  }
+
+  @Nested
+  @DisplayName("목록 대리 저장소는 소스 등록 저장 계약을 지킨다")
+  class ListedSources extends SourceInstanceStoreContract {
+    @Override
+    protected SourceInstanceStore newStore() {
+      var delegate = new MemorySourceInstanceStore();
+      return SourceInstances.listing(delegate, delegate::listEnabled);
     }
   }
 }

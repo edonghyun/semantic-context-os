@@ -8,7 +8,7 @@ import java.time.Clock;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** 소스 목록의 Tiro 쪽(TS deletionDetection): 완전 스냅샷 수집이라 부재가 삭제 근거다. */
+/** 소스 목록의 Tiro 쪽(deletionDetection): 완전 스냅샷 수집이라 부재가 삭제 근거다. */
 @DisplayName("Tiro 소스 목록은 완전 스냅샷의 부재로 삭제를 안다")
 class TiroAdapterListingTest {
   /** 목록은 공급자를 부르지 않는다 — 닿지 않는 주소. */

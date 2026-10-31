@@ -1,17 +1,20 @@
 package io.scos.engine.internal.search;
 
 import static io.scos.engine.internal.search.SearchFixture.S;
+import static io.scos.engine.internal.search.SearchSettingsBuilder.DEFAULT_PLAN;
 import static io.scos.spi.store.ContextUnits.unit;
 import static io.scos.support.MeterRegistryAssert.assertThatMetrics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.engine.internal.search.rerank.LlmReranker;
+import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.embedding.TextGenerator;
 import io.scos.spi.store.AccessScope;
-import io.scos.support.TestExecutors;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -37,16 +40,12 @@ class QuestionSearchMetricsTest {
   final SimpleMeterRegistry registry = new SimpleMeterRegistry();
 
   QuestionSearch search(Embedder embedder, Reranker reranker) {
-    return new QuestionSearch(
-        fx.units,
-        fx.keywords,
-        fx.vectors,
-        embedder,
-        reranker,
-        SearchSettings.DEFAULT,
-        NOW,
-        SearchMetrics.of(registry),
-        TestExecutors.CALLER_THREAD);
+    return QuestionSearchBuilder.over(fx)
+        .embedder(embedder)
+        .reranker(reranker)
+        .clock(NOW)
+        .metrics(SearchMetrics.of(registry))
+        .build();
   }
 
   QuestionSearch searchWithoutRerank() {
@@ -85,7 +84,7 @@ class QuestionSearchMetricsTest {
     @DisplayName("recipe=search의 각 단계 타이머를 한 번 기록한다")
     void recordsEveryStageOnce(String name) {
       // when
-      searchWithoutRerank().search(AccessScope.singleUser(), S, "정산");
+      searchWithoutRerank().search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThatMetrics(registry).hasTimerCount(SearchMetrics.STAGE, stage("search", name), 1);
@@ -95,7 +94,7 @@ class QuestionSearchMetricsTest {
     @DisplayName("assemble 레시피 단계는 기록하지 않는다")
     void doesNotRecordAssemble() {
       // when
-      searchWithoutRerank().search(AccessScope.singleUser(), S, "정산");
+      searchWithoutRerank().search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThatMetrics(registry).hasNoTimer(SearchMetrics.STAGE, stage("assemble", "lexical"));
@@ -105,7 +104,7 @@ class QuestionSearchMetricsTest {
     @DisplayName("재정렬이 꺼져 있으면 rerank{skipped}를 센다")
     void countsSkippedRerank() {
       // when
-      searchWithoutRerank().search(AccessScope.singleUser(), S, "정산");
+      searchWithoutRerank().search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
 
       // then
       assertThatMetrics(registry)
@@ -125,8 +124,8 @@ class QuestionSearchMetricsTest {
     @DisplayName("후보를 돌려준다")
     void returnsCandidates() {
       // when
-      List<QuestionSearch.Candidate> candidates =
-          searchWithoutRerank().assembleRecipe(AccessScope.singleUser(), S, "정산");
+      List<Candidate> candidates =
+          searchWithoutRerank().assembleRecipe(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN);
 
       // then
       assertThat(candidates).extracting(c -> c.unit().id()).containsExactly("a-1");
@@ -136,7 +135,7 @@ class QuestionSearchMetricsTest {
     @DisplayName("단계를 recipe=assemble로만 기록한다")
     void recordsAssembleRecipe() {
       // when
-      searchWithoutRerank().assembleRecipe(AccessScope.singleUser(), S, "정산");
+      searchWithoutRerank().assembleRecipe(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN);
 
       // then
       assertThatMetrics(registry)
@@ -148,7 +147,7 @@ class QuestionSearchMetricsTest {
     @DisplayName("재정렬이 꺼져 있으면 rerank 단계를 기록하지 않는다")
     void recordsAssembleWithoutRerank() {
       // when
-      searchWithoutRerank().assembleRecipe(AccessScope.singleUser(), S, "정산");
+      searchWithoutRerank().assembleRecipe(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN);
 
       // then
       assertThatMetrics(registry).hasNoTimer(SearchMetrics.STAGE, stage("assemble", "rerank"));
@@ -169,9 +168,9 @@ class QuestionSearchMetricsTest {
             new LlmReranker(answersThenFails("2,1", "garbage"), RERANK_HEAD, new ObjectMapper()));
 
     // when
-    search.search(AccessScope.singleUser(), S, "정산");
-    search.search(AccessScope.singleUser(), S, "정산 배치");
-    search.search(AccessScope.singleUser(), S, "정산 규정");
+    search.search(AccessScope.singleUser(), S, "정산", DEFAULT_PLAN, 10);
+    search.search(AccessScope.singleUser(), S, "정산 배치", DEFAULT_PLAN, 10);
+    search.search(AccessScope.singleUser(), S, "정산 규정", DEFAULT_PLAN, 10);
 
     // then
     assertThatMetrics(registry)
@@ -199,7 +198,7 @@ class QuestionSearchMetricsTest {
 
     // when
     search(recordingBatchSizes(batchSizes), Reranker.DISABLED)
-        .search(AccessScope.singleUser(), S, "결제 장애 그리고 배포 절차");
+        .search(AccessScope.singleUser(), S, "결제 장애 그리고 배포 절차", DEFAULT_PLAN, 10);
 
     // then
     assertThat(batchSizes).containsExactly(3);
@@ -218,8 +217,8 @@ class QuestionSearchMetricsTest {
   static Embedder recordingBatchSizes(List<Integer> sizes) {
     return new Embedder() {
       @Override
-      public int dim() {
-        return DIM;
+      public EmbedderIdentity identity() {
+        return new EmbedderIdentity("test", "question-metrics", DIM);
       }
 
       @Override

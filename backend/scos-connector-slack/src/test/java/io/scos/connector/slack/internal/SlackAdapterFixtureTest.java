@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.connector.slack.internal.SlackScenario.Collection;
 import io.scos.connector.slack.internal.SlackScenario.TsCollection;
+import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailure.Kind;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
@@ -16,6 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * F12 동등성: 가짜 Slack 서버(harness/fixtures/p4/slack-dataset.json)에서 Java SlackAdapter가 만든
@@ -403,6 +407,162 @@ class SlackAdapterFixtureTest {
       // then
       assertThat(collection.pages()).hasSize(ts.pagesApplied());
     }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {USERS_CONVERSATIONS, HISTORY, REPLIES})
+  @DisplayName("공급자가 요청한 커서를 다음 커서로 다시 주면 invalid_provider_response로 끝난다")
+  void cursorThatDoesNotAdvanceFails(String path) {
+    // given
+    slack.withRepeatedCursor(path);
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureKind()).contains(Kind.INVALID_PROVIDER_RESPONSE);
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource(
+      delimiter = '|',
+      quoteCharacter = '`',
+      value = {
+        HISTORY + " | [] | body_not_object",
+        HISTORY + " | {\"ok\":\"true\"} | ok_not_boolean",
+        HISTORY + " | {\"ok\":false} | error_code_missing",
+        HISTORY + " | {\"ok\":true} | messages_not_array",
+        USERS_CONVERSATIONS + " | {\"ok\":true} | channels_not_array",
+        HISTORY
+            + " | {\"ok\":true,\"messages\":[],\"response_metadata\":[]} | response_metadata_not_object",
+        HISTORY
+            + " | {\"ok\":true,\"messages\":[],\"response_metadata\":{\"next_cursor\":3}} | next_cursor_not_string",
+        REPLIES + " | {\"ok\":true,\"messages\":[]} | thread_root_missing"
+      })
+  @DisplayName("응답이 형식 검사에서 어긋나면 실패가 그 검사 이름을 싣는다")
+  void malformedResponseNamesCheck(String path, String body, String check) {
+    // given
+    slack.failNext(path, 1, FakeSlackServer.Fault.http(200, body));
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureViolation()).contains(CallFailure.Violation.of(check));
+  }
+
+  @Test
+  @DisplayName("참여 목록의 채널 항목이 어긋나면 실패가 그 항목의 인덱스를 싣는다")
+  void malformedChannelNamesIndex() {
+    // given
+    slack.failNext(
+        USERS_CONVERSATIONS,
+        1,
+        FakeSlackServer.Fault.http(200, "{\"ok\":true,\"channels\":[{\"id\":\"C1\"},{}]}"));
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureViolation()).contains(CallFailure.Violation.item("item_shape", 1));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {USERS_CONVERSATIONS, HISTORY, REPLIES})
+  @DisplayName("커서가 전진하지 않거나 돌아오면 실패가 위반 cursor_cycle을 싣는다")
+  void cursorCycleIsViolation(String path) {
+    // given
+    slack.withCyclingCursor(path);
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureViolation()).contains(CallFailure.Violation.of("cursor_cycle"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {USERS_CONVERSATIONS, HISTORY, REPLIES})
+  @DisplayName("요청한 커서를 다음 커서로 다시 주면 실패가 위반 cursor_cycle을 싣는다")
+  void repeatedCursorIsViolation(String path) {
+    // given
+    slack.withRepeatedCursor(path);
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureViolation()).contains(CallFailure.Violation.of("cursor_cycle"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {USERS_CONVERSATIONS, HISTORY, REPLIES})
+  @DisplayName("다음 커서가 이미 요청한 커서로 돌아오면(A → B → A) 응답 위반으로 끝난다")
+  void cursorThatCyclesFails(String path) {
+    // given
+    slack.withCyclingCursor(path);
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureKind()).contains(Kind.INVALID_PROVIDER_RESPONSE);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource(
+      delimiter = '|',
+      value = {
+        USERS_CONVERSATIONS + "|conversations trail=[-,5feceb66,f1534392] next=5feceb66 length=3",
+        HISTORY + "|history:C0000000001 trail=[-,0d620557,f8d65192] next=0d620557 length=3",
+        REPLIES
+            + "|replies:C0000000001:1760400100.000000 trail=[-,0d620557,f8d65192]"
+            + " next=0d620557 length=3"
+      })
+  @DisplayName("커서 순환 위반의 메시지는 무엇을 걷다 어디로 돌아왔는지 싣는다")
+  void cursorCycleNamesWalk(String path, String walk) {
+    // given
+    slack.withCyclingCursor(path);
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureMessage())
+        .hasValueSatisfying(
+            message ->
+                assertThat(message)
+                    .endsWith(
+                        "Slack API error: invalid_provider_response (cursor cycle: list="
+                            + walk
+                            + ")"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource(
+      delimiter = '|',
+      value = {
+        USERS_CONVERSATIONS + "|conversations trail=[-,5feceb66] next=5feceb66 length=2",
+        HISTORY + "|history:C0000000001 trail=[-,0d620557] next=0d620557 length=2",
+        REPLIES + "|replies:C0000000001:1760400100.000000 trail=[-,0d620557] next=0d620557 length=2"
+      })
+  @DisplayName("요청한 커서를 다음 커서로 다시 준(A → A) 위반의 메시지도 무엇을 걷다 어디로 돌아왔는지 싣는다")
+  void repeatedCursorNamesWalk(String path, String walk) {
+    // given
+    slack.withRepeatedCursor(path);
+
+    // when
+    Collection collection = slack.collect();
+
+    // then
+    assertThat(collection.failureMessage())
+        .hasValueSatisfying(
+            message ->
+                assertThat(message)
+                    .endsWith(
+                        "Slack API error: invalid_provider_response (cursor cycle: list="
+                            + walk
+                            + ")"));
   }
 
   @Nested

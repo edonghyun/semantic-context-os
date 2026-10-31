@@ -17,7 +17,7 @@ import io.scos.connector.slack.SlackProjector;
 import io.scos.engine.internal.projection.DocumentIngestor;
 import io.scos.engine.internal.projection.JtokkitTokenizer;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.projection.Projector;
@@ -25,6 +25,7 @@ import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.memory.MemoryKeywordIndex;
 import io.scos.store.memory.MemorySpaceMeta;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import io.scos.support.ManualTaskScheduler;
@@ -56,6 +57,8 @@ public final class MemoryProjection {
   public final MemoryRawItemStore rawItems = new MemoryRawItemStore();
   public final MemoryWorkClaimPort claims;
   public final MemoryUnitStore units = new MemoryUnitStore();
+  public final MemoryVectorIndex vectors = new MemoryVectorIndex();
+  public final MemoryUnitMaintenance maintenance = new MemoryUnitMaintenance(units, vectors);
   public final ManualTaskScheduler scheduler = new ManualTaskScheduler();
   public final Progress progress;
   private final List<Projector> projectors = new ArrayList<>(List.of(new SlackProjector(JSON)));
@@ -101,7 +104,7 @@ public final class MemoryProjection {
 
   /** 기본 공간({@link #SPACE})에 쓴 유닛(적재 순서). */
   public List<ContextUnit> storedUnits() {
-    return units.listAll(SPACE);
+    return maintenance.listAll(SPACE);
   }
 
   /** 지금 시각에 시도할(due) 투영 요청의 소스. */
@@ -136,9 +139,9 @@ public final class MemoryProjection {
     DocumentIngestor ingestor =
         new DocumentIngestor(
             TransactionOperations.withoutTransaction(),
-            units,
+            maintenance,
             new MemoryKeywordIndex(),
-            new MemoryVectorIndex(),
+            vectors,
             new MemorySpaceMeta(),
             embedder,
             new IngestPipeline(new JtokkitTokenizer()),

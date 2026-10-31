@@ -5,13 +5,11 @@ import java.util.List;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Slides 원본의 평문(TS renderPresentation): 슬라이드마다 `## 슬라이드 n`, 요소(도형 글·표 행마다 칸 ` | `·그룹 자식·제목·설명), 발표자
- * 노트(`### 발표자 노트` — 노트 페이지 요소 가운데 objectId가 speakerNotesObjectId와 JS `===`로 같은 것, 둘 다 없어도 같다).
+ * Slides 원본의 평문: 슬라이드마다 `## 슬라이드 n`, 요소(도형 글·표 행마다 칸 ` | `·그룹 자식·제목·설명), 발표자 노트(`### 발표자 노트` — 노트
+ * 페이지 요소 가운데 objectId가 speakerNotesObjectId와 JS `===`로 같은 것, 둘 다 없어도 같다).
  */
 public final class SlidesRenderer {
-  private SlidesRenderer() {}
-
-  public static String presentation(JsonNode presentation) {
+  public String presentation(JsonNode presentation) {
     List<String> slides = new ArrayList<>();
     List<JsonNode> list = JsText.objects(presentation.get("slides"));
     for (int index = 0; index < list.size(); index++) slides.add(slide(list.get(index), index + 1));

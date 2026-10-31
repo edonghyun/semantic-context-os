@@ -1,6 +1,10 @@
 package io.scos.engine.internal.search;
 
+import static io.scos.engine.internal.search.SearchSettingsBuilder.DEFAULT_PLAN;
+
+import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.IndexCapabilities;
 import io.scos.spi.store.IndexedText;
@@ -9,6 +13,7 @@ import io.scos.spi.store.ScoredRef;
 import io.scos.spi.store.SearchFilter;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.memory.MemoryKeywordIndex;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import io.scos.support.Eventually;
@@ -128,17 +133,19 @@ final class QuestionSearchScenario implements AutoCloseable {
 
   QuestionSearch.Result search() {
     caller = Thread.currentThread();
-    return new QuestionSearch(
-            new MemoryUnitStore(),
+    var units = new MemoryUnitStore();
+    var vectors = new MemoryVectorIndex();
+    return QuestionSearches.of(
+            units,
+            new MemoryUnitMaintenance(units, vectors),
             new HookedKeywordIndex(),
-            new MemoryVectorIndex(),
+            vectors,
             new HookedEmbedder(),
             Reranker.DISABLED,
-            SearchSettings.DEFAULT,
             NOW,
             TestMetrics.search(),
             keywordChannel)
-        .search(AccessScope.singleUser(), S, "정산 배치");
+        .search(AccessScope.singleUser(), S, "정산 배치", DEFAULT_PLAN, 10);
   }
 
   /** 키워드 검색과 임베딩이 서로가 진행 중인 것을 보았다. */
@@ -206,8 +213,8 @@ final class QuestionSearchScenario implements AutoCloseable {
 
   private final class HookedEmbedder implements Embedder {
     @Override
-    public int dim() {
-      return DIM;
+    public EmbedderIdentity identity() {
+      return new EmbedderIdentity("test", "hooked", DIM);
     }
 
     @Override

@@ -17,13 +17,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Notion API 클라이언트(TS NotionApiClient·classifyNotionError, TESTING §3.6 2·3층): 상태·본문·Retry-After의
- * 분류, 단건·목록 응답 검증, 요청 모양. 기대값은 TS가 만든 표(expected-client.json)다.
+ * Notion API 클라이언트(TESTING §3.6 2·3층): 상태·본문·Retry-After의 분류, 단건·목록 응답 검증, 요청 모양. 기대값은 TS가 만든
+ * 표(expected-client.json)다.
  */
 @DisplayName("Notion API 클라이언트는 TS NotionApiClient·classifyNotionError와 같다")
 class NotionApiClientTest {
@@ -36,6 +39,8 @@ class NotionApiClientTest {
   static final String EMPTY_SEARCH =
       "{\"object\":\"list\",\"results\":[],\"next_cursor\":null,\"has_more\":false,"
           + "\"type\":\"page_or_data_source\",\"page_or_data_source\":{}}";
+
+  static final String STUCK_CURSOR = "cur-stuck";
 
   final NotionClientScenario notion = new NotionClientScenario();
 
@@ -111,6 +116,132 @@ class NotionApiClientTest {
       // then
       assertThat(outcome).isEqualTo(Outcome.expected(row.get("outcome")));
     }
+  }
+
+  /** TS 표(table)의 행 하나(label). */
+  static JsonNode row(String table, String label) {
+    return StreamSupport.stream(TABLE.get(table).spliterator(), false)
+        .filter(r -> r.get("label").asString().equals(label))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("표에 없는 행: " + label));
+  }
+
+  @Nested
+  @DisplayName("응답이 형식 검사에서 어긋나면")
+  class Violations {
+    /** TS 표(table)의 행(label)으로 답한다: statusCases는 상태·본문 그대로, 나머지는 200과 값. */
+    void answersRow(String table, String label) {
+      JsonNode row = row(table, label);
+      if (table.equals("statusCases"))
+        notion.answers(
+            Operation.PAGE,
+            row.get("status").asInt(),
+            row.get("body").asString(),
+            NotionClientScenario.headersOf(row));
+      else notion.answersOk(Operation.of(row.get("operation").asString()), row.get("value"));
+    }
+
+    @ParameterizedTest(name = "{1}")
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "statusCases | 429 본문 JSON 아님 | page | non_json_body",
+          "statusCases | 404 빈 본문 | page | non_json_body",
+          "statusCases | 200 JSON 아님 | page | non_json_body",
+          "statusCases | 200 빈 본문 | page | non_json_body",
+          "statusCases | 200 배열 | page | body_not_object",
+          "statusCases | 200 null | page | body_not_object",
+          "retrieveCases | 페이지 object 다름 | page | object_shape",
+          "retrieveCases | database data_sources 없음 | database | object_shape",
+          "retrieveCases | data_source created_time 없음 | data_source | object_shape",
+          "listCases | 검색 object 다름 | search | list_object",
+          "listCases | 검색 type 다름 | search | list_type",
+          "listCases | 블록 type 다름 | blocks | list_type",
+          "listCases | 검색 has_more 문자열 | search | has_more_not_boolean",
+          "listCases | 검색 results 객체 | search | results_not_array",
+          "listCases | 검색 다음 있음 커서 null | search | has_more_without_next_cursor",
+          "listCases | 검색 다음 있음 커서 빈 값 | search | has_more_without_next_cursor",
+          "listCases | 검색 다음 있음 커서 수 | search | has_more_without_next_cursor",
+          "listCases | 검색 다음 없음 커서 있음 | search | next_cursor_on_last_page",
+          "listCases | 검색 다음 없음 커서 빠짐 | search | next_cursor_on_last_page"
+        })
+    @DisplayName("분류가 어긋난 검사 이름을 싣는다")
+    void namesCheck(String table, String label, String operation, String check) {
+      // given
+      answersRow(table, label);
+
+      // when
+      Optional<CallFailure.Violation> violation = notion.violation(Operation.of(operation));
+
+      // then
+      assertThat(violation).contains(CallFailure.Violation.of(check));
+    }
+
+    @ParameterizedTest(name = "{1}")
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "listCases | 검색 결과에 data_source | search",
+          "listCases | 블록 type 빈 값 | blocks",
+          "listCases | 조회 database는 아님 | query"
+        })
+    @DisplayName("항목 모양이 어긋나면 검사 이름과 그 항목의 인덱스를 싣는다")
+    void namesItem(String table, String label, String operation) {
+      // given
+      answersRow(table, label);
+
+      // when
+      Optional<CallFailure.Violation> violation = notion.violation(Operation.of(operation));
+
+      // then
+      assertThat(violation).contains(CallFailure.Violation.item("item_shape", 0));
+    }
+
+    @Test
+    @DisplayName("앞 항목이 맞고 둘째 항목이 어긋나면 인덱스는 1이다")
+    void namesSecondItem() {
+      // given: 검색 결과 [표의 정상 페이지, data_source]
+      ObjectNode list = (ObjectNode) row("listCases", "검색 결과에 data_source").get("value").deepCopy();
+      JsonNode dataSource = list.get("results").get(0);
+      list.putArray("results").add(row("retrieveCases", "페이지").get("value")).add(dataSource);
+      notion.answersOk(Operation.SEARCH, list);
+
+      // when
+      Optional<CallFailure.Violation> violation = notion.violation(Operation.SEARCH);
+
+      // then
+      assertThat(violation).contains(CallFailure.Violation.item("item_shape", 1));
+    }
+
+    @Test
+    @DisplayName("Notion 오류 코드로 답한 실패에는 위반이 없다")
+    void errorCodeHasNoViolation() {
+      // given
+      notion.answers(
+          Operation.PAGE, 400, "{\"object\":\"error\",\"code\":\"validation_error\"}", Map.of());
+
+      // when
+      Optional<CallFailure.Violation> violation = notion.violation(Operation.PAGE);
+
+      // then
+      assertThat(violation).isEmpty();
+    }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(
+      value = Operation.class,
+      names = {"SEARCH", "BLOCKS", "QUERY"})
+  @DisplayName("목록이 요청한 커서를 다음 커서로 다시 줘도 클라이언트는 그 페이지를 돌려준다(순환은 걷기가 판정한다)")
+  void leavesCursorCycleToWalk(Operation operation) {
+    // given
+    notion.answersNextCursor(operation, STUCK_CURSOR);
+
+    // when
+    Outcome outcome = notion.outcomeFrom(operation, STUCK_CURSOR);
+
+    // then
+    assertThat(Optional.ofNullable(outcome.failure()).map(FailureView::kind)).isEmpty();
   }
 
   @Nested

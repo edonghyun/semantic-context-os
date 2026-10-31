@@ -1,6 +1,6 @@
 package io.scos.collection.internal;
 
-/** 커서가 보존 하한 아래다 — 소비자는 전량 재동기화해야 한다(TS SourceChangeCursorExpiredError). */
+/** 커서가 보존 하한 아래다 — 소비자는 전량 재동기화해야 한다. */
 public final class ChangeCursorExpiredException extends RuntimeException {
   private final long retainedAfter;
   private final long head;

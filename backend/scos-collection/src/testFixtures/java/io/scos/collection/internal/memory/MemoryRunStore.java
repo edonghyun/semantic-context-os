@@ -1,7 +1,9 @@
 package io.scos.collection.internal.memory;
 
 import io.scos.collection.internal.CollectionRun;
+import io.scos.collection.internal.RunHistory;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStateException;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
@@ -23,10 +25,15 @@ import java.util.Set;
 
 /** 메모리 참조 구현. */
 public class MemoryRunStore implements RunStore {
+  private final Map<RunId, AbsenceValidation> absenceValidations = new HashMap<>();
+  private final Map<RunId, String> absenceRequirements = new HashMap<>();
   private final Map<RunId, CollectionRun> runs = new LinkedHashMap<>();
   private final Map<RunId, Set<String>> observations = new HashMap<>();
   private final Map<RunId, List<RejectedItem>> rejections = new HashMap<>();
-  private final Map<SourceInstanceId, SnapshotCompletion> snapshots = new HashMap<>();
+
+  private record Snapshot(SnapshotCompletion completion, Optional<String> fingerprint) {}
+
+  private final Map<SourceInstanceId, Snapshot> snapshots = new HashMap<>();
   private final Map<String, byte[]> blobs = new HashMap<>();
 
   /**
@@ -36,15 +43,7 @@ public class MemoryRunStore implements RunStore {
    */
   public synchronized CollectionRun recordSucceeded(RunId id, SourceInstanceId source, Instant at) {
     start(id, source, at);
-    return finish(
-        id,
-        RunStatus.SUCCEEDED,
-        CollectionCoverage.INCREMENTAL,
-        at,
-        0,
-        Optional.empty(),
-        Optional.empty(),
-        0);
+    return finish(id, RunOutcome.succeeded(0), CollectionCoverage.INCREMENTAL, at, 0);
   }
 
   /**
@@ -67,12 +66,10 @@ public class MemoryRunStore implements RunStore {
     start(id, source, startedAt);
     return finish(
         id,
-        status,
+        new RunOutcome(
+            status, status == RunStatus.SUCCEEDED ? 0 : 1, Optional.empty(), Optional.empty()),
         CollectionCoverage.INCREMENTAL,
         finishedAt,
-        status == RunStatus.SUCCEEDED ? 0 : 1,
-        Optional.empty(),
-        Optional.empty(),
         0);
   }
 
@@ -81,43 +78,43 @@ public class MemoryRunStore implements RunStore {
     for (var e : runs.entrySet()) {
       CollectionRun r = e.getValue();
       if (r.source().equals(source) && r.status() == RunStatus.RUNNING) {
-        e.setValue(
-            new CollectionRun(
-                r.id(),
-                r.source(),
-                RunStatus.FAILED,
-                r.startedAt(),
-                Optional.of(startedAt),
-                r.pagesApplied(),
-                r.upserted(),
-                r.deleted(),
-                r.unchanged(),
-                r.rejected(),
-                r.errorCount() + 1,
-                Optional.of("stale_run"),
-                Optional.of("superseded by a new run"),
-                r.coverage()));
+        e.setValue(r.supersededAt(startedAt));
         observations.remove(r.id());
       }
     }
-    CollectionRun run =
-        new CollectionRun(
-            id,
-            source,
-            RunStatus.RUNNING,
-            startedAt,
-            Optional.empty(),
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    CollectionRun run = CollectionRun.started(id, source, startedAt);
     runs.put(id, run);
     return run;
+  }
+
+  @Override
+  public synchronized void requireAbsenceVerification(RunId run, String fingerprint) {
+    CollectionRun current =
+        get(run).orElseThrow(() -> new RunStateException("Sync run not found: " + run.value()));
+    requireRunning(run, current.source());
+    if (absenceRequirement(run).filter(previous -> !previous.equals(fingerprint)).isPresent())
+      throw new RunStateException("Absence verification generation changed");
+    absenceRequirements.put(run, fingerprint);
+  }
+
+  @Override
+  public synchronized Optional<String> absenceRequirement(RunId run) {
+    return Optional.ofNullable(absenceRequirements.get(run));
+  }
+
+  @Override
+  public synchronized void recordAbsenceValidation(RunId run, AbsenceValidation validation) {
+    CollectionRun current =
+        get(run).orElseThrow(() -> new RunStateException("Sync run not found: " + run.value()));
+    requireRunning(run, current.source());
+    if (!absenceRequirement(run).filter(validation.fingerprint()::equals).isPresent())
+      throw new RunStateException("Absence validation does not match active run");
+    absenceValidations.put(run, validation);
+  }
+
+  @Override
+  public synchronized Optional<AbsenceValidation> absenceValidation(RunId run) {
+    return Optional.ofNullable(absenceValidations.get(run));
   }
 
   @Override
@@ -145,24 +142,7 @@ public class MemoryRunStore implements RunStore {
   @Override
   public synchronized void addPage(
       RunId id, int upserted, int deleted, int unchanged, int rejected) {
-    CollectionRun r = runs.get(id);
-    runs.put(
-        id,
-        new CollectionRun(
-            r.id(),
-            r.source(),
-            r.status(),
-            r.startedAt(),
-            r.finishedAt(),
-            r.pagesApplied() + 1,
-            r.upserted() + upserted,
-            r.deleted() + deleted,
-            r.unchanged() + unchanged,
-            r.rejected() + rejected,
-            r.errorCount(),
-            r.errorKind(),
-            r.errorSummary(),
-            r.coverage()));
+    runs.put(id, runs.get(id).withPage(upserted, deleted, unchanged, rejected));
   }
 
   @Override
@@ -178,30 +158,11 @@ public class MemoryRunStore implements RunStore {
   @Override
   public synchronized CollectionRun finish(
       RunId id,
-      RunStatus status,
+      RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
-      int errorCount,
-      Optional<String> errorKind,
-      Optional<String> errorSummary,
       int reconciled) {
-    CollectionRun r = runs.get(id);
-    CollectionRun finished =
-        new CollectionRun(
-            r.id(),
-            r.source(),
-            status,
-            r.startedAt(),
-            Optional.of(finishedAt),
-            r.pagesApplied(),
-            r.upserted(),
-            r.deleted() + reconciled,
-            r.unchanged(),
-            r.rejected(),
-            errorCount,
-            errorKind,
-            errorSummary,
-            Optional.of(coverage));
+    CollectionRun finished = runs.get(id).finished(outcome, coverage, finishedAt, reconciled);
     runs.put(id, finished);
     observations.remove(id);
     return finished;
@@ -243,6 +204,18 @@ public class MemoryRunStore implements RunStore {
   }
 
   @Override
+  public synchronized Map<SourceInstanceId, Instant> lastSucceededAt(
+      Set<SourceInstanceId> instances) {
+    Map<SourceInstanceId, Instant> succeeded = new HashMap<>();
+    for (CollectionRun run : runs.values()) {
+      if (instances.contains(run.source()) && run.status().isSuccess())
+        run.finishedAt()
+            .ifPresent(at -> succeeded.merge(run.source(), at, (a, b) -> a.isAfter(b) ? a : b));
+    }
+    return Map.copyOf(succeeded);
+  }
+
+  @Override
   public synchronized int recentFailureCount(SourceInstanceId source) {
     List<CollectionRun> recent =
         runs.values().stream()
@@ -252,23 +225,30 @@ public class MemoryRunStore implements RunStore {
                     .thenComparing((CollectionRun r) -> r.id().value())
                     .reversed())
             .toList();
-    int count = 0;
-    for (CollectionRun r : recent) {
-      if (r.status() == RunStatus.SUCCEEDED || r.status() == RunStatus.SUCCEEDED_WITH_REJECTIONS)
-        break;
-      if (r.status() == RunStatus.FAILED || r.status() == RunStatus.PARTIALLY_SUCCEEDED) count++;
-    }
-    return count;
+    return RunHistory.of(recent).failuresSinceLastSuccess();
   }
 
   @Override
   public synchronized void recordSnapshotCompletion(
-      SourceInstanceId source, Instant completedAt, int deletionCount) {
-    snapshots.put(source, new SnapshotCompletion(completedAt, deletionCount));
+      SourceInstanceId source,
+      Instant completedAt,
+      int deletionCount,
+      Optional<String> fingerprint) {
+    snapshots.put(
+        source, new Snapshot(new SnapshotCompletion(completedAt, deletionCount), fingerprint));
   }
 
   @Override
   public synchronized Optional<SnapshotCompletion> lastSnapshotCompletion(SourceInstanceId source) {
-    return Optional.ofNullable(snapshots.get(source));
+    return Optional.ofNullable(snapshots.get(source)).map(Snapshot::completion);
+  }
+
+  @Override
+  public synchronized boolean hasReconciliationBaseline(
+      SourceInstanceId source, String fingerprint) {
+    return Optional.ofNullable(snapshots.get(source))
+        .flatMap(Snapshot::fingerprint)
+        .filter(fingerprint::equals)
+        .isPresent();
   }
 }

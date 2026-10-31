@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-/** 원본 카탈로그 커서(TS encodeRawItemCursor). 밀리초 시각의 TS 바이트 동등은 조회 CLI 비교(ops)가 본다. */
+/** 원본 카탈로그 커서. 밀리초 시각의 TS 바이트 동등은 조회 CLI 비교(ops)가 본다. */
 @DisplayName("원본 카탈로그 커서는 TS encodeRawItemCursor와 같은 base64url이다")
 class RawCatalogCursorTest {
   static final SourceInstanceId SOURCE = new SourceInstanceId("jira-main");

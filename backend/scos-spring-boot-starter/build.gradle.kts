@@ -3,6 +3,8 @@ plugins {
     id("scos.java-module")
 }
 
+scosNullAway { enabled = true }
+
 dependencies {
     implementation(project(":scos-spi"))
     implementation(project(":scos-engine"))
@@ -14,6 +16,7 @@ dependencies {
     implementation(project(":scos-connector-google-drive"))
     implementation(project(":scos-connector-tiro"))
     implementation(project(":scos-provider-gemini"))
+    implementation(project(":scos-provider-openai-compatible"))
     implementation(project(":scos-mcp"))
     // import는 없지만 운영 jar에 들어 있고(단계 3에서 main으로 승격) 단계 5 임베드 체험 경로가 starter로 받는다
     runtimeOnly(project(":scos-store-memory"))
@@ -25,6 +28,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.micrometer:micrometer-core")
 
+    testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(project(":scos-test-support"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

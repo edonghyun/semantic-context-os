@@ -1,25 +1,30 @@
 package io.scos.spi.store;
 
+import io.scos.spi.access.AccessKey;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * 검색의 접근 범위(다중 사용자 접근 설계 §5): principal과 그가 볼 수 있는 접근 키 집합. {@link SearchFilter} 옆에서 검색 레시피로 내려가는
- * 자리다. 0.1.0은 접근 필터가 없어 키는 늘 비어 있고 색인에 내려가지 않는다(§8) — 0.2-a에서 후보 필터에 합친다.
- */
-public record AccessScope(Principal principal, Set<String> accessKeys) {
-  public AccessScope {
-    Objects.requireNonNull(principal, "principal");
-    accessKeys = Set.copyOf(accessKeys);
+/** 검색·읽기의 명시적 접근 범위(접근 설계 §4.1). */
+public sealed interface AccessScope permits AccessScope.Unrestricted, AccessScope.Restricted {
+  Principal principal();
+
+  /** 모든 문서를 볼 수 있는 범위. 단일 사용자 모드·운영자 출구 전용이다. */
+  record Unrestricted(Principal principal) implements AccessScope {
+    public Unrestricted {
+      Objects.requireNonNull(principal, "principal");
+    }
   }
 
-  /** 접근 필터 없음(0.1.0): 키를 비워 둔다. */
-  public static AccessScope unfiltered(Principal principal) {
-    return new AccessScope(principal, Set.of());
+  /** 빈 키 집합은 아무것도 볼 수 없는 상태다. */
+  record Restricted(Principal principal, Set<AccessKey> keys) implements AccessScope {
+    public Restricted {
+      Objects.requireNonNull(principal, "principal");
+      keys = Set.copyOf(keys);
+    }
   }
 
   /** 단일 사용자 모드의 범위. */
-  public static AccessScope singleUser() {
-    return unfiltered(Principal.singleUser());
+  static AccessScope singleUser() {
+    return new Unrestricted(Principal.singleUser());
   }
 }

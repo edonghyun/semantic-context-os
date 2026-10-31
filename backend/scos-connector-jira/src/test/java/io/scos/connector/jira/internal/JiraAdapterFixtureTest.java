@@ -522,10 +522,7 @@ class JiraAdapterFixtureTest {
     }
   }
 
-  /**
-   * 관찰 계약만 고정한다: 배치 루프의 취소 검사(TS throwIfAborted와 짝)는 실행기 취소와 겹치는 방어라, 그 줄을 지워도 실행기가 먼저 취소를 보고 같은
-   * 결과가 난다(F5 리뷰 m9·n3).
-   */
+  /** 관찰 계약만 고정한다: 배치 루프의 취소 검사는 실행기 취소와 겹치는 방어라, 그 줄을 지워도 실행기가 먼저 취소를 보고 같은 결과가 난다(F5 리뷰 m9·n3). */
   @Nested
   @DisplayName("시작 전에 취소되면")
   class Cancelled {
@@ -682,5 +679,45 @@ class JiraAdapterFixtureTest {
                       .isInstanceOf(JiraProtocolException.class)
                       .hasMessage("Jira returned wrong issue identity"));
     }
+  }
+
+  @Test
+  @DisplayName("이슈 검색 커서가 이미 요청한 커서로 돌아오면(A → B → A) 그 프로젝트 검색과 자취를 싣고 실패한다")
+  void issueSearchCursorThatCyclesFails() {
+    // given
+    jira.issueSearchCyclesCursor();
+
+    // when
+    Collection java = jira.collect();
+
+    // then — 두 프로젝트(10000·10001)가 한 응답기를 나눠 써, 어느 쪽 검색이 순환을 받는지는 배치 순서에 달렸다
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(JiraProtocolException.class)
+                    .hasMessageMatching(
+                        "Jira search did not advance \\(cursor cycle: list=search:1000[01]"
+                            + " trail=\\[-,b7380e63,5da3fc6c\\] next=b7380e63 length=3\\)"));
+  }
+
+  @Test
+  @DisplayName("이슈 검색이 요청한 커서를 다음 커서로 다시 주면(A → A) 그 프로젝트 검색과 자취를 싣고 실패한다")
+  void issueSearchCursorThatRepeatsNamesWalk() {
+    // given
+    jira.issueSearchRepeatsCursor();
+
+    // when
+    Collection java = jira.collect();
+
+    // then
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(JiraProtocolException.class)
+                    .hasMessageMatching(
+                        "Jira search did not advance \\(cursor cycle: list=search:1000[01]"
+                            + " trail=\\[-,b7380e63\\] next=b7380e63 length=2\\)"));
   }
 }

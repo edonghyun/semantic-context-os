@@ -8,8 +8,8 @@ import java.util.Optional;
  * 줬고 Java는 등록(`source_instances`)에 둔다. 비어 있으면 데몬 기본값(`SourceSupervisor.Options`)을 쓴다. 값은 1초 이상의 초
  * 단위다(열이 초 단위 INTEGER).
  *
- * @param collectInterval 성공한 수집 뒤 다음 수집까지(TS intervalMsBySource). 실패 뒤 재시도 지연은 바꾸지 않는다.
- * @param snapshotInterval 스냅샷 모드 간격(TS snapshotIntervalMsBySource). 데몬 스냅샷 설정이 없어도 이 소스에는 적용된다.
+ * @param collectInterval 성공한 수집 뒤 다음 수집까지. 실패 뒤 재시도 지연은 바꾸지 않는다.
+ * @param snapshotInterval 스냅샷 모드 간격. 데몬 스냅샷 설정이 없어도 이 소스에는 적용된다.
  */
 public record SourceSchedule(
     Optional<Duration> collectInterval, Optional<Duration> snapshotInterval) {

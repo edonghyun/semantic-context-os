@@ -15,13 +15,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * Notion roots 수집 중간 kill 뒤 재개 프로브(TESTING §3.6 6층). args: jdbcUrl user password markerDir
  * fixtureDir phase(run|resume). run: 가짜 Notion(TS 데이터셋)을 띄우고 수집하다가 ds-tasks 행 둘째 페이지 요청(TS 생성기의 중단
- * 지점)에서 멈춘다 → "held" 마커 → 부모가 kill -9. resume: 점유 만료를 기다려 저장된 v3 체크포인트에서 재개하고 결과 줄을 찍는다. lease TTL
+ * 지점)에서 멈춘다 → "held" 마커 → 부모가 kill -9. resume: 점유 만료를 기다려 저장된 v4 체크포인트에서 재개하고 결과 줄을 찍는다. lease TTL
  * 실시간 2s.
  */
 public final class NotionCollectionKillProbe {
@@ -31,6 +33,8 @@ public final class NotionCollectionKillProbe {
     System.setProperty("scos.fixtures.notion.dir", args[4]);
     String phase = args[5];
     Clock clock = Clock.systemUTC();
+    Clock notionClock =
+        Clock.fixed(Instant.parse(NotionFixtures.dataset().get("now").asString()), ZoneOffset.UTC);
     var observe = new PostgresCollectionObservations(ds, NotionAssembly.SOURCE, clock);
     try (FakeNotionServer notion = new FakeNotionServer(NotionFixtures.dataset())) {
       if (phase.equals("run")) {
@@ -38,7 +42,8 @@ public final class NotionCollectionKillProbe {
             .sources()
             .save(NotionAssembly.instance(NotionFixtures.config("roots"), clock.instant()));
         notion.holdAt(
-            NotionFixtures.read("expected-resume.json").get("crashAt"),
+            NotionFixtures.reconciliationRequest(
+                NotionFixtures.read("expected-resume.json").get("crashAt")),
             () -> touch(markers.resolve("held")));
       } else {
         // 죽은 worker의 점유가 만료될 때까지 조건 대기(상한은 hang 방지용)
@@ -46,7 +51,7 @@ public final class NotionCollectionKillProbe {
       }
       CollectionRuntime runtime =
           PostgresCollectionRuntime.over(ds, clock)
-              .adapter(NotionAssembly.adapter(notion.baseUrl(), notion.token(), clock))
+              .adapter(NotionAssembly.adapter(notion.baseUrl(), notion.token(), notionClock))
               .owner(phase)
               .leaseTtl(Duration.ofSeconds(2))
               .heartbeats(RealTimeScheduler.create())

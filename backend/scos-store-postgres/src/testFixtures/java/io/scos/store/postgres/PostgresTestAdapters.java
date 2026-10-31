@@ -2,6 +2,7 @@ package io.scos.store.postgres;
 
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceMeta;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.UnitStore;
 import io.scos.spi.store.VectorIndex;
 import javax.sql.DataSource;
@@ -14,6 +15,11 @@ public final class PostgresTestAdapters {
 
   public static UnitStore unitStore(DataSource ds) {
     return new PostgresUnitStore(new NamedParameterJdbcTemplate(ds));
+  }
+
+  public static UnitMaintenance unitMaintenance(DataSource ds) {
+    var jdbc = new NamedParameterJdbcTemplate(ds);
+    return new PostgresUnitMaintenance(new PostgresUnitStore(jdbc), new PostgresVectorIndex(jdbc));
   }
 
   public static KeywordIndex keywordIndex(DataSource ds) {

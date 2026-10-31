@@ -145,7 +145,7 @@ class ResourceLimitTest {
     @Test
     @DisplayName("connection-timeout 뒤 저장소 장애로 끝난다")
     void failsAsStorageFailure() {
-      // then: 기대 종류는 손으로 쓴다 — 분류기(CollectionRuntime.isStorageFailure)를 기대값으로 쓰지 않는다
+      // then: 기대 종류는 손으로 쓴다 — 분류기(RunFailure)를 기대값으로 쓰지 않는다
       assertThat(failure)
           .isInstanceOf(CannotGetJdbcConnectionException.class)
           .hasRootCauseInstanceOf(SQLTransientConnectionException.class);
@@ -199,7 +199,7 @@ class ResourceLimitTest {
     @Test
     @DisplayName("페이지 커밋·마감이 연결을 얻지 못해 저장소 장애로 끝난다")
     void failsAsStorageFailure() {
-      // then: 기대 종류는 손으로 쓴다 — 분류기(CollectionRuntime.isStorageFailure)를 기대값으로 쓰지 않는다
+      // then: 기대 종류는 손으로 쓴다 — 분류기(RunFailure)를 기대값으로 쓰지 않는다
       assertThat(failure)
           .isInstanceOf(CannotGetJdbcConnectionException.class)
           .hasRootCauseInstanceOf(SQLTransientConnectionException.class);

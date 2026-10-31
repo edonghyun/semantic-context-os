@@ -14,9 +14,8 @@ import org.junit.jupiter.api.parallel.Isolated;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 데몬의 정비 한 번(TS source-service-runner.runMaintenanceIfDue): 끝나면 info
- * `maintenance.sweep.completed`(blob 정리 수치), 실패하면 error `maintenance.sweep.failed`(메시지)를 남기고 던지지
- * 않는다 — 다음 예정 시각은 그대로 전진해 매 사이클 재시도 폭주를 막는다.
+ * 데몬의 정비 한 번: 끝나면 info `maintenance.sweep.completed`(blob 정리 수치), 실패하면 error
+ * `maintenance.sweep.failed`(메시지)를 남기고 던지지 않는다 — 다음 예정 시각은 그대로 전진해 매 사이클 재시도 폭주를 막는다.
  */
 @DisplayName("데몬 정비 한 번은 결과를 로그로 남기고 실패를 던지지 않는다(TS runMaintenanceIfDue)")
 // 제품 클래스의 공용 로거에 appender를 단다 — 같은 JVM의 다른 테스트가 남긴 줄이 섞이지 않게 혼자 돈다(TESTING §6.3)

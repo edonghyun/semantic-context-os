@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * `command:<셸 명령>` — `/bin/sh -c` 실행 stdout의 앞뒤 공백을 뗀 값(TS CommandCredentialResolver, ADR-0022 §2).
+ * `command:<셸 명령>` — `/bin/sh -c` 실행 stdout의 앞뒤 공백을 뗀 값(ADR-0022 §2).
  *
  * <ul>
  *   <li>시간 상한(기본 10초)은 프로세스 종료와 stdout 닫힘을 합친 시간이다. 넘기면 명령과 그 자식 프로세스를 끝내고 거부한다.
@@ -21,10 +21,9 @@ import java.util.concurrent.TimeoutException;
  * </ul>
  */
 public final class CommandCredentials implements CredentialScheme {
-  /** TS 기본값과 같다(`timeoutMs ?? 10_000`). */
   public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
 
-  /** TS(Node execFile)의 기본 maxBuffer와 같은 1 MiB. */
+  /** stdout 상한 1 MiB. */
   static final int MAX_OUTPUT_BYTES = 1024 * 1024;
 
   private final Duration timeout;

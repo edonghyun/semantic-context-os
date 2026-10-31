@@ -1,6 +1,6 @@
 package io.scos.connector.googledrive.internal;
 
-/** Google API 서비스(TS GoogleService). 서비스마다 고정 origin이 있고, 경로는 그 서비스의 버전 접두로 시작해야 한다. */
+/** Google API 서비스. 서비스마다 고정 origin이 있고, 경로는 그 서비스의 버전 접두로 시작해야 한다. */
 public enum GoogleService {
   DRIVE("/drive/v3/"),
   DOCS("/v1/"),

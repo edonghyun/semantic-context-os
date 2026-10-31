@@ -173,6 +173,20 @@ class FakeSlackServerTest {
   }
 
   @Test
+  @DisplayName("커서 반복을 걸면 첫 페이지 커서로 온 history 요청에 같은 커서를 준다")
+  void repeatsCursor() throws Exception {
+    // given
+    server.repeatCursor(HISTORY);
+    get(HISTORY + "?channel=" + C1);
+
+    // when
+    JsonNode body = get(HISTORY + "?channel=" + C1 + "&cursor=page:0");
+
+    // then
+    assertThat(body.path("response_metadata").path("next_cursor").asString("")).isEqualTo("page:0");
+  }
+
+  @Test
   @DisplayName("참여 채널 목록은 데이터셋 페이지 크기(1)로 나뉘고 다음 커서는 시작 인덱스다")
   void pagesChannels() throws Exception {
     // when
@@ -269,6 +283,19 @@ class FakeSlackServerTest {
     // then
     assertThat(tsOf(body))
         .containsExactly("1760400010.000000", "1760400005.000000", "1760400001.000000");
+  }
+
+  @Test
+  @DisplayName("답글을 더하면 그 replies 페이지 끝에 나온다")
+  void addsReply() throws Exception {
+    // given
+    server.addReply(C1, THREAD_TS, 1, "1760400140.000000", "1760400999.000000");
+
+    // when
+    JsonNode body = get(REPLIES + "?channel=" + C1 + "&ts=" + THREAD_TS + "&cursor=page:1");
+
+    // then
+    assertThat(tsOf(body)).containsExactly("1760400130.000000", "1760400140.000000");
   }
 
   @Test

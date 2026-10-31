@@ -3,6 +3,8 @@ package io.scos.engine.internal.search;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.withinPercentage;
 
+import io.scos.engine.internal.search.candidate.Rrf;
+import io.scos.engine.internal.search.signal.RecencySignal;
 import io.scos.engine.support.text.DeterminismFixture;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +57,7 @@ class SearchDeterminismTest {
     double expected = c.get("value").asDouble();
 
     // when
-    double got = SearchRanker.freshnessFactor(c.get("days").asDouble());
+    double got = new RecencySignal().factor(c.get("days").asDouble());
 
     // then
     assertThat(Math.abs(got - expected) / expected).isLessThanOrEqualTo(1e-12);

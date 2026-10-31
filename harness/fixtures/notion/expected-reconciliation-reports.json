@@ -1,0 +1,83 @@
+{
+  "shared": {
+    "status": "succeeded",
+    "pagesApplied": 61,
+    "upserted": 1,
+    "deleted": 0,
+    "unchanged": 38,
+    "rejected": 0,
+    "errorCount": 0
+  },
+  "crashed": {
+    "status": "partially_succeeded",
+    "pagesApplied": 32,
+    "upserted": 16,
+    "deleted": 2,
+    "unchanged": 2,
+    "rejected": 1,
+    "errorCount": 1
+  },
+  "first": {
+    "status": "succeeded_with_rejections",
+    "pagesApplied": 76,
+    "upserted": 26,
+    "deleted": 5,
+    "unchanged": 10,
+    "rejected": 1,
+    "errorCount": 0
+  },
+  "edited": {
+    "status": "succeeded_with_rejections",
+    "pagesApplied": 59,
+    "upserted": 1,
+    "deleted": 1,
+    "unchanged": 36,
+    "rejected": 1,
+    "errorCount": 0
+  },
+  "resumed": {
+    "status": "succeeded_with_rejections",
+    "pagesApplied": 56,
+    "upserted": 10,
+    "deleted": 3,
+    "unchanged": 24,
+    "rejected": 1,
+    "errorCount": 0
+  },
+  "failure:blocks 조회 시간 초과": {
+    "status": "partially_succeeded",
+    "pagesApplied": 9,
+    "upserted": 8,
+    "deleted": 2,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+  },
+  "failure:전송 실패": {
+    "status": "partially_succeeded",
+    "pagesApplied": 2,
+    "upserted": 0,
+    "deleted": 0,
+    "unchanged": 0,
+    "rejected": 0,
+    "errorCount": 1
+  },
+  "failure:JSON 아닌 게이트웨이 오류": {
+    "status": "partially_succeeded",
+    "pagesApplied": 11,
+    "upserted": 9,
+    "deleted": 2,
+    "unchanged": 0,
+    "rejected": 1,
+    "errorCount": 1
+  },
+  "failure:internal_server_error 소진": {
+    "status": "partially_succeeded",
+    "pagesApplied": 51,
+    "upserted": 21,
+    "deleted": 4,
+    "unchanged": 4,
+    "rejected": 1,
+    "errorCount": 1
+  }
+}

@@ -12,7 +12,7 @@ import io.scos.collection.internal.StoredCheckpoint;
 import io.scos.collection.internal.TsRawViews.ReportView;
 import io.scos.connector.tiro.TiroAdapter;
 import io.scos.connector.tiro.TiroAssembly;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import java.io.IOException;

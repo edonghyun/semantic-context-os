@@ -8,11 +8,13 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.scos.collection.internal.ProjectionRetryPolicy;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.engine.internal.search.FreshnessReader;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.store.ContextUnits;
 import io.scos.spi.store.SpaceId;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
+import io.scos.store.memory.MemoryVectorIndex;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -31,7 +33,8 @@ class DaemonGaugesTest {
   static final Instant NOW = Instant.parse("2026-10-14T12:00:00Z");
   MutableClock clock = new MutableClock(NOW);
   MemoryOutboxPort outbox = new MemoryOutboxPort();
-  MemoryUnitStore units = new MemoryUnitStore();
+  MemoryUnitMaintenance units =
+      new MemoryUnitMaintenance(new MemoryUnitStore(), new MemoryVectorIndex());
   SimpleMeterRegistry registry = new SimpleMeterRegistry();
   SpaceId legacy = new SpaceId("legacy");
   SpaceId team = new SpaceId("team");

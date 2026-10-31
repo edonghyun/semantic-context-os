@@ -20,9 +20,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Retry-After 해석(TS tiro-api-client.ts): JS Number가 유한하면 그 초(10진·16진은 공용 RetryAfter, 2진·8진은 Tiro),
- * 아니면 날짜(공용 RetryAfter — HTTP-date·ISO 8601)와 지금의 차이, 음수·지난 시각은 0, 읽지 못하면 없음. 기대값은 Node 22에서 TS 식을
- * 돌린 값이다. V8 Date.parse만 읽는 비표준 날짜는 편차(F14-D4).
+ * Retry-After 해석:JS Number가 유한하면 그 초(공용 RetryAfter — 10진·16진·2진·8진), 아니면 날짜(공용 RetryAfter —
+ * HTTP-date·ISO 8601)와 지금의 차이, 음수·지난 시각은 0, 읽지 못하면 없음. 기대값은 Node 22에서 TS 식을 돌린 값이다. V8 Date.parse만
+ * 읽는 비표준 날짜는 편차(F14-D4).
  */
 @DisplayName("Tiro Retry-After 해석은 TS tiro-api-client와 같다(F14-D4)")
 class TiroApiClientTest {
@@ -82,6 +82,13 @@ class TiroApiClientTest {
   void unreadableIsAbsent(String header) {
     // when·then
     assertThat(client.retryAfter(header)).isEmpty();
+  }
+
+  @Test
+  @DisplayName("JS가 공백으로 보지 않는 제어 문자가 붙은 2진 값은 없음이다")
+  void controlCharacterBeforeBinaryIsAbsent() {
+    // when·then
+    assertThat(client.retryAfter("\u001C0b1")).isEmpty();
   }
 
   /** JS Number가 Infinity로 읽는 값 — TS는 Date.parse로 넘어가 NaN, 곧 없음(기본 지연)이다. */

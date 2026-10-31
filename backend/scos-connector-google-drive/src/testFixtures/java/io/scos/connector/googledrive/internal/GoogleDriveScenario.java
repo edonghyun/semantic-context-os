@@ -10,7 +10,7 @@ import io.scos.connector.googledrive.internal.GoogleDriveViews.PageView;
 import io.scos.connector.googledrive.internal.GoogleDriveViews.RequestView;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -78,6 +79,45 @@ final class GoogleDriveScenario implements AutoCloseable {
     google.useSecondRunRoutes();
   }
 
+  /**
+   * 이 목록 경로가 요청한 페이지 토큰을 다음 토큰으로 다시 준다: 토큰 없음 → A, 토큰 T → T(한 번), 그 뒤 → 끝. 항목 배열(key)은 비어 있고, 끝
+   * 페이지는 lastPage를 싣는다 — 가드가 없는 순회도 끝난다.
+   */
+  void listingRepeatsPageToken(String path, String key, String lastPage) {
+    AtomicInteger returned = new AtomicInteger();
+    google.respondWith(
+        path,
+        request -> {
+          String token = request.params().get("pageToken");
+          String next = token == null ? "cycle-a" : returned.getAndIncrement() == 0 ? token : null;
+          String rest = next == null ? lastPage : "\"nextPageToken\":\"" + next + "\"";
+          String body = "{\"" + key + "\":[]" + (rest.isEmpty() ? "" : "," + rest) + "}";
+          return new Response(200, body, Map.of("Content-Type", "application/json"));
+        });
+  }
+
+  /**
+   * 이 목록 경로의 다음 페이지 토큰이 요청 토큰(pageToken)에 따라 돈다: 처음(또는 모르는 토큰) → A, A → B, B → A(한 번), 그 뒤 B → 끝.
+   * 항목 배열(key)은 비어 있고, 끝 페이지는 lastPage(예: 변경 피드의 newStartPageToken)를 싣는다 — 가드가 없는 순회도 한 바퀴 뒤 끝난다.
+   */
+  void listingCyclesPageToken(String path, String key, String lastPage) {
+    AtomicInteger returned = new AtomicInteger();
+    google.respondWith(
+        path,
+        request -> {
+          String token = request.params().get("pageToken");
+          String next =
+              "cycle-a".equals(token)
+                  ? "cycle-b"
+                  : !"cycle-b".equals(token)
+                      ? "cycle-a"
+                      : returned.getAndIncrement() == 0 ? "cycle-a" : null;
+          String rest = next == null ? lastPage : "\"nextPageToken\":\"" + next + "\"";
+          String body = "{\"" + key + "\":[]" + (rest.isEmpty() ? "" : "," + rest) + "}";
+          return new Response(200, body, Map.of("Content-Type", "application/json"));
+        });
+  }
+
   /** 원본 캡처 상한(inline·전체)을 바꾼다. */
   void captureLimit(int inlineMaxBytes, long maxBytes) {
     capture = new RawContentCapture(inlineMaxBytes, maxBytes);
@@ -104,7 +144,7 @@ final class GoogleDriveScenario implements AutoCloseable {
     google.respond(path, response);
   }
 
-  /** 이 파일 하나만 남은 큐에서 시작하는 체크포인트(TS resumeFiles). */
+  /** 이 파일 하나만 남은 큐에서 시작하는 체크포인트. */
   static Checkpoint resumeFile(String fileId) {
     return new Checkpoint(
         1,

@@ -15,7 +15,11 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 public final class DatabaseVersionCheck {
   /** 기대 버전: 서버 "major.minor", pgvector extversion. */
   public record Expected(String server, String vector) {
-    public static final Expected DEFAULT = new Expected("17.11", "0.8.7");
+    /** 기본값(테스트 이미지) — 설정 속성의 @DefaultValue도 이 상수를 쓴다. */
+    public static final String DEFAULT_SERVER = "17.11";
+
+    public static final String DEFAULT_VECTOR = "0.8.7";
+    public static final Expected DEFAULT = new Expected(DEFAULT_SERVER, DEFAULT_VECTOR);
   }
 
   /** 관측 버전. pgvector 확장이 없으면 vector는 empty. */

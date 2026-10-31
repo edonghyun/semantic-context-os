@@ -1,6 +1,7 @@
 package io.scos.connector.googledrive.internal;
 
 import io.scos.connector.googledrive.internal.DriveCalls.Availability;
+import io.scos.engine.support.call.CursorTrail;
 import io.scos.engine.support.text.JsJson;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawContentTooLargeException;
@@ -11,25 +12,25 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.OptionalDouble;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * 파일 하나의 수집(TS collectFile·download·readAll). 메타데이터를 읽고(403·404면 파일 거부), 휴지통이면 지운다. 형식별 본문: Docs(모든
- * 탭)·Sheets(메타데이터 + 범위 작업)·Slides는 API JSON, 추출기 없는 Workspace 형식은 제한, 그 밖은 원본 다운로드(설정이 켜졌을 때 —
- * text/·application/json은 본문도 디코드하고 늘 다시 받는다, 그 밖은 같은 버전이면 다시 받지 않는다). 폴더·바로가기에는 본문·댓글이 없다. 댓글과 답글은
- * 끝까지 읽는다. 읽을 수 없는 본문·댓글은 limitations와 거부로 남는다.
+ * 파일 하나의 수집. 메타데이터를 읽고(403·404면 파일 거부), 휴지통이면 지운다. 형식별 본문: Docs(모든 탭)·Sheets(메타데이터 + 범위 작업)·Slides는
+ * API JSON, 추출기 없는 Workspace 형식은 제한, 그 밖은 원본 다운로드(설정이 켜졌을 때 — text/·application/json은 본문도 디코드하고 늘
+ * 다시 받는다, 그 밖은 같은 버전이면 다시 받지 않는다). 폴더·바로가기에는 본문·댓글이 없다. 댓글과 답글은 끝까지 읽는다. 읽을 수 없는 본문·댓글은
+ * limitations와 거부로 남는다.
  *
- * <p>파일 원본 JSON(envelope)의 키 순서는 TS 객체에 넣는 순서와
- * 같다(file·extraction·limitations·workspace·sheetRangeKeys·text· originalStored·comments) — 버전 해시가
- * TS와 같아야 한다. envelope가 캡처 상한을 넘으면 큰 선택 구역(workspace·text·comments)부터 뺀다.
+ * <p>파일 원본 JSON(envelope)의 키 순서는 고정이다(file·extraction·limitations·workspace·sheetRangeKeys·text·
+ * originalStored·comments) — 버전 해시가 이 바이트에서 나오므로 바뀌면 안 된다. envelope가 캡처 상한을 넘으면 큰 선택
+ * 구역(workspace·text·comments)부터 뺀다.
  */
 final class DriveFileCollector {
   static final long MAX_FILE_BYTES = 50L * 1024 * 1024;
@@ -37,7 +38,6 @@ final class DriveFileCollector {
       "id,name,mimeType,description,parents,driveId,webViewLink,createdTime,modifiedTime,version,size,md5Checksum,owners(displayName,emailAddress),shared,trashed,capabilities(canDownload),shortcutDetails";
   static final String WORKSPACE = "application/vnd.google-apps.";
   private static final List<String> OPTIONAL_SECTIONS = List.of("workspace", "text", "comments");
-  private static final int BAD_GATEWAY = 502;
 
   /** 파일 하나의 결과: 원본 변경, 수집 제한, 큐 앞에 넣을 범위 작업, 휴지통이 아니면 메타데이터. */
   record Collected(
@@ -52,7 +52,7 @@ final class DriveFileCollector {
     this.calls = calls;
   }
 
-  Collected collect(String id, Instant observedAt, ObjectNode downloaded) {
+  Collected collect(String id, Instant observedAt, DownloadedVersions downloaded) {
     String encoded = GoogleQuery.component(id);
     ObjectNode file =
         calls.json(
@@ -79,45 +79,68 @@ final class DriveFileCollector {
       try {
         content(envelope, encoded, mime, downloaded);
       } catch (UnavailableContent | RawContentTooLargeException e) {
-        envelope.gap("content", e.getMessage());
+        // 두 예외는 고정 문구 메시지를 싣는다 — requireNonNull은 실패하지 않는다
+        envelope.gap("content", Objects.requireNonNull(e.getMessage()));
       }
       try {
         envelope.content.set("comments", comments(encoded));
       } catch (UnavailableContent e) {
-        envelope.gap("comments", e.getMessage());
+        envelope.gap("comments", e.reason());
       }
     }
     envelope.store();
     return new Collected(envelope.mutations, envelope.rejections, envelope.next, Optional.of(file));
   }
 
-  private void content(Envelope envelope, String encoded, String mime, ObjectNode downloaded) {
+  private void content(
+      Envelope envelope, String encoded, String mime, DownloadedVersions downloaded) {
     ObjectNode file = envelope.file;
     ObjectNode content = envelope.content;
     JsonNode capabilities = file.get("capabilities");
     if (JsValues.truthy(capabilities)
         && JsValues.isFalse(JsValues.object(capabilities).get("canDownload")))
       throw new UnavailableContent("File content copying/downloading is restricted");
-    if (mime.equals(WORKSPACE + "document")) {
-      content.set(
-          "workspace",
-          calls.json(
-              GoogleService.DOCS,
-              "/v1/documents/" + encoded + "?includeTabsContent=true",
-              Availability.OPTIONAL));
-      content.put("extraction", "google_docs");
-    } else if (mime.equals(WORKSPACE + "spreadsheet")) {
-      spreadsheet(envelope, encoded);
-    } else if (mime.equals(WORKSPACE + "presentation")) {
-      content.set(
-          "workspace",
-          calls.json(GoogleService.SLIDES, "/v1/presentations/" + encoded, Availability.OPTIONAL));
-      content.put("extraction", "google_slides");
-    } else if (mime.startsWith(WORKSPACE)) {
-      envelope.gap("content", "Workspace format has no content extractor");
-    } else if (calls.config().downloadBinaries()) {
-      original(envelope, mime, downloaded);
-    } else envelope.gap("content", "Binary downloads disabled by configuration");
+    switch (MimeFamily.of(mime)) {
+      case DOCUMENT -> {
+        content.set(
+            "workspace",
+            calls.json(
+                GoogleService.DOCS,
+                "/v1/documents/" + encoded + "?includeTabsContent=true",
+                Availability.OPTIONAL));
+        content.put("extraction", "google_docs");
+      }
+      case SPREADSHEET -> spreadsheet(envelope, encoded);
+      case PRESENTATION -> {
+        content.set(
+            "workspace",
+            calls.json(
+                GoogleService.SLIDES, "/v1/presentations/" + encoded, Availability.OPTIONAL));
+        content.put("extraction", "google_slides");
+      }
+      case OTHER_WORKSPACE -> envelope.gap("content", "Workspace format has no content extractor");
+      case BINARY -> {
+        if (calls.downloadsBinaries()) original(envelope, mime, downloaded);
+        else envelope.gap("content", "Binary downloads disabled by configuration");
+      }
+    }
+  }
+
+  /** 본문을 얻는 방법이 갈리는 MIME 묶음: Docs·Sheets·Slides는 API JSON, 그 밖의 Workspace는 추출기 없음, 나머지는 원본. */
+  private enum MimeFamily {
+    DOCUMENT,
+    SPREADSHEET,
+    PRESENTATION,
+    OTHER_WORKSPACE,
+    BINARY;
+
+    static MimeFamily of(String mime) {
+      if (mime.equals(WORKSPACE + "document")) return DOCUMENT;
+      if (mime.equals(WORKSPACE + "spreadsheet")) return SPREADSHEET;
+      if (mime.equals(WORKSPACE + "presentation")) return PRESENTATION;
+      if (mime.startsWith(WORKSPACE)) return OTHER_WORKSPACE;
+      return BINARY;
+    }
   }
 
   /** 시트: 메타데이터(시트 속성)를 envelope에 두고 GRID 범위마다 작업을 만든다. 범위 원본 id는 sheetRangeKeys로 남긴다. */
@@ -151,7 +174,7 @@ final class DriveFileCollector {
   }
 
   /** 원본 다운로드: 텍스트는 본문도, 바이너리는 같은 버전이면 다시 받지 않는다. 원본은 blob(gdrive.binary)이다. */
-  private void original(Envelope envelope, String mime, ObjectNode downloaded) {
+  private void original(Envelope envelope, String mime, DownloadedVersions downloaded) {
     ObjectNode file = envelope.file;
     ObjectNode content = envelope.content;
     boolean isText = mime.startsWith("text/") || mime.equals("application/json");
@@ -159,7 +182,7 @@ final class DriveFileCollector {
     boolean sameVersion =
         version != null
             && version.isString()
-            && JsValues.is(downloaded.get(envelope.id), version.asString());
+            && downloaded.isDownloaded(envelope.id, version.asString());
     if (sameVersion && !isText) content.put("originalStored", true);
     else {
       byte[] bytes = download(file);
@@ -167,10 +190,10 @@ final class DriveFileCollector {
         content.put("text", GoogleDriveSession.text(bytes));
         content.put("extraction", "text");
       }
-      RawContent captured = calls.input().content().bytes(mime, bytes);
+      RawContent captured = calls.capture(mime, bytes);
       envelope.mutations.add(binary(envelope, isText, captured));
       content.put("originalStored", true);
-      if (version != null && version.isString()) downloaded.put(envelope.id, version.asString());
+      if (version != null && version.isString()) downloaded.record(envelope.id, version.asString());
     }
     if (!isText) envelope.limitations().add("Binary original stored; body/OCR not extracted");
   }
@@ -187,8 +210,7 @@ final class DriveFileCollector {
                 : DriveCalls.ISO_MILLIS.format(envelope.observedAt);
     ObjectNode metadata =
         calls
-            .mapper()
-            .createObjectNode()
+            .newObject()
             .put("fileId", envelope.id)
             .put("extraction", isText ? "text" : "not_extracted");
     return new RawMutation.Upsert(
@@ -204,39 +226,21 @@ final class DriveFileCollector {
             Optional.of(captured)));
   }
 
-  /** TS `??`: null·undefined가 아니다. */
+  /** JS `??`의 의미: null·undefined가 아니다. */
   private static boolean present(JsonNode value) {
     return value != null && !value.isNull() && !value.isMissingNode();
   }
 
-  /**
-   * 원본 바이트(TS download): 크기를 알고 50 MiB를 넘으면 받지 않는다. 받은 크기가 메타데이터와 다르면 502 incomplete_download(재시도).
-   */
+  /** 원본 바이트: 크기를 알고 50 MiB를 넘으면 받지 않는다. 받은 크기가 메타데이터와 다르면 502 incomplete_download(재시도). */
   private byte[] download(ObjectNode file) {
     JsonNode size = file.get("size");
     double expected = JsValues.number(size);
     if (size != null && (!Double.isFinite(expected) || expected > MAX_FILE_BYTES))
       throw new UnavailableContent("Original exceeds the 50 MiB capture limit");
-    String id = JsValues.string(file.get("id"));
-    return calls
-        .input()
-        .calls()
-        .execute(
-            "google-drive.download",
-            timeout -> {
-              byte[] bytes = calls.session().download(id, timeout, MAX_FILE_BYTES);
-              if (size != null && bytes.length != expected)
-                throw GoogleApiException.of(
-                    BAD_GATEWAY, GoogleApiException.Reason.INCOMPLETE_DOWNLOAD);
-              return bytes;
-            },
-            e -> {
-              if (e instanceof GoogleContentTooLargeException tooLarge)
-                throw new UnavailableContent(tooLarge.getMessage());
-              DriveCalls.unavailableUnlessRateLimited(e);
-              return GoogleErrors.classify(e);
-            },
-            calls.input().cancel());
+    return calls.download(
+        JsValues.string(file.get("id")),
+        size == null ? OptionalDouble.empty() : OptionalDouble.of(expected),
+        MAX_FILE_BYTES);
   }
 
   /** 댓글 전체와 각 댓글의 답글 전체(지운 댓글은 답글을 읽지 않는다). */
@@ -247,7 +251,7 @@ final class DriveFileCollector {
       JsonNode commentId = comment.get("id");
       if (commentId == null || !commentId.isString())
         throw new GoogleProtocolException("Google Drive comment has no identity");
-      ArrayNode replies = calls.mapper().createArrayNode();
+      ArrayNode replies = calls.newArray();
       readAll(
               "/drive/v3/files/"
                   + encoded
@@ -258,15 +262,15 @@ final class DriveFileCollector {
           .forEach(replies::add);
       comment.set("replies", replies);
     }
-    ArrayNode array = calls.mapper().createArrayNode();
+    ArrayNode array = calls.newArray();
     comments.forEach(array::add);
     return array;
   }
 
-  /** 자식 목록 전체(TS readAll): 페이지 토큰이 비거나 앞에서 본 토큰이면 실패한다. */
+  /** 자식 목록 전체: 페이지 토큰이 비거나 앞에서 본 토큰이면 실패한다. */
   private List<ObjectNode> readAll(String path, String key) {
     List<ObjectNode> entries = new ArrayList<>();
-    Set<String> tokens = new HashSet<>();
+    CursorTrail tokens = new CursorTrail();
     Optional<String> pageToken = Optional.empty();
     while (true) {
       Map<String, String> query = new LinkedHashMap<>();
@@ -274,6 +278,7 @@ final class DriveFileCollector {
       query.put("pageSize", "100");
       query.put("includeDeleted", "false");
       pageToken.ifPresent(t -> query.put("pageToken", t));
+      tokens.request(pageToken);
       ObjectNode page =
           calls.json(
               GoogleService.DRIVE, path + "?" + GoogleQuery.form(query), Availability.OPTIONAL);
@@ -283,10 +288,14 @@ final class DriveFileCollector {
       for (JsonNode item : items) entries.add((ObjectNode) JsValues.object(item));
       JsonNode next = page.get("nextPageToken");
       if (next == null) return entries;
-      if (!JsValues.nonEmptyString(next) || tokens.contains(next.asString()))
+      if (!JsValues.nonEmptyString(next))
         throw new GoogleProtocolException("Google Drive child page token did not advance");
+      if (tokens.revisits(Optional.of(next.asString())))
+        throw new GoogleProtocolException(
+            "Google Drive child page token did not advance ("
+                + tokens.cycle(path, Optional.of(next.asString()))
+                + ")");
       pageToken = Optional.of(next.asString());
-      tokens.add(next.asString());
     }
   }
 
@@ -304,7 +313,7 @@ final class DriveFileCollector {
       this.id = id;
       this.file = file;
       this.observedAt = observedAt;
-      content = calls.mapper().createObjectNode();
+      content = calls.newObject();
       content.set("file", file);
       content.put("extraction", "metadata_only");
       content.putArray("limitations");
@@ -319,9 +328,7 @@ final class DriveFileCollector {
       limitations().add(section + ": " + message);
       rejections.add(
           DriveCalls.rejection(
-              calls.mapper().createObjectNode().put("fileId", id).put("section", section),
-              message,
-              observedAt));
+              calls.newObject().put("fileId", id).put("section", section), message, observedAt));
     }
 
     /** envelope를 저장한다. 상한을 넘으면 가장 큰 선택 구역부터 빼고 다시(메타데이터만 남아도 넘으면 파일 거부). */
@@ -340,7 +347,8 @@ final class DriveFileCollector {
             throw new UnavailableContent("File metadata exceeds the raw capture limit");
           content.remove(section.get());
           if (!section.get().equals("comments")) content.put("extraction", "metadata_only");
-          gap(section.get(), e.getMessage());
+          // 고정 문구 메시지 — requireNonNull은 실패하지 않는다
+          gap(section.get(), Objects.requireNonNull(e.getMessage()));
         }
       }
     }

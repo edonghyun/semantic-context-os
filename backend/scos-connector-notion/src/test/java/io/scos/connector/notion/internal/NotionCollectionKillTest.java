@@ -25,8 +25,8 @@ import tools.jackson.databind.JsonNode;
 
 /**
  * Notion roots 수집 중간 kill 뒤 재개(TESTING §3.6 6층): ds-tasks 행 둘째 페이지 요청에서 kill -9 → 점유 만료 뒤 새 프로세스가
- * v3 체크포인트에서 재개한다. 죽기 전 체크포인트는 TS 중단 지점(expected-resume firstRun)과 같고, 재개 뒤 active 원본은 TS 재개 결과와
- * 같다(재개 run은 정리하지 않는다). 두 프로세스 실행은 @BeforeAll에서 한 번(규칙 6).
+ * v4 체크포인트에서 재개한다. 죽기 전 체크포인트는 typed 행 둘째 페이지 앞의 다음 커서를 보존하고, 재개 뒤 active 원본은 TS 재개 결과와 같다(재개 run은
+ * 정리하지 않는다). 두 프로세스 실행은 @BeforeAll에서 한 번(규칙 6).
  */
 @Tag("db")
 @Tag("process")
@@ -99,12 +99,22 @@ class NotionCollectionKillTest {
     return out;
   }
 
+  String pendingFullRowsCursor() {
+    for (JsonNode container : checkpointAtKill.at("/value/incremental/containers"))
+      if (container.path("id").asString().equals("ds-tasks"))
+        return container.at("/fullScan/cursor").asString();
+    throw new IllegalStateException("given 준비 실패: 재개할 DS 행 커서가 없다");
+  }
+
   @Test
-  @DisplayName("죽기 전 체크포인트는 TS 중단 지점과 같다(그 페이지는 커밋되지 않았다)")
-  void checkpointAtKillMatchesTs() {
+  @DisplayName("죽기 전 v4 확인점은 아직 받지 않은 행 둘째 페이지 커서를 보존한다")
+  void checkpointAtKillPreservesPendingCursor() {
     // then
-    assertThat(checkpointAtKill)
-        .isEqualTo(TS_RESUME.get("firstRun").get("checkpoint").get("checkpoint"));
+    assertThat(checkpointAtKill.path("schemaVersion").asInt())
+        .isEqualTo(NotionReconciliationState.SCHEMA_VERSION);
+    assertThat(pendingFullRowsCursor())
+        .as("kill checkpoint: %s", checkpointAtKill)
+        .isEqualTo("cur-rows-2");
   }
 
   @Test
@@ -122,11 +132,10 @@ class NotionCollectionKillTest {
   }
 
   @Test
-  @DisplayName("재개한 run은 TS 둘째 run처럼 succeeded다")
-  void resumedRunStatusMatchesTs() {
+  @DisplayName("재개한 run은 접근 거부를 보존하며 succeeded_with_rejections로 끝난다")
+  void resumedRunPreservesRejections() {
     // then
-    assertThat(resumed.get("status"))
-        .isEqualTo(TS_RESUME.get("secondRun").get("report").get("status").asString());
+    assertThat(resumed.get("status")).isEqualTo("succeeded_with_rejections");
   }
 
   @Test

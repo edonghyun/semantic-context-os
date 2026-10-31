@@ -23,9 +23,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Jira REST 클라이언트(TS JiraApiClient·classifyJiraError): Basic 인증(email:token), /rest/ 경로만, 2xx가 아니면
- * 상태와 Retry-After(초·HTTP-date)를 담은 실패, 응답 본문·토큰은 오류에 싣지 않는다. 분류 기대값은 TS가 만든
- * 표(expected-client.json)다.
+ * Jira REST 클라이언트: Basic 인증(email:token), /rest/ 경로만, 2xx가 아니면 상태와 Retry-After(초·HTTP-date)를 담은 실패,
+ * 응답 본문·토큰은 오류에 싣지 않는다. 분류 기대값은 TS가 만든 표(expected-client.json)다.
  */
 @DisplayName("Jira REST 클라이언트는 TS JiraApiClient·classifyJiraError와 같다")
 class JiraApiClientTest {

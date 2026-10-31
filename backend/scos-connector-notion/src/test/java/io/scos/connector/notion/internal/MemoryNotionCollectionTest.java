@@ -10,7 +10,7 @@ import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.connector.notion.NotionAdapter;
 import io.scos.engine.support.call.ProviderCallExecutor;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 

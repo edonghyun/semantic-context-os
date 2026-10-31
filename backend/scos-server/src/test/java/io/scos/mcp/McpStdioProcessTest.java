@@ -4,18 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.support.FakeHttpServer;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -40,17 +33,12 @@ class McpStdioProcessTest {
       Path.of(System.getProperty("scos.boot.jar", "build/libs/scos-backend.jar"));
 
   /** 기동부터 종료까지의 상한 — 넘기면 프로세스를 죽여 막힌 줄 읽기를 끝낸다. */
-  static final Duration PROCESS_LIMIT = Duration.ofSeconds(120);
+  static final Duration PROCESS_LIMIT = Duration.ofMinutes(2);
 
   static final ObjectMapper JSON = new ObjectMapper();
   static final String EMBED = "/v1beta/models/gemini-embedding-001:batchEmbedContents";
   static final int EMBEDDING_DIM = 768;
   static final String QUERY = "정산 규정";
-
-  static void send(OutputStream in, String message) throws IOException {
-    in.write((message + "\n").getBytes(StandardCharsets.UTF_8));
-    in.flush();
-  }
 
   static String vectors(int n) {
     StringBuilder sb = new StringBuilder("{\"embeddings\":[");
@@ -67,7 +55,7 @@ class McpStdioProcessTest {
   @DisplayName("initialize 뒤 search_context를 한 번 보내고 stdin을 닫으면")
   class SearchOnceThenEof {
     FakeHttpServer gemini;
-    List<String> stdout = new ArrayList<>();
+    List<String> stdout;
     String stderr;
     List<String> queryLog;
     int exitCode;
@@ -81,52 +69,29 @@ class McpStdioProcessTest {
           EMBED,
           r -> FakeHttpServer.ok(vectors(JSON.readTree(r.body()).get("requests").size())));
       Path queries = dir.resolve("mcp-queries.jsonl");
-      Path errors = dir.resolve("stderr.log");
-      String javaBin =
-          System.getProperty("scos.java.home", System.getProperty("java.home")) + "/bin/java";
-      ProcessBuilder pb =
-          new ProcessBuilder(javaBin, "-jar", JAR.toString(), "mcp").redirectError(errors.toFile());
-      pb.environment().put("SCOS_DB_URL", PostgresSupport.jdbcUrl());
-      pb.environment().put("SCOS_DB_USER", PostgresSupport.username());
-      pb.environment().put("SCOS_DB_PASSWORD", PostgresSupport.password());
-      pb.environment().put("GEMINI_API_KEY", "unused-in-test");
-      pb.environment().put("SCOS_GEMINI_BASE_URL", gemini.baseUrl());
-      pb.environment().put("SCOS_RERANK_PROVIDER", "none");
-      pb.environment().put("SCOS_QUERY_LOG", queries.toString());
-      Process p = pb.start();
-      // 서버가 답하지 않으면 readLine이 영원히 막힌다 — 상한에 죽이면 stdout이 닫혀 읽기가 끝난다
-      CompletableFuture<Void> watchdog =
-          CompletableFuture.runAsync(
-              p::destroyForcibly,
-              CompletableFuture.delayedExecutor(PROCESS_LIMIT.toSeconds(), TimeUnit.SECONDS));
-      try (OutputStream in = p.getOutputStream();
-          BufferedReader out =
-              new BufferedReader(
-                  new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
-        send(
-            in,
-            "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{},\"clientInfo\":{\"name\":\"test\",\"version\":\"0\"}}}");
-        stdout.add(out.readLine());
-        send(in, "{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
-        send(
-            in,
-            "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"search_context\",\"arguments\":{\"query\":\""
-                + QUERY
-                + "\"}}}");
-        stdout.add(out.readLine());
-        in.close();
-        for (String line = out.readLine(); line != null; line = out.readLine()) stdout.add(line);
-      }
-      if (!watchdog.cancel(false))
-        throw new IllegalStateException(
-            "given 준비 실패: MCP 프로세스가 " + PROCESS_LIMIT + " 안에 답하고 stdout을 닫아야 한다");
-      if (!p.waitFor(PROCESS_LIMIT.toSeconds(), TimeUnit.SECONDS)) {
-        p.destroyForcibly();
-        throw new IllegalStateException("given 준비 실패: MCP 프로세스가 stdin EOF 뒤 끝나야 한다");
-      }
-      exitCode = p.exitValue();
-      stderr = Files.readString(errors);
+      McpStdioSession session =
+          McpStdioSession.launch(
+              JAR, environment(queries), dir.resolve("stderr.log"), PROCESS_LIMIT);
+      session.initialize();
+      session.callTool("search_context", "{\"query\":\"" + QUERY + "\"}");
+      McpStdioSession.Transcript transcript = session.closeStdin();
+      stdout = transcript.stdout();
+      exitCode = transcript.exitCode();
+      stderr = transcript.stderr();
       queryLog = Files.exists(queries) ? Files.readAllLines(queries) : List.of();
+    }
+
+    /** 테스트 DB, 가짜 Gemini, 재정렬 없음, 질의 로그 파일, 터미널에 붙은 것으로 본다(detect라면 색을 켠다). */
+    Map<String, String> environment(Path queries) {
+      return Map.of(
+          "SCOS_DB_URL", PostgresSupport.jdbcUrl(),
+          "SCOS_DB_USER", PostgresSupport.username(),
+          "SCOS_DB_PASSWORD", PostgresSupport.password(),
+          "GEMINI_API_KEY", "unused-in-test",
+          "SCOS_GEMINI_BASE_URL", gemini.baseUrl(),
+          "SCOS_RERANK_PROVIDER", "none",
+          "SCOS_QUERY_LOG", queries.toString(),
+          "SPRING_OUTPUT_ANSI_CONSOLE_AVAILABLE", "true");
     }
 
     @AfterAll
@@ -173,6 +138,23 @@ class McpStdioProcessTest {
     void logsGoToStderr() {
       // then
       assertThat(stderr).contains("MCP 서버 시작");
+    }
+
+    @Test
+    @DisplayName("stderr 로그 줄은 Spring Boot 기본 콘솔 모양이다")
+    void stderrUsesSpringBootShape() {
+      // then
+      assertThat(stderr)
+          .containsPattern(
+              "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}[+-]\\d{2}:\\d{2}  INFO \\d+ --- "
+                  + "\\[scos\\] \\[.{15}\\] .{40} : MCP 서버 시작");
+    }
+
+    @Test
+    @DisplayName("터미널에 붙어도 stderr 로그에 색 코드를 쓰지 않는다")
+    void stderrHasNoColor() {
+      // then
+      assertThat(stderr).doesNotContain("\u001B[");
     }
 
     @Test

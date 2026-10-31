@@ -3,7 +3,7 @@ package io.scos.support;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import io.scos.engine.support.text.JsonLineEncoder;
+import io.scos.engine.support.logging.JsonLineEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.slf4j.LoggerFactory;
@@ -31,9 +31,14 @@ public final class LogCapture implements AutoCloseable {
     return new LogCapture(owner);
   }
 
-  /** 잡은 로그 줄(ts를 뺀 JSON), 남긴 순서. */
+  /** 잡은 로그 줄(ts를 뺀 JSON), 남긴 순서의 스냅숏. */
   public List<JsonNode> events() {
-    return appender.list.stream()
+    List<ILoggingEvent> snapshot;
+    // ListAppender의 기록도 이 모니터를 쓴다. 인코딩 중의 추가 기록은 복사한 목록에 영향을 주지 않는다.
+    synchronized (appender) {
+      snapshot = List.copyOf(appender.list);
+    }
+    return snapshot.stream()
         .map(e -> JSON.readTree(new String(encoder.encode(e), StandardCharsets.UTF_8)))
         .map(n -> (JsonNode) ((ObjectNode) n).without("ts"))
         .toList();

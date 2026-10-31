@@ -16,8 +16,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.JsonNodeFactory;
 
 /**
- * Notion 블록 트리 → Markdown 줄(TS notion-block-renderer.ts, 바이트 동등). 부모(페이지 id 또는 접두 없는 블록 id)별 자식을
- * 생성시각 (없으면 "") → 외부 id 순(코드 유닛 비교)으로 깊이 우선 렌더링한다. 깊이마다 공백 두 칸 들여쓰기. 블록 종류별 규칙:
+ * Notion 블록 트리 → Markdown 줄(출력은 바이트 단위로 고정이다). 부모(페이지 id 또는 접두 없는 블록 id)별 자식을 생성시각 (없으면 "") → 외부 id
+ * 순(코드 유닛 비교)으로 깊이 우선 렌더링한다. 깊이마다 공백 두 칸 들여쓰기. 블록 종류별 규칙:
  *
  * <ul>
  *   <li>heading_1·2·3: `#`·`##`·`###` + 공백 + rich_text(본문이 없어도 줄을 낸다)
@@ -42,7 +42,7 @@ public final class NotionBlockRenderer {
       Comparator.comparing((RawItem block) -> block.sourceCreatedAt().orElse(""))
           .thenComparing(RawItem::externalId);
 
-  /** TS asRecord가 객체 아닌 값에 돌려주는 빈 객체(읽기 전용으로만 쓴다). */
+  /** 객체 아닌 값 대신 쓰는 빈 객체(읽기 전용으로만 쓴다). */
   private static final JsonNode EMPTY = JsonNodeFactory.instance.objectNode();
 
   private final ObjectMapper json;
@@ -72,7 +72,7 @@ public final class NotionBlockRenderer {
     return out;
   }
 
-  /** TS renderBlockTree: rootParentId 아래 블록을 줄 목록으로. */
+  /** rootParentId 아래 블록을 줄 목록으로. */
   public List<String> render(
       String rootParentId, Map<String, List<RawItem>> childrenByParent, ContentReader reader) {
     List<String> out = new ArrayList<>();
@@ -137,7 +137,7 @@ public final class NotionBlockRenderer {
     return out.append('\n').append(indent).append("```").toString();
   }
 
-  /** TS richTextOf: content[type].rich_text의 plain_text를 잇는다. */
+  /** content[type].rich_text의 plain_text를 잇는다. */
   private static String richText(JsonNode content, String type) {
     return plainText(record(record(content).get(type)).get("rich_text"));
   }
@@ -153,8 +153,8 @@ public final class NotionBlockRenderer {
   }
 
   /**
-   * TS titleOf: properties를 JS 순회 순서(정수 같은 키 먼저 — {@link JsJson#entries})로 보며 type이 "title"인 첫 속성의
-   * 글을 잇는다. 없으면 "".
+   * properties를 JS 순회 순서(정수 같은 키 먼저 — {@link JsJson#entries})로 보며 type이 "title"인 첫 속성의 글을 잇는다. 없으면
+   * "".
    */
   public String titleOf(Optional<String> pageContent) {
     JsonNode properties = record(record(parse(pageContent)).get("properties"));
@@ -178,7 +178,7 @@ public final class NotionBlockRenderer {
     return record(json.readTree(item.metadataJson()));
   }
 
-  /** TS asRecord: 객체가 아니면 빈 객체로 본다. */
+  /** 객체가 아니면 빈 객체로 본다. */
   private static JsonNode record(JsonNode value) {
     return value != null && value.isObject() ? value : EMPTY;
   }

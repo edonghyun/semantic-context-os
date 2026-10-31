@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * F10 변경 로그 포트(CONTRACTS F10, ADR-0020 §5): 원본
@@ -46,7 +48,55 @@ public interface SourceChangeLog {
       Kind kind,
       Optional<String> sourceVersion,
       Optional<String> metadataJson,
-      Instant occurredAt) {}
+      Instant occurredAt) {
+    private static final ObjectMapper JSON = new ObjectMapper();
+
+    static Entry upsert(
+        SourceInstanceId source, String externalId, String sourceVersion, Instant at) {
+      return new Entry(
+          source,
+          Optional.of(externalId),
+          Kind.UPSERT,
+          Optional.of(sourceVersion),
+          Optional.empty(),
+          at);
+    }
+
+    static Entry providerDelete(
+        SourceInstanceId source, String externalId, Optional<String> sourceVersion, Instant at) {
+      return new Entry(
+          source,
+          Optional.of(externalId),
+          Kind.PROVIDER_DELETE,
+          sourceVersion,
+          Optional.empty(),
+          at);
+    }
+
+    static Entry snapshotAbsent(SourceInstanceId source, String externalId, Instant at) {
+      return new Entry(
+          source,
+          Optional.of(externalId),
+          Kind.SNAPSHOT_ABSENT,
+          Optional.empty(),
+          Optional.empty(),
+          at);
+    }
+
+    /** 성공하지 못한 완료: metadata `{"status":…, "errorKind":…|null}`. */
+    static Entry collectionIncomplete(
+        SourceInstanceId source, RunStatus status, Optional<String> errorKind, Instant at) {
+      ObjectNode metadata = JSON.createObjectNode().put("status", status.wire());
+      metadata.put("errorKind", errorKind.orElse(null));
+      return new Entry(
+          source,
+          Optional.empty(),
+          Kind.COLLECTION_INCOMPLETE,
+          Optional.empty(),
+          Optional.of(JSON.writeValueAsString(metadata)),
+          at);
+    }
+  }
 
   /**
    * 호출자 트랜잭션에 변경들을 순서대로 기록한다. 쓰기 잠금(ADR-0021)을 커밋까지 쥘 수 있으므로 호출자는 트랜잭션의 **마지막 작업으로 한 번** 부른다 — 잠금
@@ -54,7 +104,7 @@ public interface SourceChangeLog {
    */
   void appendAll(List<Entry> entries);
 
-  /** {@link ChangeCursor#validate} 규칙으로 seq > after를 seq 순으로 limit개까지. */
+  /** {@link ChangeCursor#checkWithin} 규칙으로 seq > after를 seq 순으로 limit개까지. */
   Page read(Optional<SourceInstanceId> source, long after, int limit);
 
   /** 마지막 seq(지워진 것 포함). */

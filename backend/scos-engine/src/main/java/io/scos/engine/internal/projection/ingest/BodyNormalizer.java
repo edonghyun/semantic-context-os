@@ -7,12 +7,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * 본문 정규화(TS core/ingestion/body-normalizer.ts, G3): frontmatter 블록은 원문 보존, 펜스 밖 구간만 주석 제거·행끝 공백(JS
- * trimEnd)·빈 줄 축약. CRLF·CR → LF.
- */
+/** 본문 정규화(G3):frontmatter 블록은 원문 보존, 펜스 밖 구간만 주석 제거·행끝 공백(JS trimEnd)·빈 줄 축약. CRLF·CR → LF. */
 final class BodyNormalizer {
-  /** TS FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/ — `$`는 입력 끝(JS)이라 \z. */
+  /** JS 정규식 /^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/ — `$`는 입력 끝(JS)이라 \z. */
   static final Pattern FRONTMATTER =
       Pattern.compile("^---\\r?\\n[\\s\\S]*?\\r?\\n---(?:\\r?\\n|\\z)");
 

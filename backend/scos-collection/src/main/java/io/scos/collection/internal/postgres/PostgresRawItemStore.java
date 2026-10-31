@@ -1,6 +1,6 @@
 package io.scos.collection.internal.postgres;
 
-import io.scos.collection.internal.MutationRules;
+import io.scos.collection.internal.MutationDecision;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawRecord;
 import io.scos.spi.connector.RawContent;
@@ -25,9 +25,11 @@ public final class PostgresRawItemStore implements RawItemStore {
   static final String COLUMNS =
       "external_id, state, resource_type, source_version, order_scheme, order_position, source_created_at, source_updated_at, observed_at, metadata, content_storage, content_media_type, content_inline, content_sha256, content_size, deleted_at";
   private final JdbcClient jdbc;
+  private final BlobWriter blobs;
 
   public PostgresRawItemStore(JdbcClient jdbc) {
     this.jdbc = jdbc;
+    this.blobs = new BlobWriter(jdbc);
   }
 
   @Override
@@ -41,39 +43,23 @@ public final class PostgresRawItemStore implements RawItemStore {
             .param("id", mutation.externalId())
             .query(PostgresRawItemStore::map)
             .optional();
-    return switch (mutation) {
-      case RawMutation.Upsert u -> {
-        if (MutationRules.isStale(existing, u.item().sourceOrder())) yield Outcome.UNCHANGED;
-        if (existing.orElse(null) instanceof RawRecord.Active a
-            && a.item().sourceVersion().equals(u.item().sourceVersion())) yield Outcome.UNCHANGED;
-        writeActive(source, u.item());
-        yield Outcome.UPSERTED;
-      }
-      case RawMutation.Delete d -> {
-        if (MutationRules.isStale(existing, d.sourceOrder())) yield Outcome.UNCHANGED;
-        RawRecord.Deleted tomb = MutationRules.tombstone(existing, d);
-        writeTombstone(source, tomb);
-        yield Outcome.DELETED;
-      }
-    };
+    MutationDecision decision = MutationDecision.of(existing, mutation);
+    switch (decision) {
+      case MutationDecision.Unchanged unchanged -> {}
+      case MutationDecision.WriteActive write -> writeActive(source, write.item());
+      case MutationDecision.WriteTombstone write -> writeTombstone(source, write.tombstone());
+    }
+    return decision.outcome();
   }
 
   private void writeActive(SourceInstanceId source, RawItem item) {
-    RawContent c = item.content().orElse(null);
-    if (c instanceof RawContent.Blob b && b.data().isPresent()) {
-      jdbc.sql(
-              "INSERT INTO raw_blobs (sha256, media_type, size, data, stored_at) VALUES (:sha, :media, :size, :data, :now) ON CONFLICT (sha256) DO NOTHING")
-          .param("sha", b.sha256())
-          .param("media", b.mediaType())
-          .param("size", b.size())
-          .param("data", b.data().get())
-          .param("now", Timestamp.from(item.observedAt()))
-          .update();
-    }
+    blobs.store(item.content(), item.observedAt());
     BlobReferences.translating(
         () ->
-            jdbc.sql(
-                    """
+            ContentColumns.RAW_ITEM
+                .bind(
+                    jdbc.sql(
+                            """
             INSERT INTO raw_items (source_instance_id, external_id, state, resource_type, source_version, order_scheme, order_position,
                                    source_created_at, source_updated_at, observed_at, metadata, content_storage, content_media_type,
                                    content_inline, content_sha256, content_size, deleted_at)
@@ -87,23 +73,18 @@ public final class PostgresRawItemStore implements RawItemStore {
               content_media_type = EXCLUDED.content_media_type, content_inline = EXCLUDED.content_inline,
               content_sha256 = EXCLUDED.content_sha256, content_size = EXCLUDED.content_size, deleted_at = NULL
             """)
-                .param("source", source.value())
-                .param("id", item.externalId())
-                .param("type", item.resourceType())
-                .param("version", item.sourceVersion())
-                .param("scheme", item.sourceOrder().map(SourceOrder::scheme).orElse(null))
-                .param("position", item.sourceOrder().map(SourceOrder::position).orElse(null))
-                .param("created", item.sourceCreatedAt().orElse(null))
-                .param("updated", item.sourceUpdatedAt().orElse(null))
-                .param("observed", Timestamp.from(item.observedAt()))
-                .param("metadata", item.metadataJson())
-                .param(
-                    "storage",
-                    c == null ? null : c instanceof RawContent.Inline ? "inline" : "blob")
-                .param("media", c == null ? null : c.mediaType())
-                .param("inline", c instanceof RawContent.Inline i ? i.valueJson() : null)
-                .param("sha", c instanceof RawContent.Blob b ? b.sha256() : null)
-                .param("size", c instanceof RawContent.Blob b ? b.size() : null)
+                        .param("source", source.value())
+                        .param("id", item.externalId())
+                        .param("type", item.resourceType())
+                        .param("version", item.sourceVersion())
+                        .param("scheme", item.sourceOrder().map(SourceOrder::scheme).orElse(null))
+                        .param(
+                            "position", item.sourceOrder().map(SourceOrder::position).orElse(null))
+                        .param("created", item.sourceCreatedAt().orElse(null))
+                        .param("updated", item.sourceUpdatedAt().orElse(null))
+                        .param("observed", Timestamp.from(item.observedAt()))
+                        .param("metadata", item.metadataJson()),
+                    item.content())
                 .update());
   }
 
@@ -226,6 +207,25 @@ public final class PostgresRawItemStore implements RawItemStore {
   }
 
   @Override
+  public List<String> tombstoneSelected(SourceInstanceId source, Set<String> ids, Instant at) {
+    if (ids.isEmpty()) return List.of();
+    return jdbc.sql(
+            """
+        UPDATE raw_items SET state = 'deleted', order_scheme = NULL, order_position = NULL,
+          source_created_at = NULL, source_updated_at = NULL, observed_at = :at, metadata = NULL,
+          content_storage = NULL, content_media_type = NULL, content_inline = NULL,
+          content_sha256 = NULL, content_size = NULL, deleted_at = :at
+        WHERE source_instance_id = :source AND state = 'active' AND external_id = ANY(:ids)
+        RETURNING external_id
+        """)
+        .param("source", source.value())
+        .param("ids", ids.toArray(String[]::new))
+        .param("at", Timestamp.from(at))
+        .query(String.class)
+        .list();
+  }
+
+  @Override
   public Optional<byte[]> blob(String sha256) {
     return jdbc.sql("SELECT data FROM raw_blobs WHERE sha256 = :sha")
         .param("sha", sha256)
@@ -249,20 +249,7 @@ public final class PostgresRawItemStore implements RawItemStore {
           rs.getTimestamp("observed_at").toInstant(),
           rs.getTimestamp("deleted_at").toInstant());
     }
-    String storage = rs.getString("content_storage");
-    Optional<RawContent> content =
-        storage == null
-            ? Optional.empty()
-            : storage.equals("inline")
-                ? Optional.of(
-                    new RawContent.Inline(
-                        rs.getString("content_media_type"), rs.getString("content_inline")))
-                : Optional.of(
-                    new RawContent.Blob(
-                        rs.getString("content_media_type"),
-                        rs.getString("content_sha256"),
-                        rs.getLong("content_size"),
-                        Optional.empty()));
+    Optional<RawContent> content = ContentColumns.RAW_ITEM.read(rs);
     return new RawRecord.Active(
         new RawItem(
             id,

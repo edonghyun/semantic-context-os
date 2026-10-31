@@ -14,9 +14,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 원본 카탈로그 커서(TS encodeRawItemCursor): base64url(패딩 없음)로 감싼 JSON 배열 [observedAt, 소스, externalId] —
- * 마지막 항목의 정렬 키다. observedAt은 밀리초까지면 TS toISOString과 같은 표기라 커서도 TS와 같은 바이트다. 그보다 정밀한 시각(PostgreSQL은
- * 마이크로초)은 잘라 내지 않고 그대로 싣는다 — 잘라 내면 같은 밀리초 안의 항목을 건너뛴다.
+ * 원본 카탈로그 커서: base64url(패딩 없음)로 감싼 JSON 배열 [observedAt, 소스, externalId] — 마지막 항목의 정렬 키다.
+ * observedAt은 밀리초까지면 `toISOString` 표기(밀리초 세 자리, Z)로 싣는다. 그보다 정밀한 시각(PostgreSQL은 마이크로초)은 잘라 내지 않고
+ * 그대로 싣는다 — 잘라 내면 같은 밀리초 안의 항목을 건너뛴다.
  */
 public record RawCatalogCursor(Instant observedAt, SourceInstanceId source, String externalId) {
   private static final ObjectMapper JSON = new ObjectMapper();

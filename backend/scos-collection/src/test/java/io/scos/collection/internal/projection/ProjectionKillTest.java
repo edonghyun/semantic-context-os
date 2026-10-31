@@ -58,7 +58,7 @@ class ProjectionKillTest {
     } finally {
       if (run.isAlive()) run.destroyForcibly();
     }
-    var units = PostgresTestAdapters.unitStore(PostgresSupport.dataSource());
+    var units = PostgresTestAdapters.unitMaintenance(PostgresSupport.dataSource());
     unitsAtKill = units.listAll(SPACE).size();
     pendingAtKill =
         PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource())

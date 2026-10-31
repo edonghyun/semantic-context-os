@@ -10,11 +10,15 @@ import io.scos.spi.connector.SourceInstanceId;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /** run 저장 포트 계약: stale run 마감, running 검사, 카운터·관측·rejection·완료·스냅샷 완료·최근 실패 수. */
 @DisplayName("run 저장소는 run 기록·관측·스냅샷 완료를 소스별로 둔다")
@@ -47,13 +51,26 @@ public abstract class RunStoreContract {
   CollectionRun finishAs(RunId id, RunStatus status, Instant at) {
     return store.finish(
         id,
-        status,
+        new RunOutcome(
+            status, status == RunStatus.SUCCEEDED ? 0 : 1, Optional.empty(), Optional.empty()),
         CollectionCoverage.INCREMENTAL,
         at,
-        status == RunStatus.SUCCEEDED ? 0 : 1,
-        Optional.empty(),
-        Optional.empty(),
         0);
+  }
+
+  @Test
+  @DisplayName("전체 정리 완료 기준은 같은 소스의 같은 범위 세대에만 유효하다")
+  void reconciliationBaselineIsBoundToGeneration() {
+    // given
+    store.recordSnapshotCompletion(SOURCE, T0, 0, Optional.of("roots-generation"));
+    // when
+    var baselines =
+        List.of(
+            store.hasReconciliationBaseline(SOURCE, "roots-generation"),
+            store.hasReconciliationBaseline(SOURCE, "other-generation"),
+            store.hasReconciliationBaseline(OTHER_SOURCE, "roots-generation"));
+    // then
+    assertThat(baselines).containsExactly(true, false, false);
   }
 
   // ---- 새 run 시작과 stale run ----
@@ -132,12 +149,9 @@ public abstract class RunStoreContract {
     store.start(R1, SOURCE, T0);
     store.finish(
         R1,
-        RunStatus.PARTIALLY_SUCCEEDED,
+        RunOutcome.failed(RunStatus.PARTIALLY_SUCCEEDED, "rate_limited", "429"),
         CollectionCoverage.INCREMENTAL,
         T0.plusSeconds(1),
-        1,
-        Optional.of("rate_limited"),
-        Optional.of("429"),
         0);
 
     // when
@@ -193,12 +207,9 @@ public abstract class RunStoreContract {
       CollectionRun failed =
           store.finish(
               R1,
-              RunStatus.FAILED,
+              RunOutcome.failed(RunStatus.FAILED, "rate_limited", "429"),
               CollectionCoverage.INCREMENTAL,
               FINISHED,
-              1,
-              Optional.of("rate_limited"),
-              Optional.of("429"),
               0);
 
       // then
@@ -236,14 +247,7 @@ public abstract class RunStoreContract {
     /** 4건을 reconcile하며 성공으로 끝낸다. */
     CollectionRun finishReconciling() {
       return store.finish(
-          R1,
-          RunStatus.SUCCEEDED,
-          CollectionCoverage.COMPLETE_SNAPSHOT,
-          FINISHED,
-          0,
-          Optional.empty(),
-          Optional.empty(),
-          4);
+          R1, RunOutcome.succeeded(0), CollectionCoverage.COMPLETE_SNAPSHOT, FINISHED, 4);
     }
 
     @Test
@@ -385,6 +389,93 @@ public abstract class RunStoreContract {
         .contains(new RunStore.SnapshotCompletion(T0.plusSeconds(1), 0));
   }
 
+  @Test
+  @DisplayName("원천별 마지막 성공 완료 시각을 돌려준다")
+  void lastSucceededUsesLatestFinish() {
+    // given: 삽입·시작 순서가 아닌 완료 시각으로 고른다
+    store.start(R1, SOURCE, T0);
+    finishAs(R1, RunStatus.SUCCEEDED, FINISHED);
+    store.start(NEW, SOURCE, RESTART);
+    finishAs(NEW, RunStatus.SUCCEEDED, RESTART);
+
+    // when
+    var succeeded = store.lastSucceededAt(Set.of(SOURCE));
+
+    // then
+    assertThat(succeeded).isEqualTo(Map.of(SOURCE, FINISHED));
+  }
+
+  @Test
+  @DisplayName("거부 항목이 있는 성공 run도 완료 시각을 준다")
+  void succeededWithRejectionsHasFinish() {
+    // given
+    givenFinishedRuns(RunStatus.SUCCEEDED_WITH_REJECTIONS);
+
+    // when
+    var succeeded = store.lastSucceededAt(Set.of(SOURCE));
+
+    // then
+    assertThat(succeeded).containsOnlyKeys(SOURCE);
+  }
+
+  @ParameterizedTest(name = "{0}는 성공이 아니다")
+  @EnumSource(
+      value = RunStatus.class,
+      names = {"FAILED", "CANCELLED", "RUNNING", "PARTIALLY_SUCCEEDED"})
+  @DisplayName("비성공 run은 성공 완료 시각을 주지 않는다")
+  void nonSuccessHasNoFinish(RunStatus status) {
+    // given
+    store.start(R1, SOURCE, T0);
+    if (status != RunStatus.RUNNING) finishAs(R1, status, FINISHED);
+
+    // when
+    var succeeded = store.lastSucceededAt(Set.of(SOURCE));
+
+    // then
+    assertThat(succeeded).isEmpty();
+  }
+
+  @ParameterizedTest(name = "{0}의 성공 판정")
+  @EnumSource(RunStatus.class)
+  @DisplayName("마지막 성공 조회의 상태 판정은 RunStatus.isSuccess와 같다")
+  void successMatchesRunStatus(RunStatus status) {
+    // given
+    store.start(R1, SOURCE, T0);
+    if (status != RunStatus.RUNNING) finishAs(R1, status, FINISHED);
+
+    // when
+    var succeeded = store.lastSucceededAt(Set.of(SOURCE));
+
+    // then
+    assertThat(succeeded.containsKey(SOURCE)).isEqualTo(status.isSuccess());
+  }
+
+  @Test
+  @DisplayName("요청하지 않은 인스턴스의 성공 시각은 제외한다")
+  void lastSucceededOmitsUnrequested() {
+    // given
+    givenFinishedRuns(RunStatus.SUCCEEDED);
+
+    // when
+    var succeeded = store.lastSucceededAt(Set.of(OTHER_SOURCE));
+
+    // then
+    assertThat(succeeded).isEmpty();
+  }
+
+  @Test
+  @DisplayName("요청 인스턴스가 비면 성공 시각도 비어 있다")
+  void lastSucceededEmptyRequest() {
+    // given
+    givenFinishedRuns(RunStatus.SUCCEEDED);
+
+    // when
+    var succeeded = store.lastSucceededAt(Set.of());
+
+    // then
+    assertThat(succeeded).isEmpty();
+  }
+
   // ---- 최근 실패 수 ----
 
   /** 같은 소스에 차례로 끝난 run들(10초 간격). */
@@ -464,5 +555,102 @@ public abstract class RunStoreContract {
 
     // then
     assertThat(failures).isZero();
+  }
+
+  @Nested
+  @DisplayName("현재 run의 전체 부재 검증을 요구하면")
+  class AbsenceVerification {
+    static final String FINGERPRINT = "roots-generation";
+
+    @BeforeEach
+    void givenRunning() {
+      store.start(R1, SOURCE, T0);
+    }
+
+    @Test
+    @DisplayName("해당 run에만 검증할 범위 세대를 저장한다")
+    void storesAbsenceRequirement() {
+      // when
+      store.requireAbsenceVerification(R1, FINGERPRINT);
+      // then
+      assertThat(store.absenceRequirement(R1)).contains(FINGERPRINT);
+    }
+
+    @Test
+    @DisplayName("최종 후보 집합과 제외 증거를 현재 run에서 다시 읽는다")
+    void storesAbsenceValidation() {
+      // given
+      store.requireAbsenceVerification(R1, FINGERPRINT);
+      var validation =
+          new RunStore.AbsenceValidation(FINGERPRINT, "candidate-token", Set.of("outside"));
+      // when
+      store.recordAbsenceValidation(R1, validation);
+      // then
+      assertThat(store.absenceValidation(R1)).contains(validation);
+    }
+
+    @Test
+    @DisplayName("진행 중 검증의 범위 세대를 바꿔 이전 증거를 재사용하지 못한다")
+    void rejectsChangingAbsenceGeneration() {
+      // given
+      store.requireAbsenceVerification(R1, FINGERPRINT);
+      store.recordAbsenceValidation(
+          R1, new RunStore.AbsenceValidation(FINGERPRINT, "candidate-token", Set.of("outside")));
+      // when·then
+      assertThatThrownBy(() -> store.requireAbsenceVerification(R1, "different-generation"))
+          .isInstanceOf(RunStateException.class);
+    }
+
+    @Test
+    @DisplayName("검증을 요구하지 않은 기존 run은 추가 검증 조건이 없다")
+    void legacyRunHasNoAbsenceRequirement() {
+      // when
+      var requirement = store.absenceRequirement(R1);
+      // then
+      assertThat(requirement).isEmpty();
+    }
+
+    @Test
+    @DisplayName("요구한 적 없는 run에 부재 검증을 저장하지 않는다")
+    void rejectsValidationWithoutRequirement() {
+      // when·then
+      assertThatThrownBy(
+              () ->
+                  store.recordAbsenceValidation(
+                      R1,
+                      new RunStore.AbsenceValidation(
+                          FINGERPRINT, "candidate-token", Set.of("outside"))))
+          .isInstanceOf(RunStateException.class);
+    }
+
+    @Test
+    @DisplayName("새 run은 이전 run의 검증 결과를 승계하지 않는다")
+    void validationDoesNotCarryToNewRun() {
+      // given
+      store.requireAbsenceVerification(R1, FINGERPRINT);
+      store.recordAbsenceValidation(
+          R1, new RunStore.AbsenceValidation(FINGERPRINT, "candidate-token", Set.of("outside")));
+      store.start(NEW, SOURCE, RESTART);
+      // when
+      var validation = store.absenceValidation(NEW);
+      // then
+      assertThat(validation).isEmpty();
+    }
+
+    @Test
+    @DisplayName("끝난 run의 검증 결과는 뒤늦게 바꾸지 못한다")
+    void finishedRunRejectsValidation() {
+      // given
+      store.requireAbsenceVerification(R1, FINGERPRINT);
+      finishAs(R1, RunStatus.SUCCEEDED, FINISHED);
+      // when·then
+      assertThatThrownBy(
+              () ->
+                  store.recordAbsenceValidation(
+                      R1,
+                      new RunStore.AbsenceValidation(
+                          FINGERPRINT, "candidate-token", Set.of("outside"))))
+          .isInstanceOf(RunStateException.class);
+    }
   }
 }

@@ -4,14 +4,17 @@ import static io.scos.engine.internal.projection.IngestSamples.BODY_A;
 import static io.scos.engine.internal.projection.IngestSamples.BODY_B;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.groups.Tuple.tuple;
 
+import io.scos.engine.EmbeddingGenerationMismatchException;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.engine.support.projection.DeadLetter;
 import io.scos.engine.support.projection.EmbeddingCounts;
 import io.scos.engine.support.projection.SyncReport;
 import io.scos.engine.support.projection.WriteGuardException;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.projection.SourceDocument;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.ContextUnits;
 import io.scos.spi.store.SearchFilter;
@@ -20,6 +23,7 @@ import io.scos.spi.store.Tier;
 import io.scos.store.memory.MemoryEmbeddingCache;
 import io.scos.store.memory.MemoryKeywordIndex;
 import io.scos.store.memory.MemorySpaceMeta;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import java.time.Instant;
@@ -36,23 +40,26 @@ import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * G5·G6·G9: 멱등(중복 유닛 0)·바뀐 유닛만 재임베딩·수명주기 보존·prune·축소 삭제·임베딩 실패 문서의 DeadLetter 기록·재투영 실패 시 기존 유닛·벡터
- * 보존·세대 백필. 메모리 어댑터로 검증한다.
+ * 보존·세대 불일치 거부(자동 재임베딩 없음, stage2 §3.3). 메모리 어댑터로 검증한다.
  */
 @DisplayName("문서 투영은 멱등이고 바뀐 유닛만 다시 임베딩한다(G5·G6·G9)")
 class DocumentIngestorTest {
+  private static final SearchFilter ACTIVE =
+      new SearchFilter(false, null, AccessScope.singleUser());
   static final SpaceId S = new SpaceId("legacy");
   static final String SRC = "slack-synthetic";
 
   MemoryUnitStore units = new MemoryUnitStore();
   MemoryKeywordIndex keywords = new MemoryKeywordIndex();
   MemoryVectorIndex vectors = new MemoryVectorIndex();
+  final MemoryUnitMaintenance maintenance = new MemoryUnitMaintenance(units, vectors);
   MemorySpaceMeta meta = new MemorySpaceMeta();
   RecordingEmbedder embedder = new RecordingEmbedder();
   MutableClock clock = new MutableClock(Instant.parse("2026-10-14T00:00:00Z"));
   DocumentIngestor ingestor =
       new DocumentIngestor(
           TransactionOperations.withoutTransaction(),
-          units,
+          maintenance,
           keywords,
           vectors,
           meta,
@@ -74,7 +81,7 @@ class DocumentIngestorTest {
   static final String DAY1 = "2026-10-13T00:00:00.000Z";
   static final String DAY2 = "2026-10-14T00:00:00.000Z";
   static final String DAY3 = "2026-10-15T00:00:00.000Z";
-  static final String GENERATION = "GeminiEmbedder:4:title+aliases+content";
+  static final String GENERATION = "test:recording:4:title+aliases+content";
 
   /** 유닛 2개짜리 a와 1개짜리 b. */
   static final List<SourceDocument> TWO_DOCS =
@@ -91,20 +98,58 @@ class DocumentIngestorTest {
   }
 
   List<String> unitIds() {
-    return units.listAll(S).stream().map(ContextUnit::id).toList();
+    return maintenance.listAll(S).stream().map(ContextUnit::id).toList();
+  }
+
+  @Nested
+  @DisplayName("한 문서의 두 번째 임베딩 배치가 실패하면")
+  class FailedLaterBatch {
+    SourceDocument preparedDocument;
+
+    @BeforeEach
+    void givenDocumentWithFailingSecondBatch() {
+      StringBuilder body = new StringBuilder();
+      for (int i = 1; i <= 100; i++)
+        body.append("# 단락 ").append(i).append("\n\n정산 배치는 매일 새벽에 돌고 실패하면 담당자에게 알림이 간다.\n\n");
+      body.append("# 마지막 단락\n\n정산 배치는 매일 새벽에 돌고 실패하면 담당자에게 알림이 간다.\n");
+      embedder.failsWith429On("마지막 단락");
+      preparedDocument = doc("many", body.toString(), DAY1);
+    }
+
+    @Test
+    @DisplayName("실패 전에 완료한 배치의 임베딩 개수를 보고한다")
+    void reportsCompletedEmbeddingWork() {
+      // when
+      SyncReport report = sync(preparedDocument);
+
+      // then
+      assertThat(report.embeddings()).isEqualTo(new EmbeddingCounts(0, 100));
+    }
+
+    @Test
+    @DisplayName("문서 실패는 기존 store 단계와 오류 메시지로 보고한다")
+    void preservesFailureStage() {
+      // when
+      SyncReport report = sync(preparedDocument);
+
+      // then
+      assertThat(report.errors())
+          .extracting(DeadLetter::stage, DeadLetter::message)
+          .containsExactly(tuple("store", "injected 429"));
+    }
   }
 
   // ---- F9 임베딩 캐시(ADR-0026) ----
 
   static final double[] CACHED_VECTOR = {9, 8, 7, 6};
   static final double[] SHORT_VECTOR = {9, 8, 7};
-  static final String OTHER_GENERATION = "GeminiEmbedder:768:title+aliases+content";
+  static final String OTHER_GENERATION = "test:recording:768:title+aliases+content";
 
   MemoryEmbeddingCache cache = new MemoryEmbeddingCache();
   DocumentIngestor cachedIngestor =
       new DocumentIngestor(
           TransactionOperations.withoutTransaction(),
-          units,
+          maintenance,
           keywords,
           vectors,
           meta,
@@ -116,11 +161,13 @@ class DocumentIngestorTest {
   /** 이 문서들을 캐시 없이 처음 투영할 때 임베더가 받는 입력(빈 저장소에 한 번 투영해 본다). */
   List<String> embeddingInputs(List<SourceDocument> docs) {
     RecordingEmbedder probe = new RecordingEmbedder();
+    var probeUnits = new MemoryUnitStore();
+    var probeVectors = new MemoryVectorIndex();
     new DocumentIngestor(
             TransactionOperations.withoutTransaction(),
-            new MemoryUnitStore(),
+            new MemoryUnitMaintenance(probeUnits, probeVectors),
             new MemoryKeywordIndex(),
-            new MemoryVectorIndex(),
+            probeVectors,
             new MemorySpaceMeta(),
             probe,
             new IngestPipeline(new JtokkitTokenizer()),
@@ -142,16 +189,16 @@ class DocumentIngestorTest {
 
   /** 그 문서의 유닛 → 색인된 벡터. */
   Map<ContextUnit, double[]> indexedVectorsOf(String documentId) {
-    Map<String, double[]> byId = vectors.vectorsOf(S, unitIds());
+    Map<String, double[]> byId = vectors.vectorsOf(S, AccessScope.singleUser(), unitIds());
     Map<ContextUnit, double[]> out = new LinkedHashMap<>();
-    for (ContextUnit u : units.listAll(S))
+    for (ContextUnit u : maintenance.listAll(S))
       if (u.documentId().equals(documentId)) out.put(u, byId.get(u.id()));
     return out;
   }
 
   /** 임베더가 이 유닛의 입력에 돌려주는 벡터. */
   static double[] ownVector(ContextUnit u) {
-    return RecordingEmbedder.vectorOf(DocumentIngestor.embeddingInputOf(u));
+    return RecordingEmbedder.vectorOf(EmbedderUnitEmbedding.inputOf(u));
   }
 
   SyncReport syncWithCache(List<SourceDocument> docs) {
@@ -185,7 +232,7 @@ class DocumentIngestorTest {
       syncWithCache(TWO_DOCS);
 
       // then
-      assertThat(vectors.vectorsOf(S, unitIds()).values())
+      assertThat(vectors.vectorsOf(S, AccessScope.singleUser(), unitIds()).values())
           .hasSize(3)
           .allSatisfy(v -> assertThat(v).containsExactly(CACHED_VECTOR));
     }
@@ -282,7 +329,7 @@ class DocumentIngestorTest {
       sync(TWO_DOCS);
 
       // then
-      assertThat(units.listAll(S)).hasSize(3);
+      assertThat(maintenance.listAll(S)).hasSize(3);
     }
 
     @Test
@@ -302,7 +349,7 @@ class DocumentIngestorTest {
       sync(TWO_DOCS);
 
       // then
-      assertThat(vectors.vectorsOf(S, unitIds())).hasSize(3);
+      assertThat(vectors.vectorsOf(S, AccessScope.singleUser(), unitIds())).hasSize(3);
     }
 
     @Test
@@ -325,7 +372,7 @@ class DocumentIngestorTest {
       sync(TWO_DOCS);
 
       // then
-      assertThat(keywords.search(S, "커넥션 풀", 5, SearchFilter.NONE)).isNotEmpty();
+      assertThat(keywords.search(S, "커넥션 풀", 5, ACTIVE)).isNotEmpty();
     }
 
     @Test
@@ -385,14 +432,14 @@ class DocumentIngestorTest {
       sync(TWO_DOCS);
 
       // then
-      assertThat(units.listAll(S)).hasSize(3);
+      assertThat(maintenance.listAll(S)).hasSize(3);
     }
   }
 
   /** 첫 유닛을 archived + invalidatedAt으로 바꿔 수명주기 상태를 만든다(투영 밖에서 바뀐 상태의 보존을 보기 위해). */
   ContextUnit givenFirstUnitArchived() {
-    ContextUnit first = units.listAll(S).get(0);
-    units.upsert(
+    ContextUnit first = maintenance.listAll(S).get(0);
+    maintenance.upsert(
         S,
         List.of(
             ContextUnits.from(first).archived().invalidatedAt(DAY1).withoutEmbedding().build()));
@@ -400,7 +447,7 @@ class DocumentIngestorTest {
   }
 
   ContextUnit reload(ContextUnit unit) {
-    return units.getMany(S, List.of(unit.id())).get(0);
+    return units.getMany(S, AccessScope.singleUser(), List.of(unit.id())).get(0);
   }
 
   @Nested
@@ -479,7 +526,7 @@ class DocumentIngestorTest {
       sync(doc("a", CHANGED_A, DAY3));
 
       // then
-      assertThat(units.listAll(S)).hasSize(2);
+      assertThat(maintenance.listAll(S)).hasSize(2);
     }
 
     @Test
@@ -525,7 +572,7 @@ class DocumentIngestorTest {
       sync(doc("a", CHANGED_A, DAY2));
 
       // then
-      assertThat(units.listAll(S))
+      assertThat(maintenance.listAll(S))
           .hasSize(2)
           .extracting(ContextUnit::content)
           .anySatisfy(c -> assertThat(c).contains("커넥션 풀 고갈"))
@@ -552,7 +599,7 @@ class DocumentIngestorTest {
       sync(doc("a", CHANGED_A, DAY2));
 
       // then
-      assertThat(keywords.search(S, "커넥션 풀", 5, SearchFilter.NONE)).isNotEmpty();
+      assertThat(keywords.search(S, "커넥션 풀", 5, ACTIVE)).isNotEmpty();
     }
   }
 
@@ -584,7 +631,7 @@ class DocumentIngestorTest {
       sync(doc("a", SHRUNK_A, DAY2));
 
       // then
-      assertThat(units.listAll(S))
+      assertThat(maintenance.listAll(S))
           .singleElement()
           .extracting(ContextUnit::documentId)
           .isEqualTo("a");
@@ -597,7 +644,7 @@ class DocumentIngestorTest {
       sync(doc("a", SHRUNK_A, DAY2));
 
       // then
-      assertThat(units.listDocumentIds(S, SRC)).containsExactly("a");
+      assertThat(maintenance.listDocumentIds(S, SRC)).containsExactly("a");
     }
 
     @Test
@@ -607,7 +654,7 @@ class DocumentIngestorTest {
       sync(doc("a", SHRUNK_A, DAY2));
 
       // then
-      assertThat(keywords.search(S, "온보딩 절차", 5, SearchFilter.NONE)).isEmpty();
+      assertThat(keywords.search(S, "온보딩 절차", 5, ACTIVE)).isEmpty();
     }
 
     @Test
@@ -617,7 +664,7 @@ class DocumentIngestorTest {
       sync(doc("a", SHRUNK_A, DAY2));
 
       // then
-      assertThat(vectors.vectorsOf(S, unitIds())).hasSize(1);
+      assertThat(vectors.vectorsOf(S, AccessScope.singleUser(), unitIds())).hasSize(1);
     }
   }
 
@@ -659,7 +706,7 @@ class DocumentIngestorTest {
       sync(doc("a", BODY_A, DAY1));
 
       // then
-      assertThat(units.listAll(S)).isEmpty();
+      assertThat(maintenance.listAll(S)).isEmpty();
     }
 
     @Nested
@@ -721,7 +768,7 @@ class DocumentIngestorTest {
       sync(TWO_DOCS);
 
       // then
-      assertThat(units.listAll(S))
+      assertThat(maintenance.listAll(S))
           .singleElement()
           .extracting(ContextUnit::documentId)
           .isEqualTo("b");
@@ -739,48 +786,96 @@ class DocumentIngestorTest {
   }
 
   @Nested
-  @DisplayName("a를 투영한 뒤 임베딩 세대 메타가 바뀐 상태로 다시 투영하면(G9)")
-  class GenerationChange {
+  @DisplayName("저장된 세대가 설정과 다른 공간에 투영하면")
+  class StoredGenerationDiffers {
     @BeforeEach
-    void givenOldGeneration() {
-      sync(doc("a", BODY_A, DAY1));
-      meta.set(S, "embedding:version", "HashingEmbedder:768:title+content");
-      embedder.forgetCalls();
+    void givenOtherGeneration() {
+      meta.set(S, "embedding:version", OTHER_GENERATION);
     }
 
     @Test
-    @DisplayName("공간의 전 유닛을 재임베딩한다")
-    void reembedsAll() {
+    @DisplayName("EmbeddingGenerationMismatchException으로 거부한다")
+    void rejectsWithMismatch() {
       // when
-      sync(doc("a", BODY_A, DAY1));
+      Throwable thrown = catchThrowable(() -> sync(TWO_DOCS));
 
       // then
-      assertThat(embedder.calls).hasSize(2);
+      assertThat(thrown).isInstanceOf(EmbeddingGenerationMismatchException.class);
     }
 
     @Test
-    @DisplayName("세대 메타를 현재 세대로 갱신한다")
-    void updatesGeneration() {
+    @DisplayName("유닛을 쓰지 않는다")
+    void writesNoUnits() {
       // when
-      sync(doc("a", BODY_A, DAY1));
+      var unused = catchThrowable(() -> sync(TWO_DOCS));
 
       // then
-      assertThat(meta.get(S, "embedding:version")).contains(GENERATION);
+      assertThat(maintenance.listAll(S)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("임베더를 부르지 않는다")
+    void callsNoEmbedder() {
+      // when
+      var unused = catchThrowable(() -> sync(TWO_DOCS));
+
+      // then
+      assertThat(embedder.calls).isEmpty();
+    }
+  }
+
+  @Nested
+  @DisplayName("빈 공간에 쓰기 직전 다른 세대가 먼저 기록되면")
+  class OtherGenerationRecordedFirst {
+    @BeforeEach
+    void givenOtherWriterDuringEmbedding() {
+      embedder.beforeNextEmbed(() -> meta.putIfAbsent(S, "embedding:version", OTHER_GENERATION));
+    }
+
+    @Test
+    @DisplayName("그 문서의 쓰기가 거부되어 sync가 예외로 끝난다")
+    void rejectsWrite() {
+      // when
+      Throwable thrown = catchThrowable(() -> sync(doc("a", BODY_A, DAY1)));
+
+      // then
+      assertThat(thrown).isInstanceOf(EmbeddingGenerationMismatchException.class);
+      assertThat(maintenance.listAll(S)).as("거부된 a의 유닛").isEmpty();
+    }
+  }
+
+  @Nested
+  @DisplayName("투영 도중 다른 프로세스가 재임베딩을 시작하면")
+  class ReembedStartsDuringSync {
+    @BeforeEach
+    void givenProjectedThenReembedStartsOnNextEmbedding() {
+      sync(doc("a", BODY_A, DAY1));
+      embedder.beforeNextEmbed(() -> meta.set(S, "embedding:version", "pending:" + GENERATION));
+    }
+
+    @Test
+    @DisplayName("그 뒤 문서의 쓰기 트랜잭션이 거부되어 sync가 예외로 끝난다")
+    void rejectsLaterWrites() {
+      // when
+      Throwable thrown =
+          catchThrowable(() -> sync(List.of(doc("a", BODY_A, DAY1), doc("b", BODY_B, DAY1))));
+
+      // then
+      assertThat(thrown)
+          .isInstanceOfSatisfying(
+              EmbeddingGenerationMismatchException.class,
+              e -> assertThat(e.reembedPending()).isTrue());
+      assertThat(maintenance.listAll(S)).extracting(ContextUnit::documentId).doesNotContain("b");
     }
   }
 
   @Nested
   @DisplayName("guard가 a의 저장을 거부할 때")
   class GuardRejects {
-    /** backfill·prune이 guard를 부르지 않으니 첫 호출이 a의 persist 트랜잭션이다. */
+    /** prune이 guard를 부르지 않으니 첫 호출이 a의 persist 트랜잭션이다. */
     static final int PERSIST_CALL = 1;
 
     int guardCalls;
-
-    @BeforeEach
-    void givenCurrentGeneration() {
-      meta.set(S, "embedding:version", GENERATION); // backfill이 guard를 부르지 않게
-    }
 
     /** a를 현존 문서로(prune이 guard를 부르지 않게) 투영하고, a의 persist에서 guard가 rejection을 던진다. */
     SyncReport syncRejecting(RuntimeException rejection) {
@@ -818,7 +913,7 @@ class DocumentIngestorTest {
       var unused = catchThrowable(() -> syncRejecting(new WriteGuardException("x")));
 
       // then
-      assertThat(units.listAll(S)).isEmpty();
+      assertThat(maintenance.listAll(S)).isEmpty();
     }
 
     @Test

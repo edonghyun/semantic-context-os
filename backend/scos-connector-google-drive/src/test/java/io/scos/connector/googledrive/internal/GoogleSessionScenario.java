@@ -1,7 +1,7 @@
 package io.scos.connector.googledrive.internal;
 
 import io.scos.connector.googledrive.GoogleDriveAssembly;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.support.FakeHttpServer;
@@ -47,7 +47,7 @@ final class GoogleSessionScenario implements AutoCloseable {
     }
   }
 
-  /** 실패의 비교 값(TS CallFailure). */
+  /** 실패의 비교 값. */
   record FailureView(String kind, boolean retryable, String message, Long retryAfterMs) {
     static FailureView of(CallFailure f) {
       return new FailureView(

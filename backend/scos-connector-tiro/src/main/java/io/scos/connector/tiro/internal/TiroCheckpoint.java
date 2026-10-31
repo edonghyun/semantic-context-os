@@ -10,9 +10,9 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Tiro 체크포인트(TS tiro-adapter.ts, F12 저장 호환): schemaVersion 1, `{scope, cursor}` — scope는 수집 범위 문자열,
- * cursor는 다음 목록 커서(마지막 페이지 뒤 null). 커서는 기록만 하고 재개에 쓰지 않는다: 한 실행이 목록 전체를 봐야 complete_snapshot 정리가 앞
- * 페이지의 노트를 지우지 않는다. 저장된 체크포인트는 범위가 같고 형식이 맞는지만 확인한다.
+ * Tiro 체크포인트(F12 저장 호환): schemaVersion 1, `{scope, cursor}` — scope는 수집 범위 문자열, cursor는 다음 목록
+ * 커서(마지막 페이지 뒤 null). 커서는 기록만 하고 재개에 쓰지 않는다: 한 실행이 목록 전체를 봐야 complete_snapshot 정리가 앞 페이지의 노트를 지우지
+ * 않는다. 저장된 체크포인트는 범위가 같고 형식이 맞는지만 확인한다.
  */
 public final class TiroCheckpoint {
   static final int SCHEMA_VERSION = 1;
@@ -40,7 +40,7 @@ public final class TiroCheckpoint {
     return new Checkpoint(SCHEMA_VERSION, JsJson.stringify(value));
   }
 
-  /** 내부 분류 invalid_checkpoint, run errorKind는 TS와 같은 "Error"({@link TiroProtocolException}). */
+  /** 내부 분류 invalid_checkpoint, run errorKind는 "Error"({@link TiroProtocolException}). */
   private static TiroProtocolException invalid() {
     return new TiroProtocolException(CallFailure.of(CallFailure.Kind.INVALID_CHECKPOINT, INVALID));
   }

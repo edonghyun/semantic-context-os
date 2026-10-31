@@ -2,6 +2,7 @@ package io.scos.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.scos.spi.store.SpaceId;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +45,8 @@ class StatusOverviewTest {
     void runStatus(@TempDir Path dir) throws IOException {
       QueryScenario scenario = QueryScenario.replay(QueryScenario.fixture().get("scenario"));
       Path log =
-          Files.writeString(dir.resolve("serve.log"), "{\"level\":\"info\"}\n" + WARN_LINE + "\n");
+          Files.writeString(
+              dir.resolve("serve.jsonl"), "{\"level\":\"info\"}\n" + WARN_LINE + "\n");
       outputs = scenario.run(List.of("status", "--log", log.toString()));
       overview = QueryScenario.JSON.readTree(outputs.getFirst());
     }
@@ -101,7 +103,10 @@ class StatusOverviewTest {
       // then
       assertThat(QueryScenario.JSON.writeValueAsString(overview.get("freshness")))
           .isEqualTo(
-              "[{\"space\":\"legacy\",\"latestCapturedAt\":null,\"staleHours\":null,\"stale\":false}]");
+              "[{\"space\":\"legacy\",\"latestCapturedAt\":null,\"staleHours\":null,\"stale\":false,"
+                  + "\"embeddingGeneration\":{\"stored\":null,\"configured\":\""
+                  + QueryScenario.CONFIGURED_GENERATION.value()
+                  + "\"}}]");
     }
 
     @Test
@@ -113,6 +118,36 @@ class StatusOverviewTest {
 
       // then
       assertThat(problems).containsExactly(WARN_LINE);
+    }
+  }
+
+  @Nested
+  @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+  @DisplayName("공간에 설정과 다른 임베딩 세대가 저장되어 있을 때 status를 실행하면")
+  class WithStoredGeneration {
+    static final String STORED = "gemini:gemini-embedding-001:768:title+aliases+content";
+    JsonNode overview;
+
+    @BeforeAll
+    void runStatus() {
+      QueryScenario scenario = QueryScenario.replay(QueryScenario.fixture().get("scenario"));
+      scenario.givenStoredGeneration(SpaceId.LEGACY, STORED);
+      overview = QueryScenario.JSON.readTree(scenario.run(List.of("status")).getFirst());
+    }
+
+    @Test
+    @DisplayName("status는 공간별 저장 세대와 설정 세대를 보여 준다")
+    void storedAndConfiguredGeneration() {
+      // then
+      assertThat(
+              QueryScenario.JSON.writeValueAsString(
+                  overview.get("freshness").get(0).get("embeddingGeneration")))
+          .isEqualTo(
+              "{\"stored\":\""
+                  + STORED
+                  + "\",\"configured\":\""
+                  + QueryScenario.CONFIGURED_GENERATION.value()
+                  + "\"}");
     }
   }
 }

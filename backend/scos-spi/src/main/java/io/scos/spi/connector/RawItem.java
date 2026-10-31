@@ -3,9 +3,7 @@ package io.scos.spi.connector;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * 원본 항목 한 건(TS RawSourceItem, F4). 키는 (소스, externalId) — 소스는 저장소 호출의 인자다. metadata는 어댑터 소유 JSON.
- */
+/** 원본 항목 한 건(F4). 키는 (소스, externalId) — 소스는 저장소 호출의 인자다. metadata는 어댑터 소유 JSON. */
 public record RawItem(
     String externalId,
     String resourceType,

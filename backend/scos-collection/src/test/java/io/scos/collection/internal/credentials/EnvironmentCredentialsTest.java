@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** `env:<변수 이름>`(TS EnvironmentCredentialResolver). */
+/** `env:<변수 이름>` 자격 증명. */
 @DisplayName("env: 자격 증명은 환경변수 값이다(TS EnvironmentCredentialResolver)")
 class EnvironmentCredentialsTest {
   static final String TOKEN = "slack-token-value";

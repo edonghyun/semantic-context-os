@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import io.scos.mcp.wire.Wire;
+import io.scos.spi.store.Principal;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -25,11 +26,11 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * 질의 로그(TS mcp-server `SCOS_QUERY_LOG`, JsonlQueryLogWriter): 검색 한 번에 JSONL 한 줄 `{ts, query,
- * topDocumentIds(≤5), topScore}`. 기대 줄은 TS SearchToolHandler가 같은 응답에서 쓴
- * 것이다(harness/fixtures/ops/expected-query-log.json) — 키 순서·수 표기·문자열 이스케이프까지 바이트 동등. 쓰기 실패는 검색을 막지
- * 않는다.
+ * topDocumentIds(≤5), topScore, user}`. 기존 필드는 TS 골든을 유지하고 user만 덧붙인다. 기대 줄은 TS SearchToolHandler가
+ * 같은 응답에서 쓴 것이다(harness/fixtures/ops/expected-query-log.json) — 키 순서·수 표기·문자열 이스케이프까지 바이트 동등. 쓰기
+ * 실패는 검색을 막지 않는다.
  */
-@DisplayName("질의 로그는 검색마다 TS와 같은 JSONL 한 줄을 덧붙인다")
+@DisplayName("질의 로그는 기존 TS 필드 뒤에 요청자를 기록한다(B10)")
 class QueryLogTest {
   static final ObjectMapper JSON = new ObjectMapper();
   static final Path FIXTURES =
@@ -73,7 +74,7 @@ class QueryLogTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("cases")
-  @DisplayName("검색 한 번을 TS와 바이트 단위로 같은 JSONL 한 줄로 쓴다")
+  @DisplayName("기존 TS 필드 뒤에 단일 사용자 id를 덧붙인 JSONL 한 줄로 쓴다")
   void writesTsLine(
       String label, String query, List<Wire.SearchHit> hits, String line, @TempDir Path dir)
       throws IOException {
@@ -81,10 +82,11 @@ class QueryLogTest {
     Path file = dir.resolve("queries.jsonl");
 
     // when
-    new JsonlQueryLog(file, Clock.fixed(NOW, ZoneOffset.UTC)).append(query, hits);
+    new JsonlQueryLog(file, Clock.fixed(NOW, ZoneOffset.UTC))
+        .append(Principal.singleUser(), query, hits);
 
     // then
-    assertThat(Files.readString(file)).isEqualTo(line);
+    assertThat(Files.readString(file)).isEqualTo(line.replace("}\n", ",\"user\":\"local\"}\n"));
   }
 
   @Test
@@ -95,11 +97,32 @@ class QueryLogTest {
     JsonlQueryLog log = new JsonlQueryLog(file, Clock.fixed(NOW, ZoneOffset.UTC));
 
     // when
-    log.append("첫 질의", List.of());
-    log.append("둘째 질의", List.of());
+    log.append(Principal.singleUser(), "첫 질의", List.of());
+    log.append(Principal.singleUser(), "둘째 질의", List.of());
 
     // then
     assertThat(Files.readAllLines(file)).hasSize(2);
+  }
+
+  @Test
+  @DisplayName("mapQuery는 질의만 바꾸고 요청자와 hits를 보존한다")
+  void mapQueryTransformsOnlyQuery(@TempDir Path dir) throws IOException {
+    // given
+    Path file = dir.resolve("queries.jsonl");
+    QueryLog log =
+        new JsonlQueryLog(file, Clock.fixed(NOW, ZoneOffset.UTC))
+            .mapQuery(q -> q.replace("secret", "[REDACTED]"));
+    var hit = new Wire.SearchHit("t", "c", "slack", "doc-1", "", 0.5);
+
+    // when
+    log.append(new Principal("alice"), "secret query", List.of(hit));
+
+    // then
+    assertThat(Files.readString(file))
+        .contains("\"query\":\"[REDACTED] query\"")
+        .contains("\"topDocumentIds\":[\"doc-1\"]")
+        .endsWith(",\"user\":\"alice\"}\n")
+        .doesNotContain("secret query");
   }
 
   @Test
@@ -110,6 +133,22 @@ class QueryLogTest {
     JsonlQueryLog log = new JsonlQueryLog(notAFile, Clock.fixed(NOW, ZoneOffset.UTC));
 
     // when·then
-    assertThatCode(() -> log.append("질의", List.of())).doesNotThrowAnyException();
+    assertThatCode(() -> log.append(Principal.singleUser(), "질의", List.of()))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("검색 로그는 전송 문맥의 요청자 id를 마지막 필드에 싣는다")
+  void logsTransportPrincipal(@TempDir Path dir) throws IOException {
+    // given
+    Path file = dir.resolve("queries.jsonl");
+    var scenario =
+        new McpPrincipalScenario(new JsonlQueryLog(file, Clock.fixed(NOW, ZoneOffset.UTC)));
+
+    // when
+    scenario.stateless("search_context", new Principal("alice"));
+
+    // then
+    assertThat(Files.readString(file)).endsWith(",\"user\":\"alice\"}\n");
   }
 }

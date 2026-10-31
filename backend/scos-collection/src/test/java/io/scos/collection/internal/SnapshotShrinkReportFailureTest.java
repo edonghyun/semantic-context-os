@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.collection.internal.memory.MemoryCheckpointPort;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
@@ -58,12 +59,14 @@ class SnapshotShrinkReportFailureTest {
   final LogCapture log = LogCapture.of(RunCompletion.class);
   final RunCompletion completion =
       new RunCompletion(
-          TransactionOperations.withoutTransaction(),
-          claims,
-          runs,
-          rawItems,
-          new MemoryOutboxPort(),
-          new MemorySourceChangeLog(),
+          new CollectionStores(
+              TransactionOperations.withoutTransaction(),
+              claims,
+              runs,
+              rawItems,
+              new MemoryCheckpointPort(),
+              new MemoryOutboxPort(),
+              new MemorySourceChangeLog()),
           new SnapshotShrinkGuard(
               new MemorySourceInstanceStore(),
               new MemorySnapshotGuardStore(),
@@ -95,12 +98,9 @@ class SnapshotShrinkReportFailureTest {
                       new RunCompletion.Input(
                           claim,
                           RUN,
-                          RunStatus.SUCCEEDED,
+                          RunOutcome.succeeded(0),
                           CollectionCoverage.COMPLETE_SNAPSHOT,
-                          NOW,
-                          0,
-                          Optional.empty(),
-                          Optional.empty())));
+                          NOW)));
     }
 
     @Test

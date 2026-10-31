@@ -8,15 +8,12 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
-import io.scos.collection.internal.memory.MemorySnapshotGuardStore;
 import io.scos.collection.internal.memory.MemorySourceChangeLog;
-import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.SourceInstanceId;
-import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -27,7 +24,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * F5·불변식 6의 판단 로직을 메모리 포트로: 삭제(reconcile)는 succeeded + complete_snapshot일 때만, 점유 검사는 succeeded일 때만,
@@ -40,24 +36,13 @@ class RunCompletionTest {
   static final Duration TTL = Duration.ofSeconds(30);
 
   MutableClock clock = new MutableClock(Instant.parse("2026-10-14T00:00:00Z"));
-  MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
-  MemoryRunStore runs = new MemoryRunStore();
-  MemoryRawItemStore rawItems = new MemoryRawItemStore();
-  MemoryOutboxPort outbox = new MemoryOutboxPort();
-  MemorySourceChangeLog changes = new MemorySourceChangeLog();
-  RunCompletion completion =
-      new RunCompletion(
-          TransactionOperations.withoutTransaction(),
-          claims,
-          runs,
-          rawItems,
-          outbox,
-          changes,
-          new SnapshotShrinkGuard(
-              new MemorySourceInstanceStore(),
-              new MemorySnapshotGuardStore(),
-              SnapshotShrinkLimits.DEFAULTS,
-              TestMetrics.collection()));
+  CommitContext.Memory ports = CommitContext.Memory.create();
+  MemoryWorkClaimPort claims = ports.claims();
+  MemoryRunStore runs = ports.runs();
+  MemoryRawItemStore rawItems = ports.rawItems();
+  MemoryOutboxPort outbox = ports.outbox();
+  MemorySourceChangeLog changes = ports.changes();
+  RunCompletion completion = new CommitContext(ports.ports(), clock).completion();
   WorkClaim claim;
 
   /** 원본 a·b·c가 있고 이번 run은 a만 관측했다. */
@@ -83,21 +68,17 @@ class RunCompletionTest {
       CANCELLED, COMPLETE_SNAPSHOT
       """;
 
-  RunCompletion.Input failed(Optional<String> errorKind, Optional<String> errorSummary) {
+  RunCompletion.Input failed(String errorKind, String errorSummary) {
     return new RunCompletion.Input(
         claim,
         RUN,
-        RunStatus.FAILED,
+        RunOutcome.failed(RunStatus.FAILED, errorKind, errorSummary),
         CollectionCoverage.INCREMENTAL,
-        clock.instant(),
-        1,
-        errorKind,
-        errorSummary);
+        clock.instant());
   }
 
   RunCompletion.Input input(RunStatus status, CollectionCoverage coverage) {
-    return new RunCompletion.Input(
-        claim, RUN, status, coverage, clock.instant(), 0, Optional.empty(), Optional.empty());
+    return new RunCompletion.Input(claim, RUN, RunOutcome.clean(status), coverage, clock.instant());
   }
 
   /** 이번 run을 succeeded + complete_snapshot으로 완료한다. */
@@ -129,34 +110,6 @@ class RunCompletionTest {
     assertThatThrownBy(
             () -> completion.complete(input(RunStatus.FAILED, CollectionCoverage.INCREMENTAL)))
         .isInstanceOf(RunStateException.class);
-  }
-
-  @Test
-  @DisplayName("오류 요약은 500자로 잘린다")
-  void truncatesErrorSummary() {
-    // when
-    RunCompletion.Input in = failed(Optional.of("x"), Optional.of("e".repeat(600)));
-
-    // then
-    assertThat(in.errorSummary().orElseThrow()).hasSize(500);
-  }
-
-  @Test
-  @DisplayName("running 상태로는 완료할 수 없다")
-  void rejectsRunningStatus() {
-    // when·then
-    assertThatThrownBy(
-            () ->
-                new RunCompletion.Input(
-                    claim,
-                    RUN,
-                    RunStatus.RUNNING,
-                    CollectionCoverage.INCREMENTAL,
-                    clock.instant(),
-                    0,
-                    null,
-                    null))
-        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -287,12 +240,9 @@ class RunCompletionTest {
               new RunCompletion.Input(
                   next,
                   RESUMED,
-                  RunStatus.SUCCEEDED,
+                  RunOutcome.succeeded(0),
                   CollectionCoverage.COMPLETE_SNAPSHOT,
-                  clock.instant(),
-                  0,
-                  Optional.empty(),
-                  Optional.empty()));
+                  clock.instant()));
     }
 
     @Test
@@ -332,12 +282,9 @@ class RunCompletionTest {
               new RunCompletion.Input(
                   claim,
                   EMPTY,
-                  RunStatus.SUCCEEDED,
+                  RunOutcome.succeeded(0),
                   CollectionCoverage.COMPLETE_SNAPSHOT,
-                  clock.instant(),
-                  0,
-                  Optional.empty(),
-                  Optional.empty()));
+                  clock.instant()));
     }
 
     @Test
@@ -447,11 +394,24 @@ class RunCompletionTest {
     }
   }
 
+  @Test
+  @DisplayName("오류 종류 없이 끝난 비성공 완료는 errorKind를 null로 남긴다(F10)")
+  void incompleteWithoutKindRecordsNullKind() {
+    // when
+    completion.complete(input(RunStatus.CANCELLED, CollectionCoverage.INCREMENTAL));
+
+    // then
+    assertThat(changes.all())
+        .singleElement()
+        .extracting(SourceChangeLog.Change::metadataJson)
+        .isEqualTo(Optional.of("{\"status\":\"cancelled\",\"errorKind\":null}"));
+  }
+
   @Nested
   @DisplayName("failed로 완료하면(F10)")
   class IncompleteChange {
     void completeFailed() {
-      completion.complete(failed(Optional.of("storage_failed"), Optional.of("lock")));
+      completion.complete(failed("storage_failed", "lock"));
     }
 
     /** 변경 로그의 유일한 변경. 한 건이 아니면 given 준비 실패로 멈춘다(건수는 appendsCollectionIncomplete의 몫). */

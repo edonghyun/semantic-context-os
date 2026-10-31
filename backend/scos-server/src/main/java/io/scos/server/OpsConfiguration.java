@@ -1,5 +1,6 @@
 package io.scos.server;
 
+import io.scos.boot.AccessProperties;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.Maintenance;
 import io.scos.collection.internal.SnapshotShrinkGuard;
@@ -9,9 +10,14 @@ import io.scos.collection.internal.SourceQueries;
 import io.scos.collection.internal.SourceRegistrar;
 import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.collection.internal.projection.ProjectionSpaces;
+import io.scos.engine.EmbeddingGenerationCheck;
+import io.scos.engine.internal.projection.SpaceReembedding;
 import io.scos.engine.internal.projection.UnitImporter;
 import io.scos.engine.internal.search.FreshnessReader;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.access.AclStore;
+import io.scos.spi.embedding.Embedder;
+import io.scos.spi.store.SpaceMeta;
+import io.scos.spi.store.UnitMaintenance;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Clock;
 import javax.sql.DataSource;
@@ -31,8 +37,10 @@ public class OpsConfiguration {
   @Validated
   @ConfigurationProperties("scos.database")
   public record DatabaseProperties(
-      @DefaultValue("17.11") @NotBlank String expectedServerVersion,
-      @DefaultValue("0.8.7") @NotBlank String expectedVectorVersion) {}
+      @DefaultValue(DatabaseVersionCheck.Expected.DEFAULT_SERVER) @NotBlank
+          String expectedServerVersion,
+      @DefaultValue(DatabaseVersionCheck.Expected.DEFAULT_VECTOR) @NotBlank
+          String expectedVectorVersion) {}
 
   /** 모든 명령(mcp·daemon 포함)이 Flyway 뒤, 명령 실행 전에 DB 버전을 확인한다 — 다르면 기동 거부(종료 코드 1). */
   @Bean
@@ -46,8 +54,9 @@ public class OpsConfiguration {
   }
 
   @Bean
-  UnitJsonImport unitJsonImport(UnitImporter importer, ObjectMapper mapper) {
-    return new UnitJsonImport(importer, mapper);
+  UnitJsonImport unitJsonImport(
+      UnitImporter importer, ObjectMapper mapper, AccessProperties access, AclStore acls) {
+    return new UnitJsonImport(importer, mapper, access, acls);
   }
 
   @Bean
@@ -58,6 +67,7 @@ public class OpsConfiguration {
       SourceInstanceStore sources,
       ProjectionRun projection,
       Maintenance maintenance,
+      SpaceReembedding reembedding,
       ObjectMapper json,
       QueryCommands queries,
       SnapshotShrinkGuard shrinkGuard,
@@ -70,11 +80,13 @@ public class OpsConfiguration {
         sources,
         projection,
         maintenance,
+        reembedding,
         json,
         queries,
         shrinkGuard,
         adapters,
-        clock);
+        clock,
+        CommandOutput.stderr());
   }
 
   /** 운영 조회 명령: 결과는 stdout(CommandOutput), 최신성은 투영 공간마다. */
@@ -82,8 +94,10 @@ public class OpsConfiguration {
   QueryCommands queryCommands(
       SourceQueries queries,
       SourceAdapters adapters,
-      UnitStore units,
+      UnitMaintenance units,
       ProjectionSpaces spaces,
+      SpaceMeta meta,
+      Embedder embedder,
       Clock clock,
       ObjectMapper json) {
     return new QueryCommands(
@@ -91,6 +105,8 @@ public class OpsConfiguration {
         adapters,
         new FreshnessReader(units, clock),
         spaces.spaces(),
+        meta,
+        EmbeddingGenerationCheck.generationOf(embedder),
         clock,
         new SourceQueryJson(json),
         CommandOutput.stdout());

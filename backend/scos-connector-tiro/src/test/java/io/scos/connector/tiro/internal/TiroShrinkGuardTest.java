@@ -17,7 +17,7 @@ import io.scos.collection.internal.memory.MemorySnapshotGuardStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.connector.tiro.TiroAssembly;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import java.time.Instant;

@@ -3,6 +3,8 @@ plugins {
     id("scos.java-module")
 }
 
+scosNullAway { enabled = true }
+
 dependencies {
     implementation(project(":scos-spi"))
     implementation("org.springframework:spring-tx")
@@ -22,6 +24,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(project(":scos-store-memory"))
+    testImplementation(testFixtures(project(":scos-store-memory")))
     testImplementation(testFixtures(project(":scos-store-postgres")))
     testImplementation(testFixtures(project(":scos-collection")))
     testImplementation(project(":scos-connector-slack"))

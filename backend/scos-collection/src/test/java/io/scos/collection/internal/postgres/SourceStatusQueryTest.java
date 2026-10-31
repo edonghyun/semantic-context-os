@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.SourceQueries;
@@ -41,12 +42,11 @@ class SourceStatusQueryTest {
         .runs()
         .finish(
             new RunId(id),
-            status,
+            status.isSuccess()
+                ? RunOutcome.clean(status)
+                : RunOutcome.failed(status, "dependency_unavailable", "down"),
             CollectionCoverage.INCREMENTAL,
             at.plusSeconds(1),
-            status.isSuccess() ? 0 : 1,
-            status.isSuccess() ? Optional.empty() : Optional.of("dependency_unavailable"),
-            status.isSuccess() ? Optional.empty() : Optional.of("down"),
             0);
   }
 
@@ -120,6 +120,50 @@ class SourceStatusQueryTest {
     void recentRunsLimited() {
       // then
       assertThat(newestTwoRuns).containsExactly("r4", "r3");
+    }
+  }
+
+  /** run id "B"·"a"는 코드 유닛 순(COLLATE "C")과 로캘 순(en_US)에서 앞뒤가 바뀐다. */
+  @Nested
+  @TestInstance(PER_CLASS)
+  @DisplayName("같은 시각에 시작한 두 run이 있으면")
+  class RunsStartedAtTheSameInstant {
+    PostgresCollectionConfiguration.Adapters adapters;
+    SourceQueries.SourceStatus status;
+
+    @BeforeAll
+    void runs() {
+      PostgresSupport.truncateAll();
+      adapters = PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource());
+      adapters.sources().save(SourceInstances.noop(SOURCE, T0));
+      finished(adapters, "B", T0, RunStatus.FAILED);
+      finished(adapters, "a", T0, RunStatus.SUCCEEDED);
+      status =
+          adapters
+              .queries()
+              .status(SOURCE, T0.plus(STEP))
+              .orElseThrow(() -> new IllegalStateException("given 준비 실패: 소스 상태가 없다"));
+    }
+
+    @Test
+    @DisplayName("감독이 보는 최신 run과 source status의 마지막 run이 같다")
+    void supervisorLatestIsStatusLastRun() {
+      // when
+      var latest = adapters.runs().latest(SOURCE);
+
+      // then
+      assertThat(latest.map(run -> run.status()))
+          .isEqualTo(status.lastRun().map(SourceQueries.LastRun::status));
+    }
+
+    @Test
+    @DisplayName("감독이 세는 최근 실패 수와 source status의 것이 같다")
+    void supervisorFailureCountIsStatusCount() {
+      // when
+      int failures = adapters.runs().recentFailureCount(SOURCE);
+
+      // then
+      assertThat(failures).isEqualTo(status.recentFailureCount());
     }
   }
 }

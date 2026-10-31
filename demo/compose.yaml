@@ -6,10 +6,11 @@ x-scos-env: &scos-env
   SCOS_DB_URL: jdbc:postgresql://db:5432/scos
   SCOS_DB_USER: scos
   SCOS_DB_PASSWORD: scos
-  # The server only speaks the Gemini embedding API today. The demo points it at the local hashing embedder;
-  # the key is a placeholder that never leaves the compose network.
-  SCOS_GEMINI_BASE_URL: http://embedder:8000
-  GEMINI_API_KEY: demo-placeholder-not-a-key
+  # The local hashing embedder speaks the OpenAI-compatible embeddings API; no key is needed.
+  SCOS_EMBEDDER_PROVIDER: openai-compatible
+  SCOS_EMBEDDER_BASE_URL: http://embedder:8000/v1
+  SCOS_EMBEDDER_MODEL: scos-demo-hashing
+  SCOS_EMBEDDER_DIM: "768"
   SCOS_RERANK_PROVIDER: none
   SCOS_SPACE_ID: demo
 
@@ -44,7 +45,7 @@ services:
   corpus:
     image: python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
     profiles: [tools]
-    command: ["python", "/embedder/embed_units.py", "http://embedder:8000", "/corpus/units.json", "/work/units.embedded.json"]
+    command: ["python", "/embedder/embed_units.py", "http://embedder:8000/v1", "/corpus/units.json", "/work/units.embedded.json"]
     volumes:
       - ./embedder:/embedder:ro
       - ./corpus:/corpus:ro

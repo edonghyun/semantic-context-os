@@ -1,6 +1,6 @@
 package io.scos.collection.internal.memory;
 
-import io.scos.collection.internal.MutationRules;
+import io.scos.collection.internal.MutationDecision;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawRecord;
 import io.scos.spi.connector.RawContent;
@@ -30,25 +30,25 @@ public final class MemoryRawItemStore implements RawItemStore {
   public synchronized Outcome apply(SourceInstanceId source, RawMutation mutation) {
     NavigableMap<String, RawRecord> map = records(source);
     Optional<RawRecord> existing = Optional.ofNullable(map.get(mutation.externalId()));
-    return switch (mutation) {
-      case RawMutation.Upsert u -> {
-        if (MutationRules.isStale(existing, u.item().sourceOrder())) yield Outcome.UNCHANGED;
-        if (existing.orElse(null) instanceof RawRecord.Active a
-            && a.item().sourceVersion().equals(u.item().sourceVersion())) yield Outcome.UNCHANGED;
-        RawItem item = u.item();
-        if (item.content().orElse(null) instanceof RawContent.Blob b && b.data().isPresent()) {
-          blobs.putIfAbsent(b.sha256(), b.data().get());
-          item = item.withContent(b.stored());
-        }
+    MutationDecision decision = MutationDecision.of(existing, mutation);
+    switch (decision) {
+      case MutationDecision.Unchanged unchanged -> {}
+      case MutationDecision.WriteActive write -> {
+        RawItem item = withStoredBlob(write.item());
         map.put(item.externalId(), new RawRecord.Active(item));
-        yield Outcome.UPSERTED;
       }
-      case RawMutation.Delete d -> {
-        if (MutationRules.isStale(existing, d.sourceOrder())) yield Outcome.UNCHANGED;
-        map.put(d.externalId(), MutationRules.tombstone(existing, d));
-        yield Outcome.DELETED;
-      }
-    };
+      case MutationDecision.WriteTombstone write ->
+          map.put(write.tombstone().externalId(), write.tombstone());
+    }
+    return decision.outcome();
+  }
+
+  /** blob 바이트는 따로 두고 항목에는 저장된 참조만 남긴다. */
+  private RawItem withStoredBlob(RawItem item) {
+    if (!(item.content().orElse(null) instanceof RawContent.Blob b) || b.data().isEmpty())
+      return item;
+    blobs.putIfAbsent(b.sha256(), b.data().get());
+    return item.withContent(b.stored());
   }
 
   @Override
@@ -110,6 +110,27 @@ public final class MemoryRawItemStore implements RawItemStore {
       n.add(e.getKey());
     }
     return n;
+  }
+
+  @Override
+  public synchronized List<String> tombstoneSelected(
+      SourceInstanceId source, Set<String> ids, Instant at) {
+    List<String> removed = new ArrayList<>();
+    for (String id : ids) {
+      if (!(records(source).get(id) instanceof RawRecord.Active active)) continue;
+      records(source)
+          .put(
+              id,
+              new RawRecord.Deleted(
+                  id,
+                  Optional.of(active.item().resourceType()),
+                  Optional.of(active.item().sourceVersion()),
+                  Optional.empty(),
+                  at,
+                  at));
+      removed.add(id);
+    }
+    return List.copyOf(removed);
   }
 
   @Override

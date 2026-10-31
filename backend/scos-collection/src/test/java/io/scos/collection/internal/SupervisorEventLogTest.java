@@ -12,8 +12,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 감독의 운영 이벤트 로그(TS source-supervisor.ts — 데몬 JSON 로그): 스냅샷 모드로 시도하는 소스는 info
- * `collection.run.snapshot`, run이 되기 전에 실패한 소스는 error `supervisor.source.error`(detail.message)다.
+ * 감독의 운영 이벤트 로그(데몬 JSON 로그): 스냅샷 모드로 시도하는 소스는 info `collection.run.snapshot`, run이 되기 전에 실패한 소스는
+ * error `supervisor.source.error`(detail.message)다.
  */
 @DisplayName("감독의 운영 이벤트 로그 — 스냅샷 시도는 info, run 전 실패는 error(TS)")
 // 제품 클래스의 공용 로거에 appender를 단다 — 같은 JVM의 다른 테스트가 남긴 줄이 섞이지 않게 혼자 돈다(TESTING §6.3)

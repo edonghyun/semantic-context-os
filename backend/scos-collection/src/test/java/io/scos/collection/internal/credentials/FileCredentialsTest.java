@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** `file:<경로>`(TS FileCredentialResolver): 앞뒤 공백을 떼고, 실패 오류에 내용을 싣지 않는다. */
+/** `file:<경로>`:앞뒤 공백을 떼고, 실패 오류에 내용을 싣지 않는다. */
 @Tag("process")
 @DisplayName("file: 자격 증명은 파일 내용이고, 실패에 내용을 싣지 않는다(TS)")
 class FileCredentialsTest {

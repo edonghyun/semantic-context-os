@@ -1,12 +1,14 @@
 package io.scos.engine.support.text;
 
+import io.scos.engine.support.PureFunctions;
 import java.util.stream.IntStream;
 
 /**
- * WHATWG Encoding Standard의 UTF-8 디코드(TS `new TextDecoder().decode(bytes)`와 같다): 앞 BOM 하나를 떼고, 잘못된
+ * WHATWG Encoding Standard의 UTF-8 디코드(JS `new TextDecoder().decode(bytes)`와 같다): 앞 BOM 하나를 떼고, 잘못된
  * 시퀀스는 "가장 긴 유효 부분" 규칙으로 U+FFFD 하나씩 바꾼다. Java `new String(bytes, UTF_8)`은 대체 문자 수가 다르다 — 예: UTF-8로
- * 쓴 서로게이트 `ED A0 80`은 WHATWG에서 U+FFFD 셋, Java에서 하나다. 원본 본문을 TS와 같은 문자열로 읽어야 할 때(해시·저장 값) 쓴다.
+ * 쓴 서로게이트 `ED A0 80`은 WHATWG에서 U+FFFD 셋, Java에서 하나다. 원본 본문을 WHATWG 규칙의 문자열로 읽어야 할 때(해시·저장 값) 쓴다.
  */
+@PureFunctions
 public final class Utf8 {
   private static final int REPLACEMENT = 0xFFFD;
   private static final int BOM_LENGTH = 3;

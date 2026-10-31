@@ -4,14 +4,18 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
 import io.scos.collection.internal.OutboxPort;
+import io.scos.collection.internal.OutboxPort.Summary;
 import io.scos.engine.Freshness;
 import io.scos.engine.internal.search.FreshnessReader;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.SpaceId;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 데몬 게이지(ADR-0009·ADR-0020 §3) — 값은 지표를 읽을 때마다(Actuator 요청) 포트에서 다시 읽는다. 운영 신호: 투영 요청
@@ -30,8 +34,8 @@ public final class DaemonGauges implements MeterBinder {
   private final FreshnessReader freshness;
   private final Set<SpaceId> spaces;
   private final Clock clock;
-  private OutboxPort.Summary summary;
-  private Instant summaryReadAt;
+  private @Nullable Summary summary;
+  private @Nullable Instant summaryReadAt;
 
   public DaemonGauges(
       OutboxPort outbox, FreshnessReader freshness, Set<SpaceId> spaces, Clock clock) {
@@ -44,7 +48,9 @@ public final class DaemonGauges implements MeterBinder {
   /** 최근 SUMMARY_REUSE 안에 읽은 요약이 있으면 그것을, 아니면 새로 읽는다. */
   synchronized OutboxPort.Summary summary() {
     Instant now = clock.instant();
-    if (summary == null || !now.isBefore(summaryReadAt.plus(SUMMARY_REUSE))) {
+    // summaryReadAt은 summary와 함께 정해진다 — requireNonNull은 실패하지 않는다
+    if (summary == null
+        || !now.isBefore(Objects.requireNonNull(summaryReadAt).plus(SUMMARY_REUSE))) {
       summary = outbox.summary();
       summaryReadAt = now;
     }
@@ -72,7 +78,7 @@ public final class DaemonGauges implements MeterBinder {
 
   private double oldestDataHours() {
     return spaces.stream()
-        .map(freshness::read)
+        .map(space -> freshness.read(AccessScope.singleUser(), space))
         .map(Freshness::staleHours)
         .flatMap(Optional::stream)
         .mapToDouble(Double::doubleValue)

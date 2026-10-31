@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
  *   <li>기록 — 모든 요청({@link #received()}, 헤더 포함).
  *   <li>메서드·경로 — 미등록이면 404(같은 경로에 다른 메서드가 있으면 405)로 답하고 미등록으로 기록한다. {@link #assertNoUnmatched()}를
  *       테스트 종료 시 부른다. 잘못된 요청이 인증 실패·장애 각본 응답에 가려지지 않게 맨 먼저 본다.
+ *   <li>요청 상한 — {@link #limitRequests}를 걸었으면 넘은 요청은 그 응답으로 답하고 검사 실패로 남긴다.
  *   <li>인증 — {@link #requireHeader}의 헤더가 다르면 거절 응답. 라우트별로 걸거나({@link #requireHeader(String, String,
  *       String, String, Response)}) 뺄 수 있다({@link #withoutHeaderCheck} — 토큰 끝점).
  *   <li>장애 각본 — {@link #failNext}의 경로 접두에 남은 횟수가 있으면 그 응답.
@@ -129,6 +130,8 @@ public final class FakeHttpServer implements AutoCloseable {
 
   private record Gate(String pathContains, CountDownLatch latch, Consumer<String> onArrive) {}
 
+  private record RequestLimit(int max, Response over) {}
+
   private static final Pattern AMPERSAND = Pattern.compile("&");
 
   private final HttpServer server;
@@ -142,6 +145,8 @@ public final class FakeHttpServer implements AutoCloseable {
   private volatile RequiredHeader requiredHeader;
   private final AtomicReference<Gate> gate = new AtomicReference<>();
   private volatile InFlightHold inFlightHold;
+  private volatile RequestLimit requestLimit;
+  private final AtomicInteger routed = new AtomicInteger();
 
   public FakeHttpServer() throws IOException {
     server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
@@ -157,7 +162,7 @@ public final class FakeHttpServer implements AutoCloseable {
 
   /** 메서드 + 경로(쿼리 제외)에 응답을 등록한다. 같은 키는 덮어쓴다. */
   public void on(String method, String path, Function<Recorded, Response> handler) {
-    routes.put(method + " " + path, handler);
+    routes.put(routeKey(method, path), handler);
   }
 
   /** 등록된 요청의 이 헤더가 value가 아니면(없어도) rejected로 답한다 — 라우트별 설정이 없는 모든 라우트. */
@@ -168,12 +173,13 @@ public final class FakeHttpServer implements AutoCloseable {
   /** 이 라우트만 이 헤더를 요구한다(기본 검사 대신). */
   public void requireHeader(
       String method, String path, String name, String value, Response rejected) {
-    routeHeaders.put(method + " " + path, Optional.of(new RequiredHeader(name, value, rejected)));
+    routeHeaders.put(
+        routeKey(method, path), Optional.of(new RequiredHeader(name, value, rejected)));
   }
 
   /** 이 라우트는 헤더를 검사하지 않는다 — 인증 전에 부르는 토큰 끝점 등. */
   public void withoutHeaderCheck(String method, String path) {
-    routeHeaders.put(method + " " + path, Optional.empty());
+    routeHeaders.put(routeKey(method, path), Optional.empty());
   }
 
   /** 경로 접두(예: "/api/conversations.history")의 다음 count번 요청에 response로 답한다. 먼저 건 각본부터 본다. */
@@ -229,6 +235,14 @@ public final class FakeHttpServer implements AutoCloseable {
     }
   }
 
+  /**
+   * 등록된 라우트가 답하는 요청 수 상한. 넘은 요청은 over로 답하고 검사 실패로 남긴다 — 끝나지 않는 페이지 순회(결함·변이)가 테스트 시간 상한이 아니라 비재시도
+   * 오류와 단언으로 드러나게(MUTATION.md). over는 공급자가 재시도하지 않는 응답이어야 한다.
+   */
+  public void limitRequests(int max, Response over) {
+    requestLimit = new RequestLimit(max, over);
+  }
+
   /** 걸어 둔 게이트를 걷는다(이미 붙잡힌 요청은 그 래치로 풀린다). */
   public void clearGate() {
     gate.set(null);
@@ -250,25 +264,45 @@ public final class FakeHttpServer implements AutoCloseable {
     respond(ex, answer(recorded));
   }
 
+  /** 라우트 찾기 → 헤더 검사 → 실패 각본 → 게이트 → 동시 수 측정 안에서 처리기. */
   private Response answer(Recorded recorded) {
-    Function<Recorded, Response> route = routes.get(recorded.method() + " " + recorded.path());
-    if (route == null) {
-      unmatched.add(recorded.method() + " " + recorded.path());
-      return pathHasOtherMethod(recorded.path())
-          ? status(405, "method not allowed: " + recorded.method() + " " + recorded.path())
-          : status(404, "no route: " + recorded.method() + " " + recorded.path());
+    String key = routeKey(recorded.method(), recorded.path());
+    Function<Recorded, Response> route = routes.get(key);
+    if (route == null) return unrouted(key, recorded.path());
+    RequestLimit limit = requestLimit;
+    if (limit != null && routed.incrementAndGet() > limit.max()) {
+      handlerFailures.add("요청 상한 초과: " + key);
+      return limit.over();
     }
-    RequiredHeader required =
-        routeHeaders
-            .getOrDefault(
-                recorded.method() + " " + recorded.path(), Optional.ofNullable(requiredHeader))
-            .orElse(null);
-    if (required != null && !required.value().equals(recorded.header(required.name()))) {
-      return required.rejected();
-    }
+    Optional<Response> rejected = headerRejection(key, recorded);
+    if (rejected.isPresent()) return rejected.get();
     Response fault = takeFault(recorded.path());
     if (fault != null) return fault;
     holdAtGate(recorded.pathAndQuery());
+    return served(key, route, recorded);
+  }
+
+  private static String routeKey(String method, String path) {
+    return method + " " + path;
+  }
+
+  /** 미등록: 기록하고, 경로가 다른 메서드로는 있으면 405, 아니면 404. */
+  private Response unrouted(String key, String path) {
+    unmatched.add(key);
+    return pathHasOtherMethod(path)
+        ? status(405, "method not allowed: " + key)
+        : status(404, "no route: " + key);
+  }
+
+  /** 라우트별 설정(없으면 기본 검사)의 헤더가 맞지 않으면 그 거부 응답. */
+  private Optional<Response> headerRejection(String key, Recorded recorded) {
+    return routeHeaders
+        .getOrDefault(key, Optional.ofNullable(requiredHeader))
+        .filter(required -> !required.value().equals(recorded.header(required.name())))
+        .map(RequiredHeader::rejected);
+  }
+
+  private Response served(String key, Function<Recorded, Response> route, Recorded recorded) {
     InFlightHold h = inFlightHold;
     boolean held = h != null && recorded.path().startsWith(h.pathPrefix);
     if (held) h.arrive();
@@ -276,7 +310,7 @@ public final class FakeHttpServer implements AutoCloseable {
       return route.apply(recorded);
     } catch (RuntimeException e) {
       // 처리기가 던지면 연결이 끊겨 클라이언트에는 재시도할 전송 오류로 보인다 — 500으로 답하고 검사에서 실패시킨다
-      handlerFailures.add(recorded.method() + " " + recorded.path() + ": " + e);
+      handlerFailures.add(key + ": " + e);
       return status(500, "route handler failed");
     } finally {
       if (held) h.leave();

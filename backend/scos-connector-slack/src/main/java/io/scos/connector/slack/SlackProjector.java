@@ -1,11 +1,11 @@
 package io.scos.connector.slack;
 
 import io.scos.connector.slack.internal.SlackMrkdwnCleaner;
+import io.scos.connector.slack.internal.SlackTs;
 import io.scos.engine.support.text.Text;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -15,20 +15,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Slack 원본 항목 → 스레드/일별 문서(TS source-projector/src/slack-projector.ts, G2). 문서 id
- * `channel/thread-<ts>` 또는 `channel/day-<UTC>`, 본문은 ts 순 `[HH:MM] author: cleaned`(빈 본문 제외, 전부 비면
- * empty), 제목은 첫 유의미 줄 80자(UTF-16) 또는 `#channel …`. 항목 순서를 섞어도 결과 동일.
+ * Slack 원본 항목 → 스레드/일별 문서(G2). 문서 id `channel/thread-<ts>` 또는 `channel/day-<UTC>`, 본문은 ts 순
+ * `[HH:MM] author: cleaned`(빈 본문 제외, 전부 비면 empty), 제목은 첫 유의미 줄 80자(UTF-16) 또는 `#channel …`. 항목 순서를
+ * 섞어도 결과 동일.
  */
 public final class SlackProjector implements Projector {
   public static final String KIND = "slack";
   static final String RESOURCE_TYPE = "slack.message";
-  private static final Pattern TS = Pattern.compile("^(\\d{1,20})\\.(\\d{1,6})$");
   private static final Pattern NEWLINE = Pattern.compile("\n");
   private static final Pattern WS_RUN = Pattern.compile(Text.whitespaceClass() + "+");
   private static final Pattern PUNCT_ONLY = Pattern.compile("^[\\p{P}\\p{S}]+$");
@@ -42,32 +40,17 @@ public final class SlackProjector implements Projector {
     this.json = json;
   }
 
-  static Optional<BigInteger> micros(String value) {
-    Matcher m = TS.matcher(value);
-    if (!m.matches()) return Optional.empty();
-    return Optional.of(
-        new BigInteger(m.group(1))
-            .multiply(BigInteger.valueOf(1_000_000))
-            .add(new BigInteger(pad(m.group(2)))));
-  }
-
-  private static String pad(String fraction) {
-    StringBuilder b = new StringBuilder(fraction);
-    while (b.length() < 6) b.append('0');
-    return b.toString();
-  }
-
   private Optional<String> meta(RawItem item, String field) {
     JsonNode node = json.readTree(item.metadataJson()).path(field);
     return node.isString() ? Optional.of(node.asString()) : Optional.empty();
   }
 
-  private Optional<String> messageTs(RawItem item) {
-    return meta(item, "messageTs").filter(ts -> micros(ts).isPresent());
+  private Optional<SlackTs> messageTs(RawItem item) {
+    return meta(item, "messageTs").flatMap(SlackTs::parse);
   }
 
-  private Optional<String> threadTs(RawItem item) {
-    return meta(item, "threadTs").filter(ts -> micros(ts).isPresent());
+  private Optional<SlackTs> threadTs(RawItem item) {
+    return meta(item, "threadTs").flatMap(SlackTs::parse);
   }
 
   private boolean belongsToSlack(RawItem item) {
@@ -81,7 +64,7 @@ public final class SlackProjector implements Projector {
     return KIND;
   }
 
-  /** documentId 코드 유닛 순(TS는 호출자가 정렬). */
+  /** documentId 코드 유닛 순. */
   @Override
   public Map<String, List<RawItem>> groupIntoDocuments(List<RawItem> items) {
     Map<String, List<RawItem>> groups = new TreeMap<>();
@@ -90,7 +73,7 @@ public final class SlackProjector implements Projector {
       String channelId = meta(item, "channelId").orElseThrow();
       String documentId =
           threadTs(item)
-              .map(t -> channelId + "/thread-" + t)
+              .map(t -> channelId + "/thread-" + t.text())
               .orElseGet(() -> channelId + "/day-" + utcDate(messageTs(item).orElseThrow()));
       groups.computeIfAbsent(documentId, k -> new ArrayList<>()).add(item);
     }
@@ -102,7 +85,7 @@ public final class SlackProjector implements Projector {
       String sourceId, String documentId, List<RawItem> items, ContentReader reader) {
     List<RawItem> ordered =
         items.stream()
-            .sorted(Comparator.comparing(i -> micros(messageTs(i).orElseThrow()).orElseThrow()))
+            .sorted(Comparator.comparing(i -> messageTs(i).orElseThrow(), SlackTs.CHRONOLOGICAL))
             .toList();
     List<String> lines = new ArrayList<>();
     List<String> cleanedTexts = new ArrayList<>();
@@ -127,8 +110,9 @@ public final class SlackProjector implements Projector {
                 + channelId
                 + " "
                 + documentId.substring(documentId.indexOf("/day-") + "/day-".length());
-    List<String> tsList = ordered.stream().map(i -> messageTs(i).orElseThrow()).toList();
-    List<String> versions = ordered.stream().map(RawItem::sourceVersion).toList();
+    List<SlackTs> tsList = ordered.stream().map(i -> messageTs(i).orElseThrow()).toList();
+    List<SlackTs> versions =
+        ordered.stream().map(i -> SlackTs.parse(i.sourceVersion()).orElseThrow()).toList();
     String createdAt = isoSeconds(extreme(tsList, true));
     String updatedAt = isoSeconds(extreme(versions, false));
     return Optional.of(
@@ -166,28 +150,24 @@ public final class SlackProjector implements Projector {
     return "#" + channelId + " thread " + threadTs;
   }
 
-  private static String extreme(List<String> tsList, boolean min) {
-    String best = tsList.get(0);
-    for (String ts : tsList) {
-      int cmp = micros(ts).orElseThrow().compareTo(micros(best).orElseThrow());
+  private static SlackTs extreme(List<SlackTs> tsList, boolean min) {
+    SlackTs best = tsList.get(0);
+    for (SlackTs ts : tsList) {
+      int cmp = SlackTs.CHRONOLOGICAL.compare(ts, best);
       if (min ? cmp < 0 : cmp > 0) best = ts;
     }
     return best;
   }
 
-  private static long seconds(String ts) {
-    return Long.parseLong(ts.substring(0, ts.indexOf('.')));
+  private static String utcDate(SlackTs ts) {
+    return isoSeconds(ts).substring(0, 10);
   }
 
-  private static String utcDate(String ts) {
-    return ISO_MILLIS.format(Instant.ofEpochSecond(seconds(ts))).substring(0, 10);
+  private static String utcHourMinute(SlackTs ts) {
+    return isoSeconds(ts).substring(11, 16);
   }
 
-  private static String utcHourMinute(String ts) {
-    return ISO_MILLIS.format(Instant.ofEpochSecond(seconds(ts))).substring(11, 16);
-  }
-
-  private static String isoSeconds(String ts) {
-    return ISO_MILLIS.format(Instant.ofEpochSecond(seconds(ts)));
+  private static String isoSeconds(SlackTs ts) {
+    return ISO_MILLIS.format(Instant.ofEpochSecond(ts.epochSecond()));
   }
 }

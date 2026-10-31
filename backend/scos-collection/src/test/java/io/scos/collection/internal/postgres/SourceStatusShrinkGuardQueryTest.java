@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.SnapshotGuardStore;
 import io.scos.collection.internal.SourceInstances;
@@ -136,12 +137,9 @@ class SourceStatusShrinkGuardQueryTest {
         .runs()
         .finish(
             new RunId(id),
-            status,
+            new RunOutcome(status, status.isSuccess() ? 0 : 1, errorKind, Optional.empty()),
             CollectionCoverage.COMPLETE_SNAPSHOT,
             startedAt.plusSeconds(1),
-            status.isSuccess() ? 0 : 1,
-            errorKind,
-            Optional.empty(),
             0);
   }
 

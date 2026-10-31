@@ -6,6 +6,8 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
+import io.scos.spi.store.AccessScope;
+import io.scos.spi.store.Principal;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,8 @@ class ArchitectureRulesTest {
   static final ArchRule sharedHasNoSpring =
       noClasses()
           .that()
-          .resideInAnyPackage("io.scos.spi..", "io.scos.engine.support.text..")
+          .resideInAnyPackage(
+              "io.scos.spi..", "io.scos.engine.support.text..", "io.scos.engine.support.logging..")
           .should()
           .dependOnClassesThat()
           .resideInAPackage("org.springframework..");
@@ -49,8 +52,9 @@ class ArchitectureRulesTest {
           .resideInAnyPackage("io.scos.store.postgres..", "io.scos.collection.internal.postgres..");
 
   /**
-   * ADR-0001: stdout·stderr 직접 사용은 mcp 전송(System.in/out을 SDK에 넘기는 곳)과 조회 명령의 결과
-   * 출력(server.CommandOutput, ADR-0024 §3)만 — 로그는 logback(stderr).
+   * ADR-0001: stdout·stderr 직접 사용은 mcp 전송(System.in/out을 SDK에 넘기는 곳 — 단독 클라이언트는 진입점
+   * client.ClientMain)과 조회 명령의 결과 출력(server.CommandOutput, ADR-0024 §3)만 — 로그는
+   * logback·slf4j-simple(stderr).
    */
   @ArchTest
   static final ArchRule noDirectStdStreamsOutsideMcp =
@@ -59,6 +63,8 @@ class ArchitectureRulesTest {
           .resideOutsideOfPackage("io.scos.mcp..")
           .and()
           .doNotHaveFullyQualifiedName("io.scos.server.CommandOutput")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.client.ClientMain")
           .should()
           .accessField(System.class, "out")
           .orShould()
@@ -99,4 +105,90 @@ class ArchitectureRulesTest {
               "io.scos.engine.internal..",
               "io.scos.engine.support.projection..",
               "io.scos.server..");
+
+  /** 읽기(검색)와 쓰기(투영)는 서로 import하지 않는다 — 검색은 투영 쪽을 모른다. */
+  @ArchTest
+  static final ArchRule searchDoesNotReachIngest =
+      noClasses()
+          .that()
+          .resideInAPackage("io.scos.engine.internal.search..")
+          .should()
+          .dependOnClassesThat()
+          .resideInAPackage("io.scos.engine.internal.projection..");
+
+  /** 읽기(검색)와 쓰기(투영)는 서로 import하지 않는다 — 투영은 검색 쪽을 모른다. */
+  @ArchTest
+  static final ArchRule ingestDoesNotReachSearch =
+      noClasses()
+          .that()
+          .resideInAPackage("io.scos.engine.internal.projection..")
+          .should()
+          .dependOnClassesThat()
+          .resideInAPackage("io.scos.engine.internal.search..");
+
+  /**
+   * 설계 §4.3: 범위 없는 적재·유지보수 조회는 투영·재임베딩·import, 무제한 최신성, 운영 게이지·CLI와 조립·저장 구현(단독 클라이언트 조립
+   * LocalEngine 포함 — 엔진·인제스터 조립과 "색인이 비었나" 확인)에만 허용한다. 직접 타입 참조·호출로 생기는 의존을 검사한다.
+   * ContextIngestorBuilder는 공개 쓰기 표면 조립자다. McpHttpConfiguration은 다중 사용자 기동 검사에서만 전체 공간의 압축 유닛 수를
+   * 읽는다. MemoryProjection·QuestionSearches는 testFixtures여서 가져오기 대상 밖이다.
+   */
+  @ArchTest
+  static final ArchRule unitMaintenanceOnlyFromAllowedCallers =
+      noClasses()
+          .that()
+          .resideOutsideOfPackages(
+              "io.scos.engine.internal.projection..",
+              "io.scos.boot..",
+              "io.scos.store..",
+              "io.scos.spi.store..")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.engine.internal.search.FreshnessReader")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.engine.ContextEngineBuilder")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.engine.ContextIngestorBuilder")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.server.DaemonConfiguration")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.server.OpsConfiguration")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.client.LocalEngine")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.server.McpHttpConfiguration")
+          .should()
+          .dependOnClassesThat()
+          .haveFullyQualifiedName("io.scos.spi.store.UnitMaintenance");
+
+  /** 접근 범위의 무제한 전환은 단일 사용자 전략과 운영 출구만 소유한다. */
+  @ArchTest
+  static final ArchRule unrestrictedScopeOnlyFromAllowedCallers =
+      noClasses()
+          .that()
+          .doNotHaveFullyQualifiedName("io.scos.engine.internal.access.UnrestrictedScopes")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.spi.store.AccessScope")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.server.DaemonGauges")
+          .and()
+          .doNotHaveFullyQualifiedName("io.scos.server.QueryCommands")
+          .should()
+          .callConstructor(AccessScope.Unrestricted.class, Principal.class)
+          .orShould()
+          .callMethod(AccessScope.class, "singleUser");
+
+  /** 신호(점수 계수)는 순수 계산이다 — store 포트에 의존하지 않는다. */
+  @ArchTest
+  static final ArchRule signalsDoNotTouchStorePorts =
+      noClasses()
+          .that()
+          .resideInAPackage("io.scos.engine.internal.search.signal..")
+          .should()
+          .dependOnClassesThat()
+          .haveFullyQualifiedName("io.scos.spi.store.UnitStore")
+          .orShould()
+          .dependOnClassesThat()
+          .haveFullyQualifiedName("io.scos.spi.store.KeywordIndex")
+          .orShould()
+          .dependOnClassesThat()
+          .haveFullyQualifiedName("io.scos.spi.store.VectorIndex");
 }

@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * 커넥터 종류(kind) 하나의 투영기(TS source-projector의 kind별 projector, ADR-0022): 소스의 active 원본을 문서로 묶고, 문서마다
- * 엔진에 넣을 {@link SourceDocument}를 만든다. 수집 어댑터가 kind마다 하나인 것처럼 투영기도 kind마다 하나다.
+ * 커넥터 종류(kind) 하나의 투영기(ADR-0022): 소스의 active 원본을 문서로 묶고, 문서마다 엔진에 넣을 {@link SourceDocument}를 만든다.
+ * 수집 어댑터가 kind마다 하나인 것처럼 투영기도 kind마다 하나다.
  */
 public interface Projector {
   /** 원본 콘텐츠(inline 값 또는 blob)를 읽는다. empty면 본문 없음. */

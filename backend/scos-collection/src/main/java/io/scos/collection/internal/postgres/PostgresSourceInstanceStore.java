@@ -1,10 +1,12 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.collection.internal.SnapshotShrinkOverrides;
+import io.scos.collection.internal.SourceConfigurationChangedException;
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.SourceSchedule;
 import io.scos.spi.connector.SourceConfig;
+import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.connector.SourceInstanceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +15,7 @@ import java.sql.Types;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 public final class PostgresSourceInstanceStore implements SourceInstanceStore {
@@ -62,6 +65,16 @@ public final class PostgresSourceInstanceStore implements SourceInstanceStore {
   }
 
   @Override
+  public void requireCollectionConfiguration(SourceDescriptor expected) {
+    jdbc.sql("SELECT " + COLUMNS + " FROM source_instances WHERE id = :id FOR UPDATE")
+        .param("id", expected.id().value())
+        .query(PostgresSourceInstanceStore::map)
+        .optional()
+        .orElseThrow(SourceConfigurationChangedException::new)
+        .requireCollectionConfiguration(expected);
+  }
+
+  @Override
   public List<SourceInstance> listEnabled() {
     return jdbc.sql(
             "SELECT " + COLUMNS + " FROM source_instances WHERE enabled ORDER BY id COLLATE \"C\"")
@@ -86,7 +99,7 @@ public final class PostgresSourceInstanceStore implements SourceInstanceStore {
   }
 
   /** 열 값(초). 없으면 SQL NULL — SourceSchedule이 INTEGER 범위를 보장한다. */
-  private static Integer seconds(Optional<Duration> interval) {
+  private static @Nullable Integer seconds(Optional<Duration> interval) {
     return interval.map(d -> Math.toIntExact(d.toSeconds())).orElse(null);
   }
 

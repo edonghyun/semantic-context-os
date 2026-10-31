@@ -87,7 +87,7 @@ class SheetRangesTest {
   @DisplayName("열 번호를 A1 열 이름으로 쓴다")
   void namesColumns(long index, String name) {
     // when·then
-    assertThat(SheetRanges.column(index)).isEqualTo(name);
+    assertThat(new A1Column(index).name()).isEqualTo(name);
   }
 
   @ParameterizedTest(name = "{0}행 × {1}열")

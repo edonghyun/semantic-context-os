@@ -1,12 +1,12 @@
 package io.scos.spi.connector;
 
 /**
- * credentialRef → 비밀값. ref는 `<scheme>:<참조>`(`env:`·`file:`·`command:`, TS와 같은 등록값)이고 제품 구현은
+ * credentialRef → 비밀값. ref는 `<scheme>:<참조>`(`env:`·`file:`·`command:`, 기존 등록값 그대로)이고 제품 구현은
  * `credentials.SchemeCredentialResolver`다(ADR-0022 §2). 실패는 비밀값을 싣지 않은 {@link
  * CallFailureException}이다.
  */
 public interface CredentialResolver {
-  /** 자격 증명 실패의 {@link CallFailureException#operation()}. run 실패 종류를 TS 값으로 남길 때 이것으로 가린다. */
+  /** 자격 증명 실패의 {@link CallFailureException#operation()}. run 실패 종류를 기존 저장 값으로 남길 때 이것으로 가린다. */
   String OPERATION = "credentials";
 
   String resolve(String credentialRef);

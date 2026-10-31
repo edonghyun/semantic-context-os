@@ -3,6 +3,7 @@ package io.scos.server;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.SourceSupervisor;
 import io.scos.collection.internal.projection.ProjectionRun;
+import io.scos.engine.EventLog;
 import io.scos.spi.connector.CancellationToken;
 import java.time.Clock;
 import java.time.Duration;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ExitCodeGenerator;
@@ -79,7 +81,7 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
   private final AtomicReference<Instant> lastMaintenanceAt = new AtomicReference<>();
   private final AtomicReference<Throwable> fatal = new AtomicReference<>();
   private final AtomicReference<Instant> startedAt = new AtomicReference<>();
-  private volatile Thread loop;
+  private volatile @Nullable Thread loop;
   private volatile boolean running;
 
   public CollectionDaemon(
@@ -123,7 +125,7 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
     } catch (Throwable t) {
       // 사이클은 RuntimeException을 삼키고 계속한다 — 여기 오는 것은 Error(OOM·링크 오류 등). 루프는 끝나고 프로세스는 비0으로 끝난다
       fatal.set(t);
-      log.error("daemon loop died — the process will exit with {}", LOOP_DIED_EXIT, t);
+      EventLog.error(log, "daemon.loop.died").detail("exitCode", LOOP_DIED_EXIT).cause(t).log();
     } finally {
       terminated.countDown();
       log.info("daemon loop finished after {} cycle(s)", cycles.get());
@@ -144,7 +146,10 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
       if (!cancel.isCancelled()) runMaintenanceIfDue();
     } catch (RuntimeException e) {
       failure = Optional.of(e);
-      log.error("daemon cycle failed", e);
+      EventLog.error(log, "daemon.cycle.failed")
+          .detail("message", e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())
+          .cause(e)
+          .log();
     }
     lastTickAt.set(clock.instant());
     if (collection.isEmpty() && failure.isEmpty()) return false;
@@ -188,7 +193,9 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
       boolean workersDone = workers.awaitTermination(timeout.toMillis(), TimeUnit.MILLISECONDS);
       if (t != null) t.join(timeout.toMillis());
       if (!workersDone || (t != null && t.isAlive()))
-        log.warn("daemon stop exceeded {} — some work did not finish", timeout);
+        EventLog.warn(log, "daemon.stop.timed_out")
+            .detail("shutdownTimeoutMs", timeout.toMillis())
+            .log();
       else log.info("daemon stopped cleanly");
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -234,22 +241,28 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
    * 하나가 가려지지 않는다. 점유 갱신(heartbeat)은 넣지 않는다(교착된 worker를 가리지 않게).
    */
   public Optional<Instant> lastProgressAt() {
-    Optional<Instant> loop =
-        Stream.of(
-                Optional.ofNullable(startedAt.get()),
-                Optional.ofNullable(lastTickAt.get()),
-                progress.lastAt())
-            .flatMap(Optional::stream)
-            .max(Instant::compareTo);
-    Stream<Instant> attempts =
-        supervisor.running().entrySet().stream()
-            .map(
-                e ->
-                    progress
-                        .lastAt(e.getKey())
-                        .filter(t -> t.isAfter(e.getValue()))
-                        .orElse(e.getValue()));
-    return Stream.concat(loop.stream(), attempts).min(Instant::compareTo);
+    return Stream.concat(loopProgress().stream(), attemptProgress()).min(Instant::compareTo);
+  }
+
+  /** 루프의 진행: 시작, 마지막 틱 끝, 작업 진행 신호 중 가장 늦은 것. */
+  private Optional<Instant> loopProgress() {
+    return Stream.of(
+            Optional.ofNullable(startedAt.get()),
+            Optional.ofNullable(lastTickAt.get()),
+            progress.lastAt())
+        .flatMap(Optional::stream)
+        .max(Instant::compareTo);
+  }
+
+  /** 수집 중인 시도마다: 시도 시작과 그 소스의 마지막 진행 중 늦은 것. */
+  private Stream<Instant> attemptProgress() {
+    return supervisor.running().entrySet().stream()
+        .map(
+            attempt ->
+                progress
+                    .lastAt(attempt.getKey())
+                    .filter(t -> t.isAfter(attempt.getValue()))
+                    .orElse(attempt.getValue()));
   }
 
   /** 루프를 죽인 치명 오류. */

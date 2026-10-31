@@ -66,7 +66,7 @@ public final class PostgresSourceChangeLog implements SourceChangeLog {
         status -> {
           long floor = floor();
           long head = headSeq(floor);
-          ChangeCursor.validate(after, limit, floor, head);
+          new ChangeCursor(after, limit).checkWithin(floor, head);
           String sql =
               "SELECT seq, source_instance_id, external_id, kind, source_version, metadata::text AS metadata, occurred_at FROM raw_changes WHERE seq > :after"
                   + (source.isPresent() ? " AND source_instance_id = :source" : "")

@@ -16,8 +16,7 @@ public record ProjectionRetryPolicy(Duration base, Duration max, int maxAttempts
   }
 
   public Duration backoff(int attempts) {
-    long ms = base.toMillis() * (1L << Math.min(20, Math.max(0, attempts - 1)));
-    return Duration.ofMillis(Math.min(max.toMillis(), ms));
+    return new ExponentialBackoff(base, max, 20).afterFailures(attempts);
   }
 
   public boolean parks(int attempts) {

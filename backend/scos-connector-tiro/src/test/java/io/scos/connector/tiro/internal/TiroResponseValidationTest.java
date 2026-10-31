@@ -17,9 +17,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * 투영이 읽는 필드를 체크포인트 전진 전에 검사한다(TS tiro-adapter.ts cursorPage·validateParagraph·문서 검사). 형식이 틀린 응답 하나가
- * 첫 페이지(n-alpha)를 깨뜨리면 run은 invalid_provider_response로 실패하고 그 페이지는 커밋되지 않는다. 대조군: TS가 받아들이는 형식(잠긴
- * 문단의 전사, null 이름, totalSize 없음 등)은 통과한다.
+ * 투영이 읽는 필드를 체크포인트 전진 전에 검사한다. 형식이 틀린 응답 하나가 첫 페이지(n-alpha)를 깨뜨리면 run은 invalid_provider_response로
+ * 실패하고 그 페이지는 커밋되지 않는다. 대조군: TS가 받아들이는 형식(잠긴 문단의 전사, null 이름, totalSize 없음 등)은 통과한다.
  */
 @DisplayName("Tiro 응답 형식은 체크포인트 전진 전에 TS처럼 검사한다")
 class TiroResponseValidationTest {

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.IndexedText;
 import io.scos.spi.store.ScoredRef;
 import io.scos.spi.store.SearchFilter;
@@ -36,6 +37,8 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 @Tag("perf")
 @DisplayName("흔한 bigram 편중 코퍼스에서 키워드 질의 지연을 기록한다(게이트 아님)")
 class KeywordSkewProbeTest {
+  private static final SearchFilter ACTIVE =
+      new SearchFilter(false, null, AccessScope.singleUser());
   static final Logger log = LoggerFactory.getLogger(KeywordSkewProbeTest.class);
   static final SpaceId S = new SpaceId("skew");
   static final int UNITS = Integer.getInteger("scos.perf.units", 200_000);
@@ -139,10 +142,10 @@ class KeywordSkewProbeTest {
   }
 
   private QueryRun measure(String q) {
-    Runnable before = () -> legacy.search(S, q, K, SearchFilter.NONE);
-    Runnable after = () -> product.search(S, q, K, SearchFilter.NONE);
-    List<ScoredRef> expected = oracle.search(S, q, K, SearchFilter.NONE);
-    PostgresKeywordIndex.Answer answer = product.answer(S, q, K, SearchFilter.NONE);
+    Runnable before = () -> legacy.search(S, q, K, ACTIVE);
+    Runnable after = () -> product.search(S, q, K, ACTIVE);
+    List<ScoredRef> expected = oracle.search(S, q, K, ACTIVE);
+    PostgresKeywordIndex.Answer answer = product.answer(S, q, K, ACTIVE);
     boolean identical = expected.equals(answer.refs());
     for (int w = 0; w < WARMUP; w++) {
       before.run();

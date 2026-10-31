@@ -4,12 +4,12 @@ import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CredentialResolver;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
- * 데몬 기동 검증(TS source-service-runner.ts validateStartup, ADR-0022 §5): 켜진 소스마다 어댑터가 등록돼 있고 설정이
- * 맞는지(validateConfig) 보고, 서로 다른 credentialRef를 모두 한 번씩 풀어 본다. 하나라도 실패하면 {@link
- * IllegalStateException}으로 기동을 거부한다 — 잘못 이전한 등록값(경로·변수·권한)이 health 녹색 뒤의 run 실패로만 드러나지 않게. 메시지는
- * "source <id> (<kind>): <사유>"이고, 사유는 검증 실패의 메시지(자격 증명 값을 싣지 않도록 만든 것)다.
+ * 데몬 기동 검증(ADR-0022 §5): 켜진 소스마다 어댑터가 등록돼 있고 설정이 맞는지(validateConfig) 보고, 서로 다른 credentialRef를 모두 한
+ * 번씩 풀어 본다. 하나라도 실패하면 {@link IllegalStateException}으로 기동을 거부한다 — 잘못 이전한 등록값(경로·변수·권한)이 health 녹색 뒤의
+ * run 실패로만 드러나지 않게. 메시지는 "source <id> (<kind>): <사유>"이고, 사유는 검증 실패의 메시지(자격 증명 값을 싣지 않도록 만든 것)다.
  */
 public final class SourceStartupCheck {
   private final SourceInstanceStore sources;
@@ -46,11 +46,11 @@ public final class SourceStartupCheck {
   }
 
   /** 검증 실패의 사유. 공급자 호출 예외는 분류된 메시지만(원인 예외는 싣지 않는다). */
-  private static String reason(RuntimeException e) {
+  private static @Nullable String reason(RuntimeException e) {
     return e instanceof CallFailureException p ? p.failure().message() : e.getMessage();
   }
 
-  private static IllegalStateException rejected(SourceInstance source, String reason) {
+  private static IllegalStateException rejected(SourceInstance source, @Nullable String reason) {
     return new IllegalStateException(
         "source " + source.id().value() + " (" + source.kind() + "): " + reason);
   }

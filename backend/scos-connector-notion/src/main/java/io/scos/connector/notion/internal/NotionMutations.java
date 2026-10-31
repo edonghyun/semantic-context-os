@@ -21,10 +21,9 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Notion 객체 → 원본 변경(TS toMutation·toBlockMutation·toContainerMutation). 휴지통(in_trash)이면
- * delete(sourceVersion `trashed:<last_edited_time>`, 일어난 시각 = 편집 시각), 아니면 원문 JSON 캡처(TS
- * `JSON.stringify` 바이트 — {@link JsJson})를 담은 upsert(sourceVersion = last_edited_time 원문). 순서는 종류별
- * scheme과 정규화한 편집 시각(TS `new Date(v).toISOString()`)이다.
+ * Notion 객체 → 원본 변경. 휴지통(in_trash)이면 delete(sourceVersion `trashed:<last_edited_time>`, 일어난 시각 = 편집
+ * 시각), 아니면 원문 JSON 캡처(JS `JSON.stringify` 바이트 — {@link JsJson})를 담은 upsert(sourceVersion =
+ * last_edited_time 원문). 순서는 종류별 scheme과 정규화한 편집 시각(JS `new Date(v).toISOString()`)이다.
  */
 public final class NotionMutations {
   static final String BLOCK_PREFIX = "block:";
@@ -35,7 +34,7 @@ public final class NotionMutations {
   private static final String JSON_MEDIA = "application/json";
   private static final String TRASHED = "trashed:";
 
-  /** TS Date#toISOString: 밀리초 세 자리, UTC `Z`. */
+  /** JS Date#toISOString 형식: 밀리초 세 자리, UTC `Z`. */
   private static final DateTimeFormatter ISO_MILLIS =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
@@ -65,7 +64,7 @@ public final class NotionMutations {
     this.clock = clock;
   }
 
-  /** 페이지: metadata는 url·public_url(문자열일 때만, TS 키 url·publicUrl). */
+  /** 페이지: metadata는 url·public_url(문자열일 때만, 저장 키 url·publicUrl). */
   RawMutation page(JsonNode page) {
     ObjectNode metadata = JsonNodeFactory.instance.objectNode();
     if (page.has("url") && page.get("url").isString())
@@ -75,15 +74,19 @@ public final class NotionMutations {
     return mutation(Resource.PAGE, page, metadata);
   }
 
-  /** 검색 결과 페이지들: 검색한 휴지통 단계와 다른 페이지가 오면 Error(TS — 페이지마다 확인하고 원본을 만든다). */
+  /** 검색 결과 페이지들: 검색한 휴지통 단계와 다른 페이지가 오면 Error(페이지마다 확인하고 원본을 만든다). */
   List<RawMutation> searchResults(List<JsonNode> pages, SearchPhase phase) {
     List<RawMutation> out = new ArrayList<>();
     for (JsonNode page : pages) {
-      if (page.get("in_trash").asBoolean() != (phase == SearchPhase.TRASH))
-        throw new NotionProtocolException(WRONG_TRASH_PHASE);
+      requireSearchPhase(page, phase);
       out.add(page(page));
     }
     return out;
+  }
+
+  static void requireSearchPhase(JsonNode page, SearchPhase phase) {
+    if (page.get("in_trash").asBoolean() != (phase == SearchPhase.TRASH))
+      throw new NotionProtocolException(WRONG_TRASH_PHASE);
   }
 
   /** 블록: metadata는 블록 종류와 부모(목록을 부른 블록·페이지 id). */
@@ -127,14 +130,14 @@ public final class NotionMutations {
             Optional.of(capture.json(JSON_MEDIA, JsJson.stringify(value)))));
   }
 
-  /** 원본 순서 position: 편집 시각을 TS `new Date(v).toISOString()`처럼 밀리초 UTC로 정규화한 것. */
+  /** 원본 순서 position: 편집 시각을 JS `new Date(v).toISOString()`처럼 밀리초 UTC로 정규화한 것. */
   static String position(String lastEditedTime) {
     return ISO_MILLIS.format(timestamp(lastEditedTime));
   }
 
   /**
-   * TS `new Date(value)`가 읽는 Notion 시각: 오프셋이 있는 ISO 8601 날짜·시각 또는 날짜만(UTC). 밀리초 아래는 버린다. 읽을 수 없으면
-   * {@link NotionProtocolException}(TS "Invalid Notion page timestamp"). Notion API는 늘 `Z` 시각을 준다 —
+   * JS `new Date(value)`가 읽는 Notion 시각: 오프셋이 있는 ISO 8601 날짜·시각 또는 날짜만(UTC). 밀리초 아래는 버린다. 읽을 수 없으면
+   * {@link NotionProtocolException}("Invalid Notion page timestamp"). Notion API는 늘 `Z` 시각을 준다 —
    * 오프셋 없는 날짜·시각(JS는 지역 시각으로 읽는다)은 받지 않는다(CONTRACTS F17-D2).
    */
   static Instant timestamp(String value) {

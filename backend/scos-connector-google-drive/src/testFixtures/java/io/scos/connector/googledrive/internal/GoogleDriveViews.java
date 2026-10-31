@@ -81,6 +81,15 @@ final class GoogleDriveViews {
     static ErrorView expected(JsonNode e) {
       return new ErrorView(e.get("name").asString(), e.get("message").asString(), e.get("failure"));
     }
+
+    /**
+     * TS 기대와 비교할 모양: 커서 순환 위반 메시지 끝의 걷기 설명(" (cursor cycle: …)")을 뗀다 — TS에 없는 의도한 차이(CONTRACTS
+     * F12-D1)이고 설명 자체는 순환 사례 테스트가 본다.
+     */
+    ErrorView withoutCursorCycle() {
+      int at = message.indexOf(" (cursor cycle: ");
+      return at < 0 ? this : new ErrorView(name, message.substring(0, at), failure);
+    }
   }
 
   /** 요청 하나: 메서드, origin(경로가 정한다 — 가짜는 한 주소다), 경로, 디코드한 쿼리. */

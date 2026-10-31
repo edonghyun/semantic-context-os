@@ -6,8 +6,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Google OAuth 자격 증명(TS session의 credential JSON: `client_id`·`client_secret`·`refresh_token`).
- * credentialRef(보통 `file:`)가 가리키는 JSON을 읽는다. 오류 메시지는 TS와 같고 값을 싣지 않는다. {@link #toString()}은 비밀값을
+ * Google OAuth 자격 증명(credential JSON: `client_id`·`client_secret`·`refresh_token`).
+ * credentialRef(보통 `file:`)가 가리키는 JSON을 읽는다. 오류 메시지는 고정 문구이고 값을 싣지 않는다. {@link #toString()}은 비밀값을
  * 가린다.
  */
 record GoogleCredential(String clientId, String clientSecret, String refreshToken) {

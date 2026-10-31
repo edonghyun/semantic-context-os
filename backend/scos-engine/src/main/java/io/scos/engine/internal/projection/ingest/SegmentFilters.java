@@ -6,10 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** 세그먼트 단계 필터 셋(TS partition-router.ts·min-token-filter.ts·dedup-filter.ts). 각각 한 규칙. */
+/** 세그먼트 단계 필터 셋(파티션 라우팅·최소 토큰·중복 제거). 각각 한 규칙. */
 final class SegmentFilters {
+  /** 요청이 없거나 유효하지 않을 때의 파티션. 라우팅 전 세그먼트도 이 값으로 만든다. */
+  static final String DEFAULT_PARTITION = "/knowledge";
+
   static final List<String> VALID_PARTITIONS =
-      List.of("/knowledge", "/rules", "/environment", "/memory");
+      List.of(DEFAULT_PARTITION, "/rules", "/environment", "/memory");
   static final int MIN_TOKENS = 10;
 
   private SegmentFilters() {}
@@ -20,7 +23,9 @@ final class SegmentFilters {
         .map(
             s ->
                 s.withPartition(
-                    s.requestedPartition().filter(VALID_PARTITIONS::contains).orElse("/knowledge")))
+                    s.requestedPartition()
+                        .filter(VALID_PARTITIONS::contains)
+                        .orElse(DEFAULT_PARTITION)))
         .toList();
   }
 

@@ -8,10 +8,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Drive 체크포인트(TS DriveProgress): 저장 원문의 키 순서가 아니라 JS 객체 순서로 돈다 — 원문이 jsonb·다른 직렬화를 거쳐도 삭제 순서가 TS와
- * 같다.
- */
+/** Drive 체크포인트: 저장 원문의 키 순서가 아니라 JS 객체 순서로 돈다 — 원문이 jsonb·다른 직렬화를 거쳐도 삭제 순서가 TS와 같다. */
 @DisplayName("Drive 체크포인트는 TS DriveProgress처럼 JS 객체 순서로 돈다")
 class DriveProgressTest {
   static final String ACCOUNT = "perm-reader";

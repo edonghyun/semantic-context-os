@@ -10,9 +10,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 소스 → 공간(TS projection-space.ts, A4): 명시 매핑(SCOS_SOURCE_SPACES JSON 객체) 없으면 기본 공간(SCOS_SPACE_ID).
- * Slack DM(im/mpim)과 Tiro(회의록)는 명시 매핑 없이는 투영을 거부한다(A5, TS :18-35). TS는 SCOS_SPACE_ID만 있어도 받지만 여기서는
- * 기본 공간이 미설정과 구분되지 않아(기본값 legacy) 소스별 매핑을 요구한다.
+ * 소스 → 공간(A4): 명시 매핑(SCOS_SOURCE_SPACES JSON 객체) 없으면 기본 공간(SCOS_SPACE_ID). Slack DM(im/mpim)과
+ * Tiro(회의록)는 명시 매핑 없이는 투영을 거부한다(A5). TS는 SCOS_SPACE_ID만 있어도 받지만 여기서는 기본 공간이 미설정과 구분되지 않아(기본값
+ * legacy) 소스별 매핑을 요구한다.
  */
 public final class ProjectionSpaces {
   private final Map<String, SpaceId> explicit;

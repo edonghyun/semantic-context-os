@@ -3,6 +3,7 @@ package io.scos.store.postgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.IndexedText;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.ScoredRef;
@@ -34,6 +35,8 @@ import tools.jackson.databind.ObjectMapper;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("P-4 판정 세트에서 제품 bigram 어댑터는 그룹마다")
 class KeywordQualityTest {
+  private static final SearchFilter ACTIVE =
+      new SearchFilter(false, null, AccessScope.singleUser());
   static final SpaceId S = new SpaceId("legacy");
   static final Path P4 =
       Path.of(
@@ -62,7 +65,7 @@ class KeywordQualityTest {
         List<String> expected = new ArrayList<>();
         q.get("expected").forEach(x -> expected.add(x.asString()));
         List<String> docs = new ArrayList<>();
-        for (ScoredRef h : index.search(S, query, 50, SearchFilter.NONE))
+        for (ScoredRef h : index.search(S, query, 50, ACTIVE))
           if (!docs.contains(h.documentId())) docs.add(h.documentId());
         java.add(new Judged(query, docs, expected));
         List<String> tsDocs = new ArrayList<>();

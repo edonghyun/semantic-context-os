@@ -1,6 +1,8 @@
 package io.scos.collection.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceInstanceId;
@@ -39,6 +41,7 @@ public abstract class SourceInstanceStoreContract {
         "SLACK_TOKEN_" + id,
         enabled,
         SourceSchedule.DAEMON_DEFAULTS,
+        SnapshotShrinkOverrides.DAEMON_DEFAULTS,
         T0,
         T0);
   }
@@ -64,6 +67,7 @@ public abstract class SourceInstanceStoreContract {
           "SLACK_TOKEN_a",
           false,
           SourceSchedule.DAEMON_DEFAULTS,
+          SnapshotShrinkOverrides.DAEMON_DEFAULTS,
           T0,
           T0.plusSeconds(1));
 
@@ -73,6 +77,44 @@ public abstract class SourceInstanceStoreContract {
     @BeforeEach
     void givenSaved() {
       givenThreeSources();
+    }
+
+    @Test
+    @DisplayName("현재 수집 설정이 바뀌면 이전 설정의 쓰기를 거부한다")
+    void changedCollectionConfigurationIsRejected() {
+      // given
+      var expected = instance("a", true).descriptor();
+      saveChangedConfiguration();
+      // when·then
+      assertThatThrownBy(() -> store.requireCollectionConfiguration(expected))
+          .isInstanceOf(SourceConfigurationChangedException.class);
+    }
+
+    @Test
+    @DisplayName("표시 이름과 enabled 변경은 수집 의미 설정을 바꾸지 않는다")
+    void displayChangesDoNotInvalidateCollectionConfiguration() {
+      // given
+      var expected = instance("a", true).descriptor();
+      store.save(RENAMED_A);
+      // when·then
+      assertThatCode(() -> store.requireCollectionConfiguration(expected))
+          .doesNotThrowAnyException();
+    }
+
+    private void saveChangedConfiguration() {
+      var original = instance("a", true);
+      store.save(
+          new SourceInstance(
+              original.id(),
+              original.kind(),
+              original.displayName(),
+              new SourceConfig(1, "{\"conversationTypes\":[\"private_channel\"]}"),
+              original.credentialRef(),
+              original.enabled(),
+              original.schedule(),
+              original.shrinkGuard(),
+              original.createdAt(),
+              T0.plusSeconds(1)));
     }
 
     @Test

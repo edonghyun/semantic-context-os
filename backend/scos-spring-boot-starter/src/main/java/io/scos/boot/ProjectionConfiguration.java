@@ -2,6 +2,7 @@ package io.scos.boot;
 
 import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.OutboxPort;
+import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.ProjectionRetryPolicy;
 import io.scos.collection.internal.RawItemStore;
@@ -12,8 +13,10 @@ import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.collection.internal.projection.Projectors;
 import io.scos.connector.slack.SlackProjector;
+import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.projection.DocumentIngestor;
 import io.scos.engine.internal.projection.JtokkitTokenizer;
+import io.scos.engine.internal.projection.SpaceReembedding;
 import io.scos.engine.internal.projection.UnitImporter;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.engine.support.projection.SourceSync;
@@ -24,7 +27,7 @@ import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.SpaceMeta;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.VectorIndex;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Clock;
@@ -54,8 +57,19 @@ public class ProjectionConfiguration {
 
   @Bean
   UnitImporter unitImporter(
-      PlatformTransactionManager txm, UnitStore units, KeywordIndex keywords, VectorIndex vectors) {
-    return new UnitImporter(new TransactionTemplate(txm), units, keywords, vectors);
+      PlatformTransactionManager txm,
+      UnitMaintenance units,
+      KeywordIndex keywords,
+      VectorIndex vectors,
+      SpaceMeta meta,
+      Embedder embedder) {
+    return new UnitImporter(
+        new TransactionTemplate(txm),
+        units,
+        keywords,
+        vectors,
+        meta,
+        EmbeddingGenerationCheck.generationOf(embedder));
   }
 
   @Bean
@@ -71,7 +85,7 @@ public class ProjectionConfiguration {
   @Bean
   SourceSync sourceSync(
       PlatformTransactionManager txm,
-      UnitStore units,
+      UnitMaintenance units,
       KeywordIndex keywords,
       VectorIndex vectors,
       SpaceMeta meta,
@@ -89,6 +103,19 @@ public class ProjectionConfiguration {
         cache,
         pipeline,
         clock);
+  }
+
+  /** 공간 재임베딩(`scos reembed`, stage2 §3.3) — 투영과 같은 임베더·캐시·트랜잭션 관리자를 쓴다. */
+  @Bean
+  SpaceReembedding spaceReembedding(
+      PlatformTransactionManager txm,
+      UnitMaintenance units,
+      VectorIndex vectors,
+      SpaceMeta meta,
+      Embedder embedder,
+      EmbeddingCache cache) {
+    return new SpaceReembedding(
+        new TransactionTemplate(txm), units, vectors, meta, embedder, cache);
   }
 
   @Bean
@@ -119,7 +146,8 @@ public class ProjectionConfiguration {
       LeaseHeartbeats heartbeats,
       Clock clock,
       ProjectionMetrics metrics,
-      Progress progress) {
+      Progress progress,
+      OwnerId owner) {
     return new ProjectionRun(
         outbox,
         sources,
@@ -129,7 +157,7 @@ public class ProjectionConfiguration {
         spaces,
         ProjectionRetryPolicy.defaults(),
         claims,
-        CollectionConfiguration.owner(),
+        owner,
         heartbeats,
         clock,
         metrics,

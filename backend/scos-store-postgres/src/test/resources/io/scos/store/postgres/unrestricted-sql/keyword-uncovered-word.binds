@@ -1,0 +1,16 @@
+-- 무제한 범위의 SQL — 0.2 접근 필터 뒤에도 바뀌면 안 된다(설계 §4.3)
+1=String:s1
+2=String:정산
+3=String:%정산일자%
+4=String:s1
+5=String[]:[p1]
+6=String:%정산일자%
+7=String[]:[%정산일%, %산일자%]
+8=String:%정산일자%
+9=String:정산
+10=String:산일
+11=String:일자
+12=String:정산
+13=String:산일
+14=String:일자
+15=Integer:5

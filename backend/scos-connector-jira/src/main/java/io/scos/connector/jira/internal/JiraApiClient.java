@@ -13,17 +13,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Jira REST 클라이언트(TS JiraApiClient): 시도 하나의 교환만 한다 — 재시도·대기는 {@code ProviderCallExecutor}의 몫이다. 교환은
- * {@link ProviderHttp}(ADR-0022 §4). Basic 인증(설정 email + 자격 증명 토큰), {@code Accept:
- * application/json}, 경로는 /rest/로 시작하고 역슬래시·줄바꿈이 없어야 한다. 2xx가 아니면 {@link JiraApiException}(상태,
- * Retry-After). 리다이렉트는 따르지 않는다 — 3xx는 응답이 없는 전송 실패로 본다(TS fetch redirect:"error"). 상태가 없는 실패는
- * {@link JiraErrors}가 전송 실패로 분류한다. 스레드 안전하다(동시 읽기 4).
+ * Jira REST 클라이언트: 시도 하나의 교환만 한다 — 재시도·대기는 {@code ProviderCallExecutor}의 몫이다. 교환은 {@link
+ * ProviderHttp}(ADR-0022 §4). Basic 인증(설정 email + 자격 증명 토큰), {@code Accept: application/json}, 경로는
+ * /rest/로 시작하고 역슬래시·줄바꿈이 없어야 한다. 2xx가 아니면 {@link JiraApiException}(상태, Retry-After). 리다이렉트는 따르지 않는다
+ * — 3xx는 응답이 없는 전송 실패로 본다. 상태가 없는 실패는 {@link JiraErrors}가 전송 실패로 분류한다. 스레드 안전하다(동시 읽기 4).
  */
 public final class JiraApiClient {
   /** 첨부 원본 하나. 미디어 유형은 응답 Content-Type(없으면 application/octet-stream). */
@@ -83,14 +83,14 @@ public final class JiraApiClient {
   }
 
   /**
-   * 제품 HTTP 클라이언트: 리다이렉트를 따르지 않는다(TS fetch {@code redirect: "error"}) — Basic 인증 헤더를 실은 요청이
-   * Location의 다른 호스트로 가지 않게. 3xx는 {@link #requireSuccess}가 전송 실패로 거부한다. 운영 빈과 테스트 조립이 이것 하나를 쓴다.
+   * 제품 HTTP 클라이언트: 리다이렉트를 따르지 않는다 — Basic 인증 헤더를 실은 요청이 Location의 다른 호스트로 가지 않게. 3xx는 {@link
+   * #requireSuccess}가 전송 실패로 거부한다. 운영 빈과 테스트 조립이 이것 하나를 쓴다.
    */
   public static HttpClient httpClient() {
     return HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
   }
 
-  /** 운영 조립: API 주소는 소스 설정이 정한다 — 사이트 origin, cloudId가 있으면 Atlassian API gateway(TS와 같음). */
+  /** 운영 조립: API 주소는 소스 설정이 정한다 — 사이트 origin, cloudId가 있으면 Atlassian API gateway. */
   public static JiraApiClient forSites(ProviderHttp http, ObjectMapper json, Clock clock) {
     return new JiraApiClient(http, json, clock, JiraConfiguration::apiBase);
   }
@@ -106,7 +106,7 @@ public final class JiraApiClient {
     } catch (JacksonException e) {
       throw new JiraApiException(BAD_GATEWAY, Optional.empty());
     }
-    // 빈 본문(공백뿐·204 포함)은 Jackson이 예외 없이 missing으로 읽는다 — TS response.json()처럼 502로 본다
+    // 빈 본문(공백뿐·204 포함)은 Jackson이 예외 없이 missing으로 읽는다 — JSON이 아닌 본문과 같이 502로 본다
     if (body.isMissingNode()) throw new JiraApiException(BAD_GATEWAY, Optional.empty());
     return body;
   }
@@ -125,7 +125,7 @@ public final class JiraApiClient {
     return new Attachment(mediaType == null ? OCTET_STREAM : mediaType, response.body());
   }
 
-  /** 경로 조각 하나(TS encodeURIComponent: 영숫자와 -_.!~*'() 밖은 UTF-8 퍼센트 인코딩). */
+  /** 경로 조각 하나(JS encodeURIComponent: 영숫자와 -_.!~*'() 밖은 UTF-8 퍼센트 인코딩). */
   static String segment(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8)
         .replace("+", "%20")
@@ -156,8 +156,8 @@ public final class JiraApiClient {
     throw new JiraApiException(status, retryAfter(headers.getFirst(HttpHeaders.RETRY_AFTER)));
   }
 
-  /** TS Jira: 초(JS Number, max 0) 또는 HTTP-date·ISO 날짜와 지금의 차이 — 공용 {@link RetryAfter}. */
-  Optional<Duration> retryAfter(String raw) {
-    return RetryAfter.secondsOrHttpDate(raw, clock.instant());
+  /** 초(JS Number, max 0) 또는 HTTP-date·ISO 날짜와 지금의 차이 — 공용 {@link RetryAfter}. */
+  Optional<Duration> retryAfter(@Nullable String raw) {
+    return RetryAfter.secondsOrHttpDate(clock).read(raw);
   }
 }

@@ -25,10 +25,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Jira 투영기(TS source-projector/src/jira-projector.ts)의 경계 사례: 데이터셋 수집이 만들지 않는 모양(key 없음·수·null,
- * fields가 없거나 배열, 내용이 객체 아님, metadata.url 없음, 공급자 시각 없음, 이름 대체, names 값, 건너뛰는 필드, 첨부 모양, 이슈 상세 섹션)과
- * 섞인 resourceType의 문서 묶기. 기대값은 TS JiraProjector가 만든
- * harness/fixtures/jira/expected-projector-cases.json이다.
+ * Jira 투영기의 경계 사례: 데이터셋 수집이 만들지 않는 모양(key 없음·수·null, fields가 없거나 배열, 내용이 객체 아님, metadata.url 없음,
+ * 공급자 시각 없음, 이름 대체, names 값, 건너뛰는 필드, 첨부 모양, 이슈 상세 섹션)과 섞인 resourceType의 문서 묶기. 기대값은 TS
+ * JiraProjector가 만든 harness/fixtures/jira/expected-projector-cases.json이다.
  */
 @DisplayName("Jira 투영기는 경계 사례에서 TS와 같은 문서를 낸다(F5)")
 class JiraProjectorTest {

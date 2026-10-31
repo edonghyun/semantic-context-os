@@ -3,6 +3,7 @@ package io.scos.store.postgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.IndexedText;
 import io.scos.spi.store.ScoredRef;
 import io.scos.spi.store.SearchFilter;
@@ -30,6 +31,8 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 @Tag("db")
 @DisplayName("드문 bigram 구동 검색은 옛 SQL과 같은 결과를 같은 순서로 낸다")
 class PostgresKeywordIndexEquivalenceTest {
+  private static final SearchFilter ACTIVE =
+      new SearchFilter(false, null, AccessScope.singleUser());
   static final Logger log = LoggerFactory.getLogger(PostgresKeywordIndexEquivalenceTest.class);
   static final SpaceId A = new SpaceId("a");
   static final SpaceId B = new SpaceId("b");
@@ -194,10 +197,13 @@ class PostgresKeywordIndexEquivalenceTest {
 
   static SearchFilter filter(SplittableRandom r) {
     return switch (r.nextInt(4)) {
-      case 0, 1 -> SearchFilter.NONE;
-      case 2 -> new SearchFilter(true, null);
+      case 0, 1 -> ACTIVE;
+      case 2 -> new SearchFilter(true, null, AccessScope.singleUser());
       default ->
-          new SearchFilter(r.nextBoolean(), r.nextBoolean() ? List.of("/a") : List.of("/a", "/b"));
+          new SearchFilter(
+              r.nextBoolean(),
+              r.nextBoolean() ? List.of("/a") : List.of("/a", "/b"),
+              AccessScope.singleUser());
     };
   }
 }

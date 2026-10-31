@@ -12,8 +12,10 @@ import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.IndexedText;
 import io.scos.spi.store.IndexedUnit;
+import io.scos.spi.store.Principal;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.memory.MemoryKeywordIndex;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import io.scos.support.TestExecutors;
@@ -22,6 +24,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -56,6 +59,7 @@ class McpToolsTest {
   MemoryUnitStore units = new MemoryUnitStore();
   MemoryKeywordIndex keywords = new MemoryKeywordIndex();
   MemoryVectorIndex vectors = new MemoryVectorIndex();
+  public final MemoryUnitMaintenance maintenance = new MemoryUnitMaintenance(units, vectors);
   McpTools tools;
 
   /** 도구 하나를 부르는 사례. {@code @MethodSource}는 static이라 사례는 도구를 받아 부르고, 테스트가 자기 인스턴스의 도구를 넘긴다. */
@@ -66,7 +70,7 @@ class McpToolsTest {
   static final Embedder ZERO = FixedEmbedder.zero(2);
 
   void load(ContextUnit... list) {
-    units.upsert(S, List.of(list));
+    maintenance.upsert(S, List.of(list));
     keywords.upsert(
         S,
         List.of(list).stream()
@@ -118,6 +122,7 @@ class McpToolsTest {
         new McpTools(
             new ContextEngineBuilder()
                 .units(units)
+                .unrestricted(maintenance)
                 .keywords(keywords)
                 .vectors(vectors)
                 .embedder(ZERO)
@@ -126,7 +131,7 @@ class McpToolsTest {
                 .lexicalExecutor(TestExecutors.CALLER_THREAD)
                 .build(),
             JSON,
-            (query, hits) -> logged.add(new Logged(query, hits)));
+            (principal, query, hits) -> logged.add(new Logged(query, hits)));
   }
 
   /** 질의 로그에 넘긴 것(질의·응답 hits). */
@@ -135,11 +140,11 @@ class McpToolsTest {
   final List<Logged> logged = new ArrayList<>();
 
   JsonNode search(Map<String, Object> args) {
-    return JSON.readTree(tools.searchContext(args));
+    return JSON.readTree(tools.searchContext(Principal.singleUser(), args));
   }
 
   JsonNode read(Map<String, Object> args) {
-    return JSON.readTree(tools.readDocument(args));
+    return JSON.readTree(tools.readDocument(Principal.singleUser(), args));
   }
 
   @Nested
@@ -282,28 +287,45 @@ class McpToolsTest {
   static Stream<Arguments> invalidArguments() {
     return Stream.of(
         Arguments.of(
-            Named.of("search_context 빈 질의", (ToolCall) t -> t.searchContext(Map.of("query", ""))),
+            Named.of(
+                "search_context 빈 질의",
+                (ToolCall) t -> t.searchContext(Principal.singleUser(), Map.of("query", ""))),
             "MCP error -32602: Input validation error: Invalid arguments for tool search_context: Too small: expected string to have >=1 characters at query"),
         Arguments.of(
             Named.of(
                 "search_context limit 타입 오류",
-                (ToolCall) t -> t.searchContext(Map.of("query", "정산", "limit", "x"))),
+                (ToolCall)
+                    t ->
+                        t.searchContext(
+                            Principal.singleUser(), Map.of("query", "정산", "limit", "x"))),
             "Invalid input: expected number, received string at limit"),
         Arguments.of(
-            Named.of("read_document documentId 누락", (ToolCall) t -> t.readDocument(Map.of())),
+            Named.of(
+                "read_document documentId 누락",
+                (ToolCall) t -> t.readDocument(Principal.singleUser(), Map.of())),
             "expected string, received undefined at documentId"),
         Arguments.of(
             Named.of(
                 "read_document limit 범위 밖",
-                (ToolCall) t -> t.readDocument(Map.of("documentId", "slack-doc", "limit", 1000))),
+                (ToolCall)
+                    t ->
+                        t.readDocument(
+                            Principal.singleUser(),
+                            Map.of("documentId", "slack-doc", "limit", 1000))),
             "Too big: expected number to be <=100 at limit"),
         Arguments.of(
             Named.of(
                 "read_document offset -1",
-                (ToolCall) t -> t.readDocument(Map.of("documentId", "slack-doc", "offset", -1))),
+                (ToolCall)
+                    t ->
+                        t.readDocument(
+                            Principal.singleUser(),
+                            Map.of("documentId", "slack-doc", "offset", -1))),
             "Too small: expected number to be >=0 at offset"),
         Arguments.of(
-            Named.of("assemble_context query 누락", (ToolCall) t -> t.assembleContext(Map.of())),
+            Named.of(
+                "assemble_context query 누락",
+                (ToolCall) t -> t.assembleContext(Principal.singleUser(), Map.of())),
             "expected string, received undefined at query"));
   }
 
@@ -333,7 +355,10 @@ class McpToolsTest {
     @DisplayName("숫자 인자에 boolean·object·array·소수가 오면 타입 이름을 붙인 검증 오류다")
     void numberArgumentTypeNames(Object value, String message) {
       // when·then
-      assertThatThrownBy(() -> tools.searchContext(Map.of("query", "정산", "limit", value)))
+      assertThatThrownBy(
+              () ->
+                  tools.searchContext(
+                      Principal.singleUser(), Map.of("query", "정산", "limit", value)))
           .isInstanceOf(ToolArguments.Invalid.class)
           .hasMessageContaining(message);
     }
@@ -380,7 +405,8 @@ class McpToolsTest {
     @DisplayName("없는 문서는 '문서를 찾을 수 없음' ToolError다")
     void missingDocumentIsToolError() {
       // when·then
-      assertThatThrownBy(() -> tools.readDocument(Map.of("documentId", "missing-doc")))
+      assertThatThrownBy(
+              () -> tools.readDocument(Principal.singleUser(), Map.of("documentId", "missing-doc")))
           .isInstanceOf(McpTools.ToolError.class)
           .hasMessage("문서를 찾을 수 없음: missing-doc");
     }
@@ -422,7 +448,9 @@ class McpToolsTest {
   @DisplayName("related_documents로 slack-doc의 관련 문서를 찾으면")
   class RelatedDocumentsTool {
     JsonNode first() {
-      return JSON.readTree(tools.relatedDocuments(Map.of("documentId", "slack-doc", "limit", 3)))
+      return JSON.readTree(
+              tools.relatedDocuments(
+                  Principal.singleUser(), Map.of("documentId", "slack-doc", "limit", 3)))
           .get("related")
           .get(0);
     }
@@ -452,7 +480,8 @@ class McpToolsTest {
     @DisplayName("없는 문서는 ToolError다")
     void missingDocumentIsToolError() {
       // when·then
-      assertThatThrownBy(() -> tools.relatedDocuments(Map.of("documentId", "nope")))
+      assertThatThrownBy(
+              () -> tools.relatedDocuments(Principal.singleUser(), Map.of("documentId", "nope")))
           .isInstanceOf(McpTools.ToolError.class);
     }
   }
@@ -461,7 +490,7 @@ class McpToolsTest {
   @DisplayName("assemble_context로 '정산'을 조립하면")
   class AssembleContext {
     JsonNode assemble() {
-      return JSON.readTree(tools.assembleContext(Map.of("query", "정산")));
+      return JSON.readTree(tools.assembleContext(Principal.singleUser(), Map.of("query", "정산")));
     }
 
     @Test
@@ -548,6 +577,127 @@ class McpToolsTest {
     }
   }
 
+  @Nested
+  @DisplayName("후보가 충분한 공간에서 effort·profile 인자를 주면")
+  class SearchOptions {
+    /** 기본 유닛 2개 + 문서별 유닛 9개 — low가 상향 없이 끝낼 만큼의 후보. */
+    @BeforeEach
+    void givenEnoughCandidates() {
+      for (int i = 1; i <= 9; i++)
+        load(unit("x-" + i).inDocument("x-" + i).content("정산 후보 " + i).build());
+    }
+
+    JsonNode applied(Map<String, Object> extra) {
+      Map<String, Object> args = new HashMap<>(extra);
+      args.put("query", "정산");
+      return search(args).get("applied");
+    }
+
+    @Test
+    @DisplayName("인자를 주지 않으면 medium·auto·상향 없음을 알린다")
+    void defaultsAreReported() {
+      // when
+      JsonNode applied = applied(Map.of());
+
+      // then
+      assertThat(applied.toString())
+          .isEqualTo("{\"effort\":\"medium\",\"profile\":\"auto\",\"escalated\":false}");
+    }
+
+    @Test
+    @DisplayName("effort high는 적용 강도 high로 알린다")
+    void highEffortIsApplied() {
+      // when
+      JsonNode applied = applied(Map.of("effort", "high"));
+
+      // then
+      assertThat(applied.get("effort").asString()).isEqualTo("high");
+    }
+
+    @Test
+    @DisplayName("effort low는 후보가 충분하면 상향 없이 low로 알린다")
+    void lowEffortStaysLow() {
+      // when
+      JsonNode applied = applied(Map.of("effort", "low"));
+
+      // then
+      assertThat(applied.get("effort").asString()).isEqualTo("low");
+      assertThat(applied.get("escalated").asBoolean()).isFalse();
+    }
+
+    @Test
+    @DisplayName("profile current는 적용 프로필 current로 알린다")
+    void currentProfileIsApplied() {
+      // when
+      JsonNode applied = applied(Map.of("profile", "current"));
+
+      // then
+      assertThat(applied.get("profile").asString()).isEqualTo("current");
+    }
+
+    @Test
+    @DisplayName("assemble_context도 applied를 싣는다")
+    void assembleReportsApplied() {
+      // when
+      JsonNode r =
+          JSON.readTree(
+              tools.assembleContext(
+                  Principal.singleUser(),
+                  Map.of("query", "정산", "effort", "high", "profile", "current")));
+
+      // then
+      assertThat(r.get("applied").toString())
+          .isEqualTo("{\"effort\":\"high\",\"profile\":\"current\",\"escalated\":false}");
+    }
+
+    @Test
+    @DisplayName("assemble_context 유닛은 capturedAt을 싣는다")
+    void assembleUnitsCarryCapturedAt() {
+      // when
+      JsonNode unit =
+          unitOf(
+              JSON.readTree(tools.assembleContext(Principal.singleUser(), Map.of("query", "정산"))),
+              "notion-doc");
+
+      // then
+      assertThat(unit.get("capturedAt").asString()).isEqualTo(CAPTURED_AT);
+    }
+
+    @Test
+    @DisplayName("알 수 없는 effort는 검증 오류다")
+    void unknownEffortIsInvalid() {
+      // when·then
+      assertThatThrownBy(
+              () ->
+                  tools.searchContext(
+                      Principal.singleUser(), Map.of("query", "정산", "effort", "max")))
+          .isInstanceOf(ToolArguments.Invalid.class)
+          .hasMessageContaining("expected one of \"low\"|\"medium\"|\"high\" at effort");
+    }
+
+    @Test
+    @DisplayName("알 수 없는 profile은 검증 오류다")
+    void unknownProfileIsInvalid() {
+      // when·then
+      assertThatThrownBy(
+              () ->
+                  tools.assembleContext(
+                      Principal.singleUser(), Map.of("query", "정산", "profile", "as-of")))
+          .isInstanceOf(ToolArguments.Invalid.class)
+          .hasMessageContaining("expected one of \"auto\"|\"current\" at profile");
+    }
+
+    @Test
+    @DisplayName("문자열이 아닌 effort는 타입 오류다")
+    void nonStringEffortIsInvalid() {
+      // when·then
+      assertThatThrownBy(
+              () -> tools.searchContext(Principal.singleUser(), Map.of("query", "정산", "effort", 3)))
+          .isInstanceOf(ToolArguments.Invalid.class)
+          .hasMessageContaining("expected string, received number at effort");
+    }
+  }
+
   /**
    * 클램프 경계를 관찰 가능한 결과로: 기본 유닛 2개(5+5) 위에 300·300·4500·4500 토큰 유닛을 두면 유효 예산 500은 300 하나까지(310),
    * 8000은 300 둘 + 4500 하나까지(5110) 담고 나머지를 건너뛴다. 클램프가 없다면 10은 기본 유닛만(10), 90000은 전부(9610) 담긴다.
@@ -565,7 +715,9 @@ class McpToolsTest {
 
     // when
     JsonNode r =
-        JSON.readTree(tools.assembleContext(Map.of("query", "정산", "tokenBudget", requested)));
+        JSON.readTree(
+            tools.assembleContext(
+                Principal.singleUser(), Map.of("query", "정산", "tokenBudget", requested)));
 
     // then
     assertThat(r.get("tokensUsed").asInt()).isEqualTo(expectedUsed).isLessThanOrEqualTo(effective);

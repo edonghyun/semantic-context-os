@@ -21,16 +21,15 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Drive 원본 → 문서(TS source-projector/src/google-drive-projector.ts). 파일(`gdrive.file`)과 공유
- * 드라이브(`gdrive.drive`) 원본 하나가 문서 하나이고, 시트 범위 원본(`gdrive.sheet`)은 metadata.fileId의 파일 문서에 붙는다. 바이너리
- * 원본은 읽지 않는다.
+ * Drive 원본 → 문서. 파일(`gdrive.file`)과 공유 드라이브(`gdrive.drive`) 원본 하나가 문서 하나이고, 시트 범위
+ * 원본(`gdrive.sheet`)은 metadata.fileId의 파일 문서에 붙는다. 바이너리 원본은 읽지 않는다.
  *
  * <p>본문(문단을 빈 줄로 잇고 빈 문단은 뺀다): `# 제목`(없으면 문서 id), 설명, `파일 형식: …`, `상위 폴더 ID: …`, `바로가기 대상: …`, 추출
  * 종류별 본문 — Docs(탭·하위 탭·머리말·꼬리말·각주), Sheets(시트 제목 + 범위마다 `A1: 값 (수식: …) (메모: …) (링크)` — 파일 버전과 같은
  * 범위만, 나머지는 `## 수집 제한` 줄), Slides(슬라이드·표·그룹·발표자 노트), 텍스트 — 그다음 `## 댓글`(답글은 ` ↳`), `## 수집 제한`.
  *
- * <p>TS와 같은 관대한 읽기: 객체가 아닌 값은 빈 객체, 배열이 아닌 값은 빈 배열, 문자열이 아닌 값은 빈 문자열로 본다(투영이 실패하지 않는다). 객체 값을 도는
- * 순서·trim·수 표기는 JS와 같다({@link JsText}).
+ * <p>관대한 읽기: 객체가 아닌 값은 빈 객체, 배열이 아닌 값은 빈 배열, 문자열이 아닌 값은 빈 문자열로 본다(투영이 실패하지 않는다). 객체 값을 도는 순서·trim·수
+ * 표기는 JS와 같다({@link JsText}).
  */
 public final class GoogleDriveProjector implements Projector {
   public static final String KIND = "google-drive";
@@ -41,6 +40,9 @@ public final class GoogleDriveProjector implements Projector {
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
   private final ObjectMapper json;
+  private final DocsRenderer docs = new DocsRenderer();
+  private final SheetsRenderer sheets = new SheetsRenderer();
+  private final SlidesRenderer slides = new SlidesRenderer();
 
   public GoogleDriveProjector(ObjectMapper json) {
     this.json = json;
@@ -86,41 +88,10 @@ public final class GoogleDriveProjector implements Projector {
     if (title.isEmpty()) title = documentId;
     List<String> lines = new ArrayList<>();
     lines.add("# " + title);
-    if (JsText.truthy(file.get("description"))) lines.add(JsText.text(file.get("description")));
-    if (JsText.truthy(file.get("mimeType")))
-      lines.add("파일 형식: " + JsText.text(file.get("mimeType")));
-    JsonNode parents = file.get("parents");
-    if (parents != null && parents.isArray() && !parents.isEmpty())
-      lines.add("상위 폴더 ID: " + JsText.join(parents, ", "));
-    JsonNode targetId = JsText.object(file.get("shortcutDetails")).get("targetId");
-    if (JsText.truthy(targetId))
-      lines.add("바로가기 대상: https://drive.google.com/file/d/" + component(JsText.string(targetId)));
-    JsonNode workspace = JsText.object(payload.get("workspace"));
-    String extraction = JsText.isString(payload.get("extraction"), "");
-    switch (extraction) {
-      case "google_docs" -> lines.add(DocsRenderer.document(workspace));
-      case "google_sheets" -> {
-        lines.add(SheetsRenderer.spreadsheet(workspace));
-        sheetRanges(payload, file, items, reader, lines);
-      }
-      case "google_slides" -> lines.add(SlidesRenderer.presentation(workspace));
-      case "text" -> lines.add(JsText.text(payload.get("text")));
-      default -> {}
-    }
-    List<JsonNode> comments = undeleted(JsText.objects(payload.get("comments")));
-    if (!comments.isEmpty()) {
-      lines.add("## 댓글");
-      for (JsonNode comment : comments) {
-        lines.add(author(comment) + ": " + JsText.text(comment.get("content")));
-        for (JsonNode reply : undeleted(JsText.objects(comment.get("replies"))))
-          lines.add("  ↳ " + author(reply) + ": " + JsText.text(reply.get("content")));
-      }
-    }
-    JsonNode limitations = payload.get("limitations");
-    if (limitations != null && limitations.isArray() && !limitations.isEmpty())
-      // TS limitations.map(String).join — null 원소도 "null"이다(Array#join과 다르다)
-      lines.add(
-          "## 수집 제한\n" + String.join("\n", limitations.valueStream().map(JsText::string).toList()));
+    lines.addAll(fileFacts(file));
+    lines.addAll(content(payload, file, items, reader));
+    lines.addAll(comments(payload));
+    limitations(payload).ifPresent(lines::add);
     String url = JsText.text(JsText.object(json.readTree(item.metadataJson())).get("url"));
     String observedAt = ISO_MILLIS.format(item.observedAt());
     return Optional.of(
@@ -132,6 +103,63 @@ public final class GoogleDriveProjector implements Projector {
             String.join("\n\n", lines.stream().filter(l -> !l.isEmpty()).toList()),
             item.sourceCreatedAt().orElse(observedAt),
             item.sourceUpdatedAt().orElse(observedAt)));
+  }
+
+  /** 파일 사실: 설명, 형식, 상위 폴더, 바로가기 대상. */
+  private static List<String> fileFacts(JsonNode file) {
+    List<String> lines = new ArrayList<>();
+    if (JsText.truthy(file.get("description"))) lines.add(JsText.text(file.get("description")));
+    if (JsText.truthy(file.get("mimeType")))
+      lines.add("파일 형식: " + JsText.text(file.get("mimeType")));
+    JsonNode parents = file.get("parents");
+    if (parents != null && parents.isArray() && !parents.isEmpty())
+      lines.add("상위 폴더 ID: " + JsText.join(parents, ", "));
+    JsonNode targetId = JsText.object(file.get("shortcutDetails")).get("targetId");
+    if (JsText.truthy(targetId))
+      lines.add("바로가기 대상: https://drive.google.com/file/d/" + component(JsText.string(targetId)));
+    return lines;
+  }
+
+  /** 추출 방식별 본문(시트는 범위 원본까지). */
+  private List<String> content(
+      JsonNode payload, JsonNode file, List<RawItem> items, ContentReader reader) {
+    List<String> lines = new ArrayList<>();
+    JsonNode workspace = JsText.object(payload.get("workspace"));
+    String extraction = JsText.isString(payload.get("extraction"), "");
+    switch (extraction) {
+      case "google_docs" -> lines.add(docs.document(workspace));
+      case "google_sheets" -> {
+        lines.add(sheets.spreadsheet(workspace));
+        sheetRanges(payload, file, items, reader, lines);
+      }
+      case "google_slides" -> lines.add(slides.presentation(workspace));
+      case "text" -> lines.add(JsText.text(payload.get("text")));
+      default -> {}
+    }
+    return lines;
+  }
+
+  /** 지우지 않은 댓글과 그 답글. */
+  private static List<String> comments(JsonNode payload) {
+    List<String> lines = new ArrayList<>();
+    List<JsonNode> comments = undeleted(JsText.objects(payload.get("comments")));
+    if (comments.isEmpty()) return lines;
+    lines.add("## 댓글");
+    for (JsonNode comment : comments) {
+      lines.add(author(comment) + ": " + JsText.text(comment.get("content")));
+      for (JsonNode reply : undeleted(JsText.objects(comment.get("replies"))))
+        lines.add("  ↳ " + author(reply) + ": " + JsText.text(reply.get("content")));
+    }
+    return lines;
+  }
+
+  private static Optional<String> limitations(JsonNode payload) {
+    JsonNode limitations = payload.get("limitations");
+    if (limitations == null || !limitations.isArray() || limitations.isEmpty())
+      return Optional.empty();
+    // limitations.map(String).join — null 원소도 "null"이다(Array#join과 다르다)
+    return Optional.of(
+        "## 수집 제한\n" + String.join("\n", limitations.valueStream().map(JsText::string).toList()));
   }
 
   /** 범위 원본마다 파일 버전과 같으면 렌더링하고, 없거나 다르면 센다. */
@@ -153,12 +181,12 @@ public final class GoogleDriveProjector implements Projector {
         missing++;
         continue;
       }
-      lines.add(SheetsRenderer.spreadsheet(JsText.object(range.get("workspace"))));
+      lines.add(sheets.spreadsheet(JsText.object(range.get("workspace"))));
     }
     if (missing > 0) lines.add("## 수집 제한\n시트 범위 " + missing + "개 미수집 또는 버전 불일치");
   }
 
-  /** 원본 JSON(TS object(await readContent(item))): 본문이 없거나 객체가 아니면 빈 객체. */
+  /** 원본 JSON: 본문이 없거나 객체가 아니면 빈 객체. */
   private JsonNode read(RawItem item, ContentReader reader) {
     return JsText.object(reader.apply(item).map(json::readTree).orElse(null));
   }

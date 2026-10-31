@@ -357,4 +357,47 @@ class ResponseComparatorTest {
       throw new IllegalStateException(e);
     }
   }
+
+  @Nested
+  @DisplayName("의도적 추가 필드(applied·capturedAt)는")
+  class AdditiveFields {
+    static final String PLAIN =
+        "{\"units\":[{\"title\":\"a\"}],\"tokensUsed\":1,\"freshness\":{\"stale\":false}}";
+    static final String ADDED =
+        "{\"units\":[{\"title\":\"a\",\"capturedAt\":\"t\"}],\"tokensUsed\":1,\"freshness\":{\"stale\":false},\"applied\":{\"effort\":\"medium\"}}";
+    static final String RENAMED =
+        "{\"units\":[{\"title\":\"b\",\"capturedAt\":\"t\"}],\"tokensUsed\":1,\"freshness\":{\"stale\":false},\"applied\":{\"effort\":\"medium\"}}";
+
+    @Test
+    @DisplayName("기대에 없으면 실제에 있어도 차이가 아니다")
+    void ignoredWhenExpectedLacksThem() throws Exception {
+      // when
+      var diffs = cmp.compareToolResult(tool(PLAIN), tool(ADDED));
+
+      // then
+      assertThat(diffs).isEmpty();
+    }
+
+    @Test
+    @DisplayName("무시해도 다른 필드 차이는 그대로 보고한다")
+    void otherDifferencesStillReported() throws Exception {
+      // when
+      var diffs = cmp.compareToolResult(tool(PLAIN), tool(RENAMED));
+
+      // then
+      assertThat(diffs)
+          .extracting(ResponseComparator.Difference::path)
+          .containsExactly("$.content[0].json.units[0].title");
+    }
+
+    @Test
+    @DisplayName("기대에 이미 있으면 그대로 비교한다")
+    void comparedWhenExpectedHasThem() throws Exception {
+      // when
+      var diffs = cmp.compareToolResult(tool(ADDED), tool(PLAIN));
+
+      // then
+      assertThat(diffs).isNotEmpty();
+    }
+  }
 }

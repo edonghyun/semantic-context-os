@@ -8,7 +8,7 @@ import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.SourceInstances;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.SourceInstanceId;

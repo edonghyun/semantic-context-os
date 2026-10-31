@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionMode;
@@ -134,12 +134,9 @@ class CollectionRuntimeHeartbeatStartFailureTest {
           @Override
           public synchronized CollectionRun finish(
               RunId id,
-              RunStatus status,
+              RunOutcome outcome,
               CollectionCoverage coverage,
               Instant finishedAt,
-              int errorCount,
-              Optional<String> errorKind,
-              Optional<String> errorSummary,
               int reconciled) {
             throw new IllegalStateException(FINISH_FAILURE);
           }

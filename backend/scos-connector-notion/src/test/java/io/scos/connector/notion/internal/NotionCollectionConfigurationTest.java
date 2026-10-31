@@ -3,8 +3,13 @@ package io.scos.connector.notion.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.boot.NotionCollectionConfiguration;
+import io.scos.collection.internal.BodyCompletion;
 import io.scos.collection.internal.RawContentCapture;
+import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.SnapshotShrinkLimits;
 import io.scos.collection.internal.TsRawViews;
+import io.scos.collection.internal.memory.MemoryBodyCompletionStore;
+import io.scos.collection.internal.memory.MemoryRawItemStore;
 import io.scos.connector.notion.NotionAdapter;
 import io.scos.connector.notion.NotionAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
@@ -108,6 +113,10 @@ class NotionCollectionConfigurationTest {
   /** 운영 조립(빈) 어댑터로 가짜 Notion의 roots 첫 수집을 돌린 페이지. */
   private List<CollectionPage> collectWithBeanAdapter() {
     List<CollectionPage> pages = new ArrayList<>();
+    var raw = new MemoryRawItemStore();
+    var bodies =
+        new BodyCompletion(new MemoryBodyCompletionStore(), raw, SnapshotShrinkLimits.DEFAULTS);
+    var run = new RunId("bean-assembly");
     assembly
         .withPropertyValues("scos.collection.notion.base-url=" + server.baseUrl())
         .withBean(CredentialResolver.class, () -> ref -> server.token())
@@ -124,8 +133,14 @@ class NotionCollectionConfigurationTest {
                             CollectionMode.INCREMENTAL,
                             ctx.getBean(ProviderCallExecutor.class),
                             RawContentCapture.defaults(),
-                            CancellationToken.none()),
-                        pages::add));
+                            CancellationToken.none(),
+                            bodies.state(NotionAssembly.SOURCE)),
+                        page -> {
+                          page.mutations()
+                              .forEach(mutation -> raw.apply(NotionAssembly.SOURCE, mutation));
+                          bodies.apply(NotionAssembly.SOURCE, run, page, NotionScenario.NOW);
+                          pages.add(page);
+                        }));
     return pages;
   }
 

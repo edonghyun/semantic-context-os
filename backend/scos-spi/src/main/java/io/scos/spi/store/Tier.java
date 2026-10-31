@@ -2,7 +2,7 @@ package io.scos.spi.store;
 
 import java.util.Locale;
 
-/** 유닛 티어(CONTRACTS B·C). 와이어 값은 TS와 같은 소문자. */
+/** 유닛 티어(CONTRACTS B·C). 와이어 값은 소문자. */
 public enum Tier {
   RAW,
   COMPACTED,

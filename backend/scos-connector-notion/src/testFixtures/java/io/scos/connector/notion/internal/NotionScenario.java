@@ -6,7 +6,7 @@ import io.scos.connector.notion.NotionAdapter;
 import io.scos.connector.notion.NotionAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
@@ -15,6 +15,7 @@ import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.CredentialResolver;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.support.FakeHttpServer.Response;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -117,6 +119,21 @@ final class NotionScenario implements AutoCloseable {
     throw new IllegalArgumentException("given 준비 실패: TS 장애 run이 없다 — " + label);
   }
 
+  /** 이 목록 경로(검색 "POST /v1/search", 블록 자식 "GET /v1/blocks/<id>/children")의 다음 커서가 A → B → A로 돈다. */
+  void withCyclingCursor(String method, String path, String type) {
+    notion.cycleCursor(method, path, type);
+  }
+
+  /** 이 목록 경로가 요청한 커서를 다음 커서로 다시 준다(A → A). */
+  void withRepeatedCursor(String method, String path, String type) {
+    notion.repeatCursor(method, path, type);
+  }
+
+  /** 이 목록 경로는 요청 커서(첫 페이지는 없음)에 따라 이 각본으로 답한다(데이터셋보다 앞선다). */
+  void script(String method, String path, Function<Optional<String>, Response> answer) {
+    notion.script(method, path, answer);
+  }
+
   /** 수집을 이미 취소된 토큰으로 시작한다. */
   void cancelBeforeStart() {
     cancel.cancel();
@@ -134,10 +151,10 @@ final class NotionScenario implements AutoCloseable {
    * hang 장애 각본의 요청이 걸리면 수집 스레드(부른 스레드)를 인터럽트하고 그 수집을 끝까지 돌린다 — 응답을 기다리는 중의 인터럽트(데몬 stop). 끝나면 표시를
    * 읽으면서 지운다(다음 테스트로 새지 않게).
    */
-  Interrupted collectInterruptedWhileHanging(Config config) {
+  Interrupted collectTraversalInterruptedWhileHanging(Config config) {
     Thread collector = Thread.currentThread();
     notion.onHang(collector::interrupt);
-    Collection collection = collect(config);
+    Collection collection = collectTraversal(config);
     return new Interrupted(collection, Thread.interrupted());
   }
 
@@ -180,6 +197,46 @@ final class NotionScenario implements AutoCloseable {
               out.pages::add);
     } catch (RuntimeException e) {
       out.failure = e;
+    }
+    return out;
+  }
+
+  Collection collectTraversal(Config config) {
+    return collectTraversal(config.json(), Optional.empty());
+  }
+
+  Collection collectTraversalFrom(Config config, Checkpoint checkpoint) {
+    return collectTraversal(config.json(), Optional.of(checkpoint));
+  }
+
+  /** v3 순회 소유자의 TS 요청/페이지 계약. v4 실제 어댑터 계약은 런타임 suite가 검증한다. */
+  Collection collectTraversal(String configJson, Optional<Checkpoint> checkpoint) {
+    var config = NotionConfiguration.read(NotionFixtures.JSON, new SourceConfig(1, configJson));
+    if (!(config instanceof NotionConfiguration.Roots roots))
+      return collect(configJson, checkpoint);
+    var out = new Collection();
+    try {
+      var input =
+          new CollectionInput(
+              NotionAssembly.instance(configJson, NOW).descriptor(),
+              checkpoint,
+              CollectionMode.INCREMENTAL,
+              executor(),
+              RawContentCapture.defaults(),
+              cancel);
+      var traversal = NotionRootTraversal.resume(NotionFixtures.JSON, roots, checkpoint);
+      var client =
+          NotionAssembly.client(unreachableBaseUrl.orElse(notion.baseUrl()), requestTimeout);
+      new NotionRootCollection(
+              roots,
+              traversal,
+              client,
+              new NotionCalls(input, clock),
+              new NotionMutations(input.content(), clock),
+              CredentialResolver.headerValue(credential.orElse(notion.token())))
+          .collect(out.pages::add);
+    } catch (RuntimeException failure) {
+      out.failure = failure;
     }
     return out;
   }
@@ -255,6 +312,28 @@ final class NotionScenario implements AutoCloseable {
       return failure()
           .filter(CallFailureException.class::isInstance)
           .map(f -> ((CallFailureException) f).failure().kind());
+    }
+
+    /** 공급자 호출 실패로 끝났으면 그 실패 메시지 — run의 errorSummary와 collection.run.failed 이벤트에 그대로 남는다. */
+    Optional<String> failureMessage() {
+      return failure()
+          .filter(CallFailureException.class::isInstance)
+          .map(f -> ((CallFailureException) f).failure().message());
+    }
+
+    /** 공급자 호출 실패로 끝났으면 그 위치(JSON) — collection.run.failed 이벤트의 providerLocator가 된다. */
+    Optional<JsonNode> failureLocator() {
+      return failure()
+          .filter(CallFailureException.class::isInstance)
+          .flatMap(f -> ((CallFailureException) f).providerLocatorJson())
+          .map(NotionFixtures.JSON::readTree);
+    }
+
+    /** 공급자 호출 실패로 끝났으면 그 응답 검사 위반 — collection.run.failed 이벤트의 violation이 된다. */
+    Optional<CallFailure.Violation> failureViolation() {
+      return failure()
+          .filter(CallFailureException.class::isInstance)
+          .flatMap(f -> ((CallFailureException) f).failure().violation());
     }
 
     /** 이 실패로 run에 남을 errorKind — 제품 매핑(CONTRACTS "run errorKind 매핑") 그대로. 실패가 없으면 비어 있다. */

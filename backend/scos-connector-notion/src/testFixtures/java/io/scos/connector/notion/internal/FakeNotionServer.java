@@ -14,20 +14,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import tools.jackson.databind.JsonNode;
 
 /**
  * 가짜 Notion API(합성 데이터셋 harness/fixtures/notion/notion-dataset.json). 공용 {@link FakeHttpServer} 위의
  * 얇은 층이다: 데이터셋 라우트(메서드·경로·디코드한 쿼리·POST 본문 JSON → 차례 응답, 다 쓰면 마지막 반복)와 Notion 형식의 인증 거절(401
- * unauthorized)만 정한다. 응답 본문은 데이터셋의 원문 그대로다. 경로는 맞는데 쿼리·본문이 데이터셋에 없는 요청, Notion-Version이 다른 요청,
- * JSON이 아닌 Content-Type의 POST(TS 가짜 fetch와 같은 문턱)는 실패로 남긴다. 실제 Notion으로는 나가지 않는다.
+ * unauthorized)만 정한다. 응답 본문은 데이터셋의 원문 그대로다. 미등록 쿼리·본문, 다른 Notion-Version, JSON이 아닌 Content-Type의
+ * POST는 실패로 남긴다. 실제 Notion으로는 나가지 않는다.
  */
 public final class FakeNotionServer implements AutoCloseable {
   /** 데이터셋 라우트 하나. body는 POST 본문 JSON(GET은 null) — 키 순서와 무관하게 비교한다. */
   private record Route(
       Map<String, String> params, JsonNode body, List<Response> responses, AtomicInteger served) {
     boolean matches(Recorded request) {
-      return params.equals(request.params()) && Objects.equals(body, bodyOf(request));
+      if (!params.equals(request.params())) return false;
+      var requested = bodyOf(request);
+      return Objects.equals(body, requested);
     }
 
     Response next() {
@@ -69,6 +72,8 @@ public final class FakeNotionServer implements AutoCloseable {
   private final Map<String, List<Route>> shared = new LinkedHashMap<>();
   private final Map<String, List<Fault>> faults = new ConcurrentHashMap<>();
   private final Map<String, Response> overrides = new ConcurrentHashMap<>();
+  private final Map<String, Function<Optional<String>, Response>> scripts =
+      new ConcurrentHashMap<>();
   private final List<String> failures = new CopyOnWriteArrayList<>();
   private final CountDownLatch released = new CountDownLatch(1);
   private final AtomicInteger answered = new AtomicInteger();
@@ -156,6 +161,75 @@ public final class FakeNotionServer implements AutoCloseable {
     register(key);
   }
 
+  /**
+   * 커서가 두 값 사이를 도는 목록(A → B → A): 이 목록 경로는 요청 커서(GET은 start_cursor 쿼리, POST는 본문)에 따라 빈 결과와 다음 커서로
+   * 답한다 — 없음 → A, A → B, B → A(한 번), 그 뒤 B → 끝. 가드가 없는 순회도 한 바퀴 뒤 끝나 테스트가 단언으로 실패한다.
+   */
+  void cycleCursor(String method, String path, String type) {
+    script(method, path, new CursorCycle(type, false)::answer);
+    register(method + " " + path);
+  }
+
+  /**
+   * 요청한 커서를 다음 커서로 다시 주는 목록(A → A): 없음 → A, A → A(한 번), 그 뒤 A → 끝. 가드가 없는 순회도 끝나 테스트가 단언으로 실패한다.
+   */
+  void repeatCursor(String method, String path, String type) {
+    script(method, path, new CursorCycle(type, true)::answer);
+    register(method + " " + path);
+  }
+
+  /**
+   * 이 목록 경로는 요청 커서(GET은 start_cursor 쿼리, POST는 본문, 첫 페이지는 없음)에 따라 이 각본으로 답한다 — 같은 커서가 두 번 오면 각본이 몇
+   * 번째인지 센다. 데이터셋보다 앞선다.
+   */
+  void script(String method, String path, Function<Optional<String>, Response> answer) {
+    scripts.put(method + " " + path, answer);
+    register(method + " " + path);
+  }
+
+  private static final class CursorCycle {
+    static final String A = "cycle-a";
+    static final String B = "cycle-b";
+    private final String type;
+    private final boolean repeat;
+    private final AtomicInteger returned = new AtomicInteger();
+
+    CursorCycle(String type, boolean repeat) {
+      this.type = type;
+      this.repeat = repeat;
+    }
+
+    Response answer(Optional<String> cursor) {
+      Optional<String> next =
+          cursor.isEmpty()
+              ? Optional.of(A)
+              : !repeat && cursor.get().equals(A)
+                  ? Optional.of(B)
+                  : returned.getAndIncrement() == 0 ? Optional.of(A) : Optional.empty();
+      String nextJson = next.map(c -> "\"" + c + "\"").orElse("null");
+      return new Response(
+          200,
+          "{\"object\":\"list\",\"results\":[],\"next_cursor\":"
+              + nextJson
+              + ",\"has_more\":"
+              + next.isPresent()
+              + ",\"type\":\""
+              + type
+              + "\",\""
+              + type
+              + "\":{}}",
+          Map.of());
+    }
+  }
+
+  private static Optional<String> requestedCursor(Recorded request) {
+    if (request.method().equals("GET"))
+      return Optional.ofNullable(request.params().get("start_cursor"));
+    JsonNode body = bodyOf(request);
+    JsonNode cursor = body == null ? null : body.get("start_cursor");
+    return cursor == null || !cursor.isString() ? Optional.empty() : Optional.of(cursor.asString());
+  }
+
   /** 이 메서드·경로(쿼리·본문 무관)에는 데이터셋 대신 이 응답으로 답한다 — 경로를 새로 등록하기도 한다. */
   void respond(String method, String path, Response response) {
     overrides.put(method + " " + path, response);
@@ -202,6 +276,8 @@ public final class FakeNotionServer implements AutoCloseable {
         onHang.run();
         return hang();
       }
+    Function<Optional<String>, Response> scripted = scripts.get(key);
+    if (scripted != null) return scripted.apply(requestedCursor(request));
     Response override = overrides.get(key);
     if (override != null) return override;
     for (Map<String, List<Route>> routes : activeRoutes())
@@ -216,7 +292,11 @@ public final class FakeNotionServer implements AutoCloseable {
     return expected.get("method").asString().equals(request.method())
         && expected.get("path").asString().equals(request.path())
         && params(expected.get("params")).equals(request.params())
-        && expected.get("body").asString().equals(request.body());
+        && Objects.equals(
+            expected.path("body").asString().isEmpty()
+                ? null
+                : NotionFixtures.JSON.readTree(expected.path("body").asString()),
+            bodyOf(request));
   }
 
   private List<Map<String, List<Route>>> activeRoutes() {

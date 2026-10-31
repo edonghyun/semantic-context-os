@@ -4,7 +4,7 @@ import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.connector.notion.NotionAdapter;
 import io.scos.connector.notion.internal.NotionCollectionContract;
 import io.scos.engine.support.call.ProviderCallExecutor;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;

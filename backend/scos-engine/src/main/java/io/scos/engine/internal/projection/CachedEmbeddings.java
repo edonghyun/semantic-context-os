@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 임베딩 입력 한 배치의 벡터를 얻는다(F9, ADR-0026). 캐시에 같은 세대·같은 입력의 벡터가 있으면 그것을 쓰고, 나머지만 임베더에 보낸다 — 배치가 모두 캐시에
@@ -24,7 +25,7 @@ final class CachedEmbeddings {
   private final String generation;
 
   /**
-   * @param generation 캐시 키 공간인 임베딩 세대({@link DocumentIngestor#embeddingGeneration(int)})
+   * @param generation 캐시 키 공간인 임베딩 세대({@link DocumentIngestor#embeddingGeneration()})
    */
   CachedEmbeddings(Embedder embedder, EmbeddingCache cache, String generation) {
     this.embedder = embedder;
@@ -58,7 +59,7 @@ final class CachedEmbeddings {
     return new Batch(List.copyOf(vectors), inputs.size() - misses.size());
   }
 
-  private boolean usable(double[] cached) {
+  private boolean usable(double @Nullable [] cached) {
     return cached != null && cached.length == embedder.dim();
   }
 }

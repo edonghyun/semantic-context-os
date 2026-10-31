@@ -17,17 +17,19 @@ import io.scos.collection.internal.WorkClaimPort;
 import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.collection.internal.projection.Projectors;
+import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.spi.connector.CredentialResolver;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.embedding.Embedder;
+import io.scos.spi.store.SpaceMeta;
+import io.scos.spi.store.UnitMaintenance;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -37,6 +39,7 @@ import org.hibernate.validator.constraints.time.DurationMin;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -48,8 +51,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * `daemon` 명령의 조립(ADR-0020): 감독 설정(TS --interval-seconds 등과 같은 의미), worker 실행기(코어 = 최대 =
- * concurrency, 큐 없음 — 감독이 직접 분배), 감독, 데몬. 프로필 daemon에서만.
+ * `daemon` 명령의 조립(ADR-0020): 감독 설정, worker 실행기(코어 = 최대 = concurrency, 큐 없음 — 감독이 직접 분배), 감독, 데몬.
+ * 프로필 daemon에서만.
  */
 @Configuration(proxyBeanMethods = false)
 @Profile("daemon")
@@ -136,13 +139,25 @@ public class DaemonConfiguration {
   }
 
   /**
-   * 기동 검증(TS validateStartup, ADR-0022 §5): 켜진 소스마다 어댑터·설정·자격 증명을 확인하고, 하나라도 틀리면 컨텍스트가 뜨지 않는다(종료 코드
-   * 1). 잘못 옮긴 등록값이 health 녹색 뒤의 run 실패로만 드러나지 않게 한다.
+   * 기동 검증(ADR-0022 §5): 켜진 소스마다 어댑터·설정·자격 증명을 확인하고, 하나라도 틀리면 컨텍스트가 뜨지 않는다(종료 코드 1). 잘못 옮긴 등록값이
+   * health 녹색 뒤의 run 실패로만 드러나지 않게 한다.
    */
   @Bean
   SmartInitializingSingleton daemonSourceStartupCheck(
       SourceInstanceStore sources, SourceAdapters adapters, CredentialResolver credentials) {
     return () -> new SourceStartupCheck(sources, adapters, credentials).verify();
+  }
+
+  /**
+   * 기동 검사(stage2 §3.3): 투영이 쓰는 공간 가운데 하나라도 저장된 임베딩 세대가 설정 임베더와 다르거나 재임베딩이 끝나지 않았으면 종료 코드 1. 투영 실패가
+   * 반복되는 데몬이 health 녹색으로 뜨는 대신 {@code scos reembed}를 안내한다.
+   */
+  @Bean
+  SmartInitializingSingleton daemonEmbeddingGenerationCheck(
+      SpaceMeta meta, ProjectionSpaces spaces, Embedder embedder) {
+    return () ->
+        EmbeddingGenerationCheck.verify(
+            meta, spaces.spaces(), EmbeddingGenerationCheck.generationOf(embedder));
   }
 
   /**
@@ -152,14 +167,7 @@ public class DaemonConfiguration {
   @Bean
   SmartInitializingSingleton daemonProjectorCoverageCheck(
       SourceAdapters adapters, Projectors projectors) {
-    return () -> requireProjectors(adapters.kinds(), projectors);
-  }
-
-  static void requireProjectors(Set<String> adapterKinds, Projectors projectors) {
-    List<String> missing =
-        adapterKinds.stream().filter(kind -> projectors.forKind(kind).isEmpty()).toList();
-    if (!missing.isEmpty())
-      throw new IllegalStateException("source adapter kinds without a projector: " + missing);
+    return () -> projectors.requireCovering(adapters.kinds());
   }
 
   @Bean
@@ -211,12 +219,19 @@ public class DaemonConfiguration {
         observer::record);
   }
 
-  /** Actuator가 실제로 열린 포트(포트 0이면 임의) — 운영 로그·프로세스 테스트가 여기서 읽는다(Tomcat 자체 로그는 WARN 아래라 안 보인다). */
+  /** 서버 namespace로 MCP·서버와 관리 포트를 구별한다(포트 0의 실제 포트도 운영 로그로 알린다). */
   @Bean
-  ApplicationListener<WebServerInitializedEvent> daemonHttpPortLogger() {
-    return event ->
-        LoggerFactory.getLogger(DaemonConfiguration.class)
-            .info("daemon http port={} (health·metrics)", event.getWebServer().getPort());
+  ApplicationListener<WebServerInitializedEvent> daemonHttpPortLogger(
+      ManagementServerProperties management) {
+    return event -> {
+      var logger = LoggerFactory.getLogger(DaemonConfiguration.class);
+      int port = event.getWebServer().getPort();
+      if ("management".equals(event.getApplicationContext().getServerNamespace())) {
+        // daemon 프로필은 관리 주소를 명시한다(application-daemon.yml).
+        var address = Objects.requireNonNull(management.getAddress());
+        logger.info("daemon management port={} address={}", port, address.getHostAddress());
+      } else logger.info("daemon http port={}", port);
+    };
   }
 
   /** 빈 이름 daemonReadinessHealthIndicator → readiness 그룹의 구성요소 `daemonReadiness`. */
@@ -241,7 +256,7 @@ public class DaemonConfiguration {
   /** 투영 요청·연속 실패·데이터 나이 게이지(Actuator가 MeterBinder 빈을 앱 레지스트리에 묶는다). */
   @Bean
   DaemonGauges daemonGauges(
-      OutboxPort outbox, UnitStore units, Clock clock, ProjectionSpaces spaces) {
+      OutboxPort outbox, UnitMaintenance units, Clock clock, ProjectionSpaces spaces) {
     return new DaemonGauges(outbox, new FreshnessReader(units, clock), spaces.spaces(), clock);
   }
 

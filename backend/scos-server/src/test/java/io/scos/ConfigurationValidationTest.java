@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.boot.AccessParts;
 import io.scos.boot.CollectionConfiguration;
 import io.scos.boot.McpConfiguration;
 import io.scos.boot.MetricsConfiguration;
 import io.scos.boot.ProjectionConfiguration;
-import io.scos.boot.ProvidersConfiguration;
 import io.scos.boot.RerankProperties;
 import io.scos.harness.HarnessConfiguration;
 import io.scos.mcp.McpTools;
@@ -16,11 +16,10 @@ import io.scos.server.DaemonConfiguration;
 import io.scos.server.ScosApplication;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
-import io.scos.spi.embedding.TextGenerator;
 import io.scos.spi.store.KeywordIndex;
-import io.scos.spi.store.UnitStore;
-import io.scos.spi.store.VectorIndex;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.store.memory.MemoryKeywordIndex;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import java.nio.file.FileSystem;
@@ -35,7 +34,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -48,16 +46,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 잘못된 설정은 기동 실패다(계획 4.1, ADR-0009·I-7): 임베더 부재·Gemini 키 누락·하네스 설정 누락.
- * 슬라이스(ApplicationContextRunner), DB 없음.
+ * 잘못된 설정은 기동 실패다(계획 4.1, ADR-0009·I-7): 임베더 부재·하네스 설정 누락. 공급자 설정(Gemini 키 등)은 starter의
+ * ProvidersConfigurationTest가 본다(co-location). 슬라이스(ApplicationContextRunner), DB 없음.
  */
 @DisplayName("잘못된 설정은 기동 실패다(계획 4.1·ADR-0009·I-7)")
 class ConfigurationValidationTest {
   @Configuration(proxyBeanMethods = false)
   static class MemoryEngine {
     @Bean
-    UnitStore unitStore() {
+    MemoryUnitStore unitStore() {
       return new MemoryUnitStore();
+    }
+
+    @Bean
+    UnitMaintenance unitMaintenance(MemoryUnitStore units, MemoryVectorIndex vectors) {
+      return new MemoryUnitMaintenance(units, vectors);
+    }
+
+    @Bean
+    AccessParts accessParts(UnitMaintenance maintenance) {
+      return new AccessParts.Unrestricted(maintenance);
     }
 
     @Bean
@@ -66,7 +74,7 @@ class ConfigurationValidationTest {
     }
 
     @Bean
-    VectorIndex vectorIndex() {
+    MemoryVectorIndex vectorIndex() {
       return new MemoryVectorIndex();
     }
 
@@ -169,7 +177,7 @@ class ConfigurationValidationTest {
     }
 
     @Test
-    @DisplayName("scos.rerank.provider가 none·gemini 밖이면 기동에 실패한다")
+    @DisplayName("재정렬 공급자가 none·gemini·openai-compatible 밖이면 기동에 실패한다")
     void rejectsUnknownRerankProvider() {
       // when·then
       withEmbedder
@@ -184,49 +192,6 @@ class ConfigurationValidationTest {
       withEmbedder
           .withPropertyValues("scos.mcp.space-id=")
           .run(ctx -> assertBindValidationFailure(ctx, "spaceId"));
-    }
-  }
-
-  @Nested
-  @DisplayName("기본 프로필로 공급자를 조립하면")
-  class ProvidersAssembly {
-    final ApplicationContextRunner providers =
-        new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(JacksonAutoConfiguration.class))
-            // Gemini 호출 실행기는 시계·지표 빈을 요구한다(ADR-0020 §5 I-9)
-            .withUserConfiguration(
-                MemoryEngine.class, MetricsConfiguration.class, ProvidersConfiguration.class);
-
-    @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"scos.gemini.api-key=", "scos.gemini.timeout=30s"})
-    @DisplayName("GEMINI_API_KEY가 비거나 없으면 apiKey 검증 오류로 기동에 실패한다")
-    void geminiKeyRequired(String property) {
-      // when·then
-      providers.withPropertyValues(property).run(ctx -> assertBindValidationFailure(ctx, "apiKey"));
-    }
-
-    @Test
-    @DisplayName("키가 있으면 Gemini 임베더와 생성기를 조립한다")
-    void geminiBeansWithKey() {
-      // when·then
-      providers
-          .withPropertyValues("scos.gemini.api-key=k")
-          .run(
-              ctx ->
-                  assertThat(ctx).hasSingleBean(Embedder.class).hasSingleBean(TextGenerator.class));
-    }
-
-    @Test
-    @DisplayName("rerank.provider=none이면 생성기는 조립하지 않는다")
-    void noGeneratorWithoutRerank() {
-      // when·then
-      providers
-          .withPropertyValues("scos.gemini.api-key=k", "scos.rerank.provider=none")
-          .run(
-              ctx ->
-                  assertThat(ctx)
-                      .hasSingleBean(Embedder.class)
-                      .doesNotHaveBean(TextGenerator.class));
     }
   }
 
@@ -394,7 +359,7 @@ class ConfigurationValidationTest {
   /** 스냅샷 간격 없음(설정하지 않으면 스냅샷 모드를 끈다). */
   static final Duration NO_SNAPSHOT = null;
 
-  /** 유지보수 유예 기간(일) — TS 기본 30일. */
+  /** 유지보수 유예 기간(일) — 기본 30일. */
   static final int GRACE_DAYS = 30;
 
   /** 15분·poll 5s·재시도 30s~300s·worker 2·스냅샷 없음·종료 10s·유지보수 24h·유예 30일·정체 30분. */

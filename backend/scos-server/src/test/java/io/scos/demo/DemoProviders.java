@@ -12,9 +12,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 손으로 띄우는 가짜 공급자 프로세스(공개 데모 demo/는 이것 대신 demo/embedder를 쓴다): 합성 Slack 데이터셋(harness/fixtures/p4)을
- * Slack Web API로, 해싱 임베딩을 Gemini batchEmbedContents로 로컬 루프백에서만 응답한다. 실제 외부 호출은 없다. 실행 인자: {@code
- * <dataset.json> <endpoints.out>} — 두 기본 URL과 Slack 토큰을 endpoints 파일(셸 export 형식)에 쓰고 종료 신호까지 산다.
+ * 손으로 띄우는 가짜 공급자 프로세스(공개 데모 demo/는 이것 대신 OpenAI 호환 API로 답하는 demo/embedder를 쓴다): 합성 Slack
+ * 데이터셋(harness/fixtures/p4)을 Slack Web API로, 해싱 임베딩을 Gemini batchEmbedContents로 로컬 루프백에서만 응답한다. 실제
+ * 외부 호출은 없다. 실행 인자: {@code <dataset.json> <endpoints.out>} — 두 기본 URL과 Slack 토큰을 endpoints 파일(셸
+ * export 형식)에 쓰고 종료 신호까지 산다. {@link #hashingVector}는 데모 Python 임베더와 같은 벡터의 기준
+ * 구현이다(HashingEmbedderParityTest).
  */
 public final class DemoProviders {
   private static final Logger log = LoggerFactory.getLogger(DemoProviders.class);

@@ -2,6 +2,7 @@ package io.scos.server.fault;
 
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
+import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.connector.SourceInstanceId;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,11 @@ public class DaemonLoopFault {
 
       @Override
       public Optional<SourceInstance> get(SourceInstanceId id) {
+        throw new LinkageError(MESSAGE);
+      }
+
+      @Override
+      public void requireCollectionConfiguration(SourceDescriptor expected) {
         throw new LinkageError(MESSAGE);
       }
 

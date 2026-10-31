@@ -4,12 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.SnapshotGuardStore.Acceptance;
 import io.scos.collection.internal.SnapshotGuardStore.Guarded;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.SourceInstanceId;
-import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * 스냅샷 축소 보호(ADR-0028)의 완료 계약. succeeded + complete_snapshot run이 정리 직전 active의 너무 많은 부분을 관측하지 못했으면
@@ -40,21 +38,10 @@ public abstract class SnapshotShrinkGuardContract {
 
   static final Duration JUST_BEFORE_EXPIRY = ACCEPT_TTL.minusMillis(1);
 
-  /** 완료가 함께 쓰는 포트 묶음(같은 구현 계열, 같은 트랜잭션). */
-  public record Ports(
-      TransactionOperations tx,
-      WorkClaimPort claims,
-      RunStore runs,
-      RawItemStore rawItems,
-      OutboxPort outbox,
-      SourceChangeLog changes,
-      SourceInstanceStore sources,
-      SnapshotGuardStore guards) {}
+  /** 비어 있는 새 저장소 위의 포트 묶음(같은 구현 계열, 같은 트랜잭션). */
+  protected abstract CommitContext.Ports newPorts();
 
-  /** 비어 있는 새 저장소 위의 포트 묶음. */
-  protected abstract Ports newPorts();
-
-  private Ports ports;
+  private CommitContext.Ports ports;
   private RunCompletion completion;
   private final MutableClock clock = new MutableClock(FINISHED);
   private final List<String> activeIds = new ArrayList<>();
@@ -64,19 +51,7 @@ public abstract class SnapshotShrinkGuardContract {
   @BeforeEach
   void assemble() {
     ports = newPorts();
-    completion =
-        new RunCompletion(
-            ports.tx(),
-            ports.claims(),
-            ports.runs(),
-            ports.rawItems(),
-            ports.outbox(),
-            ports.changes(),
-            new SnapshotShrinkGuard(
-                ports.sources(),
-                ports.guards(),
-                SnapshotShrinkLimits.DEFAULTS,
-                TestMetrics.collection()));
+    completion = new CommitContext(ports, clock).completion();
     ports.sources().save(SourceInstances.noop(SOURCE, REGISTERED));
   }
 
@@ -98,21 +73,7 @@ public abstract class SnapshotShrinkGuardContract {
 
   /** 소스별 기준을 가진 등록으로 바꾼다. */
   void givenSourceLimits(SnapshotShrinkOverrides overrides) {
-    SourceInstance noop = SourceInstances.noop(SOURCE, REGISTERED);
-    ports
-        .sources()
-        .save(
-            new SourceInstance(
-                noop.id(),
-                noop.kind(),
-                noop.displayName(),
-                noop.config(),
-                noop.credentialRef(),
-                true,
-                noop.schedule(),
-                overrides,
-                REGISTERED,
-                REGISTERED));
+    ports.sources().save(SourceInstances.noop(SOURCE, REGISTERED).withShrinkGuard(overrides));
   }
 
   /** 운영자가 축소를 허용했다. */
@@ -182,12 +143,9 @@ public abstract class SnapshotShrinkGuardContract {
             new RunCompletion.Input(
                 claim,
                 run,
-                status,
+                RunOutcome.clean(status),
                 CollectionCoverage.COMPLETE_SNAPSHOT,
-                clock.instant(),
-                0,
-                Optional.empty(),
-                Optional.empty()));
+                clock.instant()));
     ports.claims().release(claim, clock.instant());
     return done;
   }

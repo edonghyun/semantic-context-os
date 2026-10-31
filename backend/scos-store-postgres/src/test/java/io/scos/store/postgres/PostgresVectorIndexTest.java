@@ -3,6 +3,7 @@ package io.scos.store.postgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.access.AclStore;
 import io.scos.spi.store.VectorIndex;
 import io.scos.spi.store.VectorIndexContract;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
  * P-3(정확 검색): pgvector 어댑터가 계약을 지키고, TS 합성 fixture의 `searchVectors` 결과와 동점군 밖 순서 동일·상대 오차 1e-6 안인지.
@@ -25,6 +27,11 @@ class PostgresVectorIndexTest {
 
   @Nested
   class Contract extends VectorIndexContract {
+    @Override
+    protected AclStore aclStore() {
+      return new PostgresAclStore(JdbcClient.create(PostgresSupport.dataSource()));
+    }
+
     @Override
     protected VectorIndex newIndex() {
       return new PostgresVectorIndex(new NamedParameterJdbcTemplate(PostgresSupport.dataSource()));

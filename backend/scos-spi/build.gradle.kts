@@ -3,7 +3,11 @@ plugins {
     id("scos.java-module")
 }
 
+scosNullAway { enabled = true }
+
 dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // 다른 스레드의 대기·합류(BackgroundThread·Eventually) — 취소 토큰 테스트
+    testImplementation(project(":scos-test-support"))
     testFixturesImplementation("org.springframework.boot:spring-boot-starter-test")
 }

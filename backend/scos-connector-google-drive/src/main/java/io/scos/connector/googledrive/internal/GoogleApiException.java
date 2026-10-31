@@ -4,12 +4,12 @@ import java.time.Duration;
 import java.util.Optional;
 
 /**
- * 2xx가 아닌 Google 응답, 또는 클라이언트가 공급자 고장으로 보는 응답(TS GoogleApiError): 상태, 허용 목록의 이유(`rate_limited`·
+ * 2xx가 아닌 Google 응답, 또는 클라이언트가 공급자 고장으로 보는 응답: 상태, 허용 목록의 이유(`rate_limited`·
  * `invalid_json`·`missing_body`·`invalid_oauth_response`·`incomplete_download`), Retry-After. 메시지는
  * 상태와 이유만 싣는다 — 응답 본문·토큰·자격 증명은 싣지 않는다.
  */
 public final class GoogleApiException extends RuntimeException {
-  /** 오류 메시지에 싣는 허용 목록의 이유(TS 문자열 그대로). */
+  /** 오류 메시지에 싣는 허용 목록의 이유(문자열을 바꾸지 않는다). */
   enum Reason {
     RATE_LIMITED("rate_limited"),
     INVALID_JSON("invalid_json"),

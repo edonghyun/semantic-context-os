@@ -31,10 +31,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * `command:<셸 명령>`(TS CommandCredentialResolver): stdout의 앞뒤 공백을 뗀 값. 실패 오류에는 종료 코드만 싣고
- * stdout·stderr는 싣지 않는다.
- */
+/** `command:<셸 명령>`:stdout의 앞뒤 공백을 뗀 값. 실패 오류에는 종료 코드만 싣고 stdout·stderr는 싣지 않는다. */
 @Tag("process")
 @DisplayName("command: 자격 증명은 명령 stdout이고, 실패에 출력을 싣지 않는다(TS)")
 class CommandCredentialsTest {
@@ -57,6 +54,13 @@ class CommandCredentialsTest {
 
   /** 끝내지 않으면 테스트보다 오래 사는 자식 — 스스로 끝나 "끝냈다"로 보이지 않게. stdout을 쥐지 않는다. */
   static final String LONG_LIVED_CHILD = "sleep 30 > /dev/null";
+
+  /**
+   * 자식 없이 상한을 넘겨 도는 명령(셸이 exec로 sleep이 된다 — pid가 같다). 끝내지 않으면 상한(2s) + 사라짐 대기(PROCESS_LIMIT 3s)보다
+   * 오래 살아 남은 것으로 잡히고, 상한을 무시하는 변이에서도 PIT 감시(15s)보다 먼저 스스로 끝난다 — 끝없는 바쁜 루프는 그 변이를 단언이 아니라 감시 시간 초과로
+   * 끝냈다(MUTATION.md).
+   */
+  static final String OUTLIVES_TIMEOUT_ALONE = "exec sleep 8";
 
   /**
    * 출력 상한(1 MiB)을 넘는 명령. 크기 사례는 시간 상한이 먼저 오지 않게 patient(10s)로 푼다 — 부하가 큰 실행에서 500ms 안에 1 MiB를 못 내
@@ -282,10 +286,10 @@ class CommandCredentialsTest {
     @DisplayName("자식 없이 도는 명령도 끝낸다")
     void timeoutKillsCommandItself() throws IOException {
       // given
-      Path pidFile = dir.resolve("busy.pid");
+      Path pidFile = dir.resolve("alone.pid");
 
       // when
-      runPastTimeout("echo $$ > " + pidFile + "; while :; do :; done");
+      runPastTimeout("echo $$ > " + pidFile + "; " + OUTLIVES_TIMEOUT_ALONE);
 
       // then
       assertThat(survivorOf(pidFile)).isEmpty();

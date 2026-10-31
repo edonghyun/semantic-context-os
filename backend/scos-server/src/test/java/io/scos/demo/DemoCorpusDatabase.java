@@ -1,13 +1,21 @@
 package io.scos.demo;
 
+import io.scos.boot.AccessProperties;
+import io.scos.boot.AccessProperties.Mode;
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.engine.Effort;
+import io.scos.engine.EmbeddingGenerationCheck;
+import io.scos.engine.Profile;
 import io.scos.engine.internal.projection.UnitImporter;
-import io.scos.engine.internal.search.QuestionSearch;
-import io.scos.engine.internal.search.Reranker;
-import io.scos.engine.internal.search.SearchSettings;
+import io.scos.engine.internal.search.QuestionSearches;
+import io.scos.engine.internal.search.plan.PlanResolver;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
+import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.server.UnitJsonImport;
+import io.scos.spi.embedding.EmbeddingGeneration;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.SpaceId;
+import io.scos.store.postgres.PostgresAclStore;
 import io.scos.store.postgres.PostgresTestAdapters;
 import io.scos.support.TestExecutors;
 import io.scos.support.TestMetrics;
@@ -19,6 +27,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Tag;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -46,14 +56,24 @@ final class DemoCorpusDatabase {
   DemoCorpusDatabase(DemoCorpus corpus) {
     PostgresSupport.truncateAll();
     ds = PostgresSupport.dataSource();
+    // 데모 4단계처럼 해싱 임베더의 세대를 밝혀 적재한다 — 서버 설정 세대도 같은 임베더의 세대다
+    EmbeddingGeneration generation = EmbeddingGenerationCheck.generationOf(embedder);
     UnitImporter importer =
         new UnitImporter(
             new TransactionTemplate(new DataSourceTransactionManager(ds)),
-            PostgresTestAdapters.unitStore(ds),
+            PostgresTestAdapters.unitMaintenance(ds),
             PostgresTestAdapters.keywordIndex(ds),
-            PostgresTestAdapters.vectorIndex(ds));
+            PostgresTestAdapters.vectorIndex(ds),
+            PostgresTestAdapters.spaceMeta(ds),
+            generation);
     try {
-      imported = new UnitJsonImport(importer, JSON).importFile(embeddedUnitsFile(corpus), SPACE);
+      imported =
+          new UnitJsonImport(
+                  importer,
+                  JSON,
+                  new AccessProperties(Mode.SINGLE_USER, null, List.of(), Map.of()),
+                  new PostgresAclStore(JdbcClient.create(ds)))
+              .importFile(embeddedUnitsFile(corpus), SPACE, Optional.of(generation));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -89,20 +109,27 @@ final class DemoCorpusDatabase {
 
   /** search_context와 같은 레시피(키워드·벡터 RRF, 재정렬 없음)의 상위 문서 — 같은 문서는 처음 나온 순위만. */
   List<String> topDocuments(String query, int limit) {
-    return new QuestionSearch(
+    return QuestionSearches.of(
             PostgresTestAdapters.unitStore(ds),
+            PostgresTestAdapters.unitMaintenance(ds),
             PostgresTestAdapters.keywordIndex(ds),
             PostgresTestAdapters.vectorIndex(ds),
             embedder,
             Reranker.DISABLED,
-            SearchSettings.DEFAULT,
             CLOCK,
             TestMetrics.search(),
             TestExecutors.CALLER_THREAD)
-        .search(AccessScope.singleUser(), SPACE, query).candidates().stream()
-            .map(c -> c.unit().documentId())
-            .distinct()
-            .limit(limit)
-            .toList();
+        .search(AccessScope.singleUser(), SPACE, query, plan(query), 10)
+        .candidates()
+        .stream()
+        .map(c -> c.unit().documentId())
+        .distinct()
+        .limit(limit)
+        .toList();
+  }
+
+  /** search_context와 같은 레시피: 질의 문구가 날짜 가산을 정한다. */
+  private static RetrievalPlan plan(String query) {
+    return new PlanResolver().forSearch(query, Effort.MEDIUM, Profile.AUTO, CLOCK.instant());
   }
 }

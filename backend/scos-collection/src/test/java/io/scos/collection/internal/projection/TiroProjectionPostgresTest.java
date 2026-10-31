@@ -8,7 +8,7 @@ import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.tiro.TiroAssembly;
 import io.scos.connector.tiro.internal.FakeTiroServer;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.store.ContextUnit;
@@ -68,7 +68,8 @@ class TiroProjectionPostgresTest {
     if (reports.size() != 1)
       throw new IllegalStateException("given 준비 실패: 투영 요청이 하나여야 한다 — " + reports);
     return new Projected(
-        reports.getFirst(), PostgresTestAdapters.unitStore(ds).listAll(PostgresProjection.SPACE));
+        reports.getFirst(),
+        PostgresTestAdapters.unitMaintenance(ds).listAll(PostgresProjection.SPACE));
   }
 
   static List<JsonNode> expectedUnits() {

@@ -57,6 +57,7 @@ final class DaemonProcessScenario implements AutoCloseable {
   private static final String EMBED = "/v1beta/models/gemini-embedding-001:batchEmbedContents";
   private static final int EMBEDDING_DIM = 768;
   private static final Pattern PORT = Pattern.compile("daemon http port=(\\d+)");
+  private static final Pattern MANAGEMENT_PORT = Pattern.compile("daemon management port=(\\d+)");
   private static final ObjectMapper JSON = new ObjectMapper();
 
   /** 자식 프로세스 조건 대기 상한(hang 방지) — 기동·종료·투영. 수집 완료는 더 긴 COLLECT_LIMIT. */
@@ -91,6 +92,11 @@ final class DaemonProcessScenario implements AutoCloseable {
   }
 
   // ---- 준비 ----
+
+  /** 관리 API가 생기기 전의 다중 사용자 종단 테스트용 접근·문서 시드. */
+  void givenMultiUserAccess() {
+    new DaemonAccessSeed(PostgresSupport.dataSource()).seed();
+  }
 
   /** 같은 데이터셋을 걷는 둘째 Slack 소스(id 순으로 기본 소스 뒤). */
   SourceInstanceId givenSecondSource(String id) {
@@ -147,15 +153,25 @@ final class DaemonProcessScenario implements AutoCloseable {
   // ---- 데몬 ----
 
   Daemon start(String name, Settings settings) {
+    return start(name, settings, "daemon");
+  }
+
+  Daemon startMcp(String name, Settings settings) {
+    return start(name, settings, "mcp");
+  }
+
+  private Daemon start(String name, Settings settings, String command) {
     Map<String, String> env = env(settings);
-    Path log = dir.resolve(name + ".log");
+    Path console = dir.resolve(name + ".console.log");
+    Path logDir = dir.resolve(name + "-logs");
+    env.put("SCOS_LOG_DIR", logDir.toString());
     try {
       Process p =
           settings.loopFault
-              ? ChildJvm.startJarWithLoaderPath(JAR, loopFaultLoaderPath(), log, env, "daemon")
-              : ChildJvm.startJar(JAR, log, env, "daemon");
+              ? ChildJvm.startJarWithLoaderPath(JAR, loopFaultLoaderPath(), console, env, command)
+              : ChildJvm.startJar(JAR, console, env, command);
       started.add(p);
-      return new Daemon(p, log);
+      return new Daemon(p, console, logDir);
     } catch (IOException | URISyntaxException e) {
       throw new IllegalStateException(e);
     }
@@ -166,6 +182,8 @@ final class DaemonProcessScenario implements AutoCloseable {
     private String leaseTtl = "30s";
     private String concurrency;
     private boolean loopFault;
+    private String mcpHttpToken;
+    private int multiUserPort;
 
     static Settings defaults() {
       return new Settings();
@@ -181,6 +199,16 @@ final class DaemonProcessScenario implements AutoCloseable {
       return this;
     }
 
+    Settings mcpHttp(String token) {
+      mcpHttpToken = token;
+      return this;
+    }
+
+    Settings multiUserHttp(int port) {
+      multiUserPort = port;
+      return this;
+    }
+
     /** 감독 루프가 치명 오류(Error)로 죽는 장애 주입 조립(테스트 loader.path). */
     Settings fatalLoopFault() {
       loopFault = true;
@@ -191,18 +219,23 @@ final class DaemonProcessScenario implements AutoCloseable {
   /** 띄운 데몬 프로세스 하나. */
   final class Daemon {
     private final Process process;
-    private final Path log;
+    private final Path console;
+    private final Path logDir;
+    private final DaemonLogs logs;
     private int port;
+    private int managementPort;
 
-    Daemon(Process process, Path log) {
+    Daemon(Process process, Path console, Path logDir) {
       this.process = process;
-      this.log = log;
+      this.console = console;
+      this.logDir = logDir;
+      logs = new DaemonLogs(console, logDir);
     }
 
     /** 포트 0으로 띄운 데몬의 실제 HTTP 포트(기동 로그에서 읽는다). */
     int port() {
       if (port == 0) {
-        Eventually.await("HTTP 포트 로그 " + log, () -> PORT.matcher(log()).find(), PROCESS_LIMIT);
+        Eventually.await("HTTP 포트 로그 " + logDir, () -> PORT.matcher(log()).find(), PROCESS_LIMIT);
         Matcher m = PORT.matcher(log());
         if (!m.find()) throw new IllegalStateException("포트 로그 없음\n" + log());
         port = Integer.parseInt(m.group(1));
@@ -210,12 +243,36 @@ final class DaemonProcessScenario implements AutoCloseable {
       return port;
     }
 
-    String log() {
-      try {
-        return ChildJvm.readLog(log);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
+    /** 상태·지표는 별도로 열린 관리 포트에서 읽는다. */
+    int managementPort() {
+      if (managementPort == 0) {
+        Eventually.await(
+            "관리 포트 로그 " + console, () -> MANAGEMENT_PORT.matcher(log()).find(), PROCESS_LIMIT);
+        Matcher m = MANAGEMENT_PORT.matcher(log());
+        if (!m.find()) throw new IllegalStateException("관리 포트 로그 없음\n" + log());
+        managementPort = Integer.parseInt(m.group(1));
       }
+      return managementPort;
+    }
+
+    /** 사람이 읽는 로그 전부: 콘솔 뒤에 회전 파일을 포함한 사람 갈래. */
+    String log() {
+      return console() + serveLog();
+    }
+
+    /** 프로세스 stdout·stderr 합본(launchd가 파일로 넘기는 출력). */
+    String console() {
+      return logs.console();
+    }
+
+    /** 사람 갈래 전체 — 회전한 전날 파일과 현재 serve.log. */
+    String serveLog() {
+      return logs.human();
+    }
+
+    /** 회전 파일을 포함한 기계 갈래. JSON 아닌 줄은 실패한다. */
+    List<JsonNode> jsonLines() {
+      return logs.events();
     }
 
     /** SIGTERM을 보내고 종료 코드를 돌려준다. */
@@ -237,11 +294,28 @@ final class DaemonProcessScenario implements AutoCloseable {
       return process.exitValue();
     }
 
+    /** MCP·서버 포트의 상태 코드(관리 엔드포인트가 없는지 확인한다). */
+    int serverStatus(String path) {
+      try {
+        return http.send(
+                HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port() + path))
+                    .GET()
+                    .build(),
+                HttpResponse.BodyHandlers.discarding())
+            .statusCode();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException(e);
+      }
+    }
+
     Http get(String path) {
       try {
         HttpResponse<String> r =
             http.send(
-                HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port() + path))
+                HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + managementPort() + path))
                     .GET()
                     .build(),
                 HttpResponse.BodyHandlers.ofString());
@@ -351,6 +425,11 @@ final class DaemonProcessScenario implements AutoCloseable {
         SOURCE.value());
   }
 
+  /** 투영이 만든 read model의 문서 id들. */
+  List<String> projectedDocumentIds() {
+    return jdbc.queryForList("SELECT DISTINCT document_id FROM units", String.class);
+  }
+
   int runCount(SourceInstanceId source) {
     return jdbc.queryForObject(
         "SELECT count(*) FROM collection_runs WHERE source_instance_id = ?",
@@ -393,10 +472,23 @@ final class DaemonProcessScenario implements AutoCloseable {
         SlackAssembly.TOKEN_ENV, slack.token()); // 소스의 credential ref(SlackAssembly.CREDENTIAL_REF)
     env.put("SCOS_LEASE_TTL", settings.leaseTtl);
     env.put("SCOS_DAEMON_PORT", "0");
+    env.put("SCOS_MANAGEMENT_PORT", "0");
     env.put("SCOS_DAEMON_POLL", "500ms");
     env.put("SCOS_DAEMON_SHUTDOWN_TIMEOUT", "10s");
     if (settings.concurrency != null) env.put("SCOS_DAEMON_CONCURRENCY", settings.concurrency);
     if (settings.loopFault) env.put("SCOS_TEST_DAEMON_LOOP_FAULT", "error");
+    if (settings.mcpHttpToken != null) {
+      env.put("SCOS_MCP_HTTP_ENABLED", "true");
+      env.put("SCOS_MCP_HTTP_TOKEN", settings.mcpHttpToken);
+      env.put("SCOS_RERANK_PROVIDER", "none");
+    }
+    if (settings.multiUserPort != 0) {
+      env.put("SCOS_ACCESS_MODE", "multi-user");
+      env.put("SCOS_MCP_HTTP_ENABLED", "true");
+      env.put("SCOS_DAEMON_PORT", String.valueOf(settings.multiUserPort));
+      env.put("SCOS_MCP_HTTP_ALLOWED_HOSTS", "127.0.0.1:" + settings.multiUserPort);
+      env.put("SCOS_RERANK_PROVIDER", "none");
+    }
     return env;
   }
 
@@ -413,23 +505,6 @@ final class DaemonProcessScenario implements AutoCloseable {
         Files.copy(f, target.resolve(f.getFileName()));
     }
     return dir.resolve("loader");
-  }
-
-  /**
-   * 데몬 로그(stdout·stderr 합본)의 JSON 줄. JSON이 아닌 줄(JVM 경고 등)이 있으면 그 줄로 실패한다 — 운영 로그는 줄마다 JSON이어야 한다.
-   */
-  static List<JsonNode> logLines(String log) {
-    return log.lines()
-        .filter(line -> !line.isBlank())
-        .map(
-            line -> {
-              try {
-                return JSON.readTree(line);
-              } catch (RuntimeException e) {
-                throw new AssertionError("JSON이 아닌 로그 줄: " + line, e);
-              }
-            })
-        .toList();
   }
 
   private static String vectors(int n) {

@@ -1,6 +1,7 @@
 package io.scos.engine.internal.projection;
 
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -12,6 +13,7 @@ import java.util.function.Predicate;
 final class RecordingEmbedder implements Embedder {
   final List<String> calls = new ArrayList<>();
   private Predicate<List<String>> failsOn = texts -> false;
+  private Runnable beforeNextEmbed = () -> {};
 
   /** 다음 embed부터 429 실패를 던진다. */
   void failsWith429() {
@@ -28,18 +30,26 @@ final class RecordingEmbedder implements Embedder {
     failsOn = texts -> false;
   }
 
+  /** 다음 embed 한 번만, 벡터를 내기 전에 이 동작을 한다 — 임베딩 중 다른 프로세스가 공간 메타를 바꾸는 상황. */
+  void beforeNextEmbed(Runnable action) {
+    beforeNextEmbed = action;
+  }
+
   /** 지금까지 기록한 호출 입력을 잊는다 — 준비 단계의 임베딩을 when의 호출과 섞지 않게. */
   void forgetCalls() {
     calls.clear();
   }
 
   @Override
-  public int dim() {
-    return HashVectors.DIM;
+  public EmbedderIdentity identity() {
+    return new EmbedderIdentity("test", "recording", HashVectors.DIM);
   }
 
   @Override
   public List<double[]> embed(List<String> texts) {
+    Runnable action = beforeNextEmbed;
+    beforeNextEmbed = () -> {};
+    action.run();
     if (failsOn.test(texts)) throw new EmbedderException("injected 429");
     calls.addAll(texts);
     return texts.stream().map(RecordingEmbedder::vectorOf).toList();

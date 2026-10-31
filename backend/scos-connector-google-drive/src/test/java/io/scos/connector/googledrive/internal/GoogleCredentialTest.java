@@ -17,9 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- * OAuth 자격 증명 JSON(TS GoogleDriveApiClient.session): 객체이고 세 키가 비어 있지 않은 문자열이어야 한다. 기대 메시지는 TS 표다.
- */
+/** OAuth 자격 증명 JSON: 객체이고 세 키가 비어 있지 않은 문자열이어야 한다. 기대 메시지는 TS 표다. */
 @DisplayName("Google OAuth 자격 증명 JSON은 TS 표와 같이 받고 거부한다")
 class GoogleCredentialTest {
   static Stream<Arguments> invalidCredentials() {

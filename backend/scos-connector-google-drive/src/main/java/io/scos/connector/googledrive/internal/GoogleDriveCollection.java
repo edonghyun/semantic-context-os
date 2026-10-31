@@ -2,6 +2,7 @@ package io.scos.connector.googledrive.internal;
 
 import io.scos.connector.googledrive.internal.DriveCalls.Availability;
 import io.scos.connector.googledrive.internal.UnavailableContent.SpreadsheetVersionChanged;
+import io.scos.engine.support.call.CursorTrail;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CollectionInput;
@@ -17,17 +18,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Drive run 하나가 소유하는 걷기(TS DriveCollection). OAuth 계정이 설정 계정인지 먼저 본 뒤, 작업 큐(`pending`)의 앞 작업 하나마다
- * 페이지 하나를 낸다 — 런타임이 페이지를 커밋하므로 체크포인트는 그 페이지까지 확정된 큐다({@link DriveProgress}).
+ * Drive run 하나가 소유하는 걷기.OAuth 계정이 설정 계정인지 먼저 본 뒤, 작업 큐(`pending`)의 앞 작업 하나마다 페이지 하나를 낸다 — 런타임이 페이지를
+ * 커밋하므로 체크포인트는 그 페이지까지 확정된 큐다({@link DriveProgress}).
  *
  * <ul>
  *   <li>변경 토큰은 탐색 전에 확보한다(사용자는 run 시작에, 공유 드라이브는 목록에서 처음 볼 때) — 탐색 중의 변경을 다음 피드가 다시 준다.
@@ -44,7 +46,15 @@ public final class GoogleDriveCollection {
   static final String CHANGE_FIELDS =
       "nextPageToken,newStartPageToken,changes(changeType,fileId,driveId,removed,file(id,trashed),drive(id))";
   static final String PAGE_SIZE = "100";
-  private static final List<String> CHANGE_TYPES = List.of("file", "drive");
+  private static final String PAGE_TOKEN_STUCK = "Google Drive page token did not advance";
+
+  /**
+   * 목록 걷기(변경 피드 하나, 파일 목록 하나, 드라이브 목록)마다 이미 요청한 토큰: (걷기, 다음 토큰) → 그 걷기의 자취. 이어지는 페이지는 작업 대기열을 거쳐
+   * 오므로 다음 토큰으로 찾아 잇는다. 체크포인트에서 재개한 걷기는 그 토큰부터 새 자취다.
+   */
+  private final Map<Walk, CursorTrail> trails = new ConcurrentHashMap<>();
+
+  private record Walk(String list, String token) {}
 
   private final CollectionInput input;
   private final DriveCalls calls;
@@ -78,15 +88,15 @@ public final class GoogleDriveCollection {
     JsonNode permissionId = user.get("permissionId");
     if (email == null
         || !email.isString()
-        || !email.asString().toLowerCase(Locale.ROOT).equals(calls.config().accountEmail())
+        || !calls.isConfiguredAccount(email.asString())
         || permissionId == null
         || !permissionId.isString())
       throw new GoogleProtocolException(
           "Google OAuth account does not match the configured Drive account");
     DriveProgress progress =
         DriveProgress.resume(json, input.checkpoint(), permissionId.asString());
-    if (!JsValues.truthy(progress.changeTokens.get("user")))
-      progress.changeTokens.put("user", startToken(Optional.empty()));
+    if (progress.changeTokens().saved(Optional.empty()).isEmpty())
+      progress.changeTokens().record(Optional.empty(), startToken(Optional.empty()));
     while (progress.hasPending()) {
       if (input.cancel().isCancelled())
         throw new CallFailureException(
@@ -104,7 +114,7 @@ public final class GoogleDriveCollection {
                   queued instanceof DriveTask.Sheet sheet
                       && sheet.id().equals(changed.id())
                       && sheet.version().equals(changed.version()));
-        step.rejections.add(DriveCalls.rejection(task.json(), e.getMessage(), observedAt));
+        step.rejections.add(DriveCalls.rejection(task.json(), e.reason(), observedAt));
       }
       progress.advance(step.next);
       sink.accept(new CollectionPage(step.mutations, step.rejections, progress.checkpoint()));
@@ -132,15 +142,30 @@ public final class GoogleDriveCollection {
   // ---- 변경 피드 ----
 
   private void changes(DriveTask.Changes task, DriveProgress progress, Step step) {
-    String key = task.driveId().map(d -> "drive:" + d).orElse("user");
-    JsonNode saved = progress.changeTokens.get(key);
     Optional<String> token =
-        task.pageToken()
-            .or(() -> JsValues.truthy(saved) ? Optional.of(saved.asString()) : Optional.empty());
+        task.pageToken().or(() -> progress.changeTokens().saved(task.driveId()));
     if (token.isEmpty()) throw new GoogleProtocolException("Missing Google Drive change token");
     String current = token.get();
+    ObjectNode response =
+        calls.json(
+            GoogleService.DRIVE,
+            "/drive/v3/changes?" + GoogleQuery.form(changesQuery(current, task.driveId())),
+            Availability.REQUIRED);
+    DriveChangePage page = DriveChangePage.read(response);
+    if (page.continues())
+      advance(
+          "changes:" + task.driveId().orElse(""),
+          Optional.of(current),
+          page.continuation(),
+          "Google Drive change token did not advance");
+    step.next.addAll(page.tasks());
+    progress.changeTokens().record(task.driveId(), page.continuation());
+    if (page.continues()) step.next.add(task.withPageToken(page.continuation()));
+  }
+
+  private static Map<String, String> changesQuery(String pageToken, Optional<String> driveId) {
     Map<String, String> query = new LinkedHashMap<>();
-    query.put("pageToken", current);
+    query.put("pageToken", pageToken);
     query.put("pageSize", PAGE_SIZE);
     query.put("spaces", "drive");
     query.put("supportsAllDrives", "true");
@@ -148,44 +173,8 @@ public final class GoogleDriveCollection {
     query.put("includeRemoved", "true");
     query.put("includeCorpusRemovals", "true");
     query.put("fields", CHANGE_FIELDS);
-    task.driveId().ifPresent(d -> query.put("driveId", d));
-    ObjectNode page =
-        calls.json(
-            GoogleService.DRIVE,
-            "/drive/v3/changes?" + GoogleQuery.form(query),
-            Availability.REQUIRED);
-    JsonNode changes = page.get("changes");
-    if (changes == null || !changes.isArray())
-      throw new GoogleProtocolException("Invalid Google Drive changes");
-    for (JsonNode entry : changes) {
-      JsonNode change = JsValues.object(entry);
-      JsonNode type = change.get("changeType");
-      boolean driveChange = JsValues.is(type, "drive");
-      JsonNode id = driveChange ? change.get("driveId") : change.get("fileId");
-      if (!CHANGE_TYPES.contains(JsValues.string(type)) || !JsValues.nonEmptyString(id))
-        throw new GoogleProtocolException("Invalid Google Drive change identity");
-      boolean removed = JsValues.isTrue(change.get("removed"));
-      if (driveChange) {
-        // 새로 접근할 수 있게 된 드라이브는 드라이브 목록이 찾는다
-        if (removed) step.next.add(DriveTask.removeDrive(id.asString()));
-        continue;
-      }
-      JsonNode file = change.has("file") ? JsValues.object(change.get("file")) : null;
-      // corpus에서 빠졌어도 파일이 실려 오면 아직 접근할 수 있다 — 다시 수집한다
-      if ((file != null && JsValues.isTrue(file.get("trashed"))) || (removed && file == null))
-        step.next.add(DriveTask.remove(id.asString()));
-      else step.next.add(DriveTask.file(id.asString()));
-    }
-    JsonNode nextPageToken = page.get("nextPageToken");
-    JsonNode continuation =
-        nextPageToken != null && !nextPageToken.isNull()
-            ? nextPageToken
-            : page.get("newStartPageToken");
-    if (!JsValues.nonEmptyString(continuation)
-        || (nextPageToken != null && continuation.asString().equals(current)))
-      throw new GoogleProtocolException("Google Drive change token did not advance");
-    progress.changeTokens.put(key, continuation.asString());
-    if (nextPageToken != null) step.next.add(task.withPageToken(continuation.asString()));
+    driveId.ifPresent(d -> query.put("driveId", d));
+    return query;
   }
 
   // ---- 삭제 ----
@@ -205,10 +194,10 @@ public final class GoogleDriveCollection {
     }
     if (drive) {
       step.mutations.add(DriveCalls.remove(RawKind.DRIVE.externalId(target), observedAt));
-      progress.changeTokens.remove("drive:" + target);
+      progress.changeTokens().forgetDrive(target);
     }
     Set<String> removed = Set.copyOf(ids);
-    // TS: 지운 파일의 범위 작업, 드라이브 회수면 그 드라이브를 가리키는("driveId" 키가 있는) 작업
+    // 지운 파일의 범위 작업, 드라이브 회수면 그 드라이브를 가리키는("driveId" 키가 있는) 작업
     progress.dropQueued(
         queued ->
             (queued instanceof DriveTask.Sheet sheet && removed.contains(sheet.id()))
@@ -219,7 +208,8 @@ public final class GoogleDriveCollection {
 
   private void file(DriveTask.File task, DriveProgress progress, Instant observedAt, Step step) {
     String id = task.id();
-    DriveFileCollector.Collected file = files.collect(id, observedAt, progress.downloadedVersions);
+    DriveFileCollector.Collected file =
+        files.collect(id, observedAt, progress.downloadedVersions());
     step.mutations.addAll(file.mutations());
     step.rejections.addAll(file.rejections());
     step.next.addAll(file.next());
@@ -278,7 +268,8 @@ public final class GoogleDriveCollection {
       step.mutations.add(
           calls.upsert(RawKind.SHEET, id + ":" + task.key(), value, observedAt, task.file()));
     } catch (RawContentTooLargeException e) {
-      throw new UnavailableContent(e.getMessage());
+      // 고정 문구 메시지 — requireNonNull은 실패하지 않는다
+      throw new UnavailableContent(Objects.requireNonNull(e.getMessage()));
     }
   }
 
@@ -299,9 +290,14 @@ public final class GoogleDriveCollection {
     ObjectNode page = listingPage("files", query);
     for (JsonNode entry : entries(page, "files")) {
       String id = identity(entry);
-      if (progress.seen.add(id)) step.next.add(DriveTask.file(id));
+      if (progress.firstSeen(id)) step.next.add(DriveTask.file(id));
     }
-    nextPageToken(page, task.pageToken()).ifPresent(t -> step.next.add(task.withPageToken(t)));
+    nextPageToken(page)
+        .ifPresent(
+            t -> {
+              advance("files:" + task.driveId().orElse(""), task.pageToken(), t, PAGE_TOKEN_STUCK);
+              step.next.add(task.withPageToken(t));
+            });
   }
 
   /** 공유 드라이브 목록 한 페이지: 드라이브마다 변경 토큰(처음 볼 때)·피드·파일 목록 작업과 드라이브 원본. */
@@ -315,13 +311,32 @@ public final class GoogleDriveCollection {
     for (JsonNode entry : entries(page, "drives")) {
       String id = identity(entry);
       ObjectNode item = (ObjectNode) entry;
-      if (!JsValues.truthy(progress.changeTokens.get("drive:" + id)))
-        progress.changeTokens.put("drive:" + id, startToken(Optional.of(id)));
+      if (progress.changeTokens().saved(Optional.of(id)).isEmpty())
+        progress.changeTokens().record(Optional.of(id), startToken(Optional.of(id)));
       step.next.add(DriveTask.changesOf(id));
       step.next.add(DriveTask.filesOf(id));
       step.mutations.add(calls.upsert(RawKind.DRIVE, id, item, observedAt, item));
     }
-    nextPageToken(page, task.pageToken()).ifPresent(t -> step.next.add(task.withPageToken(t)));
+    nextPageToken(page)
+        .ifPresent(
+            t -> {
+              advance("drives", task.pageToken(), t, PAGE_TOKEN_STUCK);
+              step.next.add(task.withPageToken(t));
+            });
+  }
+
+  /**
+   * 이 걷기에서 requested로 요청한 페이지의 다음 토큰 next로 자취를 잇는다. next가 이 걷기에서 이미 요청한 토큰이면(A → A·A → B → A)
+   * violation에 걷기 설명(목록·토큰 지문)을 붙여 실패한다.
+   */
+  private void advance(String list, Optional<String> requested, String next, String violation) {
+    CursorTrail trail =
+        requested.map(t -> trails.remove(new Walk(list, t))).orElseGet(CursorTrail::new);
+    trail.request(requested);
+    if (trail.revisits(Optional.of(next)))
+      throw new GoogleProtocolException(
+          violation + " (" + trail.cycle(list, Optional.of(next)) + ")");
+    trails.put(new Walk(list, next), trail);
   }
 
   private ObjectNode listingPage(String kind, Map<String, String> query) {
@@ -344,7 +359,7 @@ public final class GoogleDriveCollection {
     return entries;
   }
 
-  /** 항목 하나의 id(TS처럼 항목마다 차례로 검사한다 — 앞 항목의 처리는 이미 일어났다). */
+  /** 항목 하나의 id(항목마다 차례로 검사한다 — 앞 항목의 처리는 이미 일어났다). */
   private static String identity(JsonNode entry) {
     JsonNode id = JsValues.object(entry).get("id");
     if (!JsValues.nonEmptyString(id))
@@ -352,12 +367,11 @@ public final class GoogleDriveCollection {
     return id.asString();
   }
 
-  /** 다음 페이지 토큰(있으면): 비었거나 지금 토큰과 같으면 실패한다. */
-  private static Optional<String> nextPageToken(ObjectNode page, Optional<String> current) {
+  /** 다음 페이지 토큰(있으면): 비었으면 실패한다. 이미 요청한 토큰으로 돌아오는지(A → A·A → B → A)는 {@link #advance}가 본다. */
+  private static Optional<String> nextPageToken(ObjectNode page) {
     JsonNode next = page.get("nextPageToken");
     if (next == null) return Optional.empty();
-    if (!JsValues.nonEmptyString(next) || current.equals(Optional.of(next.asString())))
-      throw new GoogleProtocolException("Google Drive page token did not advance");
+    if (!JsValues.nonEmptyString(next)) throw new GoogleProtocolException(PAGE_TOKEN_STUCK);
     return Optional.of(next.asString());
   }
 

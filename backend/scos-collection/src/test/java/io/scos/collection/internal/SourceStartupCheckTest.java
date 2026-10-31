@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * 데몬 기동 검증(TS source-service-runner validateStartup, ADR-0022 §5): 켜진 소스마다 어댑터가 있고 설정이 맞고, 서로 다른
- * credentialRef가 모두 풀려야 데몬을 띄운다. 실패 메시지는 소스 id·kind·검증 실패 사유만 싣는다 — 자격 증명 값은 싣지 않는다.
+ * 데몬 기동 검증(ADR-0022 §5): 켜진 소스마다 어댑터가 있고 설정이 맞고, 서로 다른 credentialRef가 모두 풀려야 데몬을 띄운다. 실패 메시지는 소스
+ * id·kind·검증 실패 사유만 싣는다 — 자격 증명 값은 싣지 않는다.
  */
 @DisplayName("데몬 기동 검사 — 켜진 소스의 어댑터·설정·자격 증명(ADR-0022 §5)")
 class SourceStartupCheckTest {

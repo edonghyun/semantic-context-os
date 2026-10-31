@@ -50,7 +50,7 @@ public final class PostgresProjection {
     this.ingestor =
         new DocumentIngestor(
             new TransactionTemplate(new DataSourceTransactionManager(ds)),
-            PostgresTestAdapters.unitStore(ds),
+            PostgresTestAdapters.unitMaintenance(ds),
             PostgresTestAdapters.keywordIndex(ds),
             PostgresTestAdapters.vectorIndex(ds),
             PostgresTestAdapters.spaceMeta(ds),

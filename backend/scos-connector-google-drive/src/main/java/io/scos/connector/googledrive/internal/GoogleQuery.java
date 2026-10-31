@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** TS가 Google 요청 경로를 만드는 인코딩: 경로 조각은 encodeURIComponent, 쿼리는 URLSearchParams(넣은 순서, 공백은 +). */
+/** Google 요청 경로를 만드는 인코딩: 경로 조각은 encodeURIComponent, 쿼리는 URLSearchParams(넣은 순서, 공백은 +). */
 final class GoogleQuery {
   private GoogleQuery() {}
 

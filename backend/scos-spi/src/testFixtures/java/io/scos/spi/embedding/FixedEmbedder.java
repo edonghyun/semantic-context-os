@@ -28,8 +28,8 @@ public final class FixedEmbedder implements Embedder {
   }
 
   @Override
-  public int dim() {
-    return dim;
+  public EmbedderIdentity identity() {
+    return new EmbedderIdentity("test", "fixed", dim);
   }
 
   @Override

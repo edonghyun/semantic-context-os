@@ -17,7 +17,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Jira 값 평문화(TS renderJiraValue — ADF와 일반 값, F5 T5.4): 표본마다 TS 출력과 바이트 단위로 같다. 골든은
+ * Jira 값 평문화(ADF와 일반 값, F5 T5.4): 표본마다 TS 출력과 바이트 단위로 같다. 골든은
  * harness/fixtures/jira/expected-adf.json(TS JiraProjector로 뽑은 출력)이다 — ADF 노드 약 20종(text·링크
  * 표식·hardBreak·mention·
  * emoji·inlineCard·blockCard·paragraph·heading·목록·표·codeBlock·panel·blockquote·rule·media·doc)과 일반
@@ -60,7 +60,7 @@ class JiraValueRendererTest {
   @DisplayName("평문화 결과가 TS와 바이트 단위로 같다")
   void rendersLikeTs(String label, JsonNode value, String rendered) {
     // when·then
-    assertThat(JiraValueRenderer.render(value)).isEqualTo(rendered);
+    assertThat(new JiraValueRenderer().render(value)).isEqualTo(rendered);
   }
 
   @ParameterizedTest(name = "{0}")
@@ -68,6 +68,6 @@ class JiraValueRendererTest {
   @DisplayName("응답 원문의 키 순서와 무관하게 JS 객체 순회 순서로 쓴다")
   void walksKeysLikeJsObjects(String label, String json, String rendered) {
     // when·then
-    assertThat(JiraValueRenderer.render(JSON.readTree(json))).isEqualTo(rendered);
+    assertThat(new JiraValueRenderer().render(JSON.readTree(json))).isEqualTo(rendered);
   }
 }

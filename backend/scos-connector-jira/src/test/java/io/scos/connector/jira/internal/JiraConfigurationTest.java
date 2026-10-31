@@ -15,8 +15,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * Jira 소스 설정(TS readJiraConfiguration): 받는 설정과 거부 메시지는 TS가 만든 표(expected-client.json configCases)와
- * 같다. 인증정보를 보낼 곳이므로 siteUrl은 Atlassian Cloud 사이트 origin만 받는다.
+ * Jira 소스 설정: 받는 설정과 거부 메시지는 TS가 만든 표(expected-client.json configCases)와 같다. 인증정보를 보낼 곳이므로 siteUrl은
+ * Atlassian Cloud 사이트 origin만 받는다.
  */
 @DisplayName("Jira 소스 설정은 TS readJiraConfiguration 표와 같이 받고 거부한다")
 class JiraConfigurationTest {

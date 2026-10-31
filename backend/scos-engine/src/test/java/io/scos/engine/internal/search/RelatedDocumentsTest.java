@@ -11,6 +11,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import io.scos.engine.DocumentNotFoundException;
 import io.scos.engine.internal.search.RelatedDocuments.Related;
 import io.scos.engine.internal.search.RelatedDocuments.Via;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SpaceId;
 import java.util.List;
@@ -40,7 +41,7 @@ class RelatedDocumentsTest {
   static List<Related> relatedToHub(ContextUnit... units) {
     SearchFixture f = new SearchFixture();
     f.load(S, units);
-    return new RelatedDocuments(f.units, f.vectors).find(S, "hub", LIMIT);
+    return new RelatedDocuments(f.units, f.vectors).find(AccessScope.singleUser(), S, "hub", LIMIT);
   }
 
   @Nested
@@ -100,7 +101,7 @@ class RelatedDocumentsTest {
      * 사전순 linked rank0, settle rank1. RRF: linked = 1/62 + 1/61, near = 1/61, settle = 1/62.
      */
     List<Related> find() {
-      return related.find(S, "hub", LIMIT);
+      return related.find(AccessScope.singleUser(), S, "hub", LIMIT);
     }
 
     @Test
@@ -159,7 +160,7 @@ class RelatedDocumentsTest {
     @DisplayName("limit만큼만 돌려준다")
     void honorsLimit() {
       // when
-      List<Related> got = related.find(S, "hub", 1);
+      List<Related> got = related.find(AccessScope.singleUser(), S, "hub", 1);
 
       // then
       assertThat(got).extracting(Related::documentId).containsExactly("linked");
@@ -169,7 +170,7 @@ class RelatedDocumentsTest {
     @DisplayName("없는 문서는 그 id의 DocumentNotFoundException이다")
     void notFound() {
       // when·then
-      assertThatThrownBy(() -> related.find(S, "missing-doc", 5))
+      assertThatThrownBy(() -> related.find(AccessScope.singleUser(), S, "missing-doc", 5))
           .asInstanceOf(type(DocumentNotFoundException.class))
           .extracting(DocumentNotFoundException::documentId)
           .isEqualTo("missing-doc");

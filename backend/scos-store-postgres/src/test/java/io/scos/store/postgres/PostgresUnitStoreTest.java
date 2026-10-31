@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.access.AclStore;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.SpaceOwnershipException;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.UnitStore;
 import io.scos.spi.store.UnitStoreContract;
 import io.scos.support.PgLocks;
@@ -28,6 +31,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -39,6 +43,7 @@ class PostgresUnitStoreTest extends UnitStoreContract {
   /** 경합 단계 하나(점유·커밋·B의 결과)를 기다리는 상한. */
   static final Duration WAIT_LIMIT = Duration.ofSeconds(10);
 
+  private PostgresUnitStore units;
   DataSource ds;
   ExecutorService pool;
   CountDownLatch release;
@@ -57,8 +62,21 @@ class PostgresUnitStoreTest extends UnitStoreContract {
   }
 
   @Override
+  protected AclStore aclStore() {
+    return new PostgresAclStore(JdbcClient.create(PostgresSupport.dataSource()));
+  }
+
+  @Override
+  protected UnitMaintenance maintenance() {
+    return new PostgresUnitMaintenance(
+        units,
+        new PostgresVectorIndex(new NamedParameterJdbcTemplate(PostgresSupport.dataSource())));
+  }
+
+  @Override
   protected UnitStore newStore() {
-    return new PostgresUnitStore(new NamedParameterJdbcTemplate(PostgresSupport.dataSource()));
+    units = new PostgresUnitStore(new NamedParameterJdbcTemplate(PostgresSupport.dataSource()));
+    return units;
   }
 
   /** B의 쓰기(Future)와, A가 커밋하기 전에 B가 이미 끝나 있었는지. */
@@ -86,7 +104,7 @@ class PostgresUnitStoreTest extends UnitStoreContract {
 
     // then
     assertThat(contention.finishedBeforeCommit()).as("B는 A 커밋 전에 끝나지 않는다").isFalse();
-    assertThat(store.getMany(new SpaceId("a"), List.of("a-1", "b-1")))
+    assertThat(store.getMany(new SpaceId("a"), AccessScope.singleUser(), List.of("a-1", "b-1")))
         .extracting(ContextUnit::id)
         .containsExactly("a-1", "b-1");
   }

@@ -1,6 +1,6 @@
 package io.scos.collection.internal;
 
-import io.scos.engine.support.text.EventLog;
+import io.scos.engine.EventLog;
 import io.scos.spi.connector.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
@@ -153,43 +153,44 @@ public final class SnapshotShrinkGuard {
                 EventLog.warn(log, "collection.snapshot.shrink_accept_expired")
                     .source(source)
                     .run(run.value())
-                    .detail(EventLog.detail("acceptedAt", acceptedAt.toString()))
+                    .detail("acceptedAt", acceptedAt.toString())
                     .log());
     if (verdict instanceof Verdict.Guarded g) {
-      metrics.reconcileGuarded();
-      EventLog.warn(log, "collection.snapshot.reconcile_guarded")
-          .source(source)
-          .run(run.value())
-          .detail(
-              EventLog.detail(
-                  "unobservedCount",
-                  g.unobservedCount(),
-                  "activeCount",
-                  g.activeCount(),
-                  "minActive",
-                  g.limits().minActive(),
-                  "maxDeletePercent",
-                  g.limits().maxDeletePercent()))
-          .log();
-      if (g.repeated())
-        EventLog.error(log, "collection.snapshot.reconcile_guarded_repeatedly")
-            .source(source)
-            .run(run.value())
-            .detail(
-                EventLog.detail(
-                    "consecutiveCount",
-                    g.consecutiveCount(),
-                    "unobservedCount",
-                    g.unobservedCount(),
-                    "activeCount",
-                    g.activeCount()))
-            .log();
+      reportGuarded(source, run, g);
     } else if (verdict instanceof Verdict.Reconcile r && r.accepted())
       EventLog.warn(log, "collection.snapshot.shrink_accept_used")
           .source(source)
           .run(run.value())
+          .detail("deletedCount", r.unobservedCount(), "activeCount", r.activeCount())
+          .log();
+  }
+
+  private void reportGuarded(SourceInstanceId source, RunId run, Verdict.Guarded g) {
+    metrics.reconcileGuarded();
+    EventLog.warn(log, "collection.snapshot.reconcile_guarded")
+        .source(source)
+        .run(run.value())
+        .detail(
+            "unobservedCount",
+            g.unobservedCount(),
+            "activeCount",
+            g.activeCount(),
+            "minActive",
+            g.limits().minActive(),
+            "maxDeletePercent",
+            g.limits().maxDeletePercent())
+        .log();
+    if (g.repeated())
+      EventLog.error(log, "collection.snapshot.reconcile_guarded_repeatedly")
+          .source(source)
+          .run(run.value())
           .detail(
-              EventLog.detail("deletedCount", r.unobservedCount(), "activeCount", r.activeCount()))
+              "consecutiveCount",
+              g.consecutiveCount(),
+              "unobservedCount",
+              g.unobservedCount(),
+              "activeCount",
+              g.activeCount())
           .log();
   }
 

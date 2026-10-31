@@ -36,12 +36,9 @@ public final class TsRawViews {
     return ISO_MILLIS.format(at);
   }
 
-  /**
-   * 이 예외로 끝난 run에 남을 errorKind — 제품 매핑({@code CollectionRuntime.classify}, CONTRACTS "run errorKind
-   * 매핑") 그대로.
-   */
+  /** 이 예외로 끝난 run에 남을 errorKind — 제품 매핑({@link RunFailure}, CONTRACTS "run errorKind 매핑") 그대로. */
   public static String runErrorKind(RuntimeException failure) {
-    return CollectionRuntime.classify(failure);
+    return RunFailure.of(failure).kind();
   }
 
   /** 페이지들을 차례로 적용한 뒤 외부 id별 마지막 원본(upsert면 그 원본, delete면 빠진다) — 원본 저장소가 남길 active 원본. */

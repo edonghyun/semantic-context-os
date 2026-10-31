@@ -231,7 +231,7 @@ class PostgresBlobMaintenanceTest {
       Throwable thrown =
           catchThrowable(() -> adapters.rawItems().apply(SOURCE, upsertReferencingCollectedBlob()));
 
-      // then: 기대 종류는 손으로 쓴다 — 분류기(CollectionRuntime.isStorageFailure)를 기대값으로 쓰지 않는다
+      // then: 기대 종류는 손으로 쓴다 — 분류기(RunFailure)를 기대값으로 쓰지 않는다
       assertThat(thrown)
           .isInstanceOf(TransientDataAccessResourceException.class)
           .hasCauseInstanceOf(DataIntegrityViolationException.class);

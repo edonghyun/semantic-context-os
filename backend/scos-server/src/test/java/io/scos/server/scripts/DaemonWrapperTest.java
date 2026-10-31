@@ -3,6 +3,7 @@ package io.scos.server.scripts;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
@@ -40,6 +41,20 @@ class DaemonWrapperTest {
 
   List<String> javaArgs() {
     return wrapper.read(wrapper.records.resolve("java.args")).lines().toList();
+  }
+
+  /** 데몬 기계 갈래 파일(logging.md §8). java가 끝난 뒤의 래퍼 이벤트도 여기 남아 status --log가 읽는다. */
+  Path serveJsonl() {
+    return wrapper.home.resolve("logs/serve.jsonl");
+  }
+
+  /** 래퍼 stderr에서 그 이벤트의 JSON 줄. */
+  static String stderrLine(String stderr, String event) {
+    return stderr
+        .lines()
+        .filter(l -> l.contains("\"event\":\"" + event + "\""))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("stderr에 " + event + " 줄이 없다: " + stderr));
   }
 
   @Nested
@@ -183,6 +198,17 @@ class DaemonWrapperTest {
     }
 
     @Test
+    @DisplayName("로그 디렉터리(기본 $SCOS_HOME/logs)를 SCOS_LOG_DIR로 java에 넘긴다")
+    void exportsLogDir() {
+      // when
+      wrapper.run(SCRIPT);
+
+      // then: 데몬이 serve.log·serve.jsonl을 래퍼가 권한을 잡은 그 디렉터리에 쓴다
+      assertThat(wrapper.read(wrapper.records.resolve("java.env")))
+          .contains("SCOS_LOG_DIR=" + wrapper.home.resolve("logs"));
+    }
+
+    @Test
     @DisplayName("java -jar <JAR> daemon으로 띄운다")
     void launchesDaemonCommand() {
       // when
@@ -278,6 +304,19 @@ class DaemonWrapperTest {
       assertThat(result.exitCode()).isEqualTo(STARTUP_FAILED);
     }
 
+    @Test
+    @DisplayName("java가 1로 끝나면 daemon.exited 줄을 serve.jsonl에도 남긴다")
+    void appendsExitedToJsonl() {
+      // given
+      wrapper.env.put("FAKE_JAVA_EXIT", String.valueOf(STARTUP_FAILED));
+
+      // when
+      var result = wrapper.run(SCRIPT);
+
+      // then
+      assertThat(serveJsonl()).content().contains(stderrLine(result.stderr(), "daemon.exited"));
+    }
+
     @Nested
     @DisplayName("데몬 루프가 죽어 java가 70으로 끝나면")
     class LoopDied {
@@ -304,6 +343,31 @@ class DaemonWrapperTest {
 
         // then
         assertThat(result.stderr()).contains("\"level\":\"error\",\"event\":\"daemon.loop.died\"");
+      }
+
+      @Test
+      @DisplayName("같은 daemon.loop.died 줄을 serve.jsonl에도 남긴다")
+      void appendsLoopDiedToJsonl() {
+        // when
+        var result = wrapper.run(SCRIPT);
+
+        // then
+        assertThat(serveJsonl())
+            .content()
+            .contains(stderrLine(result.stderr(), "daemon.loop.died"));
+      }
+
+      @Test
+      @DisplayName("serve.jsonl에 쓸 수 없어도 70으로 끝난다")
+      void exitCodeSurvivesUnwritableJsonl() throws Exception {
+        // given: 같은 이름의 디렉터리가 있어 덧붙이기가 실패한다
+        Files.createDirectories(serveJsonl());
+
+        // when
+        var result = wrapper.run(SCRIPT);
+
+        // then
+        assertThat(result.exitCode()).isEqualTo(LOOP_DIED);
       }
     }
 
@@ -334,6 +398,18 @@ class DaemonWrapperTest {
         // then
         assertThat(result.stderr())
             .contains("\"level\":\"error\",\"event\":\"daemon.out_of_memory\"");
+      }
+
+      @Test
+      @DisplayName("같은 daemon.out_of_memory 줄을 serve.jsonl에도 남긴다")
+      void appendsOutOfMemoryToJsonl() {
+        // when
+        var result = wrapper.run(SCRIPT);
+
+        // then
+        assertThat(serveJsonl())
+            .content()
+            .contains(stderrLine(result.stderr(), "daemon.out_of_memory"));
       }
     }
 

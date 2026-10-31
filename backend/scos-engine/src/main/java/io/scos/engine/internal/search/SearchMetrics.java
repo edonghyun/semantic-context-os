@@ -3,9 +3,10 @@ package io.scos.engine.internal.search;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.scos.engine.internal.search.rerank.RerankOutcome;
 import java.util.function.Supplier;
 
-/** 검색 지표(ADR-0009): 단계별 시간(TS StageTrace 대응, recipe·stage 태그)과 재정렬 결과 수. 질의 원문은 태그에 넣지 않는다. */
+/** 검색 지표(ADR-0009): 단계별 시간(recipe·stage 태그)과 재정렬 결과 수. 질의 원문은 태그에 넣지 않는다. */
 public final class SearchMetrics {
   public static final String STAGE = "scos.search.stage";
   public static final String RERANK = "scos.search.rerank";
@@ -24,7 +25,7 @@ public final class SearchMetrics {
     return registry;
   }
 
-  <T> T stage(String recipe, String stage, Supplier<T> body) {
+  public <T> T stage(String recipe, String stage, Supplier<T> body) {
     return Timer.builder(STAGE)
         .tag("recipe", recipe)
         .tag("stage", stage)

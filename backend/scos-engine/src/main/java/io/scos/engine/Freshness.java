@@ -1,12 +1,12 @@
 package io.scos.engine;
 
+import io.scos.engine.internal.search.CapturedAt;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 /**
- * 최신성 보고(CONTRACTS B9) — 값만. latestCapturedAt은 저장된 ISO 문자열 그대로다(MCP 골든과 바이트 동일). 시각 타입이 필요하면 {@link
- * #latestCapturedInstant()}를 쓴다.
+ * 최신성 보고(CONTRACTS B9) — 값만. latestCapturedAt은 무제한에서 저장된 ISO 문자열 그대로이며(MCP 골든과 바이트 동일), 제한 범위에서는 원천
+ * 성공 수집 완료 시각의 ISO instant다. 시각 타입이 필요하면 {@link #latestCapturedInstant()}를 쓴다.
  */
 public record Freshness(
     Optional<String> latestCapturedAt, Optional<Double> staleHours, boolean stale) {
@@ -15,13 +15,6 @@ public record Freshness(
 
   /** 오프셋 없는 문자열처럼 파싱할 수 없으면 비어 있다(CONTRACTS F-4). */
   public Optional<Instant> latestCapturedInstant() {
-    return latestCapturedAt.flatMap(
-        s -> {
-          try {
-            return Optional.of(Instant.parse(s));
-          } catch (DateTimeParseException e) {
-            return Optional.empty();
-          }
-        });
+    return latestCapturedAt.flatMap(s -> new CapturedAt(s).instant());
   }
 }

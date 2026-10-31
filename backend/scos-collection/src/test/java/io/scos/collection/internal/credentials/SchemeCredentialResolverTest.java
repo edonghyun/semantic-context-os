@@ -20,7 +20,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-/** credentialRef 스킴 디스패치(TS SchemeCredentialResolver, ADR-0022 §2). */
+/** credentialRef 스킴 디스패치(ADR-0022 §2). */
 @Tag("process")
 @DisplayName("credentialRef는 스킴(env·file·command)으로 해석기를 고른다(ADR-0022 §2)")
 class SchemeCredentialResolverTest {

@@ -1,5 +1,6 @@
 package io.scos.store.postgres;
 
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.IndexedUnit;
 import io.scos.spi.store.ScoredRef;
 import io.scos.spi.store.SearchFilter;
@@ -28,7 +29,8 @@ final class TsVectorReference {
   static final double TIE = 1e-12;
 
   private static final int TOP_K = 50;
-  private static final SearchFilter INCLUDE_ARCHIVED = new SearchFilter(true, null);
+  private static final SearchFilter INCLUDE_ARCHIVED =
+      new SearchFilter(true, null, AccessScope.singleUser());
 
   /** 질의 하나의 TS 기대 hit와 어댑터 결과. */
   record QueryComparison(

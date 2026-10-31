@@ -5,18 +5,16 @@ import java.util.List;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Docs API 원본의 평문(TS renderDocument·renderDocumentSections·renderStructuralElements). 탭이 있으면 탭마다
- * `## 탭 제목`·본문· 하위 탭, 없으면 문서 본문. 본문 뒤에 머리말·꼬리말·각주(`### 머리말` 등, 항목은 JS 객체 순서). 문단은 텍스트 런(링크는
- * `[글](url)` — 끝 공백은 링크 밖으로)·리치 링크·사람 이름을 잇고, 글머리 문단은 `- `. 표는 행마다 칸을 ` | `로, 목차는 그 내용.
+ * Docs API 원본의 평문. 탭이 있으면 탭마다 `## 탭 제목`·본문· 하위 탭, 없으면 문서 본문. 본문 뒤에 머리말·꼬리말·각주(`### 머리말` 등, 항목은 JS
+ * 객체 순서). 문단은 텍스트 런(링크는 `[글](url)` — 끝 공백은 링크 밖으로)·리치 링크·사람 이름을 잇고, 글머리 문단은 `- `. 표는 행마다 칸을 ` | `로,
+ * 목차는 그 내용.
  */
 public final class DocsRenderer {
   private static final String[][] SECTIONS = {
     {"headers", "머리말"}, {"footers", "꼬리말"}, {"footnotes", "각주"}
   };
 
-  private DocsRenderer() {}
-
-  public static String document(JsonNode document) {
+  public String document(JsonNode document) {
     JsonNode tabs = document.get("tabs");
     if (tabs != null && tabs.isArray() && !tabs.isEmpty())
       return String.join("\n\n", JsText.objects(tabs).stream().map(DocsRenderer::tab).toList());

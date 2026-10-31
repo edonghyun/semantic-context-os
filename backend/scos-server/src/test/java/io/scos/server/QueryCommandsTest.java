@@ -11,10 +11,14 @@ import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceQueries;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.engine.internal.search.FreshnessReader;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.embedding.EmbeddingGeneration;
 import io.scos.spi.store.SpaceId;
+import io.scos.store.memory.MemorySpaceMeta;
+import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
+import io.scos.store.memory.MemoryVectorIndex;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -93,14 +97,17 @@ class QueryCommandsTest {
       new QueryCommands(
           queries,
           SourceAdapters.of(List.of()),
-          new FreshnessReader(new MemoryUnitStore(), clock),
+          new FreshnessReader(
+              new MemoryUnitMaintenance(new MemoryUnitStore(), new MemoryVectorIndex()), clock),
           Set.of(SpaceId.LEGACY),
+          new MemorySpaceMeta(),
+          EmbeddingGeneration.parse("test:query-commands:4:title+aliases+content"),
           clock,
           new SourceQueryJson(new ObjectMapper()),
           outputs::add);
 
-  static DefaultApplicationArguments args(String... args) {
-    return new DefaultApplicationArguments(args);
+  static CommandArguments args(String... args) {
+    return new CommandArguments(new DefaultApplicationArguments(args));
   }
 
   /** 성공한 run n건(최근 것부터, jira-main). */
@@ -202,7 +209,7 @@ class QueryCommandsTest {
       // given
       Path log =
           Files.writeString(
-              dir.resolve("serve.log"),
+              dir.resolve("serve.jsonl"),
               """
               {"level":"warn","event":"a"}
               {"level":"info","event":"b"}

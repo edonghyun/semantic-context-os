@@ -22,8 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Notion 소스 설정(TS readNotionConfiguration·collectionCoverage, 표 expected-client.json configCases):
- * 받는 설정과 첫 run의 coverage, 거부하는 설정과 그 메시지가 TS와 같다.
+ * Notion 소스 설정(표 expected-client.json configCases): 받는 설정과 첫 run의 coverage, 거부하는 설정과 그 메시지가 TS와 같다.
  */
 @DisplayName("Notion 소스 설정은 TS readNotionConfiguration 표와 같다")
 class NotionConfigurationTest {

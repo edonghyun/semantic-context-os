@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * 원본 저장 포트(F4·F5·G1). 모든 연산은 소스 안에서만. {@link #apply}의 의미(TS applyMutation):
+ * 원본 저장 포트(F4·F5·G1). 모든 연산은 소스 안에서만. {@link #apply}의 의미:
  *
  * <ul>
  *   <li>upsert: 기존 순서가 있고 들어온 순서가 같거나 과거면 unchanged(순서 없이 들어오면 unchanged, scheme 불일치는
@@ -52,8 +52,11 @@ public interface RawItemStore {
    * external id 목록을 돌려준다(F10 snapshot_absent 기록용). 호출자가 succeeded + complete_snapshot일 때만 부른다(불변식
    * 6).
    */
-  java.util.List<String> tombstoneUnobserved(
+  List<String> tombstoneUnobserved(
       SourceInstanceId source, Set<String> observedExternalIds, Instant at);
+
+  /** 검증된 부분 스냅샷 부재. provider 순서를 만들지 않고 지정한 active 항목만 정리한다. */
+  List<String> tombstoneSelected(SourceInstanceId source, Set<String> externalIds, Instant at);
 
   /** 저장된 blob 데이터(참조가 있는데 없으면 empty — 누락 blob은 투영 읽기 오류로 드러난다, F9). */
   Optional<byte[]> blob(String sha256);

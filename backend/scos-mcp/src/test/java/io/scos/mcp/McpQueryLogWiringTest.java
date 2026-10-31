@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.boot.McpConfiguration;
 import io.scos.boot.MetricsConfiguration;
+import io.scos.spi.store.Principal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +41,7 @@ class McpQueryLogWiringTest {
 
     // when
     mcp.withPropertyValues("scos.mcp.query-log=" + log)
-        .run(ctx -> ctx.getBean(McpTools.class).searchContext(QUERY));
+        .run(ctx -> ctx.getBean(McpTools.class).searchContext(Principal.singleUser(), QUERY));
 
     // then
     assertThat(Files.readAllLines(log))

@@ -25,6 +25,13 @@ public final class JavaServerLauncher implements ServerLauncher {
   static final String PROPERTIES_LAUNCHER =
       "org.springframework.boot.loader.launch.PropertiesLauncher";
 
+  /**
+   * 픽스처 벡터의 임베딩 세대 — 카세트 임베더(하네스 어댑터 JAR)의 identity와 엔진 입력 형식이다. 벡터를 동봉한 `import`는 이 값을 요구하고 공간 세대로
+   * 기록한다(stage2 §3.3).
+   */
+  static final String EMBEDDING_GENERATION =
+      "gemini:gemini-embedding-001:768:title+aliases+content";
+
   private final Path jar;
   private final Path adaptersJar;
   private final Path javaHome;
@@ -79,7 +86,8 @@ public final class JavaServerLauncher implements ServerLauncher {
             PROPERTIES_LAUNCHER,
             "import",
             "--file=" + fixture.documentsPath(),
-            "--space=" + fixture.spaceId());
+            "--space=" + fixture.spaceId(),
+            "--embedding-generation=" + EMBEDDING_GENERATION);
     ProcessBuilder pb =
         new ProcessBuilder(cmd)
             .directory(workDir.toFile())

@@ -8,7 +8,6 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -16,16 +15,28 @@ import java.util.stream.Stream;
 final class BoundaryConditions {
   private BoundaryConditions() {}
 
-  /** 대상이 internal 패키지이고 접근하는 쪽과 모듈 루트가 다르면 위반이다. 루트는 가장 긴 접두어로 정한다. */
-  static ArchCondition<JavaClass> dependOnInternalOfAnotherModule(List<String> moduleRoots) {
+  /**
+   * 대상이 internal 패키지이고 접근하는 쪽과 모듈({@link ProductModules})이 다르면 위반이다. 대상 internal이 표의 어느 모듈에도 속하지
+   * 않아도 위반이다 — 표에서 빠진 모듈은 양쪽 다 "모듈 없음"으로 같아 보여 검사를 조용히 벗어난다.
+   */
+  static ArchCondition<JavaClass> dependOnInternalOfAnotherModule() {
     return new ArchCondition<>("depend on internal of another module") {
       @Override
       public void check(JavaClass origin, ConditionEvents events) {
-        Optional<String> originRoot = moduleOf(origin.getPackageName(), moduleRoots);
+        Optional<String> originModule = ProductModules.moduleOf(origin.getPackageName());
         for (Dependency dependency : origin.getDirectDependenciesFromSelf()) {
           String target = dependency.getTargetClass().getPackageName();
           if (!isInternal(target)) continue;
-          if (!moduleOf(target, moduleRoots).equals(originRoot)) {
+          Optional<String> targetModule = ProductModules.moduleOf(target);
+          if (targetModule.isEmpty()) {
+            events.add(
+                SimpleConditionEvent.satisfied(
+                    dependency,
+                    "internal 패키지 "
+                        + target
+                        + "가 모듈 표(ProductModules)에 없다: "
+                        + dependency.getDescription()));
+          } else if (!targetModule.equals(originModule)) {
             events.add(SimpleConditionEvent.satisfied(dependency, dependency.getDescription()));
           }
         }
@@ -60,11 +71,5 @@ final class BoundaryConditions {
 
   private static boolean isInternal(String packageName) {
     return packageName.endsWith(".internal") || packageName.contains(".internal.");
-  }
-
-  private static Optional<String> moduleOf(String packageName, List<String> moduleRoots) {
-    return moduleRoots.stream()
-        .filter(root -> packageName.equals(root) || packageName.startsWith(root + "."))
-        .max(Comparator.comparingInt(String::length));
   }
 }

@@ -10,13 +10,15 @@ plugins {
 
 rootProject.name = "scos-backend"
 
-// 제품 모듈 14개(공개 배포 설계 §5.1, 단계 4)와 배포하지 않는 보조 프로젝트 2개(scos-test-support·verification).
-// 디렉터리 이름은 프로젝트 이름과 같다. 모듈 사이 방향: spi ← engine ← {store·collection·connector·provider·mcp} ← starter ← server
+// 제품 모듈 17개(공개 배포 설계 §5.1, 단계 4)와 배포하지 않는 보조 프로젝트 2개(scos-test-support·verification).
+// 디렉터리 이름은 프로젝트 이름과 같다. 모듈 사이 방향: spi ← engine ← {store·collection·connector·provider·mcp} ← starter ← server, {mcp·store-sqlite} ← client(단독 실행)
 include(
     "scos-spi",
     "scos-engine",
     "scos-store-memory",
     "scos-store-postgres",
+    "scos-store-sqlite",
+    "scos-client",
     "scos-collection",
     "scos-connector-slack",
     "scos-connector-notion",
@@ -24,6 +26,7 @@ include(
     "scos-connector-google-drive",
     "scos-connector-tiro",
     "scos-provider-gemini",
+    "scos-provider-openai-compatible",
     "scos-mcp",
     "scos-spring-boot-starter",
     "scos-server",

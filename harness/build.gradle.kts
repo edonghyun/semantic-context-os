@@ -13,9 +13,11 @@ repositories { mavenCentral() }
 
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    compileOnly("org.jspecify:jspecify:1.0.0")
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.slf4j:slf4j-simple:2.0.18")
     testImplementation("org.assertj:assertj-core:3.26.3")
     // Java 구현 실행용 PostgreSQL(ADR-0015). 버전 확인 2026-10-13: Testcontainers 2.0.5(backend와 동일)
     testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
@@ -55,13 +57,36 @@ tasks.check { dependsOn(javaTest) }
 
 // O2 병행 비교 도구(F11 T11.2, harness/README.md): 두 MCP 서버 실행 파일에 같은 질의를 보내 겹침·첫 적중·지연을 비교한다.
 // 예: ./gradlew o2Compare -Po2.args="--queries q.jsonl --a-name ts --a-command <ts mcp.sh> --b-name java --b-command <scos-mcp.sh> --out build/o2/run"
-// 종료 코드 0 = 오류·위반 없음, 1 = 오류나 임계값 위반, 2 = 사용법 오류. TS 퇴역 뒤 io.scos.harness.o2와 함께 지운다
+// 종료 코드 0 = 오류·위반 없음, 1 = 오류나 임계값 위반, 2 = 사용법 오류. evaluate가 io.scos.harness.o2의 ComparisonQuery·SearchHits를 공유하므로 유지한다
 val o2Compare by tasks.registering(JavaExec::class) {
     description = "O2 병행 비교(TS MCP 대 Java MCP) — -Po2.args=\"…\""
     group = "verification"
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass = "io.scos.harness.o2.ParallelComparisonMain"
     args = (project.findProperty("o2.args") ?: "").toString().split(" ").filter { it.isNotBlank() }
+}
+
+// 판정셋 평가(5b, docs/public/evaluation.md): MCP 서버 실행 파일 하나에 판정셋 질의를 보내 Recall@k·MRR@k·nDCG@k를 재고 하한으로 게이트한다.
+// 예: ./gradlew evaluate -Pevaluate.args="--pack ../demo/eval/ottercart-demo-pack.json --server-command <mcp.sh> --out build/eval/run --k 5 --min-recall 0.75 --min-mrr 0.90 --min-ndcg 0.80"
+// EvaluationMain 종료 코드 0 = 통과(또는 하한 없음), 1 = 하한 위반, 2 = 사용법 오류, 3 = 실행 오류. Gradle로 돌리면 0이 아닌 코드는 모두
+// 태스크 실패(Gradle 종료 1)가 되고, 실제 코드는 오류 메시지의 "non-zero exit value N"에 나온다
+val evaluate by tasks.registering(JavaExec::class) {
+    description = "판정셋으로 MCP 서버 하나의 검색 품질을 잰다 — -Pevaluate.args=\"…\""
+    group = "verification"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass = "io.scos.harness.evaluation.EvaluationMain"
+    args = (project.findProperty("evaluate.args") ?: "").toString().split(" ").filter { it.isNotBlank() }
+}
+
+// 기준선 측정(docs/public/evaluation.md "Baseline"): 판정셋의 baseline.terms로 rg -uu와 git log가 정답 문서를 얼마나 앞에 세우는지 잰다.
+// 예: SCOS_RG=<rg 경로> ./gradlew baseline -Pbaseline.args="--pack <pack.json> --projects <dir> --docs notes=<dir> --git repo=<dir> --out build/baseline/run --k 5"
+// BaselineMain 종료 코드 0 = 완료, 2 = 사용법 오류, 3 = 실행 오류(Gradle로 돌리면 0이 아닌 코드는 모두 태스크 실패다)
+val baseline by tasks.registering(JavaExec::class) {
+    description = "rg·git log 기준선을 잰다 — -Pbaseline.args=\"…\""
+    group = "verification"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass = "io.scos.harness.evaluation.baseline.BaselineMain"
+    args = (project.findProperty("baseline.args") ?: "").toString().split(" ").filter { it.isNotBlank() }
 }
 
 spotless {

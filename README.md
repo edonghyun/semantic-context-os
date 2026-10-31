@@ -49,14 +49,16 @@ CoALA ([Sumers et al., 2024](#long-context-and-agent-memory)) sorts the memory o
 - **Hybrid search**
   - Documents are split into units by heading.
   - Two channels find candidates: a keyword channel on a character-bigram index in plain PostgreSQL tables, and a vector channel on pgvector. Reciprocal rank fusion merges them.
-  - Optional LLM reranking (Gemini) can reorder the top results. Turn it off with `SCOS_RERANK_PROVIDER=none`.
+  - Optional LLM reranking (Gemini or an OpenAI-compatible chat model) can reorder the top results. Turn it off with `SCOS_RERANK_PROVIDER=none`.
 - **MCP tools:** `search_context`, `read_document`, `related_documents`, `assemble_context`. Search and assemble results also report how fresh the collected data is.
+- **Embedding providers:** the Gemini API (`gemini-embedding-001`, 768 dimensions), or any server that speaks the OpenAI-compatible embeddings API (`POST <base>/embeddings`), such as Ollama or a hosted API. Each data space records which provider, model and dimension produced its vectors, and the server refuses to mix them (see [Embedding generations](#embedding-generations)).
+- **Evaluation:** measure Recall@k, MRR and nDCG@k on your own judgment set and use them as a CI gate (see [Evaluation](#evaluation)).
 
-Embeddings use the Gemini API (`gemini-embedding-001`, 768 dimensions) for now. The demo below replaces it with a local stand-in, so it needs no key.
+The demo below uses a local OpenAI-compatible stand-in embedder, so it needs no key.
 
 ## Quickstart (demo, no API key)
 
-The demo runs PostgreSQL with pgvector, a local stand-in embedder and the SCOS server in Docker. It loads a synthetic corpus of 52 documents from a made-up company. You need Docker with Compose v2 and Python 3. You do not need a JDK, because the image is built inside Docker.
+The demo runs PostgreSQL with pgvector, a keyless stand-in embedder and the SCOS server in Docker. The stand-in speaks the OpenAI-compatible embeddings API, so the server runs exactly as it would against a real OpenAI-compatible model. The demo loads a synthetic corpus of 52 documents from a made-up company. You need Docker with Compose v2 (with BuildKit, which Docker Desktop and current Docker Engine releases include) and Python 3. You do not need a JDK, because the image is built inside Docker.
 
 Run these from the repository root:
 
@@ -71,7 +73,7 @@ docker compose -f demo/compose.yaml up -d --wait
 docker compose -f demo/compose.yaml run --rm corpus
 
 # 4. Load it into SCOS (runs the database migrations on first use).
-docker compose -f demo/compose.yaml run --rm scos import --file=/work/units.embedded.json --space=demo
+docker compose -f demo/compose.yaml run --rm scos import --file=/work/units.embedded.json --space=demo --embedding-generation=openai-compatible:scos-demo-hashing:768:title+aliases+content
 
 # 5. Ask a question over MCP stdio.
 python3 demo/mcp_search.py "How do clients send an idempotency key to the Order API?" -- docker compose -f demo/compose.yaml run --rm -T scos mcp
@@ -92,7 +94,9 @@ Clean up:
 docker compose -f demo/compose.yaml --profile tools down -v
 ```
 
-[demo/README.md](demo/README.md) has the rest: how to connect any MCP client to it, how the keyless embedder works, its limits, and how to edit the corpus. The demo's hashing vectors match spelling, not meaning, so do not use the demo to judge search quality.
+CI runs the same commands on every change to `backend/`, `harness/` or `demo/` ([`demo/smoke.sh`](demo/smoke.sh)).
+
+[demo/README.md](demo/README.md) has the rest: how to connect any MCP client to it, how the keyless embedder works, its limits, how to switch to a real model, and how to edit the corpus. The demo's hashing vectors match spelling, not meaning, so do not use the demo to judge search quality.
 
 ## Running the server
 
@@ -105,9 +109,45 @@ The server is one Spring Boot application with these commands:
 | `source …` | Add, enable or disable a source |
 | `collect`, `project`, `cycle` | Run one collection, one projection, or both, by hand |
 | `import` | Load pre-built units from a JSON file (the demo uses this) |
-| `status`, `raw …`, `maintenance` | Inspect sources and runs, and clean up |
+| `reembed --space=<id> [--dry-run]` | Re-embed every unit of a space with the configured embedder (see [Embedding generations](#embedding-generations)) |
+| `status`, `raw …`, `maintenance` | Inspect sources, runs and embedding generations, and clean up |
 
-You configure it with environment variables, for example `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD`, `GEMINI_API_KEY` and `SCOS_SPACE_ID`. All the defaults are in `backend/scos-server/src/main/resources/application.yml`. There is no configuration reference or connector setup guide yet.
+You configure it with environment variables, for example `SCOS_DB_URL`, `SCOS_DB_USER`, `SCOS_DB_PASSWORD` and `SCOS_SPACE_ID`. All the defaults are in `backend/scos-server/src/main/resources/application.yml`. There is no full configuration reference or connector setup guide yet.
+
+For multi-user setup, TLS placement, trust boundaries and rollback, see the [operations guide (Korean)](docs/operations/multi-user.md). Do not enable multi-user mode in production until access collection (0.2-b) and user/token management (0.2-c) are complete.
+
+### Choosing providers
+
+The embedder and the reranker are chosen separately:
+
+| Variable | Values | Notes |
+| --- | --- | --- |
+| `SCOS_EMBEDDER_PROVIDER` | `gemini` (default), `openai-compatible` | |
+| `GEMINI_API_KEY` | key | Required when either provider is `gemini`. |
+| `SCOS_EMBEDDER_BASE_URL` | for example `http://localhost:11434/v1`, `https://api.openai.com/v1` | `openai-compatible` only, required. The server posts to `<base>/embeddings`: one trailing slash is dropped and nothing else is added, so include `/v1` yourself. |
+| `SCOS_EMBEDDER_MODEL` | model name | Required for `openai-compatible`. For `gemini` the default is `gemini-embedding-001`. |
+| `SCOS_EMBEDDER_DIM` | vector length | Required for `openai-compatible`. For `gemini` the default is 768. The server does not send `dimensions`; it checks that every returned vector has this length. |
+| `SCOS_EMBEDDER_API_KEY` | key | Optional. Sent as `Authorization: Bearer`. Leave it empty for local servers. |
+| `SCOS_RERANK_PROVIDER` | `gemini` (default), `openai-compatible`, `none` | `none` turns reranking off. |
+| `SCOS_RERANK_MODEL` | model name | For `gemini` the default is `gemini-2.5-flash`. Required for `openai-compatible`. |
+| `SCOS_RERANK_BASE_URL`, `SCOS_RERANK_API_KEY` | | `openai-compatible` only. The reranker posts to `<base>/chat/completions`. |
+
+A missing required value stops the server at startup with the name of the variable. The OpenAI-compatible reranker sends `max_tokens`; models that accept only `max_completion_tokens` are not supported in 0.1.
+
+### Embedding generations
+
+Vectors from different models, or the same model at a different dimension, cannot be compared. SCOS records, for each space, the *embedding generation* that produced its vectors, in the form `provider:model:dim:input-format`. The demo's is `openai-compatible:scos-demo-hashing:768:title+aliases+content`, and the default Gemini setup's is `gemini:gemini-embedding-001:768:title+aliases+content`. `status` shows the stored and the configured generation of each space.
+
+- **Startup check.** If a space's stored generation differs from the configured embedder, `mcp` and `daemon` refuse to start (exit code 1) and name the fix: `Run 'scos reembed --space=<id>' or restore SCOS_EMBEDDER_* settings.` Search never runs on mixed vectors.
+- **Changing the model.** Re-embed the space:
+  1. Stop everything that reads or writes the space: the daemon and every MCP server. A search during re-embedding would compare old and new vectors.
+  2. Change the `SCOS_EMBEDDER_*` settings.
+  3. `reembed --space=<id> --dry-run` prints the unit count and the stored and target generations without writing.
+  4. `reembed --space=<id>` re-embeds every unit and then records the new generation. Units that are not already in the embedding cache go to the embedder in batches of up to 100 per call.
+  5. Check with `status` that stored and configured match, then start the daemon and MCP again.
+
+  If `reembed` fails part way, the space stays marked as pending and the servers refuse to start until you run `reembed` again. It takes a lock on the space, so a projection running at the same moment makes it fail fast; try again a little later. Run only one `reembed` per space at a time.
+- **`import`.** When the units in the file carry vectors, `import` needs `--embedding-generation=<generation>` naming the generation that produced them, and refuses a file whose generation differs from the configured embedder or the space. A space loaded by an older `import` that recorded no generation is not checked; run `reembed` on it once to record one.
 
 ## Architecture
 
@@ -117,7 +157,7 @@ flowchart LR
   boot --> collection
   boot --> connector["connector/*"]
   boot --> store["store/*"]
-  boot --> provider["provider/gemini"]
+  boot --> provider["provider/{gemini,openai}"]
   mcp --> engine
   collection --> engine
   connector --> spi
@@ -135,9 +175,15 @@ Arrows point from a package to the packages it depends on. All packages are unde
 | `collection` | `scos-collection` | Collection runtime: leases, page commits, checkpoints, scheduling, projection |
 | `connector/{slack,notion,jira,googledrive,tiro}` | `scos-connector-{slack,notion,jira,google-drive,tiro}` | Source adapters and projectors |
 | `store/{postgres,memory}` | `scos-store-{postgres,memory}` | Store implementations. `memory` is for tests and experiments. |
+| `store/sqlite` | `scos-store-sqlite` | Store implementation on one SQLite file (`index.sqlite`, WAL), used by the local client |
 | `provider/gemini` | `scos-provider-gemini` | Embedder and text generator over the Gemini API |
+| `provider/openai` | `scos-provider-openai-compatible` | Embedder and text generator over the OpenAI-compatible HTTP API (`/embeddings`, `/chat/completions`) |
 | `mcp` | `scos-mcp` | MCP stdio server and tool definitions |
 | `server`, `boot` | `scos-server`, `scos-spring-boot-starter` | Spring Boot application, CLI commands, wiring |
+| `client` | `scos-client` | `scos-local`: standalone stdio MCP server (no Spring Boot) that collects this machine's Claude Code session transcripts and auto-memory into `~/.scos` |
+
+To register `scos-local` with Claude Code, build it with `./gradlew :scos-client:installDist` in `backend/` and run `claude mcp add --scope user scos-local -- "$PWD/scos-client/build/install/scos-local/bin/scos-local"` (`SCOS_HOME`, `SCOS_CLAUDE_PROJECTS` and `SCOS_QUERY_LOG` override the default paths and must be absolute).
+`~/.scos` holds private data — redacted copies of your transcripts (`state.sqlite`), the search index and the query log (`query-log.jsonl`) — so `scos-local` creates it owner-only (directory `0700`, files `0600`). To reset the index, close every Claude Code session that runs `scos-local`, then delete `~/.scos/index.sqlite*`; the next start rebuilds it from `state.sqlite`.
 
 `./gradlew check` enforces these boundaries in three ways:
 
@@ -185,7 +231,11 @@ SearchResult result =
 result.hits().forEach(hit -> System.out.println(hit.documentId() + "  " + hit.title()));
 ```
 
-The engine also has `read`, `related`, `assemble` and `freshness`, one for each MCP tool. Every call takes a `Principal` first. In 0.1 the engine only passes it along and filters nothing. Optional builder settings are `reranker(TextGenerator, ObjectMapper)`, `clock`, `meterRegistry` and `lexicalExecutor`. `Embedder` is a two-method interface (`dim()`, `embed(texts)`), so you can plug in another embedding provider.
+The engine also has `read`, `related`, `assemble` and `freshness`, one for each MCP tool. Every call takes a `Principal` first. In 0.1 the engine only passes it along and filters nothing. Optional builder settings are `reranker(TextGenerator, ObjectMapper)`, `clock`, `meterRegistry` and `lexicalExecutor`.
+
+To embed the engine, build it by hand with `ContextEngine.builder()` as above. The `embedder` can be one of the two provider modules or your own implementation of `Embedder`; its `identity()` (provider, model, dimension) must match the [embedding generation](#embedding-generations) stored for the space.
+
+0.1 has no write path for library users. Data gets into the store only through connector collection (the daemon, `collect`, `project`) and through `import` of units that already carry their vectors.
 
 ## Build and test
 
@@ -208,14 +258,28 @@ cd backend
 
 `perfTest` (measurement probes) is not part of `check`.
 
+## Evaluation
+
+The `evaluate` task in [`harness/`](harness/README.md) sends the queries of a judgment set to one MCP server and reports Recall@k, MRR and nDCG@k. With `--min-recall`, `--min-mrr` or `--min-ndcg` it exits 1 below a floor, so you can use it as a CI gate on your own data. [docs/public/evaluation.md](docs/public/evaluation.md) describes the judgment set format, the metrics and the exit codes. CI runs it against the demo corpus ([demo/README.md](demo/README.md#evaluation)).
+
 ## Roadmap
+
+Done in 0.1: the OpenAI-compatible embedder and reranker (which also cover local servers such as Ollama), embedding generations with `reembed`, and the `evaluate` harness.
 
 Planned, with no dates:
 
 - **Multiple users:** an HTTP transport for MCP, authentication, and access filtering based on source-system permissions (ACLs)
 - **A memory layer:** per-user and per-team memory on top of the collected documents
-- **More embedding providers:** an OpenAI-compatible HTTP embedder, which would also cover local servers such as Ollama
 - Published artifacts and a container image
+
+Planned for 0.2:
+
+- A Spring Boot starter with auto-configuration, a testkit, connector and projector contract tests, an example connector and an SPI guide, and Maven Central artifacts
+- A library write path (upsert, delete and re-embed documents from your own code)
+- Graded relevance in the judgment set (graded nDCG), and the embedding cache keyed by a generation value object
+- More OpenAI request options: `dimensions` and `max_completion_tokens`
+- A vector length check shared by all embedders, `Embedder.maxBatchSize()`, and a configurable daemon address
+- The source name in MCP results
 
 ## References
 

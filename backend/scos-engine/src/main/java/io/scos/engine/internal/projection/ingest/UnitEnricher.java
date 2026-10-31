@@ -14,10 +14,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Content Enricher(TS core/ingestion/unit-enricher.ts, G4): 세그먼트에 id·출처·중요도·링크를 입혀 ContextUnit으로
- * 완성한다(augment 없음).
- */
+/** Content Enricher(G4): 세그먼트에 id·출처·중요도·링크를 입혀 ContextUnit으로 완성한다(augment 없음). */
 final class UnitEnricher {
   private static final Pattern MD_LINK =
       Pattern.compile("\\[[^\\]]*\\]\\(([^)" + Text.whitespaceChars() + "]+)\\)");
@@ -41,7 +38,7 @@ final class UnitEnricher {
     return new ContextUnit(
         UnitIds.make(doc.sourceId(), doc.documentId(), seg.headingPath(), occurrence),
         seg.partition(),
-        seg.headingPath(), // 브레드크럼 제목(T12.2)
+        seg.headingPath(), // 브레드크럼 제목
         seg.content(),
         Text.sha256Hex(seg.content()),
         seg.tokens(),

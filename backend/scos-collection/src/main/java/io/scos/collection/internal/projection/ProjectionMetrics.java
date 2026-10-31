@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.scos.engine.support.projection.EmbeddingCounts;
+import java.util.List;
 
 /**
  * 투영 지표(ADR-0009): run 시간(outcome), 문서 결과(ok | failed + reason), 임베딩 입력 출처(cache | embedder). 요청 큐
@@ -34,7 +35,7 @@ public final class ProjectionMetrics {
     return Timer.builder(RUN).tag("outcome", outcome.wire()).register(registry);
   }
 
-  public void documents(int ok, java.util.List<ProjectionRun.DocumentFailure> failures) {
+  public void documents(int ok, List<ProjectionRun.DocumentFailure> failures) {
     if (ok > 0)
       Counter.builder(DOCUMENTS)
           .tag("outcome", "ok")

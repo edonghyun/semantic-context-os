@@ -6,18 +6,13 @@ import io.scos.spi.connector.SourceInstanceId;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * run·관측·rejection·스냅샷 완료 기록 포트(TS SyncRunStore + 관측/rejection/snapshotCompletions). 페이지 커밋·완료
- * 유스케이스의 트랜잭션에 참여한다.
- */
+/** run·관측·rejection·스냅샷 완료 기록 포트. 페이지 커밋·완료 유스케이스의 트랜잭션에 참여한다. */
 public interface RunStore {
-  /**
-   * 같은 소스에 running으로 남은 run(죽은 프로세스)은 failed(errorKind=stale_run)로 마감하고 관측을 지운다 — TS
-   * startRun·ADR-0008 E-5.
-   */
+  /** 같은 소스에 running으로 남은 run(죽은 프로세스)은 failed(errorKind=stale_run)로 마감하고 관측을 지운다 — ADR-0008 E-5. */
   CollectionRun start(RunId id, SourceInstanceId source, Instant startedAt);
 
   Optional<CollectionRun> get(RunId id);
@@ -31,14 +26,12 @@ public interface RunStore {
 
   Set<String> observations(RunId id);
 
+  /** run을 이 결과로 마감하고 관측을 지운다. reconciled는 완료가 tombstone으로 바꾼 수(deleted에 더한다). */
   CollectionRun finish(
       RunId id,
-      RunStatus status,
+      RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
-      int errorCount,
-      Optional<String> errorKind,
-      Optional<String> errorSummary,
       int reconciled);
 
   void addRejections(
@@ -49,16 +42,45 @@ public interface RunStore {
   /** 가장 최근에 시작한 run. */
   Optional<CollectionRun> latest(SourceInstanceId source);
 
+  /** 요청한 인스턴스 중 RunStatus.isSuccess()인 run이 있는 것의 마지막 완료 시각. 빈 입력은 빈 맵이다. */
+  Map<SourceInstanceId, Instant> lastSucceededAt(Set<SourceInstanceId> instances);
+
   /**
-   * 최근 실패 수(F11 backoff 지수, TS recentFailureCount): 가장 최근 run부터 거슬러 올라가 성공(succeeded·
-   * succeeded_with_rejections)을 만나기 전까지의 failed·partially_succeeded 수. running·cancelled는 세지 않는다 —
-   * 종료(SIGTERM)가 backoff를 키우지 않는다.
+   * 최근 실패 수(F11 backoff 지수): 가장 최근 run부터 거슬러 올라가 성공(succeeded· succeeded_with_rejections)을 만나기 전까지의
+   * failed·partially_succeeded 수. running·cancelled는 세지 않는다 — 종료(SIGTERM)가 backoff를 키우지 않는다.
    */
   int recentFailureCount(SourceInstanceId source);
 
+  /** 이 run의 전체 정리는 지정 범위 세대의 부재 검증을 통과해야 한다. */
+  void requireAbsenceVerification(RunId run, String fingerprint);
+
+  Optional<String> absenceRequirement(RunId run);
+
+  record AbsenceValidation(String fingerprint, String candidateToken, Set<String> exclusions) {
+    public AbsenceValidation {
+      exclusions = Set.copyOf(exclusions);
+    }
+  }
+
+  /** 같은 범위 세대로 검증을 요구한 running run에만 저장한다. */
+  void recordAbsenceValidation(RunId run, AbsenceValidation validation);
+
+  Optional<AbsenceValidation> absenceValidation(RunId run);
+
   record SnapshotCompletion(Instant completedAt, int deletionCount) {}
 
-  void recordSnapshotCompletion(SourceInstanceId source, Instant completedAt, int deletionCount);
+  default void recordSnapshotCompletion(
+      SourceInstanceId source, Instant completedAt, int deletionCount) {
+    recordSnapshotCompletion(source, completedAt, deletionCount, Optional.empty());
+  }
+
+  void recordSnapshotCompletion(
+      SourceInstanceId source,
+      Instant completedAt,
+      int deletionCount,
+      Optional<String> fingerprint);
+
+  boolean hasReconciliationBaseline(SourceInstanceId source, String fingerprint);
 
   Optional<SnapshotCompletion> lastSnapshotCompletion(SourceInstanceId source);
 }

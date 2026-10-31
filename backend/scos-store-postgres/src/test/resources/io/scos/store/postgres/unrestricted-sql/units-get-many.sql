@@ -1,0 +1,2 @@
+-- 무제한 범위의 SQL — 0.2 접근 필터 뒤에도 바뀌면 안 된다(설계 §4.3)
+SELECT id, document_id, partition, title, content, content_hash, tokens, tier, source_id, uri, captured_at, importance, valid_from, invalidated_at, links, tags, aliases, compacted_from FROM units WHERE space_id = :space AND id = ANY(:ids)

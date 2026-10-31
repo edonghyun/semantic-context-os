@@ -4,6 +4,8 @@ plugins {
     id("scos.boot-app")
 }
 
+scosNullAway { enabled = true }
+
 dependencies {
     // starter는 import하지 않고 런타임 스캔(scanBasePackages = "io.scos")으로 쓴다
     implementation(project(":scos-spring-boot-starter"))
@@ -11,6 +13,8 @@ dependencies {
     implementation(project(":scos-engine"))
     implementation(project(":scos-mcp"))
     implementation(project(":scos-spi"))
+    implementation(platform("io.modelcontextprotocol.sdk:mcp-bom:2.0.1"))
+    implementation("io.modelcontextprotocol.sdk:mcp")
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
@@ -29,6 +33,7 @@ dependencies {
     testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(testFixtures(project(":scos-engine")))
     testImplementation(project(":scos-store-memory"))
+    testImplementation(testFixtures(project(":scos-store-memory")))
     testImplementation(testFixtures(project(":scos-store-postgres")))
     testImplementation(testFixtures(project(":scos-collection")))
     testImplementation(testFixtures(project(":scos-connector-slack")))
@@ -37,6 +42,8 @@ dependencies {
     testImplementation(testFixtures(project(":scos-connector-google-drive")))
     testImplementation(testFixtures(project(":scos-connector-tiro")))
     testImplementation(project(":scos-provider-gemini"))
+    // 데모 Python 임베더를 제품 OpenAI 호환 어댑터로 부른다(HashingEmbedderParityTest)
+    testImplementation(project(":scos-provider-openai-compatible"))
     testImplementation(project(":scos-test-support"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")

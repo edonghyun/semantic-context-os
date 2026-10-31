@@ -1,24 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- stdout은 MCP(JSON-RPC) 전용 채널이다(ADR-0010). 모든 로그는 프로필과 무관하게 stderr로 쓴다(ADR-0023).
-     daemon 프로필: TS serve.log와 같은 JSON 한 줄(io.scos.engine.support.text.JsonLineEncoder — status.sh가 "level":"warn|error"를 grep한다).
-     그 밖(mcp·명령): 사람이 읽는 평문. -->
+<!-- 어디에 무엇을 쓰는지(logging.md §1·§8). stdout은 MCP(JSON-RPC)와 조회 명령 결과 전용이라(ADR-0010·ADR-0024) 어떤 appender도 stdout에 쓰지 않는다.
+     사람 갈래: Spring Boot 기본 콘솔 형식(defaults.xml의 CONSOLE_LOG_PATTERN). 색은 spring.output.ansi.enabled를 따른다
+       (명령 detect, mcp never, daemon always — application*.yml).
+     daemon 프로필: $SCOS_LOG_DIR(scos.log.dir)의 serve.log(사람 갈래, 색)와 serve.jsonl(기계 갈래 JSON 한 줄, JsonLineEncoder) 두 파일만 쓴다.
+       stderr에는 쓰지 않는다 — launchd가 stderr를 회전 없는 파일로 넘기므로 같은 줄을 거기 또 쌓지 않는다. 그 파일은 logback이 서기 전·JVM이 죽을 때의 출력만 받는다.
+       회전: 하루 단위, 14일 보관. totalSizeCap은 오류 폭주 때 디스크 상한(평소 하루 수 MB라 닿지 않는다). 상한은 지난 파일에만 걸리고 오늘 파일은 하루 동안 자란다.
+     그 밖(mcp·명령): stderr에 사람 갈래. -->
 <configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
   <springProfile name="daemon">
-    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
-      <target>System.err</target>
-      <encoder class="io.scos.engine.support.text.JsonLineEncoder"/>
+    <springProperty name="LOG_DIR" source="scos.log.dir" defaultValue="logs"/>
+    <appender name="SERVE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <file>${LOG_DIR}/serve.log</file>
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <fileNamePattern>${LOG_DIR}/serve.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <maxHistory>14</maxHistory>
+        <totalSizeCap>500MB</totalSizeCap>
+        <cleanHistoryOnStart>true</cleanHistoryOnStart>
+      </rollingPolicy>
+      <encoder>
+        <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        <charset>UTF-8</charset>
+      </encoder>
     </appender>
+    <appender name="SERVE_JSONL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <file>${LOG_DIR}/serve.jsonl</file>
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <fileNamePattern>${LOG_DIR}/serve.%d{yyyy-MM-dd}.jsonl</fileNamePattern>
+        <maxHistory>14</maxHistory>
+        <totalSizeCap>500MB</totalSizeCap>
+        <cleanHistoryOnStart>true</cleanHistoryOnStart>
+      </rollingPolicy>
+      <encoder class="io.scos.engine.support.logging.JsonLineEncoder"/>
+    </appender>
+    <root level="WARN">
+      <appender-ref ref="SERVE_LOG"/>
+      <appender-ref ref="SERVE_JSONL"/>
+    </root>
   </springProfile>
   <springProfile name="!daemon">
     <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
       <target>System.err</target>
       <encoder>
-        <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
+        <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        <charset>${CONSOLE_LOG_CHARSET}</charset>
       </encoder>
     </appender>
+    <root level="WARN">
+      <appender-ref ref="STDERR"/>
+    </root>
   </springProfile>
-  <root level="WARN">
-    <appender-ref ref="STDERR"/>
-  </root>
   <logger name="io.scos" level="INFO"/>
 </configuration>

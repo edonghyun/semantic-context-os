@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Slack mrkdwn → 평문(TS source-projector/src/slack-mrkdwn-cleaner.ts). 코드펜스·인라인 코드는 불변. 펜스 상태는 메시지
- * 전체에서 줄을 넘어 이어진다.
- */
+/** Slack mrkdwn → 평문. 코드펜스·인라인 코드는 불변. 펜스 상태는 메시지 전체에서 줄을 넘어 이어진다. */
 public final class SlackMrkdwnCleaner {
   private static final Pattern NEWLINE = Pattern.compile("\n");
   private static final Pattern FENCE = Pattern.compile("```");
@@ -64,7 +61,7 @@ public final class SlackMrkdwnCleaner {
                 + ").,!?:;])",
             "$1$2"
           },
-          // 첫 글자는 영문자/언더스코어/+/- 허용(:+1: 등). 숫자만인 이름(:100:)은 시각 표기와 구분 불가해 미지원(TS와 같은 알려진 갭)
+          // 첫 글자는 영문자/언더스코어/+/- 허용(:+1: 등). 숫자만인 이름(:100:)은 시각 표기와 구분 불가해 미지원(알려진 갭)
           new String[] {":[a-z_+\\-][a-z0-9_+\\-]*:", ""});
   private static final List<Pattern> COMPILED =
       RULES.stream().map(r -> Pattern.compile(r[0])).toList();

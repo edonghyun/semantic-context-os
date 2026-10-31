@@ -17,7 +17,7 @@ import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SourceChangeLog;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawItem;
@@ -66,15 +66,12 @@ class PostgresPageCommitTest {
 
   PageCommit pageCommit(OutboxPort outbox, SourceChangeLog changes) {
     return new PageCommit(
-        new TransactionTemplate(new DataSourceTransactionManager(ds)),
-        adapters.claims(),
-        adapters.runs(),
-        adapters.rawItems(),
-        adapters.checkpoints(),
-        outbox,
+        adapters
+            .stores(new TransactionTemplate(new DataSourceTransactionManager(ds)))
+            .withOutbox(outbox)
+            .withChanges(changes),
         clock,
         TestMetrics.collection(),
-        changes,
         new Progress(clock));
   }
 

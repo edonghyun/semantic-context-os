@@ -1,0 +1,9 @@
+-- 무제한 범위의 SQL — 0.2 접근 필터 뒤에도 바뀌면 안 된다(설계 §4.3)
+1=String:s1
+2=String:정산
+3=String:%정산%
+4=String:s1
+5=String:%가%
+6=String:가
+7=String:가
+8=Integer:10

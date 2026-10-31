@@ -1,0 +1,2 @@
+-- 무제한 범위의 SQL — 0.2 접근 필터 뒤에도 바뀌면 안 된다(설계 §4.3)
+SELECT u.unit_id, u.document_id, z.score FROM (SELECT h.seq, COALESCE(sum(h.s) FILTER (WHERE h.ord = 0), 0) AS score FROM (SELECT u.seq, 0 AS ord, 1::float + (0.5 + 0.5 * (b.cnt::float / (1 + b.cnt))) AS s FROM unit_bigrams b JOIN unit_texts u ON u.seq = b.unit_seq WHERE b.space_id = ? AND b.bigram = ? AND u.text LIKE ? AND u.space_id = ? AND NOT u.archived) h GROUP BY h.seq) z JOIN unit_texts u ON u.seq = z.seq ORDER BY z.score DESC, z.seq LIMIT ?

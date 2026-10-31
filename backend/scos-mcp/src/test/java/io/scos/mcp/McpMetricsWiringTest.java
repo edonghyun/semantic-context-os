@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Tags;
 import io.scos.boot.McpConfiguration;
 import io.scos.boot.MetricsConfiguration;
 import io.scos.engine.internal.search.SearchMetrics;
+import io.scos.spi.store.Principal;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -46,7 +47,8 @@ class McpMetricsWiringTest {
   @DisplayName("조립된 assemble_context는 앱 레지스트리에 단계 타이머를 기록한다")
   void assembleContextRecordsStagesInAppRegistry() {
     // when
-    MeterRegistry registry = afterMcpCall(tools -> tools.assembleContext(QUERY));
+    MeterRegistry registry =
+        afterMcpCall(tools -> tools.assembleContext(Principal.singleUser(), QUERY));
 
     // then
     assertThatMetrics(registry)
@@ -57,7 +59,8 @@ class McpMetricsWiringTest {
   @DisplayName("조립된 search_context는 앱 레지스트리에 단계 타이머를 기록한다")
   void searchContextRecordsStagesInAppRegistry() {
     // when
-    MeterRegistry registry = afterMcpCall(tools -> tools.searchContext(QUERY));
+    MeterRegistry registry =
+        afterMcpCall(tools -> tools.searchContext(Principal.singleUser(), QUERY));
 
     // then
     assertThatMetrics(registry)

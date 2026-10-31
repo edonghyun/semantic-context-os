@@ -1,7 +1,9 @@
 package io.scos.collection.internal.memory;
 
+import io.scos.collection.internal.SourceConfigurationChangedException;
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
+import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.connector.SourceInstanceId;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,13 @@ public final class MemorySourceInstanceStore implements SourceInstanceStore {
   @Override
   public synchronized Optional<SourceInstance> get(SourceInstanceId id) {
     return Optional.ofNullable(byId.get(id.value()));
+  }
+
+  @Override
+  public synchronized void requireCollectionConfiguration(SourceDescriptor expected) {
+    get(expected.id())
+        .orElseThrow(SourceConfigurationChangedException::new)
+        .requireCollectionConfiguration(expected);
   }
 
   @Override

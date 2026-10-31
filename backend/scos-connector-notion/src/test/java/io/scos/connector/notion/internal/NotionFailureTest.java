@@ -46,7 +46,7 @@ class NotionFailureTest {
     notion.failureCase(failure);
 
     // when
-    Collection java = notion.collect(NotionScenario.Config.of(failure.get("config")));
+    Collection java = notion.collectTraversal(NotionScenario.Config.of(failure.get("config")));
 
     // then
     assertThat(java.pageViews()).containsExactlyElementsOf(TsRun.of(failure).pages());
@@ -60,7 +60,7 @@ class NotionFailureTest {
     notion.failureCase(failure);
 
     // when
-    Collection java = notion.collect(NotionScenario.Config.of(failure.get("config")));
+    Collection java = notion.collectTraversal(NotionScenario.Config.of(failure.get("config")));
 
     // then
     JsonNode ts = failure.get("run").get("errorKind");
@@ -77,7 +77,7 @@ class NotionFailureTest {
     notion.failureCase(failure);
 
     // when
-    notion.collect(NotionScenario.Config.of(failure.get("config")));
+    notion.collectTraversal(NotionScenario.Config.of(failure.get("config")));
 
     // then
     assertThat(notion.requests()).containsExactlyElementsOf(TsRun.of(failure).requests());

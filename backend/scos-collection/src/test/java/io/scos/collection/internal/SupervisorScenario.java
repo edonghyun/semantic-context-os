@@ -3,7 +3,7 @@ package io.scos.collection.internal;
 import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionMode;
@@ -159,6 +159,14 @@ final class SupervisorScenario implements AutoCloseable {
     return this;
   }
 
+  /** 첫 틱으로 실제 수집 진입을 기다린 뒤 취소한다. 다음 틱은 이미 취소된 수집의 마감을 기다린다. */
+  void givenCancelledCollectionInFlight() {
+    collectionsHeld();
+    supervisor().runDueSources(cycleToken, Duration.ZERO);
+    gate.awaitHeld("given 준비 실패: 취소할 수집이 실행 중");
+    cycleToken.cancel();
+  }
+
   /** worker 실행기가 닫혔다(stop 뒤) — 제출은 거부된다. */
   void givenWorkersShutDown() {
     workers.shutdown();
@@ -233,15 +241,17 @@ final class SupervisorScenario implements AutoCloseable {
   // ---- 관찰(then) ----
 
   Duration retryDelay(int recentFailures) {
-    return supervisor().retryDelay(recentFailures);
+    return supervisor().duePolicy().retryDelay(recentFailures);
   }
 
   Optional<Instant> nextEligibleAt(SourceInstanceId source) {
-    return supervisor().nextEligibleAt(sources.get(source).orElseThrow(), clock.instant());
+    return supervisor()
+        .duePolicy()
+        .nextEligibleAt(sources.get(source).orElseThrow(), clock.instant());
   }
 
   CollectionMode modeAt(SourceInstanceId source, Instant at) {
-    return supervisor().resolveMode(sources.get(source).orElseThrow(), at);
+    return supervisor().duePolicy().modeAt(sources.get(source).orElseThrow(), at);
   }
 
   /** 그 소스가 성공으로 수집된 횟수. */
@@ -380,12 +390,9 @@ final class SupervisorScenario implements AutoCloseable {
     return Reports.of(
         runs.finish(
             run,
-            RunStatus.FAILED,
+            RunOutcome.failed(RunStatus.FAILED, "dependency_unavailable", "down"),
             CollectionCoverage.INCREMENTAL,
             clock.instant(),
-            1,
-            Optional.of("dependency_unavailable"),
-            Optional.of("down"),
             0));
   }
 }

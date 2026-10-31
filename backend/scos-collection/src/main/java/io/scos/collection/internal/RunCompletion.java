@@ -1,10 +1,16 @@
 package io.scos.collection.internal;
 
-import io.scos.engine.support.text.EventLog;
+import io.scos.engine.EventLog;
+import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
+import io.scos.spi.connector.CollectionState;
+import io.scos.spi.connector.SnapshotScope;
+import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.connector.SourceInstanceId;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -21,23 +27,36 @@ public final class RunCompletion {
   public record Input(
       WorkClaim claim,
       RunId runId,
-      RunStatus status,
+      RunOutcome outcome,
       CollectionCoverage coverage,
-      java.time.Instant finishedAt,
-      int errorCount,
-      Optional<String> errorKind,
-      Optional<String> errorSummary) {
-    public Input {
-      if (status == RunStatus.RUNNING)
-        throw new IllegalArgumentException("completion status must be terminal");
-      errorKind = errorKind == null ? Optional.empty() : errorKind;
-      errorSummary =
-          errorSummary == null
-              ? Optional.empty()
-              : errorSummary.map(s -> s.length() > 500 ? s.substring(0, 500) : s);
+      Instant finishedAt,
+      Optional<SourceDescriptor> expectedSource,
+      Optional<SnapshotScope> expectedVerification) {
+    public Input(
+        WorkClaim claim,
+        RunId runId,
+        RunOutcome outcome,
+        CollectionCoverage coverage,
+        Instant finishedAt,
+        Optional<SourceDescriptor> expectedSource) {
+      this(claim, runId, outcome, coverage, finishedAt, expectedSource, Optional.empty());
+    }
+
+    public Input(
+        WorkClaim claim,
+        RunId runId,
+        RunOutcome outcome,
+        CollectionCoverage coverage,
+        Instant finishedAt) {
+      this(claim, runId, outcome, coverage, finishedAt, Optional.empty(), Optional.empty());
+    }
+
+    RunStatus status() {
+      return outcome.status();
     }
   }
 
+  public static final String ABSENCE_DEFERRED = "absence_verification_deferred";
   private static final Logger log = LoggerFactory.getLogger(RunCompletion.class);
 
   private final TransactionOperations tx;
@@ -47,22 +66,56 @@ public final class RunCompletion {
   private final OutboxPort outbox;
   private final SourceChangeLog changes;
   private final SnapshotShrinkGuard shrinkGuard;
+  private final Optional<SourceInstanceStore> sources;
+  private final Optional<BodyCompletion> bodies;
+  private final SnapshotAbsences absences;
+  private final Optional<ReconciliationDiscovery> reconciliation;
 
-  public RunCompletion(
-      TransactionOperations tx,
-      WorkClaimPort claims,
-      RunStore runs,
-      RawItemStore rawItems,
-      OutboxPort outbox,
-      SourceChangeLog changes,
-      SnapshotShrinkGuard shrinkGuard) {
-    this.tx = tx;
-    this.claims = claims;
-    this.runs = runs;
-    this.rawItems = rawItems;
-    this.outbox = outbox;
-    this.changes = changes;
+  public RunCompletion(CollectionStores stores, SnapshotShrinkGuard shrinkGuard) {
+    this.tx = stores.tx();
+    this.sources = stores.sources();
+    this.claims = stores.claims();
+    this.runs = stores.runs();
+    this.rawItems = stores.rawItems();
+    this.outbox = stores.outbox();
+    this.changes = stores.changes();
     this.shrinkGuard = shrinkGuard;
+    this.bodies =
+        stores
+            .bodies()
+            .map(store -> new BodyCompletion(store, rawItems, SnapshotShrinkLimits.DEFAULTS));
+    this.absences = new SnapshotAbsences(rawItems, runs, stores.bodies());
+    this.reconciliation =
+        stores.bodies().map(store -> new ReconciliationDiscovery(store, rawItems));
+  }
+
+  public CollectionState state(SourceInstanceId source, RunId run, Optional<SnapshotScope> scope) {
+    CollectionState bodyState =
+        bodies.map(body -> body.state(source)).orElseGet(CollectionState::unavailable);
+    return new CollectionState() {
+      @Override
+      public Map<String, BodySummary> bodies(
+          String fingerprint, List<String> ids, CancellationToken cancel) {
+        return bodyState.bodies(fingerprint, ids, cancel);
+      }
+
+      @Override
+      public boolean reconciliationBaseline(String fingerprint, CancellationToken cancel) {
+        bodyState.reconciliationBaseline(fingerprint, cancel);
+        return runs.hasReconciliationBaseline(source, fingerprint);
+      }
+
+      @Override
+      public AbsenceCandidates absences(CancellationToken cancel) {
+        return scope
+            .map(s -> RunCompletion.this.absences.candidates(source, run, s, cancel))
+            .orElseGet(() -> bodyState.absences(cancel));
+      }
+    };
+  }
+
+  public Optional<ReconciliationDiscovery.Summary> reconciliation(CollectionRun run) {
+    return reconciliation.flatMap(discovery -> discovery.report(run));
   }
 
   public CollectionRun complete(Input in) {
@@ -96,70 +149,105 @@ public final class RunCompletion {
     SourceInstanceId source = in.claim().source();
     if (in.status() == RunStatus.SUCCEEDED) claims.requireActive(in.claim(), in.finishedAt());
     runs.requireRunning(in.runId(), source);
-    int reconciled = 0;
-    Optional<String> errorKind = in.errorKind();
-    Optional<String> errorSummary = in.errorSummary();
-    Optional<SnapshotShrinkGuard.Verdict> verdict = Optional.empty();
-    List<SourceChangeLog.Entry> changed = new ArrayList<>();
-    // succeeded_with_rejections는 제외: 거부된 항목의 하위가 열거되지 않았을 수 있어 reconcile이 잘못 지울 수 있다(보수적, TS와
-    // 같음)
-    if (in.coverage() == CollectionCoverage.COMPLETE_SNAPSHOT
-        && in.status() == RunStatus.SUCCEEDED) {
-      Set<String> observed = runs.observations(in.runId());
-      // 스냅샷 축소 보호(ADR-0028, TS와 다른 의도한 차이): 너무 많이 지우려 하면 정리하지 않고 run은 succeeded로 끝낸다
-      SnapshotShrinkGuard.Verdict judged =
-          shrinkGuard.judge(
-              source,
-              in.runId(),
-              rawItems.count(source),
-              rawItems.countUnobserved(source, observed),
-              in.finishedAt());
-      verdict = Optional.of(judged);
-      if (judged instanceof SnapshotShrinkGuard.Verdict.Guarded guarded) {
-        errorKind = Optional.of(SnapshotShrinkGuard.ERROR_KIND);
-        errorSummary = Optional.of(guarded.summary());
-      } else {
-        List<String> absent = rawItems.tombstoneUnobserved(source, observed, in.finishedAt());
-        for (String id : absent)
-          changed.add(
-              new SourceChangeLog.Entry(
-                  source,
-                  Optional.of(id),
-                  SourceChangeLog.Kind.SNAPSHOT_ABSENT,
-                  Optional.empty(),
-                  Optional.empty(),
-                  in.finishedAt()));
-        reconciled = absent.size();
-        runs.recordSnapshotCompletion(source, in.finishedAt(), reconciled);
-        if (reconciled > 0) outbox.requestProjection(source, in.finishedAt());
-      }
-    }
-    // F10: succeeded가 아닌 완료는 collection_incomplete(TS와 같이 succeeded_with_rejections 포함)
+    if (in.status() == RunStatus.SUCCEEDED)
+      in.expectedSource()
+          .ifPresent(
+              expected -> {
+                if (!source.equals(expected.id())) throw new SourceConfigurationChangedException();
+                sources
+                    .orElseThrow(
+                        () ->
+                            new IllegalStateException(
+                                "Source configuration store is not configured"))
+                    .requireCollectionConfiguration(expected);
+              });
+    SnapshotReconcile reconciled =
+        reconcilesSnapshot(in) ? reconcile(in) : SnapshotReconcile.skipped(in.outcome());
+    List<SourceChangeLog.Entry> changed = new ArrayList<>(reconciled.changes());
+    // F10: succeeded가 아닌 완료는 collection_incomplete(succeeded_with_rejections 포함)
     if (in.status() != RunStatus.SUCCEEDED)
       changed.add(
-          new SourceChangeLog.Entry(
-              source,
-              Optional.empty(),
-              SourceChangeLog.Kind.COLLECTION_INCOMPLETE,
-              Optional.empty(),
-              Optional.of(
-                  "{\"status\":\""
-                      + in.status().wire()
-                      + "\",\"errorKind\":"
-                      + in.errorKind().map(k -> "\"" + k + "\"").orElse("null")
-                      + "}"),
-              in.finishedAt()));
+          SourceChangeLog.Entry.collectionIncomplete(
+              source, in.status(), in.outcome().errorKind(), in.finishedAt()));
     CollectionRun finished =
         runs.finish(
-            in.runId(),
-            in.status(),
-            in.coverage(),
-            in.finishedAt(),
-            in.errorCount(),
-            errorKind,
-            errorSummary,
-            reconciled);
+            in.runId(), reconciled.outcome(), in.coverage(), in.finishedAt(), reconciled.count());
     changes.appendAll(changed); // 마지막 작업 — 변경 로그 쓰기 잠금은 여기서 커밋까지만(ADR-0021)
-    return new Completed(finished, verdict);
+    return new Completed(finished, reconciled.verdict());
+  }
+
+  /**
+   * succeeded + complete_snapshot만 정리한다. succeeded_with_rejections는 제외: 거부된 항목의 하위가 열거되지 않았을 수 있어
+   * reconcile이 잘못 지울 수 있다(보수적).
+   */
+  private static boolean reconcilesSnapshot(Input in) {
+    return in.coverage() == CollectionCoverage.COMPLETE_SNAPSHOT
+        && in.status() == RunStatus.SUCCEEDED;
+  }
+
+  /** 정리 단계의 결과: tombstone 수, 판정, 마감할 결과(보호면 표시가 붙는다), 남길 변경. */
+  private record SnapshotReconcile(
+      int count,
+      Optional<SnapshotShrinkGuard.Verdict> verdict,
+      RunOutcome outcome,
+      List<SourceChangeLog.Entry> changes) {
+    static SnapshotReconcile skipped(RunOutcome outcome) {
+      return new SnapshotReconcile(0, Optional.empty(), outcome, List.of());
+    }
+  }
+
+  /**
+   * 이번 run이 관측하지 않은 active를 tombstone으로 바꾼다. 스냅샷 축소 보호(ADR-0028): 너무 많이 지우려 하면 정리하지 않고 run은
+   * succeeded + snapshot_shrink_guarded로 끝낸다.
+   */
+  private SnapshotReconcile reconcile(Input in) {
+    SourceInstanceId source = in.claim().source();
+    Optional<String> deferred = deferredAbsences(in);
+    if (deferred.isPresent())
+      return SnapshotReconcile.skipped(
+          in.outcome()
+              .markedAs(
+                  ABSENCE_DEFERRED, "complete snapshot reconcile deferred: " + deferred.get()));
+    Set<String> observed = runs.observations(in.runId());
+    SnapshotShrinkGuard.Verdict judged =
+        shrinkGuard.judge(
+            source,
+            in.runId(),
+            rawItems.count(source),
+            rawItems.countUnobserved(source, observed),
+            in.finishedAt());
+    if (judged instanceof SnapshotShrinkGuard.Verdict.Guarded guarded)
+      return new SnapshotReconcile(
+          0,
+          Optional.of(judged),
+          in.outcome().markedAs(SnapshotShrinkGuard.ERROR_KIND, guarded.summary()),
+          List.of());
+    List<String> absent = rawItems.tombstoneUnobserved(source, observed, in.finishedAt());
+    in.expectedVerification()
+        .ifPresent(
+            scope ->
+                reconciliation.ifPresent(
+                    discovery -> discovery.absencesApplied(source, in.runId(), scope, absent)));
+    runs.recordSnapshotCompletion(
+        source,
+        in.finishedAt(),
+        absent.size(),
+        in.expectedVerification().map(SnapshotScope::fingerprint));
+    if (!absent.isEmpty()) outbox.requestProjection(source, in.finishedAt());
+    return new SnapshotReconcile(
+        absent.size(),
+        Optional.of(judged),
+        in.outcome(),
+        absent.stream()
+            .map(id -> SourceChangeLog.Entry.snapshotAbsent(source, id, in.finishedAt()))
+            .toList());
+  }
+
+  private Optional<String> deferredAbsences(Input in) {
+    if (in.expectedVerification().isEmpty() && runs.absenceRequirement(in.runId()).isEmpty())
+      return Optional.empty();
+    return in.expectedVerification()
+        .map(scope -> absences.verify(in.claim().source(), in.runId(), scope))
+        .orElse(Optional.of("missing_verification_scope"));
   }
 }

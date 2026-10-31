@@ -7,8 +7,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 import io.scos.engine.DocumentNotFoundException;
+import io.scos.engine.ReadRequest;
 import io.scos.engine.internal.search.DocumentReader.Page;
 import io.scos.engine.internal.search.DocumentReader.UnitView;
+import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.SpaceId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,17 +40,17 @@ class DocumentReaderTest {
 
   /** offset 0, 기본 limit. */
   Page firstPage() {
-    return reader.read(S, "fx-long", 0, DocumentReader.DEFAULT_LIMIT);
+    return reader.read(AccessScope.singleUser(), S, "fx-long", 0, ReadRequest.DEFAULT_LIMIT);
   }
 
   /** offset 20, limit 3. */
   Page midPage() {
-    return reader.read(S, "fx-long", 20, 3);
+    return reader.read(AccessScope.singleUser(), S, "fx-long", 20, 3);
   }
 
   /** 유닛 25개 문서의 offset 24, limit 5 — 남은 유닛은 1개다. */
   Page lastPage() {
-    return reader.read(S, "fx-long", 24, 5);
+    return reader.read(AccessScope.singleUser(), S, "fx-long", 24, 5);
   }
 
   @Test
@@ -140,7 +142,7 @@ class DocumentReaderTest {
   @DisplayName("문서 끝을 넘는 offset은 nextOffset 없는 빈 페이지다")
   void beyondEndIsEmptyPage() {
     // when
-    Page beyond = reader.read(S, "fx-long", 100, 20);
+    Page beyond = reader.read(AccessScope.singleUser(), S, "fx-long", 100, 20);
 
     // then
     assertThat(beyond.units()).isEmpty();
@@ -151,7 +153,7 @@ class DocumentReaderTest {
   @DisplayName("끝을 넘은 페이지도 문서 제목과 uri를 싣는다")
   void beyondEndKeepsDocumentHeader() {
     // when
-    Page beyond = reader.read(S, "fx-long", 100, 20);
+    Page beyond = reader.read(AccessScope.singleUser(), S, "fx-long", 100, 20);
 
     // then
     assertThat(beyond.title()).isEqualTo("긴 문서 단락 1");
@@ -162,7 +164,7 @@ class DocumentReaderTest {
   @DisplayName("없는 문서는 그 id의 DocumentNotFoundException이다")
   void missingDocumentIsNotFound() {
     // when·then
-    assertThatThrownBy(() -> reader.read(S, "missing-doc", 0, 20))
+    assertThatThrownBy(() -> reader.read(AccessScope.singleUser(), S, "missing-doc", 0, 20))
         .asInstanceOf(type(DocumentNotFoundException.class))
         .extracting(DocumentNotFoundException::documentId)
         .isEqualTo("missing-doc");
@@ -175,25 +177,16 @@ class DocumentReaderTest {
     fx.load(
         new SpaceId("other"),
         unit("o-1").inDocument("other-long").titled("다른 공간").content("다른 공간 본문").build());
-    Page own = reader.read(new SpaceId("other"), "other-long", 0, 20);
+    Page own = reader.read(AccessScope.singleUser(), new SpaceId("other"), "other-long", 0, 20);
     if (own.units().size() != 1)
       throw new IllegalStateException(
           "given 준비 실패: other 공간에서는 other-long의 유닛 1개가 읽혀야 한다 — " + own.units());
 
     // when·then
-    assertThatThrownBy(() -> reader.read(S, "other-long", 0, 20))
+    assertThatThrownBy(() -> reader.read(AccessScope.singleUser(), S, "other-long", 0, 20))
         .asInstanceOf(type(DocumentNotFoundException.class))
         .extracting(DocumentNotFoundException::documentId)
         .isEqualTo("other-long");
-  }
-
-  @ParameterizedTest(name = "offset {0}, limit {1}")
-  @CsvSource({"-1, 20", "0, 0", "0, 101"})
-  @DisplayName("offset 음수·limit 범위 밖(1..100)은 InvalidArgument다")
-  void rejectsOutOfRangeArguments(int offset, int limit) {
-    // when·then
-    assertThatThrownBy(() -> reader.read(S, "fx-long", offset, limit))
-        .isInstanceOf(InvalidArgument.class);
   }
 
   @ParameterizedTest(name = "offset {0}, limit {1}")
@@ -201,7 +194,7 @@ class DocumentReaderTest {
   @DisplayName("offset 0·limit 1·limit 100은 경계 안이다")
   void acceptsBoundaryArguments(int offset, int limit) {
     // when
-    Page page = reader.read(S, "fx-long", offset, limit);
+    Page page = reader.read(AccessScope.singleUser(), S, "fx-long", offset, limit);
 
     // then
     assertThat(page.units()).isNotEmpty();
@@ -211,7 +204,7 @@ class DocumentReaderTest {
   @DisplayName("남은 유닛이 limit와 정확히 같으면 nextOffset이 없다")
   void noNextOffsetWhenRemainderFitsExactly() {
     // when
-    Page exact = reader.read(S, "fx-long", UNITS - 5, 5);
+    Page exact = reader.read(AccessScope.singleUser(), S, "fx-long", UNITS - 5, 5);
 
     // then
     assertThat(exact.nextOffset()).isEmpty();
@@ -221,7 +214,7 @@ class DocumentReaderTest {
   @DisplayName("limit보다 하나라도 더 남으면 nextOffset은 다음 offset이다")
   void nextOffsetOnlyWhenMoreRemain() {
     // when
-    Page shorter = reader.read(S, "fx-long", UNITS - 5, 4);
+    Page shorter = reader.read(AccessScope.singleUser(), S, "fx-long", UNITS - 5, 4);
 
     // then
     assertThat(shorter.nextOffset()).contains(24);

@@ -8,12 +8,11 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * roots 모드 작업 큐의 작업 하나(TS NotionWorkItem, 체크포인트 v3 `pendingWork` 항목 — F12 저장 호환). JSON 키와 순서는 TS
- * serializeWorkItem과 같다. 휴지통 단계 data source 행 작업은 더 만들지 않지만(이 API가 in_trash 필터를 거부한다) 옛 체크포인트에 남은
- * 것을 읽을 수 있어야 한다.
+ * roots 모드 작업 큐의 작업 하나(체크포인트 v3 `pendingWork` 항목 — F12 저장 호환). 저장 형식이 바뀌면 안 되므로 JSON 키와 순서를 지킨다.
+ * 휴지통 단계 data source 행 작업은 더 만들지 않지만(이 API가 in_trash 필터를 거부한다) 옛 체크포인트에 남은 것을 읽을 수 있어야 한다.
  */
 sealed interface NotionWork {
-  /** 체크포인트·거부 위치의 작업 종류 이름(TS NotionWorkItem.kind). */
+  /** 체크포인트·거부 위치의 작업 종류 이름. */
   String kind();
 
   /** 대상 id의 키 이름(pageId·blockId·databaseId·dataSourceId). */
@@ -24,14 +23,14 @@ sealed interface NotionWork {
   /** 이 작업의 공급자 호출 이름(지표·거부 위치의 operation). */
   String operation();
 
-  /** 체크포인트 v3의 작업 하나: kind·id 키 뒤에 종류별 필드(TS serializeWorkItem 키 순서). */
+  /** 체크포인트 v3의 작업 하나: kind·id 키 뒤에 종류별 필드. */
   default ObjectNode json() {
     ObjectNode out = JsonNodeFactory.instance.objectNode().put("kind", kind()).put(idKey(), id());
     extras(out);
     return out;
   }
 
-  /** 거부 위치(TS providerLocator, operation 앞까지): workKind와 대상 id. */
+  /** 거부 위치(operation 앞까지): workKind와 대상 id. */
   default ObjectNode locator() {
     return JsonNodeFactory.instance.objectNode().put("workKind", kind()).put(idKey(), id());
   }
@@ -175,7 +174,7 @@ sealed interface NotionWork {
     }
   }
 
-  /** 체크포인트의 작업 하나(TS readWorkItem). 종류별 키만 있어야 하고 id는 빈 값이 아닌 문자열, cursor는 없거나 빈 값이 아닌 문자열이다. */
+  /** 체크포인트의 작업 하나. 종류별 키만 있어야 하고 id는 빈 값이 아닌 문자열, cursor는 없거나 빈 값이 아닌 문자열이다. */
   static NotionWork read(JsonNode value) {
     if (value == null || !value.isObject() || !NotionObjects.nonEmptyString(value.get("kind")))
       throw NotionProtocolException.invalidCheckpoint();

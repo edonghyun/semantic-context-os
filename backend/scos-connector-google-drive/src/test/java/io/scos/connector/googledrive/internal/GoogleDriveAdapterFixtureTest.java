@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
@@ -385,7 +386,7 @@ class GoogleDriveAdapterFixtureTest {
       Collection java = drive.collect(checkpointOf(c));
 
       // then
-      assertThat(java.error())
+      assertThat(java.error().map(ErrorView::withoutCursorCycle))
           .isEqualTo(
               c.get("error").isNull()
                   ? Optional.empty()
@@ -537,5 +538,114 @@ class GoogleDriveAdapterFixtureTest {
       // then
       assertThat(java.failureKind()).contains("cancelled");
     }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"/drive/v3/files, files, files:", "/drive/v3/drives, drives, drives"})
+  @DisplayName("목록 토큰이 이미 요청한 토큰으로 돌아오면(A → B → A) 무엇을 걷다 어디로 돌아왔는지 싣고 실패한다")
+  void listingTokenThatCyclesFails(String path, String key, String list) {
+    // given
+    drive.listingCyclesPageToken(path, key, "");
+
+    // when
+    Collection java = drive.collect();
+
+    // then
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(GoogleProtocolException.class)
+                    .hasMessage(
+                        "Google Drive page token did not advance (cursor cycle: list="
+                            + list
+                            + " trail=[-,b7380e63,5da3fc6c] next=b7380e63 length=3)"));
+  }
+
+  @Test
+  @DisplayName("댓글 목록 토큰이 이미 요청한 토큰으로 돌아오면(A → B → A) 그 댓글 목록과 자취를 싣고 실패한다")
+  void commentTokenThatCyclesFails() {
+    // given
+    drive.listingCyclesPageToken("/drive/v3/files/doc-1/comments", "comments", "");
+
+    // when
+    Collection java = drive.collect();
+
+    // then
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(GoogleProtocolException.class)
+                    .hasMessage(
+                        "Google Drive child page token did not advance (cursor cycle:"
+                            + " list=/drive/v3/files/doc-1/comments"
+                            + " trail=[-,b7380e63,5da3fc6c] next=b7380e63 length=3)"));
+  }
+
+  @Test
+  @DisplayName("변경 피드 토큰이 이미 요청한 토큰으로 돌아오면(A → B → A) 저장된 토큰부터의 자취를 싣고 실패한다")
+  void changeTokenThatCyclesFails() {
+    // given
+    drive.givenSecondRunResponses();
+    drive.listingCyclesPageToken(
+        "/drive/v3/changes", "changes", "\"newStartPageToken\":\"cycle-end\"");
+
+    // when
+    Collection java = drive.collectFrom(TsRun.of("expected-raw-items.json").finalCheckpoint());
+
+    // then
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(GoogleProtocolException.class)
+                    .hasMessage(
+                        "Google Drive change token did not advance (cursor cycle: list=changes:"
+                            + " trail=[f8393643,b7380e63,5da3fc6c] next=b7380e63 length=3)"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @CsvSource({"/drive/v3/files, files, files:", "/drive/v3/drives, drives, drives"})
+  @DisplayName("목록이 요청한 토큰을 다음 토큰으로 다시 주면(A → A) 무엇을 걷다 어디로 돌아왔는지 싣고 실패한다")
+  void listingTokenThatRepeatsNamesWalk(String path, String key, String list) {
+    // given
+    drive.listingRepeatsPageToken(path, key, "");
+
+    // when
+    Collection java = drive.collect();
+
+    // then
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(GoogleProtocolException.class)
+                    .hasMessage(
+                        "Google Drive page token did not advance (cursor cycle: list="
+                            + list
+                            + " trail=[-,b7380e63] next=b7380e63 length=2)"));
+  }
+
+  @Test
+  @DisplayName("변경 피드가 저장된 토큰을 다음 토큰으로 다시 주면(A → A) 그 토큰 하나의 자취를 싣고 실패한다")
+  void changeTokenThatRepeatsNamesWalk() {
+    // given
+    drive.givenSecondRunResponses();
+    drive.listingRepeatsPageToken(
+        "/drive/v3/changes", "changes", "\"newStartPageToken\":\"repeat-end\"");
+
+    // when
+    Collection java = drive.collectFrom(TsRun.of("expected-raw-items.json").finalCheckpoint());
+
+    // then
+    assertThat(java.failure())
+        .hasValueSatisfying(
+            f ->
+                assertThat(f)
+                    .isInstanceOf(GoogleProtocolException.class)
+                    .hasMessage(
+                        "Google Drive change token did not advance (cursor cycle: list=changes:"
+                            + " trail=[f8393643] next=f8393643 length=1)"));
   }
 }

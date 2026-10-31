@@ -3,11 +3,14 @@ plugins {
     id("scos.java-module")
 }
 
+scosNullAway { enabled = true }
+
 dependencies {
     implementation(project(":scos-spi"))
     implementation(project(":scos-engine"))
     implementation("tools.jackson.core:jackson-databind")
     implementation("org.springframework:spring-web")
+    implementation("org.slf4j:slf4j-api")
 
     testImplementation(testFixtures(project(":scos-engine")))
     testImplementation(testFixtures(project(":scos-collection")))

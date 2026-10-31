@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.ResourceAccessException;
 
-/** HTTP 응답이 없는 실패와 클라이언트가 만든 고장의 분류(TS classifyGoogleError). 기대값은 TS 표(expected-client.json)다. */
+/** HTTP 응답이 없는 실패와 클라이언트가 만든 고장의 분류. 기대값은 TS 표(expected-client.json)다. */
 @DisplayName("응답 없는 실패와 클라이언트 고장은 TS classifyGoogleError와 같다")
 class GoogleErrorsTest {
   @Test

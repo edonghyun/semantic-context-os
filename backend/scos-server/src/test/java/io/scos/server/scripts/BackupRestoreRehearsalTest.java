@@ -4,10 +4,14 @@ import static io.scos.spi.store.ContextUnits.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.engine.Effort;
+import io.scos.engine.EmbeddingGenerationCheck;
+import io.scos.engine.Profile;
 import io.scos.engine.internal.projection.UnitImporter;
-import io.scos.engine.internal.search.QuestionSearch;
-import io.scos.engine.internal.search.Reranker;
-import io.scos.engine.internal.search.SearchSettings;
+import io.scos.engine.internal.search.QuestionSearches;
+import io.scos.engine.internal.search.plan.PlanResolver;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
+import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.AccessScope;
@@ -25,6 +29,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
 import org.flywaydb.core.Flyway;
@@ -92,19 +97,21 @@ class BackupRestoreRehearsalTest {
   }
 
   static List<String> hits(DataSource ds) {
-    return new QuestionSearch(
+    return QuestionSearches.of(
             PostgresTestAdapters.unitStore(ds),
+            PostgresTestAdapters.unitMaintenance(ds),
             PostgresTestAdapters.keywordIndex(ds),
             PostgresTestAdapters.vectorIndex(ds),
             FIXED,
             Reranker.DISABLED,
-            SearchSettings.DEFAULT,
             CLOCK,
             TestMetrics.search(),
             TestExecutors.CALLER_THREAD)
-        .search(AccessScope.singleUser(), SPACE, QUESTION).candidates().stream()
-            .map(c -> c.unit().id() + "@" + c.baseScore())
-            .toList();
+        .search(AccessScope.singleUser(), SPACE, QUESTION, plan(QUESTION), 10)
+        .candidates()
+        .stream()
+        .map(c -> c.unit().id() + "@" + c.baseScore())
+        .toList();
   }
 
   static long migrations(DataSource ds) {
@@ -133,9 +140,11 @@ class BackupRestoreRehearsalTest {
       Flyway.configure().dataSource(from).locations("classpath:db/migration").load().migrate();
       new UnitImporter(
               new TransactionTemplate(new DataSourceTransactionManager(from)),
-              PostgresTestAdapters.unitStore(from),
+              PostgresTestAdapters.unitMaintenance(from),
               PostgresTestAdapters.keywordIndex(from),
-              PostgresTestAdapters.vectorIndex(from))
+              PostgresTestAdapters.vectorIndex(from),
+              PostgresTestAdapters.spaceMeta(from),
+              EmbeddingGenerationCheck.generationOf(FIXED))
           .importUnits(
               SPACE,
               List.of(
@@ -145,7 +154,8 @@ class BackupRestoreRehearsalTest {
                       .content("정산 배치 재시도 규칙은 세 번이다")
                       .embedding(0.6, 0.8)
                       .build(),
-                  unit("u3").inDocument("d3").content("휴가 신청 절차").embedding(0, 1).build()));
+                  unit("u3").inDocument("d3").content("휴가 신청 절차").embedding(0, 1).build()),
+              Optional.of(EmbeddingGenerationCheck.generationOf(FIXED)));
       sourceHits = hits(from);
       if (sourceHits.isEmpty()) throw new IllegalStateException("given 준비 실패: 원본에서 검색 결과가 없다");
       sourceMigrations = migrations(from);
@@ -352,5 +362,10 @@ class BackupRestoreRehearsalTest {
         assertThat(restoredAgainHits).isEqualTo(sourceHits);
       }
     }
+  }
+
+  /** search_context와 같은 레시피: 질의 문구가 날짜 가산을 정한다. */
+  private static RetrievalPlan plan(String query) {
+    return new PlanResolver().forSearch(query, Effort.MEDIUM, Profile.AUTO, CLOCK.instant());
   }
 }

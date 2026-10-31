@@ -1,9 +1,8 @@
 package io.scos.collection.internal.projection;
 
-import static io.scos.collection.internal.projection.ProjectionScenario.SENTINEL;
-
 import io.scos.engine.internal.projection.HashVectors;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.support.HoldGate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,6 @@ final class ScriptedEmbedder implements Embedder {
   /** 이 조각을 담은 입력이 있는 호출만 실패한다(null이면 끔). */
   volatile String failOn;
 
-  volatile boolean sentinel;
   volatile Runnable onEachEmbed = () -> {};
   volatile Runnable onNextEmbed = () -> {};
   volatile HoldGate gate;
@@ -31,8 +29,8 @@ final class ScriptedEmbedder implements Embedder {
   }
 
   @Override
-  public int dim() {
-    return HashVectors.DIM;
+  public EmbedderIdentity identity() {
+    return new EmbedderIdentity("test", "scripted", HashVectors.DIM);
   }
 
   @Override
@@ -44,8 +42,7 @@ final class ScriptedEmbedder implements Embedder {
     if (fail || (fragment != null && texts.stream().anyMatch(t -> t.contains(fragment))))
       throw new EmbedderException("Gemini embeddings 429", 429);
     List<double[]> out = new ArrayList<>();
-    for (String t : texts)
-      out.add(sentinel ? new double[] {SENTINEL, SENTINEL, SENTINEL, SENTINEL} : HashVectors.of(t));
+    for (String t : texts) out.add(HashVectors.of(t));
     return out;
   }
 }

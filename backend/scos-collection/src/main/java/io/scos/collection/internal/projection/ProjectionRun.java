@@ -12,6 +12,7 @@ import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.collection.internal.WorkClaimPort;
+import io.scos.engine.EventLog;
 import io.scos.engine.support.projection.SourceSync;
 import io.scos.engine.support.projection.SyncReport;
 import io.scos.engine.support.text.Text;
@@ -23,6 +24,8 @@ import io.scos.spi.embedding.Embedder;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
 import io.scos.spi.store.SpaceId;
+import java.net.SocketTimeoutException;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -30,18 +33,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 
 /**
- * 투영 실행(TS projection-run.ts + raw-catalog-connector.ts, G1·ADR-0007·ADR-0018 §6): Outbox의 due 소스마다
- * active 원본 전량(500개 페이지) → 투영기(kind별) → documentId 정렬 순 투영 → SourceSync.sync(prune) → 성공이면 요청 완료,
- * 실패(문서 실패 포함)면 attempts·backoff. 문서 실패는 documentRef = sha256(uri)로만 보고한다(원문·URL 비노출). 알 수 없는 kind는
- * skipped(요청 완료 — 투영할 것이 없다).
+ * 투영 실행(G1·ADR-0007·ADR-0018 §6): Outbox의 due 소스마다 active 원본 전량(500개 페이지) → 투영기(kind별) → documentId
+ * 정렬 순 투영 → SourceSync.sync(prune) → 성공이면 요청 완료, 실패(문서 실패 포함)면 attempts·backoff. 문서 실패는 documentRef
+ * = sha256(uri)로만 보고한다(원문·URL 비노출). 알 수 없는 kind는 skipped(요청 완료 — 투영할 것이 없다).
  */
 public final class ProjectionRun {
   public enum Outcome {
@@ -71,7 +75,45 @@ public final class ProjectionRun {
       int deleted,
       int projectionSkipped,
       Optional<String> error,
-      List<DocumentFailure> documentFailures) {}
+      List<DocumentFailure> documentFailures) {
+    /** 투영까지 가지 못했다(셈은 모두 0). */
+    static Report without(
+        SourceInstanceId source, String kind, Outcome outcome, Optional<String> error) {
+      return new Report(source, kind, outcome, 0, 0, 0, 0, error, List.of());
+    }
+
+    static Report failed(SourceInstanceId source, String kind, String error) {
+      return without(source, kind, Outcome.FAILED, Optional.of(error));
+    }
+
+    static Report cancelled(SourceInstanceId source, String kind) {
+      return without(source, kind, Outcome.CANCELLED, Optional.of("cancelled"));
+    }
+
+    /** 동기화까지 마쳤다. 문서 실패가 있으면 failed와 그 실패, 없으면 succeeded. */
+    static Report synced(
+        SourceInstanceId source,
+        String kind,
+        SyncReport result,
+        int skipped,
+        Optional<String> error,
+        List<DocumentFailure> failures) {
+      return new Report(
+          source,
+          kind,
+          failures.isEmpty() ? Outcome.SUCCEEDED : Outcome.FAILED,
+          result.documents(),
+          result.units(),
+          result.deleted(),
+          skipped,
+          error,
+          failures);
+    }
+  }
+
+  /** 투영기가 낸 문서(documentId 정렬 순), 살아 있는 documentId, 문서가 되지 않은 묶음 수. */
+  private record ProjectedDocuments(
+      List<SourceDocument> documents, Set<String> live, int skipped) {}
 
   private static final Logger log = LoggerFactory.getLogger(ProjectionRun.class);
   static final int PAGE_SIZE = 500;
@@ -146,121 +188,116 @@ public final class ProjectionRun {
     Optional<SourceInstance> instance = sources.get(id);
     if (instance.isEmpty()) {
       failed(id, seen, "source instance not found");
-      return new Report(
-          id, "?", Outcome.FAILED, 0, 0, 0, 0, Optional.of("source instance not found"), List.of());
+      return Report.failed(id, "?", "source instance not found");
     }
     String kind = instance.get().kind();
     Optional<Projector> found = projectors.forKind(kind);
     if (found.isEmpty()) {
       outbox.complete(id, seen);
-      return new Report(
-          id, kind, Outcome.SKIPPED_UNKNOWN_KIND, 0, 0, 0, 0, Optional.empty(), List.of());
+      return Report.without(id, kind, Outcome.SKIPPED_UNKNOWN_KIND, Optional.empty());
     }
-    Projector projector = found.get();
     // 소스별 투영 점유(리뷰 B-I-6): 겹친 투영이 옛 내용으로 되돌리지 못하게 쓰기 트랜잭션마다 저장 경계에서 token을 검사한다
     Optional<WorkClaim> claimed =
         claims.tryClaim(projectionKey(id), owner, heartbeats.ttl(), clock.instant());
     if (claimed.isEmpty())
-      return new Report(id, kind, Outcome.SKIPPED_RUNNING, 0, 0, 0, 0, Optional.empty(), List.of());
+      return Report.without(id, kind, Outcome.SKIPPED_RUNNING, Optional.empty());
     WorkClaim claim = claimed.get();
-    // 수집과 같은 heartbeat(TTL/2) — TTL보다 긴 투영도 끝까지 간다. 쓰기 트랜잭션마다 heartbeat 실패·점유 검사를 함께 본다.
     LeaseHeartbeat heartbeat = heartbeats.begin(claim);
-    Runnable guard =
-        () -> {
-          heartbeat.assertHealthy();
-          claims.requireActive(claim, clock.instant());
-          progress.mark(); // 문서(또는 정리) 쓰기 하나 — 긴 투영의 진행 신호
-        };
     try {
       // 점유 뒤의 어떤 실패도(heartbeat 등록 거부 포함) finally의 해제를 거친다 — 점유가 TTL까지 남지 않는다
       heartbeat.start();
-      SpaceId space = spaces.resolve(instance.get());
-      Map<String, List<RawItem>> groups = projector.groupIntoDocuments(readAllActive(id));
-      List<SourceDocument> documents = new ArrayList<>();
-      Set<String> live = new HashSet<>();
-      int skipped = 0;
-      for (var e : groups.entrySet()) { // TreeMap: documentId 정렬 순
-        Optional<SourceDocument> doc =
-            projector.project(id.value(), e.getKey(), e.getValue(), this::readContent);
-        if (doc.isEmpty()) {
-          skipped++;
-          continue;
-        }
-        documents.add(doc.get());
-        live.add(e.getKey());
-      }
-      SyncReport result = ingestor.sync(space, id.value(), documents, live, guard);
-      metrics.embeddings(result.embeddings());
-      List<DocumentFailure> failures =
-          result.errors().stream()
-              .map(d -> new DocumentFailure(Text.sha256Hex(d.uri()), d.stage(), reason(d.cause())))
-              .toList();
-      if (!failures.isEmpty() && cancel.isCancelled()) return cancelled(id, kind);
-      if (failures.isEmpty()) {
-        outbox.complete(id, seen);
-        return new Report(
-            id,
-            kind,
-            Outcome.SUCCEEDED,
-            result.documents(),
-            result.units(),
-            result.deleted(),
-            skipped,
-            Optional.empty(),
-            List.of());
-      }
-      String error = failures.size() + " document ingestion(s) failed";
-      failed(id, seen, error);
-      return new Report(
-          id,
-          kind,
-          Outcome.FAILED,
-          result.documents(),
-          result.units(),
-          result.deleted(),
-          skipped,
-          Optional.of(error),
-          failures);
+      return project(instance.get(), found.get(), seen, guard(heartbeat, claim), cancel);
     } catch (ClaimLostException e) {
-      if (cancel.isCancelled()) return cancelled(id, kind);
+      if (cancel.isCancelled()) return Report.cancelled(id, kind);
       // 경쟁자가 점유를 가져갔으면 그쪽이 요청을 끝낸다(SUPERSEDED, 실패 아님). 경쟁자 없이 만료만 됐으면(TTL보다 긴 투영) 실패로 세어
       // attempts·parked 상한을 받는다 — 무한 재시도 없음(불변식 7).
-      Optional<WorkClaim> current = claims.current(projectionKey(id));
-      // 내 token 뒤에 다른 점유가 있었으면(끝났더라도) 경쟁자가 요청을 처리한 것이다
-      boolean superseded = current.map(c -> c.fencingToken() != claim.fencingToken()).orElse(false);
-      if (superseded)
-        return new Report(
-            id, kind, Outcome.SUPERSEDED, 0, 0, 0, 0, Optional.of(e.getMessage()), List.of());
+      // ClaimLostException은 늘 메시지를 싣는다(점유 어댑터)
+      if (supersededAfter(claim))
+        return Report.without(
+            id, kind, Outcome.SUPERSEDED, Optional.of(Objects.requireNonNull(e.getMessage())));
       failed(id, seen, "claim_lost: " + e.getMessage());
-      return new Report(
-          id,
-          kind,
-          Outcome.FAILED,
-          0,
-          0,
-          0,
-          0,
-          Optional.of("claim_lost: " + e.getMessage()),
-          List.of());
+      return Report.failed(id, kind, "claim_lost: " + e.getMessage());
     } catch (RuntimeException e) {
-      if (cancel.isCancelled()) return cancelled(id, kind);
+      if (cancel.isCancelled()) return Report.cancelled(id, kind);
       String message = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
       failed(id, seen, message);
-      return new Report(id, kind, Outcome.FAILED, 0, 0, 0, 0, Optional.of(message), List.of());
+      return Report.failed(id, kind, message);
     } finally {
       heartbeat.stop();
       claims.release(claim, clock.instant());
     }
   }
 
-  /** 종료로 중단: 요청(version 포함)을 건드리지 않는다 — 실패가 아니므로 attempts·parked 예산을 쓰지 않는다. */
-  private static Report cancelled(SourceInstanceId id, String kind) {
-    return new Report(id, kind, Outcome.CANCELLED, 0, 0, 0, 0, Optional.of("cancelled"), List.of());
+  /**
+   * 수집과 같은 heartbeat(TTL/2) — TTL보다 긴 투영도 끝까지 간다. 쓰기 트랜잭션마다 heartbeat 실패·점유 검사를 함께 보고, 쓰기 하나를 긴 투영의
+   * 진행 신호로 남긴다.
+   */
+  private Runnable guard(LeaseHeartbeat heartbeat, WorkClaim claim) {
+    return () -> {
+      heartbeat.assertHealthy();
+      claims.requireActive(claim, clock.instant());
+      progress.mark();
+    };
+  }
+
+  /** 점유를 잃은 뒤: 내 token 뒤에 다른 점유가 있었으면(끝났더라도) 경쟁자가 요청을 처리한 것이다. */
+  private boolean supersededAfter(WorkClaim claim) {
+    return claims
+        .current(claim.source())
+        .map(c -> c.fencingToken() != claim.fencingToken())
+        .orElse(false);
+  }
+
+  /** active 원본 전량을 문서로 투영해 동기화하고, 문서 실패가 없으면 요청을 끝낸다. */
+  private Report project(
+      SourceInstance instance,
+      Projector projector,
+      long seen,
+      Runnable guard,
+      CancellationToken cancel) {
+    SourceInstanceId id = instance.id();
+    String kind = instance.kind();
+    SpaceId space = spaces.resolve(instance);
+    ProjectedDocuments projected = projectDocuments(id, projector);
+    SyncReport result =
+        ingestor.sync(space, id.value(), projected.documents(), projected.live(), guard);
+    metrics.embeddings(result.embeddings());
+    List<DocumentFailure> failures =
+        result.errors().stream()
+            .map(d -> new DocumentFailure(Text.sha256Hex(d.uri()), d.stage(), reason(d.cause())))
+            .toList();
+    if (!failures.isEmpty() && cancel.isCancelled()) return Report.cancelled(id, kind);
+    if (failures.isEmpty()) {
+      outbox.complete(id, seen);
+      return Report.synced(id, kind, result, projected.skipped(), Optional.empty(), failures);
+    }
+    String error = failures.size() + " document ingestion(s) failed";
+    failed(id, seen, error);
+    return Report.synced(id, kind, result, projected.skipped(), Optional.of(error), failures);
+  }
+
+  private ProjectedDocuments projectDocuments(SourceInstanceId id, Projector projector) {
+    Map<String, List<RawItem>> groups = projector.groupIntoDocuments(readAllActive(id));
+    List<SourceDocument> documents = new ArrayList<>();
+    Set<String> live = new HashSet<>();
+    int skipped = 0;
+    for (var e : groups.entrySet()) { // TreeMap: documentId 정렬 순
+      Optional<SourceDocument> doc =
+          projector.project(id.value(), e.getKey(), e.getValue(), this::readContent);
+      if (doc.isEmpty()) {
+        skipped++;
+        continue;
+      }
+      documents.add(doc.get());
+      live.add(e.getKey());
+    }
+    return new ProjectedDocuments(documents, live, skipped);
   }
 
   /**
-   * 실패 기록 + 운영 신호: version과 무관한 연속 실패 수가 maxAttempts에 이르면 경고한다 — 새 데이터가 계속 오는 소스는 attempts가 리셋돼
-   * parked에 이르지 않으므로(불변식 7의 예산은 데이터 단위) 이 수가 결정적 실패를 드러낸다(ADR-0018 §11).
+   * 실패 기록 + 운영 신호: version과 무관한 연속 실패 수가 maxAttempts에 이르면 error 이벤트를 남긴다 — 새 데이터가 계속 오는 소스는
+   * attempts가 리셋돼 parked에 이르지 않으므로(불변식 7의 예산은 데이터 단위) 이 수가 결정적 실패를 드러낸다(ADR-0018 §11). 스스로 회복하지 못한
+   * 실패라 사람이 봐야 한다(logging.md §3).
    */
   private void failed(SourceInstanceId id, long seen, String error) {
     if (!outbox.recordFailure(id, seen, clock.instant(), error, retry)) return;
@@ -269,13 +306,14 @@ public final class ProjectionRun {
         .filter(r -> r.consecutiveFailures() >= retry.maxAttempts())
         .ifPresent(
             r ->
-                log.warn(
-                    "projection of {} failed {} times in a row (attempts {}, parked {}): {}",
-                    id.value(),
-                    r.consecutiveFailures(),
-                    r.attempts(),
-                    r.parked(),
-                    error));
+                EventLog.error(log, "projection.request.failed_repeatedly")
+                    .source(id)
+                    .detail(
+                        "consecutiveFailures", r.consecutiveFailures(),
+                        "attempts", r.attempts(),
+                        "parked", r.parked(),
+                        "errorSummary", error)
+                    .log());
   }
 
   /** 수집 점유와 다른 키(같은 work_claims 테이블). */
@@ -319,9 +357,9 @@ public final class ProjectionRun {
         if (status == 429) return "rate_limited";
         if (status / 100 == 5) return "provider_unavailable";
       }
-      if (t instanceof java.net.http.HttpTimeoutException
-          || t instanceof java.net.SocketTimeoutException
-          || t instanceof java.util.concurrent.TimeoutException) return "timeout";
+      if (t instanceof HttpTimeoutException
+          || t instanceof SocketTimeoutException
+          || t instanceof TimeoutException) return "timeout";
       if (t instanceof DataAccessException) return "storage";
     }
     return "unclassified";

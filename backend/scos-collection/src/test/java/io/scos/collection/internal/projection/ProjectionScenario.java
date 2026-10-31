@@ -10,10 +10,13 @@ import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.slack.SlackAssembly;
 import io.scos.connector.slack.internal.FakeSlackServer;
-import io.scos.engine.internal.search.QuestionSearch;
-import io.scos.engine.internal.search.Reranker;
-import io.scos.engine.internal.search.SearchSettings;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.Effort;
+import io.scos.engine.Profile;
+import io.scos.engine.internal.search.QuestionSearches;
+import io.scos.engine.internal.search.plan.PlanResolver;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
+import io.scos.engine.internal.search.rerank.Reranker;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.SourceInstanceId;
@@ -21,7 +24,7 @@ import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SearchFilter;
 import io.scos.spi.store.SpaceId;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.store.postgres.PostgresTestAdapters;
 import io.scos.support.HoldGate;
 import io.scos.support.ManualTaskScheduler;
@@ -38,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
@@ -52,6 +54,8 @@ import tools.jackson.databind.ObjectMapper;
  */
 @Tag("db")
 final class ProjectionScenario implements AutoCloseable {
+  private static final SearchFilter ACTIVE =
+      new SearchFilter(false, null, AccessScope.singleUser());
   static final Path FIXTURES =
       Path.of(System.getProperty("scos.fixtures.p4.dir", "../harness/fixtures/p4"));
   static final SourceInstanceId SOURCE = SlackAssembly.SOURCE;
@@ -63,9 +67,6 @@ final class ProjectionScenario implements AutoCloseable {
   static final String MAIN_CHANNEL = "C0000000001";
   static final String THREAD_DOCUMENT = MAIN_CHANNEL + "/thread-1760400100.000000";
 
-  /** 늦은 쓰기가 덮어썼는지 구분하는 표식 벡터 값. */
-  static final double SENTINEL = 9.0;
-
   private static final ObjectMapper JSON = new ObjectMapper();
   private static final Duration WAIT_LIMIT = Duration.ofSeconds(60);
 
@@ -73,12 +74,11 @@ final class ProjectionScenario implements AutoCloseable {
   private final ManualTaskScheduler scheduler = new ManualTaskScheduler();
   private final ScriptedEmbedder embedder = new ScriptedEmbedder();
   private final SimpleMeterRegistry metrics = new SimpleMeterRegistry();
-  private final List<ProjectionRun.Report> competitorReports = new CopyOnWriteArrayList<>();
   private final DataSource ds;
   private final PostgresCollectionConfiguration.Adapters adapters;
   private final FakeSlackServer slack;
   private final CollectionRuntime runtime;
-  private final UnitStore units;
+  private final UnitMaintenance units;
   private final PostgresProjection projections;
   private final ProjectionRun projection;
 
@@ -101,7 +101,7 @@ final class ProjectionScenario implements AutoCloseable {
             .leaseTtl(LEASE_TTL)
             .heartbeats(scheduler)
             .build();
-    units = PostgresTestAdapters.unitStore(ds);
+    units = PostgresTestAdapters.unitMaintenance(ds);
     projections =
         PostgresProjection.over(ds, clock, embedder)
             .retry(RETRY)
@@ -149,14 +149,10 @@ final class ProjectionScenario implements AutoCloseable {
     adapters.outbox().requestProjection(SOURCE, clock.instant());
   }
 
-  /** 공간의 임베딩 세대를 옛 값으로 되돌린다 — 다음 투영이 백필한다. */
-  String givenStaleEmbeddingGeneration() {
-    String current =
-        embeddingGeneration()
-            .orElseThrow(() -> new IllegalStateException("given 준비 실패: 현재 임베딩 세대가 기록돼 있어야 한다"));
+  /** 공간에 이 투영의 임베더와 다른 세대가 기록돼 있다 — 다른 임베더 설정으로 투영한 공간. */
+  void givenOtherEmbeddingGeneration() {
     PostgresTestAdapters.spaceMeta(ds)
-        .set(SPACE, "embedding:version", "Old:4:title+aliases+content");
-    return current;
+        .set(SPACE, "embedding:version", "test:other-model:4:title+aliases+content");
   }
 
   void advanceClock(Duration d) {
@@ -217,17 +213,6 @@ final class ProjectionScenario implements AutoCloseable {
     embedder.onEachEmbed = () -> clock.advance(LEASE_TTL.plusSeconds(1));
   }
 
-  /** 다음 임베딩 중에 점유가 만료되고 경쟁자(p2)가 투영을 끝낸다. 그 뒤 이 투영이 받는 벡터는 표식값이다. */
-  void competitorTakesOverDuringNextEmbedding() {
-    ProjectionRun competitor = projections.run("p2", scheduler);
-    embedder.onNextEmbed(
-        () -> {
-          clock.advance(LEASE_TTL.plusSeconds(1));
-          competitorReports.addAll(competitor.runDue(CancellationToken.none()));
-          embedder.sentinel = true;
-        });
-  }
-
   // ---- 투영 ----
 
   List<ProjectionRun.Report> runDue() {
@@ -282,33 +267,36 @@ final class ProjectionScenario implements AutoCloseable {
   }
 
   boolean hasKeywordHits(String query) {
-    return !PostgresTestAdapters.keywordIndex(ds)
-        .search(SPACE, query, 5, SearchFilter.NONE)
-        .isEmpty();
+    return !PostgresTestAdapters.keywordIndex(ds).search(SPACE, query, 5, ACTIVE).isEmpty();
   }
 
   Map<String, double[]> vectors() {
-    return PostgresTestAdapters.vectorIndex(ds).vectorsOf(SPACE, expectedUnitIds());
+    return PostgresTestAdapters.vectorIndex(ds)
+        .vectorsOf(SPACE, AccessScope.singleUser(), expectedUnitIds());
   }
 
-  Optional<String> embeddingGeneration() {
-    return PostgresTestAdapters.spaceMeta(ds).get(SPACE, "embedding:version");
+  /** search_context와 같은 레시피: 질의 문구가 날짜 가산을 정한다. */
+  private RetrievalPlan plan(String query) {
+    return new PlanResolver().forSearch(query, Effort.MEDIUM, Profile.AUTO, clock.instant());
   }
 
   /** 검색 레시피(search_context)의 1위 문서. */
   Optional<String> topDocumentFor(String question) {
     var search =
-        new QuestionSearch(
+        QuestionSearches.of(
+            PostgresTestAdapters.unitStore(ds),
             units,
             PostgresTestAdapters.keywordIndex(ds),
             PostgresTestAdapters.vectorIndex(ds),
             embedder,
             Reranker.DISABLED,
-            SearchSettings.DEFAULT,
             clock,
             TestMetrics.search(),
             TestExecutors.CALLER_THREAD);
-    return search.search(AccessScope.singleUser(), SPACE, question).candidates().stream()
+    return search
+        .search(AccessScope.singleUser(), SPACE, question, plan(question), 10)
+        .candidates()
+        .stream()
         .findFirst()
         .map(c -> c.unit().documentId());
   }
@@ -319,10 +307,6 @@ final class ProjectionScenario implements AutoCloseable {
         .current(ProjectionRun.projectionKey(SOURCE))
         .orElseThrow()
         .isActiveAt(clock.instant());
-  }
-
-  List<ProjectionRun.Report> competitorReports() {
-    return List.copyOf(competitorReports);
   }
 
   MeterRegistry metrics() {

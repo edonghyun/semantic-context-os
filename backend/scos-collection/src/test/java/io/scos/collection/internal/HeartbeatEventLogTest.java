@@ -18,8 +18,8 @@ import org.springframework.dao.CannotAcquireLockException;
 import tools.jackson.databind.JsonNode;
 
 /**
- * 점유 갱신의 운영 이벤트 로그(TS collection-runtime.ts LeaseHeartbeat — 데몬 JSON 로그): renew가 주기(TTL/2)의 절반보다 오래
- * 걸리면 warn `lease.heartbeat.slow`(detail.elapsedMs), renew가 실패하면 warn
+ * 점유 갱신의 운영 이벤트 로그(데몬 JSON 로그): renew가 주기(TTL/2)의 절반보다 오래 걸리면 warn
+ * `lease.heartbeat.slow`(detail.elapsedMs), renew가 실패하면 warn
  * `lease.heartbeat.failed`(detail.message). 점유 행의 잠금을 얻지 못한 renew는 실패가 아니라 warn
  * `lease.heartbeat.contended`(Java·PostgreSQL 전용 — TS SQLite에는 행 잠금 경합이 없다).
  */
@@ -27,7 +27,7 @@ import tools.jackson.databind.JsonNode;
 // 제품 클래스의 공용 로거에 appender를 단다 — 같은 JVM의 다른 테스트가 남긴 줄이 섞이지 않게 혼자 돈다(TESTING §6.3)
 @Isolated
 class HeartbeatEventLogTest {
-  /** 주기(TTL/2 = 15s)의 절반 — 이것을 넘어야 느리다(TS `elapsedMs > intervalMs / 2`). */
+  /** 주기(TTL/2 = 15s)의 절반 — 이것을 넘어야 느리다. */
   static final Duration HALF_INTERVAL = TTL.dividedBy(4);
 
   /** 주기(TTL/2 = 15s)의 절반(7.5s)을 넘는 renew 시간. */

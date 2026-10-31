@@ -1,14 +1,22 @@
 package io.scos.boot;
 
+import io.scos.spi.access.AclStore;
+import io.scos.spi.access.IdentityStore;
+import io.scos.spi.access.UserTokens;
 import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceMeta;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.UnitStore;
 import io.scos.spi.store.VectorIndex;
+import io.scos.store.postgres.PostgresAclStore;
 import io.scos.store.postgres.PostgresEmbeddingCache;
+import io.scos.store.postgres.PostgresIdentityStore;
 import io.scos.store.postgres.PostgresKeywordIndex;
 import io.scos.store.postgres.PostgresSpaceMeta;
+import io.scos.store.postgres.PostgresUnitMaintenance;
 import io.scos.store.postgres.PostgresUnitStore;
+import io.scos.store.postgres.PostgresUserTokens;
 import io.scos.store.postgres.PostgresVectorIndex;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
@@ -21,16 +29,34 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 public class PostgresIndexConfiguration {
   @Bean
   VectorIndex vectorIndex(DataSource dataSource) {
-    return new PostgresVectorIndex(new NamedParameterJdbcTemplate(dataSource));
+    return newVectorIndex(dataSource);
   }
 
   @Bean
   KeywordIndex keywordIndex(DataSource dataSource) {
-    return new PostgresKeywordIndex(JdbcClient.create(dataSource));
+    return newKeywordIndex(dataSource);
   }
 
   @Bean
   UnitStore unitStore(DataSource dataSource) {
+    return newUnitStore(dataSource);
+  }
+
+  @Bean
+  public UnitMaintenance newUnitMaintenance(DataSource dataSource) {
+    var jdbc = new NamedParameterJdbcTemplate(dataSource);
+    return new PostgresUnitMaintenance(new PostgresUnitStore(jdbc), new PostgresVectorIndex(jdbc));
+  }
+
+  public static VectorIndex newVectorIndex(DataSource dataSource) {
+    return new PostgresVectorIndex(new NamedParameterJdbcTemplate(dataSource));
+  }
+
+  public static KeywordIndex newKeywordIndex(DataSource dataSource) {
+    return new PostgresKeywordIndex(JdbcClient.create(dataSource));
+  }
+
+  public static UnitStore newUnitStore(DataSource dataSource) {
     return new PostgresUnitStore(new NamedParameterJdbcTemplate(dataSource));
   }
 
@@ -50,5 +76,19 @@ public class PostgresIndexConfiguration {
    */
   public static EmbeddingCache embeddingCache(NamedParameterJdbcTemplate jdbc) {
     return new PostgresEmbeddingCache(jdbc);
+  }
+
+  @Bean
+  AclStore aclStore(DataSource dataSource) {
+    return new PostgresAclStore(JdbcClient.create(dataSource));
+  }
+
+  @Bean
+  public IdentityStore newIdentityStore(DataSource dataSource) {
+    return new PostgresIdentityStore(JdbcClient.create(dataSource));
+  }
+
+  public UserTokens newUserTokens(DataSource read, DataSource write) {
+    return new PostgresUserTokens(read, write);
   }
 }

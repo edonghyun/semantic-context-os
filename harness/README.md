@@ -13,6 +13,14 @@ cd harness
 ./gradlew javaTest -Pharness.mode=record   # re-record expected/java for review
 ```
 
+Evaluate one MCP server against a judgment pack (see [docs/public/evaluation.md](../docs/public/evaluation.md)). For example, the demo server after the [demo Quickstart](../demo/README.md#quickstart) steps 1 to 4, with the floors CI uses (`demo/smoke.sh`):
+
+```bash
+./gradlew evaluate -Pevaluate.args="--pack ../demo/eval/ottercart-demo-pack.json --server-command ../demo/mcp-server.sh --out build/eval/demo --k 5 --min-recall 0.75 --min-mrr 0.90 --min-ndcg 0.80"
+```
+
+For your own server, pass your judgment pack and a script that starts your MCP server on stdio.
+
 `./gradlew check` in `backend/` also runs `test` here.
 
 ## Layout
@@ -22,6 +30,7 @@ cd harness
 | `src/main/java/io/scos/harness/mcp/` | stdio JSON-RPC client: start, `initialize`, `tools/call`, graceful and forced shutdown, restart |
 | `src/main/java/io/scos/harness/server/` | Launchers: load a fixture into a fresh database, then start the server's `import` and `mcp` commands |
 | `src/main/java/io/scos/harness/fixture/`, `cassette/`, `compare/`, `HarnessRunner` | Fixture loading, the embedding cassette and its miss counter, comparison rules, run/record/verify |
+| `src/main/java/io/scos/harness/evaluation/`, `evaluate` task | Search quality of one MCP server against a judgment pack: Recall@k, MRR@k and nDCG@k with binary relevance, optional floors as a gate (exit 1 below a floor). |
 | `src/main/java/io/scos/harness/o2/`, `o2Compare` task | Side-by-side comparison of two MCP servers. Both get the same queries, from a query log or a judgment pack such as `demo/eval/ottercart-demo-pack.json`. It reports Jaccard@k, RBO, top-1 agreement, first-hit shift and latency, and can gate on thresholds. |
 | `fixtures/p1/` | Golden MCP corpus and calls: `documents.json`, `calls.json`, `cassette.json`, `determinism.json`, `expected/` |
 | `fixtures/{p4,jira,notion,google-drive,tiro}/` | Connector and projection fixtures: fake API datasets and the expected raw items, documents and units. The backend tests read these. |

@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /** kind → 투영기 레지스트리(ADR-0022). 같은 kind를 두 투영기가 맡으면 조립 시점에 거부한다. */
 public final class Projectors {
@@ -26,5 +27,12 @@ public final class Projectors {
 
   public Optional<Projector> forKind(String kind) {
     return Optional.ofNullable(byKind.get(kind));
+  }
+
+  /** 수집 어댑터 kind마다 투영기가 있어야 한다 — 없으면 그 kind 목록과 함께 거부한다(데몬 기동 검증). */
+  public void requireCovering(Set<String> adapterKinds) {
+    List<String> missing = adapterKinds.stream().filter(kind -> forKind(kind).isEmpty()).toList();
+    if (!missing.isEmpty())
+      throw new IllegalStateException("source adapter kinds without a projector: " + missing);
   }
 }

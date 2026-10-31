@@ -9,7 +9,7 @@ import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.StoredCheckpoint;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;

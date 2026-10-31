@@ -1,5 +1,6 @@
 package io.scos.collection.internal;
 
+import io.scos.collection.internal.memory.MemoryBodyCompletionStore;
 import io.scos.collection.internal.memory.MemoryCheckpointPort;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
@@ -8,7 +9,7 @@ import io.scos.collection.internal.memory.MemorySourceChangeLog;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.support.ManualTaskScheduler;
 import io.scos.support.TestMetrics;
@@ -33,6 +34,7 @@ public final class MemoryCollectionRuntime {
   private final SourceInstanceStore sources;
   private final WorkClaimPort claims;
   private final RunStore runs;
+  private BodyCompletionStore bodies = new MemoryBodyCompletionStore();
   private RawItemStore rawItems = new MemoryRawItemStore();
   private OutboxPort outbox = new MemoryOutboxPort();
   private CheckpointPort checkpoints = new MemoryCheckpointPort();
@@ -60,6 +62,11 @@ public final class MemoryCollectionRuntime {
 
   public MemoryCollectionRuntime rawItems(RawItemStore rawItems) {
     this.rawItems = rawItems;
+    return this;
+  }
+
+  public MemoryCollectionRuntime bodies(BodyCompletionStore bodies) {
+    this.bodies = bodies;
     return this;
   }
 
@@ -114,8 +121,17 @@ public final class MemoryCollectionRuntime {
   }
 
   public CollectionRuntime build() {
-    MemorySourceChangeLog changes = new MemorySourceChangeLog();
-    TransactionOperations tx = TransactionOperations.withoutTransaction();
+    var stores =
+        new CollectionStores(
+                TransactionOperations.withoutTransaction(),
+                claims,
+                runs,
+                rawItems,
+                checkpoints,
+                outbox,
+                new MemorySourceChangeLog())
+            .withBodies(bodies)
+            .withSources(sources);
     return new CollectionRuntime(
         sources,
         SourceAdapters.of(List.of(adapter)),
@@ -130,15 +146,9 @@ public final class MemoryCollectionRuntime {
         claims,
         checkpoints,
         runs,
-        new PageCommit(
-            tx, claims, runs, rawItems, checkpoints, outbox, clock, metrics, changes, progress),
+        new PageCommit(stores, clock, metrics, progress),
         new RunCompletion(
-            tx,
-            claims,
-            runs,
-            rawItems,
-            outbox,
-            changes,
+            stores,
             new SnapshotShrinkGuard(sources, guards, SnapshotShrinkLimits.DEFAULTS, metrics)),
         new OwnerId("memory-runtime"),
         new LeaseHeartbeats(claims, LEASE_TTL, clock, heartbeats, metrics),

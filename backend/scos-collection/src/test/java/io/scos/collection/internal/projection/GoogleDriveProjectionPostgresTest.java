@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.googledrive.internal.GoogleDriveDatasetCollection;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.store.ContextUnit;
 import io.scos.store.postgres.PostgresTestAdapters;
@@ -56,7 +56,7 @@ class GoogleDriveProjectionPostgresTest {
     if (reports.size() != 1)
       throw new IllegalStateException("given 준비 실패: 투영 요청이 하나여야 한다 — " + reports);
     report = reports.getFirst();
-    units = PostgresTestAdapters.unitStore(ds).listAll(PostgresProjection.SPACE);
+    units = PostgresTestAdapters.unitMaintenance(ds).listAll(PostgresProjection.SPACE);
   }
 
   static List<JsonNode> expectedUnits() {

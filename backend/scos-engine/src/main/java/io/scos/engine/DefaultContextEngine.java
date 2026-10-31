@@ -1,16 +1,24 @@
 package io.scos.engine;
 
+import io.scos.engine.internal.access.AccessScopes;
+import io.scos.engine.internal.search.Candidate;
 import io.scos.engine.internal.search.ContextAssembler;
+import io.scos.engine.internal.search.CurrentOrder;
 import io.scos.engine.internal.search.DocumentReader;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.engine.internal.search.QuestionSearch;
 import io.scos.engine.internal.search.RelatedDocuments;
-import io.scos.engine.internal.search.RerankOutcome;
+import io.scos.engine.internal.search.plan.PlanResolver;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
+import io.scos.engine.internal.search.rerank.RerankOutcome;
+import io.scos.engine.support.logging.EventValues;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.Principal;
 import io.scos.spi.store.SpaceId;
+import java.time.Clock;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -20,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 읽기 파사드 구현: 질의 범위를 검사하고 내부 레시피(QuestionSearch·DocumentReader·RelatedDocuments·ContextAssembler·
- * FreshnessReader)에 맡긴 뒤 공개 값으로 옮긴다. principal은 접근 범위로 검색 레시피까지 전달만 한다(0.1.0, 필터 없음).
+ * FreshnessReader)에 맡긴 뒤 공개 값으로 옮긴다. principal은 모든 읽기 레시피의 명시적 접근 범위가 된다.
  */
 final class DefaultContextEngine implements ContextEngine {
   static final int MIN_LIMIT = 1;
@@ -32,6 +40,9 @@ final class DefaultContextEngine implements ContextEngine {
   private final RelatedDocuments related;
   private final ContextAssembler assembler;
   private final FreshnessReader freshness;
+  private final Clock clock;
+  private final PlanResolver plans;
+  private final AccessScopes scopes;
 
   DefaultContextEngine(
       SpaceId defaultSpace,
@@ -39,48 +50,76 @@ final class DefaultContextEngine implements ContextEngine {
       DocumentReader reader,
       RelatedDocuments related,
       ContextAssembler assembler,
-      FreshnessReader freshness) {
+      FreshnessReader freshness,
+      Clock clock,
+      PlanResolver plans,
+      AccessScopes scopes) {
     this.defaultSpace = defaultSpace;
     this.search = search;
     this.reader = reader;
     this.related = related;
     this.assembler = assembler;
     this.freshness = freshness;
+    this.clock = clock;
+    this.plans = plans;
+    this.scopes = scopes;
   }
 
   @Override
   public SearchResult search(Principal principal, SearchQuery query) {
     QuestionSearch.Result result = searchRecipe(principal, query);
+    var candidates =
+        query.profile() instanceof Profile.Current
+            ? CurrentOrder.search(result.candidates(), query.limit())
+            : result.candidates();
     return new SearchResult(
-        result.candidates().stream().limit(query.limit()).map(DefaultContextEngine::hit).toList(),
+        candidates.stream().limit(query.limit()).map(DefaultContextEngine::hit).toList(),
         result.freshness(),
-        status(result.rerank()));
+        status(result.rerank()),
+        new AppliedPlan(result.effort(), query.profile(), result.escalated()));
   }
 
   /** 검사 → 검색 레시피(재정렬 폴백은 경고로 남긴다). search가 앞에서 limit개를 자른다. */
   QuestionSearch.Result searchRecipe(Principal principal, SearchQuery query) {
-    AccessScope access = AccessScope.unfiltered(principal);
+    AccessScope access = scopes.resolve(principal);
     requireText(query.text());
     requireRange("limit", query.limit(), MIN_LIMIT, SearchQuery.MAX_LIMIT);
+    RetrievalPlan plan =
+        plans.forSearch(query.text(), query.effort(), query.profile(), clock.instant());
     QuestionSearch.Result result =
-        embedding(() -> search.search(access, space(query.space()), query.text()));
-    if (result.rerank() instanceof RerankOutcome.FallbackError f)
-      log.warn("rerank fallback (provider error): {}", f.message());
-    if (result.rerank() instanceof RerankOutcome.FallbackFormat)
-      log.warn("rerank fallback (invalid selection format)");
+        embedding(
+            () -> search.search(access, space(query.space()), query.text(), plan, query.limit()));
+    fallbackDetail(result.rerank())
+        .ifPresent(d -> EventLog.warn(log, "search.rerank.fallback").detail(d).log());
     return result;
+  }
+
+  /** 재정렬 폴백이면 그 사유(공급자 오류면 공급자 오류 메시지 — 질의·응답 원문은 싣지 않는다). */
+  private static Optional<Map<String, Object>> fallbackDetail(RerankOutcome rerank) {
+    if (rerank instanceof RerankOutcome.FallbackError f) {
+      Map<String, Object> detail = EventValues.detail("reason", "provider_error");
+      Optional.ofNullable(f.message()).ifPresent(m -> detail.put("message", m));
+      return Optional.of(detail);
+    }
+    if (rerank instanceof RerankOutcome.FallbackFormat)
+      return Optional.of(EventValues.detail("reason", "invalid_format"));
+    return Optional.empty();
   }
 
   @Override
   public DocumentPage read(Principal principal, ReadRequest request) {
-    Objects.requireNonNull(principal, "principal");
+    AccessScope access = scopes.resolve(principal);
     requireDocumentId(request.documentId());
     if (request.offset() < 0)
       throw new InvalidQueryException("offset", "must be non-negative: " + request.offset());
     requireRange("limit", request.limit(), MIN_LIMIT, ReadRequest.MAX_LIMIT);
     DocumentReader.Page page =
         reader.read(
-            space(request.space()), request.documentId(), request.offset(), request.limit());
+            access,
+            space(request.space()),
+            request.documentId(),
+            request.offset(),
+            request.limit());
     return new DocumentPage(
         request.documentId(),
         page.title(),
@@ -91,11 +130,11 @@ final class DefaultContextEngine implements ContextEngine {
 
   @Override
   public RelatedResult related(Principal principal, RelatedQuery query) {
-    Objects.requireNonNull(principal, "principal");
+    AccessScope access = scopes.resolve(principal);
     requireDocumentId(query.documentId());
     requireRange("limit", query.limit(), MIN_LIMIT, RelatedQuery.MAX_LIMIT);
     return new RelatedResult(
-        related.find(space(query.space()), query.documentId(), query.limit()).stream()
+        related.find(access, space(query.space()), query.documentId(), query.limit()).stream()
             .map(
                 r ->
                     new RelatedDocument(
@@ -109,7 +148,7 @@ final class DefaultContextEngine implements ContextEngine {
 
   @Override
   public ContextBundle assemble(Principal principal, AssembleQuery query) {
-    AccessScope access = AccessScope.unfiltered(principal);
+    AccessScope access = scopes.resolve(principal);
     requireText(query.text());
     requireRange(
         "tokenBudget",
@@ -117,19 +156,31 @@ final class DefaultContextEngine implements ContextEngine {
         AssembleQuery.MIN_TOKEN_BUDGET,
         AssembleQuery.MAX_TOKEN_BUDGET);
     SpaceId space = space(query.space());
+    RetrievalPlan plan =
+        plans.forAssemble(query.text(), query.effort(), query.profile(), clock.instant());
     ContextAssembler.Bundle bundle =
-        embedding(() -> assembler.assemble(access, space, query.text(), query.tokenBudget()));
+        embedding(() -> assembler.assemble(access, space, query.text(), query.tokenBudget(), plan));
+    var items =
+        query.profile() instanceof Profile.Current
+            ? CurrentOrder.assemble(bundle.items())
+            : bundle.items();
     return new ContextBundle(
-        bundle.items().stream().map(DefaultContextEngine::item).toList(),
+        items.stream().map(DefaultContextEngine::item).toList(),
         bundle.usedTokens(),
         bundle.truncated(),
-        freshness.read(space));
+        freshness.read(access, space),
+        new AppliedPlan(bundle.effort(), query.profile(), bundle.escalated()));
   }
 
   @Override
   public Freshness freshness(Principal principal, SpaceId space) {
-    Objects.requireNonNull(principal, "principal");
-    return freshness.read(Objects.requireNonNull(space, "space"));
+    AccessScope access = scopes.resolve(principal);
+    return freshness.read(access, Objects.requireNonNull(space, "space"));
+  }
+
+  @Override
+  public AccessMode accessMode() {
+    return scopes.mode();
   }
 
   @Override
@@ -141,7 +192,7 @@ final class DefaultContextEngine implements ContextEngine {
     return space.orElse(defaultSpace);
   }
 
-  /** 질의 임베딩 실패만 공개 예외로 옮긴다. 그 밖(인프라)은 그대로 전파한다(리뷰 M-5). */
+  /** 질의 임베딩 실패만 공개 예외로 옮긴다. 그 밖(인프라)은 그대로 전파한다. */
   private static <T> T embedding(Supplier<T> recipe) {
     try {
       return recipe.get();
@@ -171,7 +222,7 @@ final class DefaultContextEngine implements ContextEngine {
           field, "must be between " + min + " and " + max + ": " + value);
   }
 
-  private static ContextHit hit(QuestionSearch.Candidate c) {
+  private static ContextHit hit(Candidate c) {
     ContextUnit u = c.unit();
     return new ContextHit(
         u.id(),
@@ -188,7 +239,13 @@ final class DefaultContextEngine implements ContextEngine {
   private static BundleItem item(ContextAssembler.Item i) {
     ContextUnit u = i.unit();
     return new BundleItem(
-        u.id(), u.documentId(), u.title(), u.content(), u.provenance().uri(), i.rankScore());
+        u.id(),
+        u.documentId(),
+        u.title(),
+        u.content(),
+        u.provenance().uri(),
+        u.provenance().capturedAt(),
+        i.rankScore());
   }
 
   static RerankStatus status(RerankOutcome outcome) {

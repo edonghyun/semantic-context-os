@@ -3,10 +3,7 @@ package io.scos.spi.connector;
 import java.time.Instant;
 import java.util.Optional;
 
-/**
- * 페이지의 변경 한 건(TS RawMutation): upsert 또는 delete. 적용 의미는 수집 런타임의 {@code RawItemStore.apply}가
- * 정한다(F4).
- */
+/** 페이지의 변경 한 건:upsert 또는 delete. 적용 의미는 수집 런타임의 {@code RawItemStore.apply}가 정한다(F4). */
 public sealed interface RawMutation {
   String externalId();
 

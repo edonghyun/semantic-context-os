@@ -7,6 +7,7 @@ import io.scos.collection.internal.CollectionMetrics;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.embedding.FixedEmbedder;
 import java.time.Duration;
 import java.util.List;
@@ -29,8 +30,8 @@ class ProjectionHeartbeatMetricsTest {
   Embedder tickingEmbedder() {
     return new Embedder() {
       @Override
-      public int dim() {
-        return EMBEDDING_DIM;
+      public EmbedderIdentity identity() {
+        return new EmbedderIdentity("test", "heartbeat", EMBEDDING_DIM);
       }
 
       @Override

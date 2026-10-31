@@ -24,6 +24,15 @@ spring:
     # 웹 유형은 ScosApplication.main이 정한다(daemon만 servlet, ADR-0020 §3). 여기 spring.main.web-application-type을 두면
     # 환경 바인딩이 main의 설정을 덮어쓴다.
 scos:
+  access:
+    mode: ${SCOS_ACCESS_MODE:single-user}
+    collect: ${SCOS_ACCESS_COLLECT:}
+    org-domains: []
+    # 인스턴스별 조직 도메인은 오버레이의 instance-domains.<instance-id>로 지정한다.
+    instance-domains: {}
+  log:
+    # 데몬 로그 디렉터리(serve.log·serve.jsonl, logback-spring.xml). 상대 경로는 작업 디렉터리(launchd WorkingDirectory = SCOS_HOME) 기준
+    dir: ${SCOS_LOG_DIR:logs}
   # 기동 시 DB 버전 검사(ADR-0027): 테스트 이미지(digest 고정)와 같은 값. 이미지를 올릴 때 함께 바꾼다
   database:
     expected-server-version: ${SCOS_DB_EXPECTED_SERVER_VERSION:17.11}
@@ -65,6 +74,17 @@ scos:
   gemini:
     api-key: ${GEMINI_API_KEY:}
     base-url: ${SCOS_GEMINI_BASE_URL:}
+  # 임베딩 공급자(gemini|openai-compatible). gemini면 모델·차원 기본값은 gemini-embedding-001·768, openai-compatible이면
+  # base-url·model·dim이 필수다(빠지면 그 환경변수 이름으로 기동 실패). api-key는 선택(비우면 인증 헤더 없음)
+  embedder:
+    provider: ${SCOS_EMBEDDER_PROVIDER:gemini}
+    base-url: ${SCOS_EMBEDDER_BASE_URL:}
+    model: ${SCOS_EMBEDDER_MODEL:}
+    dim: ${SCOS_EMBEDDER_DIM:}
+    api-key: ${SCOS_EMBEDDER_API_KEY:}
+  # 재정렬 공급자(none|gemini|openai-compatible). gemini면 모델 기본값 gemini-2.5-flash, openai-compatible이면 base-url·model 필수
   rerank:
     provider: ${SCOS_RERANK_PROVIDER:gemini}
-    model: ${SCOS_RERANK_MODEL:gemini-2.5-flash}
+    model: ${SCOS_RERANK_MODEL:}
+    base-url: ${SCOS_RERANK_BASE_URL:}
+    api-key: ${SCOS_RERANK_API_KEY:}

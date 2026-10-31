@@ -110,7 +110,7 @@ class NotionCheckpointTest {
       RequestView expected = notion.stopAt(row.get("firstRequest"));
 
       // when
-      notion.collect(row.get("config").get("value").toString(), checkpointOf(row));
+      notion.collectTraversal(row.get("config").get("value").toString(), checkpointOf(row));
 
       // then
       assertThat(notion.requests()).first().isEqualTo(expected);
@@ -121,7 +121,7 @@ class NotionCheckpointTest {
     @DisplayName("남은 작업이 옛 휴지통 행 작업뿐이면 요청하지 않는다")
     void finishesCycleWithoutRequests(String label, JsonNode row) {
       // when
-      notion.collect(row.get("config").get("value").toString(), checkpointOf(row));
+      notion.collectTraversal(row.get("config").get("value").toString(), checkpointOf(row));
 
       // then
       assertThat(notion.requests()).isEmpty();
@@ -133,7 +133,7 @@ class NotionCheckpointTest {
     void finishesCycleInOnePage(String label, JsonNode row) {
       // when
       Collection java =
-          notion.collect(row.get("config").get("value").toString(), checkpointOf(row));
+          notion.collectTraversal(row.get("config").get("value").toString(), checkpointOf(row));
 
       // then
       assertThat(java.pageViews()).hasSize(1);

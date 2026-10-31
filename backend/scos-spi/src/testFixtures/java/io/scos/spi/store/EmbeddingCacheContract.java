@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 /** 임베딩 캐시 포트 계약(F9, ADR-0026): (세대, 입력 키) → 벡터, 있는 키는 덮어쓰지 않는다. 값은 float4로도 정확한 수만 쓴다. */
 @DisplayName("임베딩 캐시는 세대·입력 키마다 처음 벡터를 둔다(ADR-0026)")
 public abstract class EmbeddingCacheContract {
-  protected static final String GENERATION = "GeminiEmbedder:3:title+aliases+content";
-  protected static final String OTHER_GENERATION = "GeminiEmbedder:4:title+aliases+content";
+  protected static final String GENERATION = "test:fixed:3:title+aliases+content";
+  protected static final String OTHER_GENERATION = "test:fixed:4:title+aliases+content";
 
   /** 입력 키는 캐시에 불투명한 문자열이다. 값은 엔진이 만드는 모양(sha256 16진수 — "제목\n정산 본문"·"제목\n환불 본문")을 손으로 적었다. */
   protected static final String KEY_A =

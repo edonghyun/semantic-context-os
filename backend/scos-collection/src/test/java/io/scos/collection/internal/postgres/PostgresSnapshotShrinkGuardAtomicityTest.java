@@ -7,6 +7,7 @@ import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunCompletion;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.SnapshotShrinkGuard;
 import io.scos.collection.internal.SnapshotShrinkLimits;
@@ -21,7 +22,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,12 +56,9 @@ class PostgresSnapshotShrinkGuardAtomicityTest {
     adapters = PostgresCollectionConfiguration.adapters(ds);
     completion =
         new RunCompletion(
-            new TransactionTemplate(new DataSourceTransactionManager(ds)),
-            adapters.claims(),
-            adapters.runs(),
-            adapters.rawItems(),
-            adapters.outbox(),
-            new FailingChangeLog(adapters.changes()),
+            adapters
+                .stores(new TransactionTemplate(new DataSourceTransactionManager(ds)))
+                .withChanges(new FailingChangeLog(adapters.changes())),
             new SnapshotShrinkGuard(
                 adapters.sources(),
                 adapters.guards(),
@@ -97,12 +94,9 @@ class PostgresSnapshotShrinkGuardAtomicityTest {
                     new RunCompletion.Input(
                         claim,
                         RUN,
-                        RunStatus.SUCCEEDED,
+                        RunOutcome.succeeded(0),
                         CollectionCoverage.COMPLETE_SNAPSHOT,
-                        T0,
-                        0,
-                        Optional.empty(),
-                        Optional.empty())));
+                        T0)));
     if (!(failure instanceof IllegalStateException e)
         || !e.getMessage().equals(FailingChangeLog.MESSAGE))
       throw new IllegalStateException("given 준비 실패: 완료가 변경 로그에서 실패하지 않았다", failure);

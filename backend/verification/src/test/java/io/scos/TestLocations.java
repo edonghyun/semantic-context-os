@@ -40,6 +40,15 @@ final class TestLocations {
     }
   }
 
+  /** 제품 main 코드: 제품 jar이거나 main 클래스 디렉터리(harness 소스셋과 scos-test-support는 뺀다) — 코딩 규약 규칙의 대상. */
+  static final class ProductMainCode implements ImportOption {
+    @Override
+    public boolean includes(Location location) {
+      String uri = location.asURI().toString();
+      return new ProductCode().includes(location) && !uri.contains("/build/classes/java/harness/");
+    }
+  }
+
   /** 테스트 코드: test·testFixtures 클래스 디렉터리, testFixtures jar, scos-test-support(jar나 그 main 디렉터리). */
   static final class TestCode implements ImportOption {
     @Override

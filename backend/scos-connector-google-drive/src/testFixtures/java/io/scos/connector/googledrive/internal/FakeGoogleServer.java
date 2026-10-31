@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import tools.jackson.databind.JsonNode;
 
@@ -40,6 +41,7 @@ public final class FakeGoogleServer implements AutoCloseable {
   private final Map<String, List<Route>> routes = new LinkedHashMap<>();
   private final Map<String, List<Route>> secondRunRoutes = new LinkedHashMap<>();
   private final Map<String, Response> overrides = new ConcurrentHashMap<>();
+  private final Map<String, Function<Recorded, Response>> handlers = new ConcurrentHashMap<>();
   private final Map<String, Response> mediaOverrides = new ConcurrentHashMap<>();
   private final List<String> unmatchedQueries = new CopyOnWriteArrayList<>();
   private volatile boolean secondRun;
@@ -122,6 +124,13 @@ public final class FakeGoogleServer implements AutoCloseable {
     }
     String full = prefixed(service, path);
     overrides.put(full, response);
+    register(full);
+  }
+
+  /** 이 경로(쿼리 무관, 원본 다운로드가 아닌 요청)에는 요청마다 이 처리기로 답한다 — 요청 쿼리에 따라 답이 달라지는 각본. */
+  void respondWith(String path, Function<Recorded, Response> handler) {
+    String full = prefixed(GoogleDriveAssembly.serviceOf(path), path);
+    handlers.put(full, handler);
     register(full);
   }
 
@@ -221,6 +230,8 @@ public final class FakeGoogleServer implements AutoCloseable {
     if (crash != null && crash.path().equals(path) && crash.params().equals(request.params()))
       return new Response(401, "{\"error\":{\"code\":401}}", Map.of());
     boolean media = "media".equals(request.params().get("alt"));
+    Function<Recorded, Response> handler = media ? null : handlers.get(path);
+    if (handler != null) return handler.apply(request);
     Response override = (media ? mediaOverrides : overrides).get(path);
     if (override != null) return override;
     if (secondRun) {

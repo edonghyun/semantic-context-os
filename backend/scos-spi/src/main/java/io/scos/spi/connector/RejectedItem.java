@@ -4,9 +4,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 
-/**
- * 어댑터가 거른 항목(TS RejectedSourceItem): 원본 저장소에 들어가지 않고 run별 rejection으로 남는다. providerLocator는 JSON.
- */
+/** 어댑터가 거른 항목: 원본 저장소에 들어가지 않고 run별 rejection으로 남는다. providerLocator는 JSON. */
 public record RejectedItem(
     FailureKind failureKind,
     String message,

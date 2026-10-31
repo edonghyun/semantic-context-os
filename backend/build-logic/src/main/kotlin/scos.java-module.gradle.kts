@@ -26,6 +26,10 @@ dependencies {
     testImplementation(platform(SpringBootPlugin.BOM_COORDINATES))
     testFixturesImplementation(platform(SpringBootPlugin.BOM_COORDINATES))
     errorprone("com.google.errorprone:error_prone_core:2.50.0")
+    // null 안전성 검사(CODING-GUIDELINES null 규약, 공식 확인 2026-10-25): NullAway 0.14.3, JSpecify 1.0.0. 모듈이 scosNullAway로 켤 때만 검사한다(아래)
+    errorprone("com.uber.nullaway:nullaway:0.14.3")
+    // @Nullable은 컴파일 때만 필요하다(애노테이션이 클래스패스에 없어도 실행은 그대로) — 제품 런타임 의존을 늘리지 않는다
+    compileOnly("org.jspecify:jspecify:1.0.0")
     // Gradle 9는 JUnit Platform launcher를 싣지 않는다 — Boot 플러그인이 server에만 넣던 것을 모든 모듈에 둔다(BOM 버전)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -48,6 +52,23 @@ tasks.withType<JavaCompile>().configureEach {
     // Error Prone 2.46+ on JDK 21: 타입 애노테이션 기호 플래그 필요(release notes 2.46.0)
     options.compilerArgs.add("-XDaddTypeAnnotationsToSymbol=true")
     options.errorprone.disableWarningsInGeneratedCode = true
+    // 경고 0 ratchet(TESTING §13.2): Error Prone 경고(기본 WARNING 검사 — UnusedVariable·EnumOrdinal 등)를 컴파일 실패로 만든다.
+    // javac lint는 기본값 그대로 둔다(-Xlint:deprecation을 켜지 않는다) — 외부 SDK의 deprecated API 사용은 Note로만 남는다
+    options.compilerArgs.add("-Werror")
+    // NullAway는 기본으로 꺼 둔다 — 켠 모듈의 main 컴파일만 아래에서 ERROR로 올린다
+    options.errorprone.disable("NullAway")
+}
+
+// null 안전성 ratchet: 모듈이 `scosNullAway { enabled = true }`로 opt-in 하면 main 소스셋(test·testFixtures·harness 제외) 컴파일에서
+// NullAway 오류를 컴파일 실패로 만든다. io.scos 아래는 기본 non-null, null이 오는 곳은 JSpecify @Nullable로 적는다
+val scosNullAway = extensions.create<ScosNullAway>("scosNullAway")
+scosNullAway.enabled.convention(false)
+tasks.named<JavaCompile>("compileJava") {
+    val enabled = scosNullAway.enabled
+    options.errorprone {
+        check("NullAway", enabled.map { if (it) net.ltgt.gradle.errorprone.CheckSeverity.ERROR else net.ltgt.gradle.errorprone.CheckSeverity.OFF })
+        option("NullAway:AnnotatedPackages", "io.scos")
+    }
 }
 
 // 테스트 병렬(TESTING §6.3): 포크마다 JVM이 따로라 정적 상태·Testcontainers 컨테이너(PostgresSupport)가 포크마다 하나다.

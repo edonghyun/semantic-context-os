@@ -48,12 +48,17 @@ public final class FakeJiraServer implements AutoCloseable {
 
   private static final ObjectMapper JSON = new ObjectMapper();
 
+  /** 요청 상한 — 큐가 줄지 않거나 같은 페이지를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(400)와 검사 실패로 끝낸다. 데이터셋 run은 백 개 안쪽이다. */
+  static final int MAX_REQUESTS = 2000;
+
   /** 동시에 n개가 모이기를 기다리는 상한 — 하나씩 부르는 구현은 이만큼 늦은 뒤 진행한다. */
   static final Duration WAIT_LIMIT = Duration.ofSeconds(2);
 
   public FakeJiraServer(JsonNode dataset) throws IOException {
     this.dataset = dataset;
     this.http = new FakeHttpServer();
+    http.limitRequests(
+        MAX_REQUESTS, new Response(400, "{\"errorMessages\":[\"request limit\"]}", Map.of()));
     http.requireHeader(
         "Authorization",
         basicAuthorization(),

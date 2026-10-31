@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -23,6 +25,13 @@ import tools.jackson.databind.JsonNode;
 final class NotionClientScenario implements AutoCloseable {
   static final Duration TIMEOUT = ProviderCallPolicy.DEFAULT_REQUEST_TIMEOUT;
   static final String ROOT_PAGE = "/v1/pages/root-wiki";
+
+  static Response objectNotFound() {
+    return new Response(
+        HttpURLConnection.HTTP_NOT_FOUND,
+        "{\"object\":\"error\",\"code\":\"object_not_found\"}",
+        Map.of());
+  }
 
   /** 단건·목록 조회 하나(TS 표의 operation 이름). */
   enum Operation {
@@ -41,6 +50,17 @@ final class NotionClientScenario implements AutoCloseable {
       this.wire = wire;
       this.method = method;
       this.path = path;
+    }
+
+    /** 목록 조회를 이 커서부터. */
+    Object invokeFrom(NotionApiClient client, String token, String cursor) {
+      Optional<String> from = Optional.of(cursor);
+      return switch (this) {
+        case SEARCH -> client.searchPages(token, from, SearchPhase.ACTIVE, TIMEOUT);
+        case BLOCKS -> client.listBlockChildren(token, "root-wiki", from, TIMEOUT);
+        case QUERY -> client.queryDataSource(token, "ds-tasks", from, TIMEOUT);
+        default -> throw new IllegalArgumentException(name() + "은 목록 조회가 아니다");
+      };
     }
 
     Object invoke(NotionApiClient client, String token) {
@@ -84,16 +104,99 @@ final class NotionClientScenario implements AutoCloseable {
     answers(operation, HttpURLConnection.HTTP_OK, body.toString(), Map.of());
   }
 
+  void answersBlock(String id, JsonNode body) {
+    notion.respond(
+        "GET",
+        "/v1/blocks/" + id,
+        new Response(HttpURLConnection.HTTP_OK, body.toString(), Map.of()));
+  }
+
+  /** 이 목록 조회가 빈 결과와 함께 다음 커서로 이 커서를 준다(has_more true) — 커서가 전진하지 않는 공급자. */
+  void answersNextCursor(Operation operation, String cursor) {
+    String type = operation == Operation.BLOCKS ? "block" : "page_or_data_source";
+    answers(
+        operation,
+        HttpURLConnection.HTTP_OK,
+        "{\"object\":\"list\",\"results\":[],\"next_cursor\":\""
+            + cursor
+            + "\",\"has_more\":true,\"type\":\""
+            + type
+            + "\",\""
+            + type
+            + "\":{}}",
+        Map.of());
+  }
+
+  void changedRowsAreEmpty() {
+    answersOk(Operation.QUERY, NotionFixtures.JSON.readTree(NotionApiClientTest.EMPTY_SEARCH));
+  }
+
+  void queryIsCapped() {
+    var response = NotionFixtures.JSON.readTree(NotionApiClientTest.EMPTY_SEARCH);
+    response
+        .withObject("/request_status")
+        .put("type", "incomplete")
+        .put("incomplete_reason", "query_result_limit_reached");
+    answersOk(Operation.QUERY, response);
+  }
+
+  NotionApiClient.RowResult queryWindow() {
+    return client.queryWindow(token(), "ds-tasks", Optional.empty(), NotionRowQuery.all(), TIMEOUT);
+  }
+
+  void parentBlockIsUnderRoot() {
+    answersBlock(
+        "parent-block",
+        NotionFixtures.JSON.readTree(
+            """
+        {"object":"block","id":"parent-block","created_time":"2026-10-25T00:00:00Z",
+        "last_edited_time":"2026-10-25T00:00:00Z","in_trash":false,
+        "type":"paragraph","has_children":true,"parent":{"type":"page_id","page_id":"root-wiki"}}
+        """));
+  }
+
   // ---- 실행 ----
 
   Object call(Operation operation) {
     return operation.invoke(client, notion.token());
   }
 
+  void queryChangedRows(Instant lowerBound) {
+    client.queryDataSource(
+        token(), "ds-tasks", Optional.empty(), NotionRowQuery.editedSince(lowerBound), TIMEOUT);
+  }
+
+  JsonNode retrieveParentBlock() {
+    return client.retrieveBlock(token(), "parent-block", TIMEOUT);
+  }
+
+  JsonNode requestBody() {
+    return NotionFixtures.JSON.readTree(requests().getFirst().body());
+  }
+
   /** 조회 결과를 TS 표의 outcome 모양으로: 성공이면 {ok, (id | count·nextCursor)}, 실패면 {ok:false, failure}. */
   Outcome outcome(Operation operation) {
+    return outcomeOf(() -> call(operation));
+  }
+
+  /** 목록 조회를 이 커서부터 부른 결과. */
+  Outcome outcomeFrom(Operation operation, String cursor) {
+    return outcomeOf(() -> operation.invokeFrom(client, notion.token(), cursor));
+  }
+
+  /** 조회가 실패했으면 그 분류의 응답 검사 위반(없으면 empty). 성공하면 given 준비 실패. */
+  Optional<CallFailure.Violation> violation(Operation operation) {
     try {
-      return Outcome.success(call(operation));
+      call(operation);
+    } catch (NotionApiException e) {
+      return NotionErrors.classify(e).violation();
+    }
+    throw new IllegalStateException("given 준비 실패: " + operation + " 조회가 실패해야 한다");
+  }
+
+  private static Outcome outcomeOf(Supplier<Object> call) {
+    try {
+      return Outcome.success(call.get());
     } catch (NotionApiException e) {
       return Outcome.failed(FailureView.of(NotionErrors.classify(e)));
     }

@@ -37,9 +37,9 @@ public final class RawContentCapture implements ContentCapture {
   }
 
   /**
-   * 바이트 원본(첨부 등, TS 스트림 입력 `{mediaType, stream}`): 크기와 무관하게 늘 blob이고 내용 주소는 바이트의 sha256이다(F4 리뷰
-   * A-I3, ADR-0022 §4). maxBytes 초과는 {@link RawContentTooLargeException}. 바이트는 이미 메모리에 있다 — 받는 쪽이
-   * `ProviderHttp.getBytes`의 상한으로 먼저 끊는다.
+   * 바이트 원본(첨부 등): 크기와 무관하게 늘 blob이고 내용 주소는 바이트의 sha256이다(F4 리뷰 A-I3, ADR-0022 §4). maxBytes 초과는
+   * {@link RawContentTooLargeException}. 바이트는 이미 메모리에 있다 — 받는 쪽이 `ProviderHttp.getBytes`의 상한으로 먼저
+   * 끊는다.
    */
   @Override
   public RawContent bytes(String mediaType, byte[] bytes) {

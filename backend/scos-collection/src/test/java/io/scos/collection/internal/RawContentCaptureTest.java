@@ -11,10 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-/**
- * 원본 캡처(F8, TS DefaultRawContentCapture). 바이트(첨부 원본 등, TS 스트림 입력)는 크기와 무관하게 늘 blob이고, 내용 주소는 바이트의
- * sha256이다. 상한을 넘으면 거부한다.
- */
+/** 원본 캡처(F8). 바이트(첨부 원본 등)는 크기와 무관하게 늘 blob이고, 내용 주소는 바이트의 sha256이다. 상한을 넘으면 거부한다. */
 @DisplayName("원본 캡처는 크기로 inline·blob을 고르고 상한을 넘으면 거부한다(F8)")
 class RawContentCaptureTest {
   static final int INLINE_MAX = 8;

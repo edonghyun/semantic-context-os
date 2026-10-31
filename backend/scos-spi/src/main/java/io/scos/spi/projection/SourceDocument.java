@@ -1,6 +1,6 @@
 package io.scos.spi.projection;
 
-/** 투영기가 만든 문서(TS SourceDocument, contracts/src/types.ts:5-15). 파이프라인 입력. 시각은 ISO 문자열. */
+/** 투영기가 만든 문서. 파이프라인 입력. 시각은 ISO 문자열. */
 public record SourceDocument(
     String sourceId,
     String documentId,

@@ -51,6 +51,9 @@ public final class FakeTiroServer implements AutoCloseable {
     }
   }
 
+  /** 요청 상한 — 같은 커서를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(400)와 검사 실패로 끝낸다. 데이터셋 run은 백 개 안쪽이다. */
+  static final int MAX_REQUESTS = 2000;
+
   private static final String NOTES = "/v1/external/notes/";
   private static final List<String> RESOURCES = List.of("paragraphs", "summaries", "documents");
 
@@ -64,6 +67,8 @@ public final class FakeTiroServer implements AutoCloseable {
   public FakeTiroServer(Path datasetFile) throws IOException {
     this.dataset = (ObjectNode) json.readTree(Files.readString(datasetFile));
     this.http = new FakeHttpServer();
+    http.limitRequests(
+        MAX_REQUESTS, FakeHttpServer.status(400, "{\"error\":{\"message\":\"request limit\"}}"));
     http.requireHeader("Authorization", "Bearer " + token(), FakeHttpServer.status(401, "{}"));
     http.on("GET", listPath(), this::listing);
     Set<String> listed = new HashSet<>();

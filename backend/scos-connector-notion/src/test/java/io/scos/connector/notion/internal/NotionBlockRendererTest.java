@@ -24,7 +24,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Notion 블록 렌더러(TS notion-block-renderer.ts, F6 T6.7): 표본마다 본문 줄과 제목이 TS와 바이트 단위로 같다. 골든은
+ * Notion 블록 렌더러(F6 T6.7): 표본마다 본문 줄과 제목이 TS와 바이트 단위로 같다. 골든은
  * harness/fixtures/notion/expected-renderer.json(TS NotionProjector로 뽑은 본문·제목)이다 — 제목 세
  * 단계·목록·to_do·code· rich_text 문단 대체·지원하지 않는 블록·중첩 들여쓰기·형제 생성시각 정렬·읽을 수 없는 본문·순환·제목 속성 순서.
  */

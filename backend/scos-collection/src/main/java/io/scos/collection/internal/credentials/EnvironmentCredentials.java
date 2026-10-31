@@ -2,7 +2,7 @@ package io.scos.collection.internal.credentials;
 
 import java.util.Map;
 
-/** `env:<변수 이름>` — 프로세스 환경변수(TS EnvironmentCredentialResolver). 공백뿐인 값도 없는 것으로 본다(TS는 빈 문자열만). */
+/** `env:<변수 이름>` — 프로세스 환경변수. 공백뿐인 값도 없는 것으로 본다(TS는 빈 문자열만). */
 public final class EnvironmentCredentials implements CredentialScheme {
   private final Map<String, String> environment;
 

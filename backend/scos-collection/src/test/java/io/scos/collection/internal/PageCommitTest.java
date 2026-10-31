@@ -11,13 +11,12 @@ import io.scos.collection.internal.memory.MemoryRawItemStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySourceChangeLog;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.connector.SourceInstanceId;
-import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * 페이지 커밋 유스케이스(F2)의 판단 로직을 메모리 포트로 검증한다: 검사 순서(점유 → run → 적용), 결과 집계, 투영 요청 조건. 원자성(롤백)은 {@code
@@ -41,25 +39,16 @@ class PageCommitTest {
   static final Duration TTL = Duration.ofSeconds(30);
 
   MutableClock clock = new MutableClock(Instant.parse("2026-10-14T00:00:00Z"));
-  MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
-  MemoryRunStore runs = new MemoryRunStore();
-  MemoryRawItemStore rawItems = new MemoryRawItemStore();
-  MemoryCheckpointPort checkpoints = new MemoryCheckpointPort();
-  MemoryOutboxPort outbox = new MemoryOutboxPort();
-  MemorySourceChangeLog changes = new MemorySourceChangeLog();
-  Progress progress = new Progress(clock);
-  PageCommit commit =
-      new PageCommit(
-          TransactionOperations.withoutTransaction(),
-          claims,
-          runs,
-          rawItems,
-          checkpoints,
-          outbox,
-          clock,
-          TestMetrics.collection(),
-          changes,
-          progress);
+  CommitContext.Memory ports = CommitContext.Memory.create();
+  MemoryWorkClaimPort claims = ports.claims();
+  MemoryRunStore runs = ports.runs();
+  MemoryRawItemStore rawItems = ports.rawItems();
+  MemoryCheckpointPort checkpoints = ports.checkpoints();
+  MemoryOutboxPort outbox = ports.outbox();
+  MemorySourceChangeLog changes = ports.changes();
+  CommitContext context = new CommitContext(ports.ports(), clock);
+  Progress progress = context.progress();
+  PageCommit commit = context.pageCommit();
   WorkClaim claim;
 
   @BeforeEach

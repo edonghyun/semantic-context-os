@@ -136,7 +136,8 @@ class SourceSupervisorTest {
   @DisplayName("취소 뒤 수집 중인 시도가 대기 상한까지 끝나지 않으면 끝난 시도만으로 사이클을 닫는다")
   void cancellationClosesCycleAtWaitLimit() {
     // given
-    scenario.givenSource("a", CANCELS_CYCLE_AND_LINGERS);
+    scenario.givenSource("a");
+    scenario.givenCancelledCollectionInFlight();
 
     // when
     Optional<Cycle> cycle = scenario.tick();

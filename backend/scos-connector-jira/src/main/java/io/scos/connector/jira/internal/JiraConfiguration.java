@@ -12,10 +12,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Jira 소스 설정(TS readJiraConfiguration, jira-adapter.ts:78-115): schemaVersion 1, siteUrl은 Atlassian
- * Cloud 사이트 origin(https, `*.atlassian.net`, 포트·사용자 정보·쿼리·프래그먼트·경로 없음 — 인증정보를 보낼 곳이다), email(@ 포함,
- * 콜론·줄바꿈 없음 — Basic 인증의 사용자 부분), cloudId(선택, 소문자 UUID — 있으면 cloud gateway로 부른다),
- * downloadAttachments(선택, 기본 true). 거부 메시지는 TS와 같다.
+ * Jira 소스 설정: schemaVersion 1, siteUrl은 Atlassian Cloud 사이트 origin(https, `*.atlassian.net`, 포트·사용자
+ * 정보·쿼리·프래그먼트·경로 없음 — 인증정보를 보낼 곳이다), email(@ 포함, 콜론·줄바꿈 없음 — Basic 인증의 사용자 부분), cloudId(선택, 소문자
+ * UUID — 있으면 cloud gateway로 부른다), downloadAttachments(선택, 기본 true). 거부 메시지 문구는 계약이라 바꾸지 않는다.
  */
 public record JiraConfiguration(
     String siteUrl, String email, Optional<String> cloudId, boolean downloadAttachments) {
@@ -30,13 +29,7 @@ public record JiraConfiguration(
     if (value == null || !value.isObject()) throw invalid("Invalid Jira object");
     JsonNode site = value.get("siteUrl");
     JsonNode email = value.get("email");
-    if (config.schemaVersion() != 1
-        || site == null
-        || !site.isString()
-        || email == null
-        || !email.isString()
-        || !email.asString().contains("@")
-        || EMAIL_FORBIDDEN.matcher(email.asString()).find())
+    if (config.schemaVersion() != 1 || !isString(site) || !isBasicAuthEmail(email))
       throw invalid("Invalid Jira source configuration");
     String origin = siteOrigin(site.asString());
     Optional<String> cloudId = Optional.empty();
@@ -55,13 +48,24 @@ public record JiraConfiguration(
     return new JiraConfiguration(origin, email.asString(), cloudId, downloadAttachments);
   }
 
+  private static boolean isString(JsonNode value) {
+    return value != null && value.isString();
+  }
+
+  /** Basic 인증의 사용자 부분: `@`가 있고, 구분자 `:`와 줄바꿈이 없다. */
+  private static boolean isBasicAuthEmail(JsonNode email) {
+    return isString(email)
+        && email.asString().contains("@")
+        && !EMAIL_FORBIDDEN.matcher(email.asString()).find();
+  }
+
   /** API를 부를 곳: cloudId가 있으면 cloud gateway, 없으면 사이트 origin. */
   String apiBase() {
     return cloudId.map(id -> GATEWAY + id).orElse(siteUrl);
   }
 
   /**
-   * TS `new URL(siteUrl)` 검사와 `url.origin`. 호스트는 소문자, https 기본 포트(443)는 없는 것과 같다. 해석은 WHATWG URL보다
+   * `new URL(siteUrl)` 검사와 `url.origin`. 호스트는 소문자, https 기본 포트(443)는 없는 것과 같다. 해석은 WHATWG URL보다
    * 엄격하다 — 공백·역슬래시·빈 사용자 정보·전각 호스트 등은 거부한다(CONTRACTS "Jira 커넥터 편차").
    */
   private static String siteOrigin(String siteUrl) {

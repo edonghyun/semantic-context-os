@@ -14,10 +14,10 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Tiro 노트 원본(`tiro.note`) → 회의 문서 하나(TS source-projector/src/tiro-projector.ts). 문서 id는 원본
- * externalId(`note:<guid>`). 본문 순서: `# 제목`, 접근 제한 줄, 회의 일시, `## AI 요약`, `## <템플릿 제목>`(회의 문서 섹션),
- * `## 전사 원문`(화자 구간이 있으면 `이름: 발화`, 없으면 전사), 잠긴 문단 수. 잠긴 문단과 참여자·협업자 정보는 본문에 넣지 않는다 — AI 요약은 화자 귀속
- * 전사와 구분한다. uri는 `https://tiro.ooo/`로 시작하는 webUrl, 아니면 `tiro://<documentId>`.
+ * Tiro 노트 원본(`tiro.note`) → 회의 문서 하나. 문서 id는 원본 externalId(`note:<guid>`). 본문 순서: `# 제목`, 접근 제한 줄,
+ * 회의 일시, `## AI 요약`, `## <템플릿 제목>`(회의 문서 섹션), `## 전사 원문`(화자 구간이 있으면 `이름: 발화`, 없으면 전사), 잠긴 문단 수. 잠긴
+ * 문단과 참여자·협업자 정보는 본문에 넣지 않는다 — AI 요약은 화자 귀속 전사와 구분한다. uri는 `https://tiro.ooo/`로 시작하는 webUrl, 아니면
+ * `tiro://<documentId>`.
  *
  * <p>TS와의 차이: TS는 제목·템플릿 제목·화자 이름이 문자열이 아니면 `String(...)`으로 바꾸지만, 여기서는 투영 실패로 본다(수집이 문자열을 보장한다 —
  * 다르면 원본이 손상된 것이다).
@@ -63,22 +63,53 @@ public final class TiroProjector implements Projector {
     String title = string(note.get("title"), "note title");
     List<String> lines = new ArrayList<>();
     lines.add("# " + title);
+    unavailableNotice(raw).ifPresent(lines::add);
+    recordingTime(note).ifPresent(lines::add);
+    lines.addAll(summaries(raw));
+    lines.addAll(documents(raw));
+    lines.addAll(transcript(raw));
+    String observedAt = ISO_MILLIS.format(item.observedAt());
+    return Optional.of(
+        new SourceDocument(
+            sourceId,
+            documentId,
+            uri(note, documentId),
+            title,
+            String.join("\n\n", lines),
+            item.sourceCreatedAt().orElse(observedAt),
+            item.sourceUpdatedAt().orElse(observedAt)));
+  }
+
+  /** 403·404로 비운 자원 종류(라벨로). */
+  private static Optional<String> unavailableNotice(JsonNode raw) {
     List<String> unavailable = new ArrayList<>();
     JsonNode resources = raw.get("unavailableResources");
     if (resources != null && resources.isArray())
       for (JsonNode kind : resources) if (kind.isString()) unavailable.add(kind.asString());
-    if (!unavailable.isEmpty())
-      lines.add(
-          "접근 제한으로 제외된 내용: "
-              + String.join(
-                  ", ", unavailable.stream().map(k -> LABELS.getOrDefault(k, k)).toList()));
+    if (unavailable.isEmpty()) return Optional.empty();
+    return Optional.of(
+        "접근 제한으로 제외된 내용: "
+            + String.join(", ", unavailable.stream().map(k -> LABELS.getOrDefault(k, k)).toList()));
+  }
+
+  private static Optional<String> recordingTime(JsonNode note) {
     JsonNode recordingStartAt = note.get("recordingStartAt");
-    if (recordingStartAt != null && recordingStartAt.isString())
-      lines.add("회의 일시: " + recordingStartAt.asString());
+    return recordingStartAt != null && recordingStartAt.isString()
+        ? Optional.of("회의 일시: " + recordingStartAt.asString())
+        : Optional.empty();
+  }
+
+  private List<String> summaries(JsonNode raw) {
+    List<String> lines = new ArrayList<>();
     for (JsonNode summary : entries(raw.get("summaries"))) {
       String content = text(summary.get("content"));
       if (!content.isEmpty()) lines.add("## AI 요약\n" + content);
     }
+    return lines;
+  }
+
+  private List<String> documents(JsonNode raw) {
+    List<String> lines = new ArrayList<>();
     for (JsonNode document : entries(raw.get("documents"))) {
       List<String> sections = new ArrayList<>();
       for (JsonNode section : entries(document.get("sections"))) {
@@ -89,6 +120,11 @@ public final class TiroProjector implements Projector {
         lines.add(
             "## " + templateTitle(document.get("template")) + "\n" + String.join("\n\n", sections));
     }
+    return lines;
+  }
+
+  /** 전사 원문 구역과, 잠긴 문단이 있으면 그 수를 알리는 줄. */
+  private List<String> transcript(JsonNode raw) {
     List<String> transcript = new ArrayList<>();
     int locked = 0;
     for (JsonNode paragraph : entries(raw.get("paragraphs"))) {
@@ -104,23 +140,18 @@ public final class TiroProjector implements Projector {
           (timeFrom != null && timeFrom.isString() ? "[" + timeFrom.asString() + "]\n" : "")
               + content);
     }
+    List<String> lines = new ArrayList<>();
     if (!transcript.isEmpty()) lines.add("## 전사 원문\n" + String.join("\n\n", transcript));
     if (locked > 0) lines.add("전사 제한: " + locked + "개 문단은 Tiro에서 잠겨 있어 제외됨.");
+    return lines;
+  }
+
+  /** Tiro 웹 주소면 그것, 아니면 `tiro://<문서 id>`. */
+  private static String uri(JsonNode note, String documentId) {
     JsonNode webUrl = note.get("webUrl");
-    String uri =
-        webUrl != null && webUrl.isString() && webUrl.asString().startsWith(TIRO_ORIGIN)
-            ? webUrl.asString()
-            : "tiro://" + documentId;
-    String observedAt = ISO_MILLIS.format(item.observedAt());
-    return Optional.of(
-        new SourceDocument(
-            sourceId,
-            documentId,
-            uri,
-            title,
-            String.join("\n\n", lines),
-            item.sourceCreatedAt().orElse(observedAt),
-            item.sourceUpdatedAt().orElse(observedAt)));
+    return webUrl != null && webUrl.isString() && webUrl.asString().startsWith(TIRO_ORIGIN)
+        ? webUrl.asString()
+        : "tiro://" + documentId;
   }
 
   /** 화자 구간이 있으면 `이름(없으면 라벨): 발화` 줄들, 없으면 전사 본문. */
@@ -142,10 +173,7 @@ public final class TiroProjector implements Projector {
     return String.join("\n", out);
   }
 
-  /**
-   * 템플릿이 JS falsy(없음·null·false·0·"")면 기본 제목(TS `document.template ? object(…) : {}`), 그 밖에 객체가 아니면
-   * 위반.
-   */
+  /** 템플릿이 JS falsy(없음·null·false·0·"")면 기본 제목, 그 밖에 객체가 아니면 위반. */
   private static String templateTitle(JsonNode template) {
     if (isFalsy(template)) return "AI 회의 문서";
     JsonNode title = object(template).get("title");
@@ -160,7 +188,7 @@ public final class TiroProjector implements Projector {
         || (value.isString() && value.asString().isEmpty());
   }
 
-  /** TS text: 없거나 null이면 "", 아니면 `{content: 문자열}`. */
+  /** 없거나 null이면 "", 아니면 `{content: 문자열}`. */
   private static String text(JsonNode value) {
     if (value == null || value.isNull()) return "";
     return string(object(value).get("content"), "text content");

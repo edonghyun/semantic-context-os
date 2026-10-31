@@ -3,6 +3,7 @@ package io.scos.collection.internal.postgres;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.RawCatalogCursor;
 import io.scos.collection.internal.RawRecord;
+import io.scos.collection.internal.RunHistory;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
@@ -21,21 +22,18 @@ import java.util.Optional;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-/**
- * 운영 조회(TS SqliteSourceStore 조회 메서드와 같은 순서·집계). 문자열 정렬·비교는 COLLATE "C"(SQLite BINARY와 같은 코드 유닛 순).
- * 행 매핑은 쓰기 어댑터의 것을 그대로 쓴다.
- */
+/** 운영 조회. 문자열 정렬·비교는 COLLATE "C"(코드 유닛 순). 행 매핑은 쓰기 어댑터의 것을 그대로 쓴다. */
 public final class PostgresSourceQueries implements SourceQueries {
   private static final String RAW_COLUMNS = "source_instance_id, " + PostgresRawItemStore.COLUMNS;
   private static final String REJECTION_COLUMNS =
-      "run_id, captured_at, observed_at, failure_kind, message, provider_locator AS locator, quarantined_storage, quarantined_media_type, quarantined_inline AS qinline, quarantined_sha256, quarantined_size";
+      "run_id, captured_at, observed_at, failure_kind, message, provider_locator AS locator, quarantined_storage, quarantined_media_type, quarantined_inline, quarantined_sha256, quarantined_size";
 
   private final JdbcClient jdbc;
   private final SnapshotGuardStore guards;
 
-  public PostgresSourceQueries(JdbcClient jdbc) {
+  public PostgresSourceQueries(JdbcClient jdbc, SnapshotGuardStore guards) {
     this.jdbc = jdbc;
-    this.guards = new PostgresSnapshotGuardStore(jdbc);
+    this.guards = guards;
   }
 
   @Override
@@ -50,77 +48,88 @@ public final class PostgresSourceQueries implements SourceQueries {
 
   @Override
   public Optional<SourceStatus> status(SourceInstanceId source, Instant now) {
-    Optional<SourceInstance> instance =
-        jdbc.sql(
-                "SELECT "
-                    + PostgresSourceInstanceStore.COLUMNS
-                    + " FROM source_instances WHERE id = :source")
-            .param("source", source.value())
-            .query(PostgresSourceInstanceStore::map)
-            .optional();
-    if (instance.isEmpty()) return Optional.empty();
-    List<CollectionRun> runs =
-        jdbc.sql(
-                "SELECT "
-                    + PostgresRunStore.COLUMNS
-                    + " FROM collection_runs WHERE source_instance_id = :source ORDER BY started_at DESC, run_id COLLATE \"C\" DESC")
-            .param("source", source.value())
-            .query(PostgresRunStore::map)
-            .list();
-    Optional<CollectionRun> lastSuccess =
-        runs.stream().filter(run -> run.status().isSuccess()).findFirst();
-    List<CollectionRun> sinceSuccess =
-        lastSuccess.map(success -> runs.subList(0, runs.indexOf(success))).orElse(runs);
+    return instance(source).map(instance -> statusOf(source, instance, now));
+  }
+
+  private SourceStatus statusOf(SourceInstanceId source, SourceInstance instance, Instant now) {
+    List<CollectionRun> runs = runsNewestFirst(source);
+    Map<String, Integer> itemCounts = itemCountsByState(source);
+    Optional<Instant> lease = activeLeaseExpiry(source, now);
+    Optional<RunStore.SnapshotCompletion> snapshot = lastSnapshotCompletion(source);
+    return new SourceStatus(
+        source,
+        instance.enabled(),
+        runs.stream().anyMatch(run -> run.status() == RunStatus.RUNNING),
+        itemCounts.getOrDefault("active", 0),
+        itemCounts.getOrDefault("deleted", 0),
+        RunHistory.of(runs).failuresSinceLastSuccess(),
+        lease,
+        snapshot,
+        runs.stream().findFirst().map(PostgresSourceQueries::lastRun),
+        runs.stream()
+            .filter(run -> run.status().isSuccess())
+            .findFirst()
+            .flatMap(CollectionRun::finishedAt),
+        guards.lastGuarded(source),
+        pendingAcceptance(source),
+        instance.shrinkGuard());
+  }
+
+  private Optional<SourceInstance> instance(SourceInstanceId source) {
+    return jdbc.sql(
+            "SELECT "
+                + PostgresSourceInstanceStore.COLUMNS
+                + " FROM source_instances WHERE id = :source")
+        .param("source", source.value())
+        .query(PostgresSourceInstanceStore::map)
+        .optional();
+  }
+
+  private List<CollectionRun> runsNewestFirst(SourceInstanceId source) {
+    return jdbc.sql(
+            "SELECT "
+                + PostgresRunStore.COLUMNS
+                + " FROM collection_runs WHERE source_instance_id = :source"
+                + PostgresRunStore.NEWEST_FIRST)
+        .param("source", source.value())
+        .query(PostgresRunStore::map)
+        .list();
+  }
+
+  private Map<String, Integer> itemCountsByState(SourceInstanceId source) {
     Map<String, Integer> counts = new LinkedHashMap<>();
     jdbc.sql(
             "SELECT state, COUNT(*) AS n FROM raw_items WHERE source_instance_id = :source GROUP BY state")
         .param("source", source.value())
         .query((RowCallbackHandler) rs -> counts.put(rs.getString("state"), rs.getInt("n")));
-    Optional<Instant> lease =
-        jdbc.sql(
-                "SELECT expires_at FROM work_claims WHERE source_instance_id = :source AND expires_at > :now")
-            .param("source", source.value())
-            .param("now", Timestamp.from(now))
-            .query((rs, i) -> rs.getTimestamp("expires_at").toInstant())
-            .optional();
-    Optional<RunStore.SnapshotCompletion> snapshot =
-        jdbc.sql(
-                "SELECT completed_at, deletion_count FROM source_snapshots WHERE source_instance_id = :source")
-            .param("source", source.value())
-            .query(
-                (rs, i) ->
-                    new RunStore.SnapshotCompletion(
-                        rs.getTimestamp("completed_at").toInstant(), rs.getInt("deletion_count")))
-            .optional();
-    return Optional.of(
-        new SourceStatus(
-            source,
-            instance.get().enabled(),
-            runs.stream().anyMatch(run -> run.status() == RunStatus.RUNNING),
-            counts.getOrDefault("active", 0),
-            counts.getOrDefault("deleted", 0),
-            (int)
-                sinceSuccess.stream()
-                    .filter(
-                        run ->
-                            run.status() == RunStatus.FAILED
-                                || run.status() == RunStatus.PARTIALLY_SUCCEEDED)
-                    .count(),
-            lease,
-            snapshot,
-            runs.stream()
-                .findFirst()
-                .map(
-                    run ->
-                        new LastRun(
-                            run.startedAt(), run.status(), run.errorKind(), run.errorSummary())),
-            lastSuccess.flatMap(CollectionRun::finishedAt),
-            guards.lastGuarded(source),
-            guards
-                .lastAcceptance(source)
-                .filter(SnapshotGuardStore.Acceptance::pending)
-                .map(SnapshotGuardStore.Acceptance::acceptedAt),
-            instance.get().shrinkGuard()));
+    return counts;
+  }
+
+  private Optional<Instant> activeLeaseExpiry(SourceInstanceId source, Instant now) {
+    return jdbc.sql(
+            "SELECT expires_at FROM work_claims WHERE source_instance_id = :source AND expires_at > :now")
+        .param("source", source.value())
+        .param("now", Timestamp.from(now))
+        .query((rs, i) -> rs.getTimestamp("expires_at").toInstant())
+        .optional();
+  }
+
+  private Optional<RunStore.SnapshotCompletion> lastSnapshotCompletion(SourceInstanceId source) {
+    return jdbc.sql(PostgresRunStore.SNAPSHOT_COMPLETION)
+        .param("source", source.value())
+        .query(PostgresRunStore::snapshotCompletion)
+        .optional();
+  }
+
+  private Optional<Instant> pendingAcceptance(SourceInstanceId source) {
+    return guards
+        .lastAcceptance(source)
+        .filter(SnapshotGuardStore.Acceptance::pending)
+        .map(SnapshotGuardStore.Acceptance::acceptedAt);
+  }
+
+  private static LastRun lastRun(CollectionRun run) {
+    return new LastRun(run.startedAt(), run.status(), run.errorKind(), run.errorSummary());
   }
 
   @Override
@@ -222,7 +231,9 @@ public final class PostgresSourceQueries implements SourceQueries {
     return jdbc.sql(
             "SELECT "
                 + PostgresRunStore.COLUMNS
-                + " FROM collection_runs ORDER BY started_at DESC, run_id COLLATE \"C\" DESC LIMIT :limit")
+                + " FROM collection_runs"
+                + PostgresRunStore.NEWEST_FIRST
+                + " LIMIT :limit")
         .param("limit", limit)
         .query(PostgresRunStore::map)
         .list();

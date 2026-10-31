@@ -9,7 +9,7 @@ import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawItem;
@@ -78,15 +78,9 @@ class ChangeLogLockScopeTest {
   PageCommit pageCommit(
       DataSource ds, PostgresCollectionConfiguration.Adapters a, MemoryOutboxPort outbox) {
     return new PageCommit(
-        new TransactionTemplate(new DataSourceTransactionManager(ds)),
-        a.claims(),
-        a.runs(),
-        a.rawItems(),
-        a.checkpoints(),
-        outbox,
+        a.stores(new TransactionTemplate(new DataSourceTransactionManager(ds))).withOutbox(outbox),
         clock,
         TestMetrics.collection(),
-        a.changes(),
         new Progress(clock));
   }
 

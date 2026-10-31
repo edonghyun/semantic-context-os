@@ -5,6 +5,7 @@ import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStatus;
+import io.scos.collection.internal.SnapshotShrinkOverrides;
 import io.scos.collection.internal.SourceAdapters;
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceSchedule;
@@ -15,9 +16,10 @@ import io.scos.connector.jira.JiraAssembly;
 import io.scos.connector.notion.NotionAssembly;
 import io.scos.connector.slack.SlackAssembly;
 import io.scos.connector.tiro.TiroAssembly;
+import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.engine.support.text.JsJson;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
@@ -35,6 +37,8 @@ import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
+import io.scos.spi.embedding.EmbedderIdentity;
+import io.scos.spi.embedding.EmbeddingGeneration;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.postgres.PostgresTestAdapters;
 import java.io.IOException;
@@ -68,6 +72,11 @@ final class QueryScenario {
       Path.of(System.getProperty("scos.fixtures.ops.dir", "../harness/fixtures/ops"));
   static final ObjectMapper JSON = new ObjectMapper();
   private static final String UNUSED_BASE_URL = "http://127.0.0.1:9";
+
+  /** 조회 명령이 설정 세대로 보이는 값(조회는 임베더를 부르지 않는다 — identity만 쓴다). */
+  static final EmbeddingGeneration CONFIGURED_GENERATION =
+      EmbeddingGeneration.of(
+          new EmbedderIdentity("test", "query-scenario", 4), EmbeddingGenerationCheck.INPUT_FORMAT);
 
   private final JsonNode scenario;
   private final Instant now;
@@ -118,12 +127,14 @@ final class QueryScenario {
                     TiroAssembly.adapter(UNUSED_BASE_URL, "unused", clock),
                     NotionAssembly.adapter(UNUSED_BASE_URL, "unused", clock),
                     GoogleDriveAssembly.adapter(UNUSED_BASE_URL, "unused", clock))),
-            new FreshnessReader(PostgresTestAdapters.unitStore(dataSource), clock),
+            new FreshnessReader(PostgresTestAdapters.unitMaintenance(dataSource), clock),
             Set.of(SpaceId.LEGACY),
+            PostgresTestAdapters.spaceMeta(dataSource),
+            CONFIGURED_GENERATION,
             clock,
             new SourceQueryJson(JSON),
             outputs::add);
-    var args = new DefaultApplicationArguments(javaArgs(tsArgs));
+    var args = new CommandArguments(new DefaultApplicationArguments(javaArgs(tsArgs)));
     switch (tsArgs.get(0)) {
       case "source" -> commands.source(tsArgs.get(1), args);
       case "raw" -> commands.raw(tsArgs.get(1), args);
@@ -131,6 +142,12 @@ final class QueryScenario {
       default -> throw new IllegalArgumentException("각본에 없는 명령: " + tsArgs);
     }
     return outputs;
+  }
+
+  /** 공간에 저장된 임베딩 세대(투영·재임베딩이 남긴 값). */
+  void givenStoredGeneration(SpaceId space, String generation) {
+    PostgresTestAdapters.spaceMeta(dataSource)
+        .set(space, EmbeddingGenerationCheck.META_KEY, generation);
   }
 
   private static String[] javaArgs(List<String> tsArgs) {
@@ -159,6 +176,7 @@ final class QueryScenario {
               s.get("credentialRef").asString(),
               s.get("enabled").asBoolean(),
               new SourceSchedule(Optional.empty(), Optional.empty()),
+              SnapshotShrinkOverrides.DAEMON_DEFAULTS,
               now,
               now));
   }

@@ -14,7 +14,7 @@ import io.scos.connector.jira.internal.JiraTsRuns.RequestView;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
@@ -71,7 +72,7 @@ final class JiraScenario implements AutoCloseable {
 
   static final String SITE = JiraFixtures.dataset().get("siteUrl").asString();
 
-  /** TS checkpointWith: 이 사이트의 v1 체크포인트(작업 큐 JSON 배열, 내려받은 첨부 id 배열). */
+  /** 이 사이트의 v1 체크포인트(작업 큐 JSON 배열, 내려받은 첨부 id 배열). */
   static Checkpoint checkpointWith(String pendingJson, String downloadedJson) {
     return new Checkpoint(
         1,
@@ -94,6 +95,47 @@ final class JiraScenario implements AutoCloseable {
   /** 이 이슈 경로(쿼리 무관)는 이 JSON으로 답한다 — 원격 링크 등 나머지는 데이터셋. */
   void issueAnswers(String path, String issueJson) {
     jira.respond(path, new Response(200, issueJson, Map.of("Content-Type", "application/json")));
+  }
+
+  /** 이슈 검색이 요청한 커서를 다음 커서로 다시 준다: 없음 → A, A → A(한 번), 그 뒤 A → 끝. 결과는 비어 있다 — 가드가 없는 순회도 끝난다. */
+  void issueSearchRepeatsCursor() {
+    AtomicInteger returned = new AtomicInteger();
+    jira.respondWith(
+        FakeJiraServer.ISSUE_SEARCH,
+        request -> {
+          String cursor = request.params().get("nextPageToken");
+          String next =
+              cursor == null ? "cycle-a" : returned.getAndIncrement() == 0 ? "cycle-a" : null;
+          String body =
+              next == null
+                  ? "{\"issues\":[],\"isLast\":true}"
+                  : "{\"issues\":[],\"isLast\":false,\"nextPageToken\":\"" + next + "\"}";
+          return new Response(200, body, Map.of("Content-Type", "application/json"));
+        });
+  }
+
+  /**
+   * 이슈 검색의 다음 커서가 요청 커서(nextPageToken)에 따라 돈다: 없음 → A, A → B, B → A(한 번), 그 뒤 B → 끝. 결과는 비어 있다 —
+   * 가드가 없는 순회도 한 바퀴 뒤 끝난다.
+   */
+  void issueSearchCyclesCursor() {
+    AtomicInteger returned = new AtomicInteger();
+    jira.respondWith(
+        FakeJiraServer.ISSUE_SEARCH,
+        request -> {
+          String cursor = request.params().get("nextPageToken");
+          String next =
+              cursor == null
+                  ? "cycle-a"
+                  : cursor.equals("cycle-a")
+                      ? "cycle-b"
+                      : returned.getAndIncrement() == 0 ? "cycle-a" : null;
+          String body =
+              next == null
+                  ? "{\"issues\":[],\"isLast\":true}"
+                  : "{\"issues\":[],\"isLast\":false,\"nextPageToken\":\"" + next + "\"}";
+          return new Response(200, body, Map.of("Content-Type", "application/json"));
+        });
   }
 
   String kind() {
@@ -152,6 +194,12 @@ final class JiraScenario implements AutoCloseable {
 
   // ---- 수집 ----
 
+  /**
+   * 한 run의 페이지 상한 — 큐가 줄지 않는 결함(변이)은 가짜의 요청 상한 뒤에도 실패한 읽기를 거부 항목으로 넘기며 끝없이 페이지를 낸다. 그런 run을 실패시킨다.
+   * fixture run은 수십 쪽이다.
+   */
+  static final int MAX_PAGES = 1000;
+
   Collection collect() {
     return collect(Optional.empty());
   }
@@ -172,7 +220,11 @@ final class JiraScenario implements AutoCloseable {
                   calls,
                   capture,
                   cancel),
-              out.pages::add);
+              page -> {
+                if (out.pages.size() == MAX_PAGES)
+                  throw new IllegalStateException("페이지 상한을 넘었다: 큐가 줄지 않는다");
+                out.pages.add(page);
+              });
     } catch (RuntimeException e) {
       out.failure = e;
     }

@@ -1,0 +1,18 @@
+{
+  "name": "synthetic-baseline",
+  "version": 1,
+  "queries": [
+    {
+      "query": "what was the alpha plan",
+      "kind": "why",
+      "expectedDocumentIds": ["transcript/d/s1"],
+      "baseline": {"terms": ["alpha"]}
+    },
+    {
+      "query": "where did we leave zeta",
+      "kind": "resume",
+      "expectedDocumentIds": ["memory/d/m.md"],
+      "baseline": {"terms": ["ZETA"]}
+    }
+  ]
+}

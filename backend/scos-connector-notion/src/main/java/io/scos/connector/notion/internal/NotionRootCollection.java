@@ -11,11 +11,11 @@ import io.scos.spi.connector.RejectedItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import tools.jackson.databind.JsonNode;
 
 /**
- * roots 모드 run 하나(TS collectConfiguredRoots·processWork): 작업 큐의 작업 하나(또는 discovery 검색 한 페이지)가 페이지
- * 하나다. 사이클이 끝나는 페이지까지 낸다. 작업별 동작은 TS와 같다.
+ * roots 모드 run 하나: 작업 큐의 작업 하나(또는 discovery 검색 한 페이지)가 페이지 하나다. 사이클이 끝나는 페이지까지 낸다.
  *
  * <ul>
  *   <li>page: 페이지 조회 → 원본. 휴지통이 아니면 본문 블록 작업. 설정한 루트의 조회만 object_not_found를 격리하지 않는다.
@@ -52,6 +52,7 @@ public final class NotionRootCollection {
   private final NotionCalls calls;
   private final NotionMutations mutations;
   private final String token;
+  private final NotionReads reads;
 
   public NotionRootCollection(
       Roots config,
@@ -66,9 +67,27 @@ public final class NotionRootCollection {
     this.calls = calls;
     this.mutations = mutations;
     this.token = token;
+    this.reads = new NotionReads(client, calls, mutations, token);
   }
 
   public void collect(PageSink sink) {
+    collect(sink, this::process);
+  }
+
+  void collectReconciled(PageSink sink, NotionDataSources sources, NotionScope scope) {
+    collect(
+        sink,
+        work -> {
+          if (work instanceof NotionWork.BlockChildren) return process(work);
+          if (work instanceof NotionWork.DataSourceRows rows)
+            sources.collect(
+                new NotionWork.DataSource(rows.dataSourceId()), NotionPageRefresh.Path.FULL, scope);
+          else sources.collect(work, NotionPageRefresh.Path.FULL, scope);
+          return Processed.skipped();
+        });
+  }
+
+  private void collect(PageSink sink, Function<NotionWork, Processed> processor) {
     boolean cycleComplete = false;
     while (!cycleComplete) {
       Advance advance;
@@ -76,21 +95,15 @@ public final class NotionRootCollection {
       List<RejectedItem> rejections;
       switch (traversal.next()) {
         case Step.Work work -> {
-          Processed processed = process(work.work());
+          Processed processed = processor.apply(work.work());
           advance = traversal.completeWork(processed.continuation(), processed.discovered());
           changed = processed.mutations();
           rejections = processed.rejection().stream().toList();
         }
         case Step.Search search -> {
-          NotionApiClient.ListPage result =
-              calls.required(
-                  NotionApiClient.SEARCH_OPERATION,
-                  timeout -> client.searchPages(token, search.cursor(), search.phase(), timeout));
-          changed = mutations.searchResults(result.results(), search.phase());
-          advance =
-              traversal.completeSearch(
-                  result.results().stream().map(p -> p.get("id").asString()).toList(),
-                  result.nextCursor());
+          NotionReads.Searched result = reads.search(search.cursor(), search.phase());
+          changed = result.mutations();
+          advance = traversal.completeSearch(result.pageIds(), result.nextCursor());
           rejections = List.of();
         }
       }
@@ -113,8 +126,7 @@ public final class NotionRootCollection {
     String pageId = work.pageId();
     if (config.rootPageIds().contains(pageId))
       return retrievedPage(
-          pageId,
-          calls.required(work.operation(), timeout -> client.retrievePage(token, pageId, timeout)));
+          pageId, calls.required(work, timeout -> client.retrievePage(token, pageId, timeout)));
     return calls
         .isolated(work, timeout -> client.retrievePage(token, pageId, timeout))
         .fold(Processed::rejected, page -> retrievedPage(pageId, page));
@@ -130,10 +142,9 @@ public final class NotionRootCollection {
   }
 
   private Processed blockChildren(NotionWork.BlockChildren work) {
-    String blockId = work.blockId();
-    return calls
-        .isolated(work, timeout -> client.listBlockChildren(token, blockId, work.cursor(), timeout))
-        .fold(Processed::rejected, result -> listedBlocks(blockId, result));
+    return reads
+        .blockChildren(work)
+        .fold(Processed::rejected, result -> listedBlocks(work.blockId(), result));
   }
 
   private Processed listedBlocks(String blockId, NotionApiClient.ListPage result) {
@@ -150,7 +161,6 @@ public final class NotionRootCollection {
         Optional.empty());
   }
 
-  /** TS blockDescendantWork. */
   private static Optional<NotionWork> descendant(JsonNode block) {
     if (trashed(block)) return Optional.empty();
     String id = block.get("id").asString();
@@ -208,10 +218,8 @@ public final class NotionRootCollection {
 
   private Processed rows(NotionWork.DataSourceRows work) {
     if (work.phase() == SearchPhase.TRASH) return Processed.skipped();
-    return calls
-        .isolated(
-            work,
-            timeout -> client.queryDataSource(token, work.dataSourceId(), work.cursor(), timeout))
+    return reads
+        .dataSourceRows(work)
         .fold(Processed::rejected, result -> queriedRows(work, result));
   }
 

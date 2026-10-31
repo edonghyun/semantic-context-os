@@ -26,9 +26,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Google 세션(TS GoogleDriveSession·classifyGoogleError): refresh token으로 access token을 받아 메모리에 두고 만료
- * 60초 전에 갱신한다. 401은 토큰을 무효화한다. 2xx가 아니면 상태·403 본문의 rate limit 이유·Retry-After를 담은 실패다. 기대값은 TS가 만든
- * 표(expected-client.json)다.
+ * Google 세션:refresh token으로 access token을 받아 메모리에 두고 만료 60초 전에 갱신한다. 401은 토큰을 무효화한다. 2xx가 아니면
+ * 상태·403 본문의 rate limit 이유·Retry-After를 담은 실패다. 기대값은 TS가 만든 표(expected-client.json)다.
  */
 @DisplayName("Google 세션은 TS GoogleDriveSession·classifyGoogleError와 같다")
 class GoogleDriveSessionTest {

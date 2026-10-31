@@ -9,6 +9,7 @@ import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
+import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.connector.SourceInstanceId;
 import java.time.Instant;
 import java.util.List;
@@ -71,22 +72,14 @@ public final class SourceInstances {
         credentialRef,
         true,
         SourceSchedule.DAEMON_DEFAULTS,
+        SnapshotShrinkOverrides.DAEMON_DEFAULTS,
         at,
         at);
   }
 
   /** 꺼진 소스(같은 값, enabled false). */
   public static SourceInstance disabled(SourceInstance source) {
-    return new SourceInstance(
-        source.id(),
-        source.kind(),
-        source.displayName(),
-        source.config(),
-        source.credentialRef(),
-        false,
-        source.schedule(),
-        source.createdAt(),
-        source.updatedAt());
+    return source.withEnabled(false, source.updatedAt());
   }
 
   /** 소스별 주기를 가진 켜진 noop 소스. */
@@ -99,6 +92,7 @@ public final class SourceInstances {
         "env:NOOP_TOKEN",
         true,
         schedule,
+        SnapshotShrinkOverrides.DAEMON_DEFAULTS,
         at,
         at);
   }
@@ -150,6 +144,11 @@ public final class SourceInstances {
       @Override
       public Optional<SourceInstance> get(SourceInstanceId id) {
         return delegate.get(id);
+      }
+
+      @Override
+      public void requireCollectionConfiguration(SourceDescriptor expected) {
+        delegate.requireCollectionConfiguration(expected);
       }
 
       @Override

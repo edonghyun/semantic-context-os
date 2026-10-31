@@ -10,9 +10,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * `source add --config`의 값(ADR-0022 §5): TS와 같은 설정 파일 경로(`{"schemaVersion":n,"value":…}`, TS
- * readSourceConfiguration). 옛 Java 형식의 인라인 값 JSON(`{`로 시작)은 받지 않는다 — 등록 형식은 TS와 하나다(§2가 접두사 없는 ref를
- * 기각한 것과 같은 판단). 지킬 운영 등록이 없고, 두 형식은 `{` 휴리스틱으로만 구분됐다.
+ * `source add --config`의 값(ADR-0022 §5): TS와 같은 설정 파일 경로(`{"schemaVersion":n,"value":…}`). 옛 Java
+ * 형식의 인라인 값 JSON(`{`로 시작)은 받지 않는다 — 등록 형식은 TS와 하나다(§2가 접두사 없는 ref를 기각한 것과 같은 판단). 지킬 운영 등록이 없고, 두
+ * 형식은 `{` 휴리스틱으로만 구분됐다.
  */
 final class SourceConfigInput {
   static final String INLINE_REJECTED =

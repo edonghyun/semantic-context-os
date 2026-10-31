@@ -1,36 +1,37 @@
 #!/usr/bin/env python3
-"""Adds embeddings to an import file (``{"units": [...]}``) by calling an embedding endpoint.
+"""Adds embeddings to an import file (``{"units": [...]}``) by calling an OpenAI-compatible embedding endpoint.
 
 ``scos import`` stores the vectors it is given and does not embed. This step embeds each unit the way the
-projection pipeline does (input ``title + "\\n" + content``) through the same Gemini request shape the server
+projection pipeline does (input ``title + "\\n" + content``) through the same OpenAI-compatible request the server
 uses for queries, so documents and queries share one vector space.
 
-Usage: embed_units.py <embedder base URL> <units.json> <out.json>
+The base URL includes ``/v1``, the same rule as the server setting ``SCOS_EMBEDDER_BASE_URL``: ``/embeddings`` is
+appended to it.
+
+Usage: embed_units.py <embedder base URL, e.g. http://embedder:8000/v1> <units.json> <out.json>
 """
 import json
 import sys
 import urllib.request
 
-MODEL = "gemini-embedding-001"
-DIM = 768
+MODEL = "scos-demo-hashing"
 BATCH = 100
 
 
 def embed(base_url, texts):
-    requests = [
-        {"model": f"models/{MODEL}", "content": {"parts": [{"text": t}]}, "outputDimensionality": DIM}
-        for t in texts
-    ]
     request = urllib.request.Request(
-        f"{base_url.rstrip('/')}/v1beta/models/{MODEL}:batchEmbedContents",
-        data=json.dumps({"requests": requests}).encode("utf-8"),
+        f"{base_url.rstrip('/')}/embeddings",
+        data=json.dumps({"model": MODEL, "input": texts}).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
     )
     with urllib.request.urlopen(request, timeout=60) as response:
-        vectors = [e["values"] for e in json.load(response)["embeddings"]]
-    if len(vectors) != len(texts):
-        raise SystemExit(f"embedder returned {len(vectors)} vectors for {len(texts)} texts")
+        data = json.load(response)["data"]
+    if len(data) != len(texts):
+        raise SystemExit(f"embedder returned {len(data)} vectors for {len(texts)} texts")
+    vectors = [None] * len(texts)
+    for item in data:  # servers may return data out of index order
+        vectors[item["index"]] = item["embedding"]
     return vectors
 
 

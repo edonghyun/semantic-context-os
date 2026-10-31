@@ -1,35 +1,50 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.collection.internal.CollectionRun;
+import io.scos.collection.internal.RunHistory;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStateException;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.connector.SourceInstanceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.transaction.support.TransactionTemplate;
 
 public final class PostgresRunStore implements RunStore {
-  private final org.springframework.transaction.support.TransactionTemplate tx;
   static final String COLUMNS =
       "run_id, source_instance_id, status, started_at, finished_at, pages_applied, upserted, deleted, unchanged, rejected, error_count, error_kind, error_summary, coverage";
-  private final JdbcClient jdbc;
 
-  public PostgresRunStore(
-      JdbcClient jdbc, org.springframework.transaction.support.TransactionTemplate tx) {
+  /** 최근 run부터. 같은 시각이면 run id 코드 유닛 역순 — 감독·조회가 같은 run을 최신으로 본다. */
+  static final String NEWEST_FIRST = " ORDER BY started_at DESC, run_id COLLATE \"C\" DESC";
+
+  /** 소스의 마지막 스냅샷 완료(바인드 :source). */
+  static final String SNAPSHOT_COMPLETION =
+      "SELECT completed_at, deletion_count FROM source_snapshots WHERE source_instance_id = :source";
+
+  private final JdbcClient jdbc;
+  private final TransactionTemplate tx;
+  private final BlobWriter blobs;
+
+  public PostgresRunStore(JdbcClient jdbc, TransactionTemplate tx) {
     this.jdbc = jdbc;
     this.tx = tx;
+    this.blobs = new BlobWriter(jdbc);
   }
 
   @Override
@@ -63,6 +78,55 @@ public final class PostgresRunStore implements RunStore {
               .update();
           return get(id).orElseThrow();
         });
+  }
+
+  @Override
+  public void requireAbsenceVerification(RunId run, String fingerprint) {
+    int changed =
+        jdbc.sql(
+                "UPDATE collection_runs SET reconciliation_fingerprint = :fingerprint WHERE run_id = :run AND status = 'running' AND (reconciliation_fingerprint IS NULL OR reconciliation_fingerprint = :fingerprint)")
+            .param("fingerprint", fingerprint)
+            .param("run", run.value())
+            .update();
+    if (changed != 1) throw new RunStateException("Sync run is not running: " + run.value());
+  }
+
+  @Override
+  public Optional<String> absenceRequirement(RunId run) {
+    return jdbc.sql("SELECT reconciliation_fingerprint FROM collection_runs WHERE run_id = :run")
+        .param("run", run.value())
+        .query(String.class)
+        .optional();
+  }
+
+  @Override
+  public void recordAbsenceValidation(RunId run, AbsenceValidation validation) {
+    int changed =
+        jdbc.sql(
+                """
+        UPDATE collection_runs SET absence_candidate_token = :token, absence_exclusions = :exclusions
+        WHERE run_id = :run AND status = 'running' AND reconciliation_fingerprint = :fingerprint
+        """)
+            .param("token", validation.candidateToken())
+            .param("exclusions", validation.exclusions().toArray(String[]::new))
+            .param("run", run.value())
+            .param("fingerprint", validation.fingerprint())
+            .update();
+    if (changed != 1) throw new RunStateException("Absence validation does not match active run");
+  }
+
+  @Override
+  public Optional<AbsenceValidation> absenceValidation(RunId run) {
+    return jdbc.sql(
+            "SELECT reconciliation_fingerprint, absence_candidate_token, absence_exclusions FROM collection_runs WHERE run_id = :run AND absence_candidate_token IS NOT NULL")
+        .param("run", run.value())
+        .query(
+            (row, index) ->
+                new AbsenceValidation(
+                    row.getString("reconciliation_fingerprint"),
+                    row.getString("absence_candidate_token"),
+                    Set.of((String[]) row.getArray("absence_exclusions").getArray())))
+        .optional();
   }
 
   @Override
@@ -128,24 +192,21 @@ public final class PostgresRunStore implements RunStore {
   @Override
   public CollectionRun finish(
       RunId id,
-      RunStatus status,
+      RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
-      int errorCount,
-      Optional<String> errorKind,
-      Optional<String> errorSummary,
       int reconciled) {
     jdbc.sql(
             """
             UPDATE collection_runs SET status = :status, coverage = :coverage, finished_at = :now, error_count = :errors,
               error_kind = :kind, error_summary = :summary, deleted = deleted + :reconciled WHERE run_id = :id
             """)
-        .param("status", status.wire())
+        .param("status", outcome.status().wire())
         .param("coverage", coverage.wire())
         .param("now", Timestamp.from(finishedAt))
-        .param("errors", errorCount)
-        .param("kind", errorKind.orElse(null))
-        .param("summary", errorSummary.orElse(null))
+        .param("errors", outcome.errorCount())
+        .param("kind", outcome.errorKind().orElse(null))
+        .param("summary", outcome.errorSummary().orElse(null))
         .param("reconciled", reconciled)
         .param("id", id.value())
         .update();
@@ -157,40 +218,26 @@ public final class PostgresRunStore implements RunStore {
   public void addRejections(
       RunId id, SourceInstanceId source, Instant capturedAt, List<RejectedItem> rejections) {
     for (RejectedItem r : rejections) {
-      RawContent q = r.quarantined().orElse(null);
-      if (q instanceof RawContent.Blob b && b.data().isPresent()) {
-        // 격리 콘텐츠의 blob도 같은 트랜잭션에 저장한다(리뷰 B-I-9, FK가 참조를 강제한다)
-        jdbc.sql(
-                "INSERT INTO raw_blobs (sha256, media_type, size, data, stored_at) VALUES (:sha, :media, :size, :data, :now) ON CONFLICT (sha256) DO NOTHING")
-            .param("sha", b.sha256())
-            .param("media", b.mediaType())
-            .param("size", b.size())
-            .param("data", b.data().get())
-            .param("now", Timestamp.from(capturedAt))
-            .update();
-      }
+      // 격리 콘텐츠의 blob도 같은 트랜잭션에 저장한다(리뷰 B-I-9)
+      blobs.store(r.quarantined(), capturedAt);
       BlobReferences.translating(
           () ->
-              jdbc.sql(
-                      """
+              ContentColumns.QUARANTINED
+                  .bind(
+                      jdbc.sql(
+                              """
               INSERT INTO raw_rejections (run_id, source_instance_id, captured_at, observed_at, failure_kind, message, provider_locator,
                                           quarantined_storage, quarantined_media_type, quarantined_inline, quarantined_sha256, quarantined_size)
               VALUES (:id, :source, :captured, :observed, :kind, :message, :locator, :storage, :media, :inline, :sha, :size)
               """)
-                  .param("id", id.value())
-                  .param("source", source.value())
-                  .param("captured", Timestamp.from(capturedAt))
-                  .param("observed", Timestamp.from(r.observedAt()))
-                  .param("kind", r.failureKind().wire())
-                  .param("message", r.message())
-                  .param("locator", r.providerLocatorJson().orElse(null))
-                  .param(
-                      "storage",
-                      q == null ? null : q instanceof RawContent.Inline ? "inline" : "blob")
-                  .param("media", q == null ? null : q.mediaType())
-                  .param("inline", q instanceof RawContent.Inline i ? i.valueJson() : null)
-                  .param("sha", q instanceof RawContent.Blob b ? b.sha256() : null)
-                  .param("size", q instanceof RawContent.Blob b ? b.size() : null)
+                          .param("id", id.value())
+                          .param("source", source.value())
+                          .param("captured", Timestamp.from(capturedAt))
+                          .param("observed", Timestamp.from(r.observedAt()))
+                          .param("kind", r.failureKind().wire())
+                          .param("message", r.message())
+                          .param("locator", r.providerLocatorJson().orElse(null)),
+                      r.quarantined())
                   .update());
     }
   }
@@ -198,7 +245,7 @@ public final class PostgresRunStore implements RunStore {
   @Override
   public List<RejectedItem> rejections(RunId id) {
     return jdbc.sql(
-            "SELECT observed_at, failure_kind, message, provider_locator AS locator, quarantined_storage, quarantined_media_type, quarantined_inline AS qinline, quarantined_sha256, quarantined_size FROM raw_rejections WHERE run_id = :id ORDER BY id")
+            "SELECT observed_at, failure_kind, message, provider_locator AS locator, quarantined_storage, quarantined_media_type, quarantined_inline, quarantined_sha256, quarantined_size FROM raw_rejections WHERE run_id = :id ORDER BY id")
         .param("id", id.value())
         .query(PostgresRunStore::rejection)
         .list();
@@ -209,74 +256,105 @@ public final class PostgresRunStore implements RunStore {
     return jdbc.sql(
             "SELECT "
                 + COLUMNS
-                + " FROM collection_runs WHERE source_instance_id = :source ORDER BY started_at DESC, run_id DESC LIMIT 1")
+                + " FROM collection_runs WHERE source_instance_id = :source"
+                + NEWEST_FIRST
+                + " LIMIT 1")
         .param("source", source.value())
         .query(PostgresRunStore::map)
         .optional();
   }
 
   @Override
+  public Map<SourceInstanceId, Instant> lastSucceededAt(Set<SourceInstanceId> instances) {
+    if (instances.isEmpty()) return Map.of();
+    String[] successfulStatuses =
+        Arrays.stream(RunStatus.values())
+            .filter(RunStatus::isSuccess)
+            .map(RunStatus::wire)
+            .toArray(String[]::new);
+    Map<SourceInstanceId, Instant> succeeded = new HashMap<>();
+    jdbc.sql(
+            """
+            SELECT source_instance_id, MAX(finished_at) AS finished_at FROM collection_runs
+            WHERE source_instance_id = ANY(:instances) AND status = ANY(:statuses)
+              AND finished_at IS NOT NULL
+            GROUP BY source_instance_id
+            """)
+        .param("instances", instances.stream().map(SourceInstanceId::value).toArray(String[]::new))
+        .param("statuses", successfulStatuses)
+        .query(
+            (rs, row) ->
+                Map.entry(
+                    new SourceInstanceId(rs.getString("source_instance_id")),
+                    rs.getTimestamp("finished_at").toInstant()))
+        .list()
+        .forEach(entry -> succeeded.put(entry.getKey(), entry.getValue()));
+    return Map.copyOf(succeeded);
+  }
+
+  @Override
   public int recentFailureCount(SourceInstanceId source) {
-    // 최근 run부터 거슬러 올라가 첫 성공에서 멈춘다 — 집계는 Java(run 수가 작고 한 소스 범위)
-    List<String> statuses =
-        jdbc.sql(
-                "SELECT status FROM collection_runs WHERE source_instance_id = :source ORDER BY started_at DESC, run_id DESC")
+    // 집계는 Java(run 수가 작고 한 소스 범위)
+    List<RunStatus> statuses =
+        jdbc
+            .sql(
+                "SELECT status FROM collection_runs WHERE source_instance_id = :source"
+                    + NEWEST_FIRST)
             .param("source", source.value())
             .query(String.class)
-            .list();
-    int count = 0;
-    for (String status : statuses) {
-      if (status.equals("succeeded") || status.equals("succeeded_with_rejections")) break;
-      if (status.equals("failed") || status.equals("partially_succeeded")) count++;
-    }
-    return count;
+            .list()
+            .stream()
+            .map(RunStatus::fromWire)
+            .toList();
+    return new RunHistory(statuses).failuresSinceLastSuccess();
   }
 
   @Override
   public void recordSnapshotCompletion(
-      SourceInstanceId source, Instant completedAt, int deletionCount) {
+      SourceInstanceId source,
+      Instant completedAt,
+      int deletionCount,
+      Optional<String> fingerprint) {
     jdbc.sql(
-            "INSERT INTO source_snapshots (source_instance_id, completed_at, deletion_count) VALUES (:source, :at, :n) ON CONFLICT (source_instance_id) DO UPDATE SET completed_at = EXCLUDED.completed_at, deletion_count = EXCLUDED.deletion_count")
+            "INSERT INTO source_snapshots (source_instance_id, completed_at, deletion_count, fingerprint) VALUES (:source, :at, :n, :fp) ON CONFLICT (source_instance_id) DO UPDATE SET completed_at = EXCLUDED.completed_at, deletion_count = EXCLUDED.deletion_count, fingerprint = EXCLUDED.fingerprint")
         .param("source", source.value())
         .param("at", Timestamp.from(completedAt))
         .param("n", deletionCount)
+        .param("fp", fingerprint.orElse(null), Types.VARCHAR)
         .update();
   }
 
   @Override
-  public Optional<SnapshotCompletion> lastSnapshotCompletion(SourceInstanceId source) {
+  public boolean hasReconciliationBaseline(SourceInstanceId source, String fingerprint) {
     return jdbc.sql(
-            "SELECT completed_at, deletion_count FROM source_snapshots WHERE source_instance_id = :source")
+            "SELECT EXISTS (SELECT 1 FROM source_snapshots WHERE source_instance_id = :source AND fingerprint = :fp)")
         .param("source", source.value())
-        .query(
-            (rs, i) ->
-                new SnapshotCompletion(
-                    rs.getTimestamp("completed_at").toInstant(), rs.getInt("deletion_count")))
+        .param("fp", fingerprint)
+        .query(Boolean.class)
+        .single();
+  }
+
+  @Override
+  public Optional<SnapshotCompletion> lastSnapshotCompletion(SourceInstanceId source) {
+    return jdbc.sql(SNAPSHOT_COMPLETION)
+        .param("source", source.value())
+        .query(PostgresRunStore::snapshotCompletion)
         .optional();
   }
 
-  /** raw_rejections 한 행(열 별칭 locator·qinline). */
+  static SnapshotCompletion snapshotCompletion(ResultSet rs, int i) throws SQLException {
+    return new SnapshotCompletion(
+        rs.getTimestamp("completed_at").toInstant(), rs.getInt("deletion_count"));
+  }
+
+  /** raw_rejections 한 행(provider_locator는 별칭 locator). */
   static RejectedItem rejection(ResultSet rs, int i) throws SQLException {
-    String storage = rs.getString("quarantined_storage");
-    Optional<RawContent> q =
-        storage == null
-            ? Optional.empty()
-            : storage.equals("inline")
-                ? Optional.of(
-                    new RawContent.Inline(
-                        rs.getString("quarantined_media_type"), rs.getString("qinline")))
-                : Optional.of(
-                    new RawContent.Blob(
-                        rs.getString("quarantined_media_type"),
-                        rs.getString("quarantined_sha256"),
-                        rs.getLong("quarantined_size"),
-                        Optional.empty()));
     return new RejectedItem(
         RejectedItem.FailureKind.fromWire(rs.getString("failure_kind")),
         rs.getString("message"),
         Optional.ofNullable(rs.getString("locator")),
         rs.getTimestamp("observed_at").toInstant(),
-        q);
+        ContentColumns.QUARANTINED.read(rs));
   }
 
   static CollectionRun map(ResultSet rs, int i) throws SQLException {

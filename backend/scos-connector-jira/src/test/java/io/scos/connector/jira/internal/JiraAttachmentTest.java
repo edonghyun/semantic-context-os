@@ -18,8 +18,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Jira 첨부 원본(TS jira-attachments, F5 T5.5): redirect=false 바이트를 blob(바이트 sha256)으로 담고, 크기를 미리 알면 50
- * MiB 초과는 내려받지 않고 거부한다. 받은 첨부 id는 체크포인트 이력에 남아 다음 수집에서 다시 받지 않는다. 일시 장애는 재시도한다.
+ * Jira 첨부 원본(F5 T5.5):redirect=false 바이트를 blob(바이트 sha256)으로 담고, 크기를 미리 알면 50 MiB 초과는 내려받지 않고 거부한다.
+ * 받은 첨부 id는 체크포인트 이력에 남아 다음 수집에서 다시 받지 않는다. 일시 장애는 재시도한다.
  */
 @DisplayName("Jira 첨부 원본은 50 MiB 안에서 한 번만 blob으로 받는다(F5 T5.5)")
 class JiraAttachmentTest {

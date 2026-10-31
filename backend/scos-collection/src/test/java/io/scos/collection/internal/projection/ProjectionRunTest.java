@@ -3,7 +3,6 @@ package io.scos.collection.internal.projection;
 import static io.scos.collection.internal.projection.ProjectionScenario.FIRST_BACKOFF;
 import static io.scos.collection.internal.projection.ProjectionScenario.LEASE_TTL;
 import static io.scos.collection.internal.projection.ProjectionScenario.MAIN_CHANNEL;
-import static io.scos.collection.internal.projection.ProjectionScenario.SENTINEL;
 import static io.scos.collection.internal.projection.ProjectionScenario.SOURCE;
 import static io.scos.collection.internal.projection.ProjectionScenario.THREAD_DOCUMENT;
 import static io.scos.collection.internal.projection.ProjectionScenario.expectedUnitContents;
@@ -20,7 +19,6 @@ import io.scos.spi.store.ContextUnit;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.AfterAll;
@@ -782,61 +780,24 @@ class ProjectionRunTest {
 
   @Nested
   @TestInstance(PER_CLASS)
-  @DisplayName("임베딩 세대 백필 중 점유를 잃으면")
-  class StaleBackfill extends Situation {
-    String currentGeneration;
-    ProjectionRun.Report stale;
+  @DisplayName("저장된 임베딩 세대가 설정과 다른 공간에 투영하면")
+  class GenerationMismatch extends Situation {
+    ProjectionRun.Report report;
 
     @BeforeAll
-    void backfillWhileCompetitorTakesOver() {
+    void projectOverOtherGeneration() {
       projection.collect();
-      projection.project();
-      currentGeneration = projection.givenStaleEmbeddingGeneration();
-      projection.requestProjection();
-      projection.competitorTakesOverDuringNextEmbedding();
-      stale = projection.project();
+      projection.givenOtherEmbeddingGeneration();
+      report = projection.project();
     }
 
     @Test
-    @DisplayName("경쟁자의 백필·투영은 성공한다")
-    void competitorSucceeds() {
+    @DisplayName("세대 불일치로 끝난 투영 실행은 실패로 기록되고 사유에 scos reembed가 있다")
+    void failsWithReembedHint() {
       // then
-      assertThat(projection.competitorReports())
-          .singleElement()
-          .extracting(ProjectionRun.Report::outcome)
-          .isEqualTo(ProjectionRun.Outcome.SUCCEEDED);
-    }
-
-    @Test
-    @DisplayName("옛 백필은 SUPERSEDED다")
-    void staleIsSuperseded() {
-      // then
-      assertThat(stale.outcome()).isEqualTo(ProjectionRun.Outcome.SUPERSEDED);
-    }
-
-    @Test
-    @DisplayName("저장 경계가 거부해 경쟁자가 쓴 벡터를 덮지 않는다")
-    void vectorsNotOverwritten() {
-      // then
-      Map<String, double[]> vectors = projection.vectors();
-      assertThat(vectors.values())
-          .as("유닛 3개의 벡터")
-          .hasSize(3)
-          .allSatisfy(v -> assertThat(v).doesNotContain(SENTINEL));
-    }
-
-    @Test
-    @DisplayName("임베딩 세대는 경쟁자가 쓴 현재 값이다")
-    void generationIsCurrent() {
-      // then
-      assertThat(projection.embeddingGeneration()).contains(currentGeneration);
-    }
-
-    @Test
-    @DisplayName("요청 행은 완료된다")
-    void requestCompleted() {
-      // then
-      assertThat(projection.pending()).isEmpty();
+      assertThat(report.outcome()).isEqualTo(ProjectionRun.Outcome.FAILED);
+      assertThat(projection.request().orElseThrow().lastError().orElseThrow())
+          .contains("scos reembed");
     }
   }
 

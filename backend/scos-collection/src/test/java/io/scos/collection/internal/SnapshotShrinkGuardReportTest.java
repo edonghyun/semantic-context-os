@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.collection.internal.memory.MemoryCheckpointPort;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
@@ -60,12 +61,14 @@ class SnapshotShrinkGuardReportTest {
           sources, guards, SnapshotShrinkLimits.DEFAULTS, CollectionMetrics.of(registry));
   final RunCompletion completion =
       new RunCompletion(
-          TransactionOperations.withoutTransaction(),
-          claims,
-          runs,
-          rawItems,
-          new MemoryOutboxPort(),
-          new MemorySourceChangeLog(),
+          new CollectionStores(
+              TransactionOperations.withoutTransaction(),
+              claims,
+              runs,
+              rawItems,
+              new MemoryCheckpointPort(),
+              new MemoryOutboxPort(),
+              new MemorySourceChangeLog()),
           guard);
   final LogCapture log = LogCapture.of(SnapshotShrinkGuard.class);
   final List<String> ids = new ArrayList<>();
@@ -101,14 +104,7 @@ class SnapshotShrinkGuardReportTest {
     runs.observe(run, ids.subList(0, observed));
     completion.complete(
         new RunCompletion.Input(
-            claim,
-            run,
-            RunStatus.SUCCEEDED,
-            CollectionCoverage.COMPLETE_SNAPSHOT,
-            at,
-            0,
-            Optional.empty(),
-            Optional.empty()));
+            claim, run, RunOutcome.succeeded(0), CollectionCoverage.COMPLETE_SNAPSHOT, at));
     claims.release(claim, at);
   }
 

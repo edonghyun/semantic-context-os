@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.projection.SourceDocument;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.IndexCapabilities;
@@ -16,7 +16,7 @@ import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.ScoredRef;
 import io.scos.spi.store.SearchFilter;
 import io.scos.spi.store.SpaceId;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.store.postgres.PostgresTestAdapters;
 import java.time.Instant;
 import java.util.Arrays;
@@ -83,7 +83,7 @@ class DocumentIngestorPostgresTest {
 
   FailingDeleteKeywordIndex keywords =
       new FailingDeleteKeywordIndex(PostgresTestAdapters.keywordIndex(ds));
-  UnitStore units = PostgresTestAdapters.unitStore(ds);
+  UnitMaintenance units = PostgresTestAdapters.unitMaintenance(ds);
   DocumentIngestor ingestor =
       new DocumentIngestor(
           new TransactionTemplate(new DataSourceTransactionManager(ds)),

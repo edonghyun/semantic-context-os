@@ -3,8 +3,8 @@ package io.scos.connector.googledrive.internal;
 import java.net.URI;
 
 /**
- * Google API origin(TS의 고정 origins 표와 OAuth 토큰 끝점). 운영은 {@link #GOOGLE}이다 — 자격 증명은 이 origin으로만 나간다.
- * 경로는 늘 클라이언트가 붙이므로 다른 origin으로 새지 않는다.
+ * Google API origin(고정 origins 표와 OAuth 토큰 끝점). 운영은 {@link #GOOGLE}이다 — 자격 증명은 이 origin으로만 나간다. 경로는
+ * 늘 클라이언트가 붙이므로 다른 origin으로 새지 않는다.
  */
 public record GoogleOrigins(URI drive, URI docs, URI sheets, URI slides, URI oauth) {
   public static final GoogleOrigins GOOGLE =

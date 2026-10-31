@@ -7,13 +7,12 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Drive 작업 큐의 작업 하나(TS DriveTask 판별 공용체). 종류마다 record이고 수집기는 종류를 {@code switch}로 고른다(모르는 종류가 목록
- * 요청으로 흐르지 않는다). 각 작업은 체크포인트·거부 locator에 그대로 쓰는 TS 모양 JSON({@link #json()})을 가진다 — 새 작업은 TS 리터럴과 같은
- * 키 순서로 만들고, 체크포인트에서 읽은 작업은 원래 JSON을 보존한다(TS `{...task, pageToken}`처럼 이어 읽기는 그 JSON을 복사해 pageToken만
- * 바꾼다).
+ * Drive 작업 큐의 작업 하나(판별 공용체). 종류마다 record이고 수집기는 종류를 {@code switch}로 고른다(모르는 종류가 목록 요청으로 흐르지 않는다). 각
+ * 작업은 체크포인트·거부 locator에 그대로 쓰는 JSON({@link #json()})을 가진다 — 저장 바이트가 바뀌면 안 되므로 새 작업은 정해진 키 순서로 만들고,
+ * 체크포인트에서 읽은 작업은 원래 JSON을 보존한다(이어 읽기는 그 JSON을 복사해 pageToken만 바꾼다).
  */
 sealed interface DriveTask {
-  /** TS 모양 JSON(바꾸지 않는다 — 큐는 작업을 공유한다). */
+  /** 저장되는 JSON(바꾸지 않는다 — 큐는 작업을 공유한다). */
   ObjectNode json();
 
   /** 변경 피드 한 페이지(driveId가 없으면 사용자 피드). */
@@ -49,7 +48,7 @@ sealed interface DriveTask {
   /** 파일(또는 drive면 공유 드라이브와 그 파일들) 삭제. */
   record Remove(String id, boolean drive, ObjectNode json) implements DriveTask {}
 
-  // ---- 새 작업(TS 리터럴과 같은 키 순서) ----
+  // ---- 새 작업(키 순서는 체크포인트 형식이다) ----
 
   static List<DriveTask> roots() {
     return List.of(
@@ -94,9 +93,9 @@ sealed interface DriveTask {
     return JsonNodeFactory.instance.objectNode().put("kind", kind);
   }
 
-  // ---- 체크포인트에서 읽기(TS resume의 작업 검증) ----
+  // ---- 체크포인트에서 읽기(작업 검증) ----
 
-  /** 체크포인트의 작업 하나. 위반은 TS 메시지("Invalid Google Drive checkpoint task" 등)로 실패한다. */
+  /** 체크포인트의 작업 하나. 위반은 고정 메시지("Invalid Google Drive checkpoint task" 등)로 실패한다. */
   static DriveTask parse(JsonNode entry) {
     ObjectNode task = (ObjectNode) JsValues.object(entry).deepCopy();
     JsonNode kind = task.get("kind");

@@ -1,6 +1,7 @@
 package io.scos.connector.notion.internal;
 
 import io.scos.connector.notion.internal.NotionConfiguration.Roots;
+import io.scos.engine.support.call.WorkQueue;
 import io.scos.engine.support.text.JsJson;
 import io.scos.spi.connector.Checkpoint;
 import java.util.ArrayList;
@@ -17,10 +18,10 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * roots 모드의 영속 작업 큐와 사이클 경계(TS NotionRootTraversal, 체크포인트 v3 — F12 저장 호환). 사이클은 설정한 루트 페이지들의 조회로
- * 시작한다(초기 시드). 작업 하나를 끝내면 그 이어지는 페이지(continuation)를 맨 앞에, 새로 찾은 작업을 맨 뒤에 둔다. 큐가 비면 사이클이 끝나고 초기 시드로
- * 돌아간다. discoverSharedPages면 그 전에 검색 단계(active → trash)를 한 번 더 걷는다(discovery). v1·v2 체크포인트(검색 모드
- * 시절)는 초기 시드로 읽는다. 저장값의 키와 순서는 TS rootCheckpoint와 같다.
+ * roots 모드의 영속 작업 큐와 사이클 경계(체크포인트 v3 — F12 저장 호환). 사이클은 설정한 루트 페이지들의 조회로 시작한다(초기 시드). 작업 하나를 끝내면 그
+ * 이어지는 페이지(continuation)를 맨 앞에, 새로 찾은 작업을 맨 뒤에 둔다. 큐가 비면 사이클이 끝나고 초기 시드로 돌아간다. discoverSharedPages면
+ * 그 전에 검색 단계(active → trash)를 한 번 더 걷는다(discovery). v1·v2 체크포인트(검색 모드 시절)는 초기 시드로 읽는다. 저장 형식이 바뀌면 안
+ * 되므로 저장값의 키와 순서를 지킨다.
  */
 public final class NotionRootTraversal {
   static final int SCHEMA_VERSION = 3;
@@ -68,26 +69,29 @@ public final class NotionRootTraversal {
     this.state = state;
   }
 
-  /** 저장된 체크포인트에서 이어 간다. 형식이 틀리거나 설정한 루트와 다르면 {@link NotionProtocolException}(TS 메시지). */
+  /** 저장된 체크포인트에서 이어 간다. 형식이 틀리거나 설정한 루트와 다르면 {@link NotionProtocolException}. */
   public static NotionRootTraversal resume(
       ObjectMapper json, Roots config, Optional<Checkpoint> stored) {
     return new NotionRootTraversal(config, read(json, config, stored));
   }
 
   /**
-   * 이 체크포인트에서 시작하는 run이 새 사이클 전체를 보는가(TS isInitialRootCheckpoint): 체크포인트가 없거나, v1·v2이거나, 초기 시드와 같으면
-   * 참. 사이클 중간에서 재개하는 run은 앞 run이 이미 본 것을 보지 않으므로 complete_snapshot이라고 보고하면 안 된다.
+   * 이 체크포인트에서 시작하는 run이 새 사이클 전체를 보는가: 체크포인트가 없거나, v1·v2이거나, 초기 시드와 같으면 참. 사이클 중간에서 재개하는 run은 앞
+   * run이 이미 본 것을 보지 않으므로 complete_snapshot이라고 보고하면 안 된다.
    */
-  public static boolean startsCycle(ObjectMapper json, Roots config, Optional<Checkpoint> stored) {
-    State s = read(json, config, stored);
-    if (s.stage() != Stage.TRAVERSAL
-        || s.searchPhase().isPresent()
-        || s.searchCursor().isPresent()
-        || s.pending().size() != config.rootPageIds().size()) return false;
-    for (int i = 0; i < s.pending().size(); i++)
-      if (!(s.pending().get(i) instanceof NotionWork.Page page)
+  public boolean startsCycle() {
+    if (state.stage() != Stage.TRAVERSAL
+        || state.searchPhase().isPresent()
+        || state.searchCursor().isPresent()
+        || state.pending().size() != config.rootPageIds().size()) return false;
+    for (int i = 0; i < state.pending().size(); i++)
+      if (!(state.pending().get(i) instanceof NotionWork.Page page)
           || !page.pageId().equals(config.rootPageIds().get(i))) return false;
     return true;
+  }
+
+  public Checkpoint checkpoint() {
+    return checkpoint(config, state);
   }
 
   Step next() {
@@ -95,12 +99,12 @@ public final class NotionRootTraversal {
     return new Step.Search(state.searchPhase().orElseThrow(), state.searchCursor());
   }
 
-  /** 큐의 첫 작업을 끝냈다(TS completeWork). */
+  /** 큐의 첫 작업을 끝냈다. */
   Advance completeWork(Optional<NotionWork> continuation, List<NotionWork> discovered) {
-    List<NotionWork> pending = new ArrayList<>();
-    continuation.ifPresent(pending::add);
-    pending.addAll(state.pending().subList(1, state.pending().size()));
-    pending.addAll(discovered);
+    List<NotionWork> pending =
+        WorkQueue.of(state.pending())
+            .afterHead(1, continuation.stream().toList(), discovered)
+            .items();
     if (!pending.isEmpty() || state.stage() == Stage.DISCOVERY) {
       state = new State(state.stage(), pending, state.searchPhase(), state.searchCursor());
       return advance(false);
@@ -114,7 +118,7 @@ public final class NotionRootTraversal {
     return advance(true);
   }
 
-  /** 검색 한 페이지를 끝냈다(TS completeSearch): active 단계의 페이지는 본문 블록 작업이 된다. */
+  /** 검색 한 페이지를 끝냈다: active 단계의 페이지는 본문 블록 작업이 된다. */
   Advance completeSearch(List<String> pageIds, Optional<String> nextCursor) {
     SearchPhase phase = state.searchPhase().orElseThrow();
     List<NotionWork> pending =
@@ -148,8 +152,7 @@ public final class NotionRootTraversal {
   }
 
   /**
-   * TS rootCheckpoint: 키 순서 mode·rootPageIds·discoverSharedPages(참일
-   * 때만)·stage·pendingWork·searchPhase·searchCursor.
+   * 키 순서 mode·rootPageIds·discoverSharedPages(참일 때만)·stage·pendingWork·searchPhase·searchCursor.
    */
   private static Checkpoint checkpoint(Roots config, State state) {
     ObjectNode value = JsonNodeFactory.instance.objectNode().put("mode", "roots");
@@ -164,11 +167,20 @@ public final class NotionRootTraversal {
     return new Checkpoint(SCHEMA_VERSION, JsJson.stringify(value));
   }
 
-  /** TS readRootCheckpoint: 형식 → 루트 일치 → 작업 → 단계별 조건 순으로 본다. */
+  /** 형식 → 루트 일치 → 작업 → 단계별 조건 순으로 본다. */
   private static State read(ObjectMapper json, Roots config, Optional<Checkpoint> stored) {
     if (stored.isEmpty() || stored.get().schemaVersion() < SCHEMA_VERSION) return initial(config);
-    JsonNode value = parse(json, stored.get());
-    if (stored.get().schemaVersion() != SCHEMA_VERSION
+    JsonNode value = readEnvelope(json, stored.get());
+    requireSameRoots(value, config);
+    List<NotionWork> pending = new ArrayList<>();
+    value.get("pendingWork").forEach(work -> pending.add(NotionWork.read(work)));
+    return readStage(value, config, pending);
+  }
+
+  /** v3 roots 체크포인트의 키·값 모양. */
+  private static JsonNode readEnvelope(ObjectMapper json, Checkpoint stored) {
+    JsonNode value = parse(json, stored);
+    if (stored.schemaVersion() != SCHEMA_VERSION
         || !value.isObject()
         || !text(value.get("mode"), "roots")
         || !stringArray(value.get("rootPageIds"))
@@ -180,14 +192,21 @@ public final class NotionRootTraversal {
         || (value.has("searchCursor") && !NotionObjects.nonEmptyString(value.get("searchCursor")))
         || !KEYS.containsAll(new HashSet<>(value.propertyNames())))
       throw NotionProtocolException.invalidCheckpoint();
+    return value;
+  }
+
+  /** 체크포인트의 루트·공유 페이지 탐색이 지금 설정과 같아야 이어 간다. */
+  private static void requireSameRoots(JsonNode value, Roots config) {
     List<String> roots = new ArrayList<>();
     value.get("rootPageIds").forEach(id -> roots.add(id.asString()));
     boolean discover =
         value.has("discoverSharedPages") && value.get("discoverSharedPages").asBoolean();
     if (!roots.equals(config.rootPageIds()) || discover != config.discoverSharedPages())
       throw new NotionProtocolException(NotionProtocolException.ROOTS_CHANGED);
-    List<NotionWork> pending = new ArrayList<>();
-    value.get("pendingWork").forEach(work -> pending.add(NotionWork.read(work)));
+  }
+
+  /** 순회 단계는 작업이 있고 검색 상태가 없다. 탐색 단계는 설정이 켜져 있고 검색 단계가 있다. */
+  private static State readStage(JsonNode value, Roots config, List<NotionWork> pending) {
     Stage stage = stage(value.get("stage")).orElseThrow();
     Optional<SearchPhase> searchPhase =
         value.has("searchPhase") ? phase(value.get("searchPhase")) : Optional.empty();

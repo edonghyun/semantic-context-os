@@ -15,9 +15,9 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * 검색 모드의 재개 위치(TS NotionCheckpointValue, F12 저장 호환): 휴지통 단계, 다음 검색 커서, 본문을 아직 읽지 않은 블록 부모 대기열. 쓰는
- * 형식은 v2 `{phase, searchCursor?, pendingBlockParents?}`이고(키 순서도 TS와 같다), 읽기는 v1 `{phase,
- * cursor?}`(블록 대기열 이전)도 받는다. 휴지통 단계에는 블록 대기열이 없다.
+ * 검색 모드의 재개 위치(F12 저장 호환): 휴지통 단계, 다음 검색 커서, 본문을 아직 읽지 않은 블록 부모 대기열. 쓰는 형식은 v2 `{phase,
+ * searchCursor?, pendingBlockParents?}`이고(저장 형식이 바뀌면 안 되므로 키 순서도 지킨다), 읽기는 v1 `{phase, cursor?}`(블록
+ * 대기열 이전)도 받는다. 휴지통 단계에는 블록 대기열이 없다.
  */
 public record NotionSearchState(
     SearchPhase phase, Optional<String> searchCursor, List<BlockParent> pending) {
@@ -35,7 +35,7 @@ public record NotionSearchState(
     return new NotionSearchState(SearchPhase.ACTIVE, Optional.empty(), List.of());
   }
 
-  /** TS readCheckpoint: 없으면 active 처음부터, v1, v2. 그 밖은 {@link NotionProtocolException}. */
+  /** 없으면 active 처음부터, v1, v2. 그 밖은 {@link NotionProtocolException}. */
   public static NotionSearchState read(ObjectMapper json, Optional<Checkpoint> stored) {
     if (stored.isEmpty()) return start();
     JsonNode value;
@@ -79,9 +79,7 @@ public record NotionSearchState(
     return new BlockParent(value.get("blockId").asString(), text(value, "cursor"));
   }
 
-  /**
-   * 검색 한 페이지 뒤(TS nextSearchState): active 단계의 페이지는 본문 대기열이 되고, 이 단계를 다 봤으면 다음 단계(trash ↔ active)로.
-   */
+  /** 검색 한 페이지 뒤: active 단계의 페이지는 본문 대기열이 되고, 이 단계를 다 봤으면 다음 단계(trash ↔ active)로. */
   NotionSearchState afterSearch(Optional<String> nextCursor, List<String> pageIds) {
     List<BlockParent> parents =
         phase == SearchPhase.ACTIVE
@@ -95,14 +93,14 @@ public record NotionSearchState(
         List.of());
   }
 
-  /** 블록 부모 하나를 처리한 뒤(TS nextBlockState): 대기열과 검색 커서가 모두 비면 휴지통 단계로. */
+  /** 블록 부모 하나를 처리한 뒤: 대기열과 검색 커서가 모두 비면 휴지통 단계로. */
   NotionSearchState afterBlocks(List<BlockParent> nextPending) {
     if (!nextPending.isEmpty() || searchCursor.isPresent())
       return new NotionSearchState(phase, searchCursor, nextPending);
     return new NotionSearchState(SearchPhase.TRASH, Optional.empty(), List.of());
   }
 
-  /** TS notionCheckpoint: v2, 키 순서 phase·searchCursor·pendingBlockParents(비어 있지 않을 때만). */
+  /** v2, 키 순서 phase·searchCursor·pendingBlockParents(비어 있지 않을 때만). */
   Checkpoint checkpoint() {
     ObjectNode value = JsonNodeFactory.instance.objectNode().put("phase", phase.wire());
     searchCursor.ifPresent(cursor -> value.put("searchCursor", cursor));

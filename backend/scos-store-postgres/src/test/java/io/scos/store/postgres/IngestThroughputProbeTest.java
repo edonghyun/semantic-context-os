@@ -9,7 +9,7 @@ import io.scos.spi.store.IndexedText;
 import io.scos.spi.store.IndexedUnit;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceId;
-import io.scos.spi.store.UnitStore;
+import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.VectorIndex;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ class IngestThroughputProbeTest {
   static final int DIM = 768;
 
   DataSource ds = PostgresSupport.dataSource();
-  UnitStore units = PostgresTestAdapters.unitStore(ds);
+  UnitMaintenance units = PostgresTestAdapters.unitMaintenance(ds);
   KeywordIndex keywords = PostgresTestAdapters.keywordIndex(ds);
   VectorIndex vectors = PostgresTestAdapters.vectorIndex(ds);
 

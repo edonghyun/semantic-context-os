@@ -2,7 +2,9 @@ package io.scos.server.scripts;
 
 import io.scos.support.Eventually;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -86,6 +88,7 @@ final class ScriptHarness implements AutoCloseable {
         {
           echo "SCOS_DAEMON_MAINTENANCE_GRACE_DAYS=${SCOS_DAEMON_MAINTENANCE_GRACE_DAYS-}"
           echo "SCOS_QUERY_LOG=${SCOS_QUERY_LOG-}"
+          echo "SCOS_LOG_DIR=${SCOS_LOG_DIR-}"
           echo "SCOS_TEST_FROM_ENV_FILE=${SCOS_TEST_FROM_ENV_FILE-}"
         } > "$SCOS_RECORDS/java.env"
         if [ -n "${FAKE_JAVA_WAIT-}" ]; then
@@ -243,6 +246,16 @@ final class ScriptHarness implements AutoCloseable {
   static void write(Path file, String content) {
     try {
       Files.writeString(file, content);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  /** 테스트 자원(그 클래스 패키지 옆의 파일)을 UTF-8 글자로 — 가짜 명령 본문처럼 길어서 Java 글자로 두기 힘든 것. */
+  static String resource(Class<?> owner, String name) {
+    try (InputStream in = owner.getResourceAsStream(name)) {
+      if (in == null) throw new IllegalStateException("test resource missing: " + name);
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

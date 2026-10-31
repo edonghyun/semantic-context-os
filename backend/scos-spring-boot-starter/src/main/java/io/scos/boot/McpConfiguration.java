@@ -19,8 +19,11 @@ import java.time.Clock;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.sql.DataSource;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -33,13 +36,13 @@ import tools.jackson.databind.ObjectMapper;
  * 본다(CONTRACTS A1). Embedder는 필수다 — 없으면 기동 실패(B11: 키워드 전용 저하 없음, 리뷰 I-2).
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(McpConfiguration.McpProperties.class)
+@EnableConfigurationProperties({McpConfiguration.McpProperties.class, AccessProperties.class})
 public class McpConfiguration {
   @Validated
   @ConfigurationProperties("scos.mcp")
   public record McpProperties(@NotBlank String spaceId, String queryLog) {}
 
-  static final String SEARCH_LEXICAL_EXECUTOR = "searchLexicalExecutor";
+  public static final String SEARCH_LEXICAL_EXECUTOR = "searchLexicalExecutor";
 
   /**
    * 검색 레시피의 키워드 채널 전용 실행기(키워드 ∥ 임베딩, DESIGN-PATTERNS §4 — 공용 ForkJoin 금지). stdio 요청은 한 번에 하나라 스레드
@@ -57,7 +60,7 @@ public class McpConfiguration {
         });
   }
 
-  /** 질의 로그(TS `SCOS_QUERY_LOG`): 경로가 있으면 그 파일에 JSONL을 덧붙이고, 비거나 없으면 끈다(TS 미지정 시 비활성). */
+  /** 질의 로그(`SCOS_QUERY_LOG`): 경로가 있으면 그 파일에 JSONL을 덧붙이고, 비거나 없으면 끈다. */
   @Bean
   QueryLog queryLog(McpProperties props, Clock clock) {
     String path = props.queryLog();
@@ -71,9 +74,11 @@ public class McpConfiguration {
   @Bean
   ContextEngine contextEngine(
       McpProperties props,
+      AccessProperties properties,
       RerankProperties rerank,
       ObjectProvider<TextGenerator> generators,
       UnitStore units,
+      AccessParts access,
       KeywordIndex keywords,
       VectorIndex vectors,
       Embedder embedder,
@@ -81,6 +86,57 @@ public class McpConfiguration {
       ObjectMapper mapper,
       MeterRegistry registry,
       @Qualifier(SEARCH_LEXICAL_EXECUTOR) ExecutorService lexicalExecutor) {
+    if (properties.mode() == AccessProperties.Mode.MULTI_USER
+        && access instanceof AccessParts.Unrestricted)
+      throw new IllegalStateException(
+          "scos.access.mode=multi-user but AccessParts is Unrestricted");
+    if (properties.mode() == AccessProperties.Mode.SINGLE_USER
+        && access instanceof AccessParts.Restricted)
+      throw new IllegalStateException("scos.access.mode=single-user but AccessParts is Restricted");
+    return buildContextEngine(
+        props,
+        rerank,
+        generators.getIfAvailable(),
+        units,
+        access,
+        keywords,
+        vectors,
+        embedder,
+        clock,
+        mapper,
+        registry,
+        lexicalExecutor);
+  }
+
+  /** stdio는 기존 풀, HTTP는 색인·유닛과 같은 읽기 전용 풀을 넘긴다. */
+  @Bean
+  @ConditionalOnMissingBean(AccessParts.class)
+  public AccessParts accessParts(AccessProperties properties, DataSource dataSource) {
+    return switch (properties.mode()) {
+      case SINGLE_USER ->
+          new AccessParts.Unrestricted(
+              new PostgresIndexConfiguration().newUnitMaintenance(dataSource));
+      case MULTI_USER ->
+          new AccessParts.Restricted(
+              new PostgresIndexConfiguration().newIdentityStore(dataSource),
+              new PostgresCollectionConfiguration().newSourceFreshness(dataSource),
+              properties.domainPolicy());
+    };
+  }
+
+  public ContextEngine buildContextEngine(
+      McpProperties props,
+      RerankProperties rerank,
+      @Nullable TextGenerator generator,
+      UnitStore units,
+      AccessParts access,
+      KeywordIndex keywords,
+      VectorIndex vectors,
+      Embedder embedder,
+      Clock clock,
+      ObjectMapper mapper,
+      MeterRegistry registry,
+      ExecutorService lexicalExecutor) {
     ContextEngineBuilder builder =
         ContextEngine.builder()
             .units(units)
@@ -91,8 +147,12 @@ public class McpConfiguration {
             .clock(clock)
             .meterRegistry(registry)
             .lexicalExecutor(lexicalExecutor);
+    switch (access) {
+      case AccessParts.Unrestricted single -> builder.unrestricted(single.maintenance());
+      case AccessParts.Restricted multi ->
+          builder.access(multi.identities(), multi.freshness(), multi.domains());
+    }
     if (rerank.enabled()) {
-      TextGenerator generator = generators.getIfAvailable();
       if (generator == null)
         throw new IllegalStateException(
             "scos.rerank.provider=" + rerank.provider() + " 인데 TextGenerator 빈이 없습니다");

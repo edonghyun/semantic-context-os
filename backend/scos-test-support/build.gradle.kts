@@ -8,6 +8,8 @@ plugins {
 dependencies {
     api(project(":scos-collection"))
     api(project(":scos-engine"))
+    // ProviderCallFakes의 기본 대기(CancellationToken)
+    implementation(project(":scos-spi"))
     implementation("org.springframework.boot:spring-boot-starter-test")
     implementation("io.micrometer:micrometer-core")
     // 조건 대기(TESTING §7): Boot BOM이 관리하는 버전. Eventually·ChildJvm에서만 쓴다

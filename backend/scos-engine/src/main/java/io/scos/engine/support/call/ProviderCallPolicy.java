@@ -5,12 +5,12 @@ import java.time.Duration;
 import java.util.function.DoubleSupplier;
 
 /**
- * F7 재시도 정책(TS DefaultProviderCallPolicy): 요청 timeout 30s, 최대 5회, 총 600s. 지연은
- * rate_limited.retryAfter 우선, 아니면 cap = min(60s, 4s·2^(n−1))에서 [cap/2, cap) 지터. 난수는 주입(테스트 결정론).
+ * F7 재시도 정책: 요청 timeout 30s, 최대 5회, 총 600s. 지연은 rate_limited.retryAfter 우선, 아니면 cap = min(60s,
+ * 4s·2^(n−1))에서 [cap/2, cap) 지터. 난수는 주입(테스트 결정론).
  */
 public record ProviderCallPolicy(
     Duration requestTimeout, int maxAttempts, Duration maxElapsed, DoubleSupplier random) {
-  /** F7 기본 요청 timeout(TS DEFAULT_REQUEST_TIMEOUT_MS). */
+  /** F7 기본 요청 timeout. */
   public static final Duration DEFAULT_REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
   public static ProviderCallPolicy defaults(DoubleSupplier random) {

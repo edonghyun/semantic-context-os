@@ -496,6 +496,47 @@ class FakeHttpServerTest {
   }
 
   @Nested
+  @DisplayName("요청 상한을 걸고 넘기면")
+  class RequestLimit {
+    static final FakeHttpServer.Response OVER = FakeHttpServer.status(400, "request limit");
+
+    HttpResponse<String> lastWithinLimit;
+    HttpResponse<String> overLimit;
+
+    @BeforeEach
+    void givenLimitSpent() throws Exception {
+      givenItemsRoute();
+      server.limitRequests(2, OVER);
+      send("GET", ITEMS, TOKEN);
+      lastWithinLimit = send("GET", ITEMS, TOKEN);
+      overLimit = send("GET", ITEMS, TOKEN);
+    }
+
+    @Test
+    @DisplayName("대조군: 상한째 요청까지는 라우트로 답한다")
+    void answersWithinLimit() {
+      // then
+      assertThat(lastWithinLimit.body()).isEqualTo("items");
+    }
+
+    @Test
+    @DisplayName("상한 다음 요청은 건 응답으로 답한다")
+    void answersOverResponse() {
+      // then
+      assertThat(overLimit)
+          .extracting(HttpResponse::statusCode, HttpResponse::body)
+          .containsExactly(400, "request limit");
+    }
+
+    @Test
+    @DisplayName("상한 초과를 검사 실패로 남긴다")
+    void recordsOverLimit() {
+      // then
+      assertThatThrownBy(server::assertNoUnmatched).hasMessageContaining("요청 상한 초과: GET " + ITEMS);
+    }
+  }
+
+  @Nested
   @DisplayName("닫을 때")
   class Close {
     @Test

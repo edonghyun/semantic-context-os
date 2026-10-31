@@ -11,9 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-/**
- * F5·불변식 6의 어댑터 쪽 조건(TS collectionCoverage): snapshot 모드이고 historySince가 없을 때만 complete_snapshot.
- */
+/** F5·불변식 6의 어댑터 쪽 조건: snapshot 모드이고 historySince가 없을 때만 complete_snapshot. */
 @DisplayName("Slack coverage는 전체 history snapshot만 완전하다(F5·불변식 6)")
 class SlackAdapterCoverageTest {
   /** coverage는 공급자를 부르지 않는다 — 닿지 않는 주소. */

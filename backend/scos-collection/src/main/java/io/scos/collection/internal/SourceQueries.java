@@ -8,10 +8,8 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * 운영 조회 포트(읽기 전용, TS SqliteSourceStore의
- * listSourceInstances·getSourceStatus·listRecentRejections·list·get). 조회 CLI(`source
- * list|status|rejections`, `raw list|get`, `status`)가 쓴다. 순서·집계 의미는 TS와 같다 — 문자열 비교는 코드 유닛
- * 순(COLLATE "C").
+ * 운영 조회 포트(읽기 전용). 조회 CLI(`source list|status|rejections`, `raw list|get`, `status`)가 쓴다. 순서·집계 의미는
+ * 조회 출력 계약이라 바꾸지 않는다 — 문자열 비교는 코드 유닛 순(COLLATE "C")이다.
  */
 public interface SourceQueries {
   /** 모든 소스(꺼진 것 포함)를 id 순으로. */
@@ -35,7 +33,7 @@ public interface SourceQueries {
   List<WorkClaim> claims();
 
   /**
-   * TS SourceStatus. running = running 상태 run이 있다, recentFailureCount = 마지막
+   * 소스 상태. running = running 상태 run이 있다, recentFailureCount = 마지막
    * 성공(succeeded·succeeded_with_rejections) 이후의 failed·partially_succeeded 수, lastSuccessAt = 그 성공의
    * finished_at. 마지막 세 값은 TS에 없는 스냅샷 축소 보호 상태(ADR-0028): 아직 풀리지 않은 보호 판정, 대기 중인 허용 표시의 시각, 소스별 기준.
    */
@@ -70,15 +68,9 @@ public interface SourceQueries {
     public String wire() {
       return name().toLowerCase(Locale.ROOT);
     }
-
-    public static RawState fromWire(String s) {
-      for (RawState state : values()) if (state.wire().equals(s)) return state;
-      throw new IllegalArgumentException(
-          "argument '" + s + "' is invalid. Allowed choices are active, deleted.");
-    }
   }
 
-  /** TS RawItemQuery(CLI가 쓰는 필터만). */
+  /** 원본 카탈로그 조회 조건(CLI가 쓰는 필터만). */
   record RawCatalogQuery(
       int limit,
       Optional<RawCatalogCursor> cursor,
@@ -90,7 +82,7 @@ public interface SourceQueries {
     }
   }
 
-  /** 원본 레코드와 그 소스(TS RawSourceRecord의 key.sourceInstanceId). */
+  /** 원본 레코드와 그 소스. */
   record RawEntry(SourceInstanceId source, RawRecord record) {}
 
   record RawCatalogPage(List<RawEntry> items, Optional<RawCatalogCursor> nextCursor) {}

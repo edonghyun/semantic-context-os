@@ -4,11 +4,15 @@ import io.scos.engine.support.text.Text;
 import io.scos.spi.store.ScoredRef;
 import io.scos.store.postgres.internal.Bigrams;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 키워드 질의의 후보 경로 계획(순수, SQL 없음 — ADR-0014 P-4 부록 "드문 bigram 구동"). 후보 조건은 그대로다: 토큰을 원문에 포함하거나(2글자
@@ -26,7 +30,7 @@ final class KeywordPlan {
    * 후보 경로 하나: {@code driver} bigram의 포스팅 중 {@code compact}(공백 제거 본문, 아니면 원문)가 LIKE {@code pattern}인
    * 유닛. driver가 null이면 unit_texts 전체를 LIKE로 훑는다(1글자 토큰).
    */
-  record Path(String driver, boolean compact, String pattern) {}
+  record Path(@Nullable String driver, boolean compact, String pattern) {}
 
   /** 검색 단계. 뒤로 갈수록 경로가 넓다. */
   enum Level {
@@ -41,13 +45,15 @@ final class KeywordPlan {
   /**
    * 질의 토큰 하나의 단계별 경로와 그 경로 밖 유닛이 이 토큰에서 받을 수 있는 점수의 상한(0이면 그 단계 경로가 이 토큰의 후보 전체다). ALL의 상한은 늘 0이다.
    */
-  record Token(String text, List<List<Path>> pathsByLevel, List<Integer> boundsByLevel) {
+  record Token(
+      String text, Map<Level, List<Path>> pathsByLevel, Map<Level, Integer> boundsByLevel) {
+    // 두 맵은 byLevel이 세 단계를 모두 채운다 — requireNonNull은 실패하지 않는다
     List<Path> paths(Level level) {
-      return pathsByLevel.get(level.ordinal());
+      return Objects.requireNonNull(pathsByLevel.get(level));
     }
 
     int bound(Level level) {
-      return boundsByLevel.get(level.ordinal());
+      return Objects.requireNonNull(boundsByLevel.get(level));
     }
   }
 
@@ -79,26 +85,36 @@ final class KeywordPlan {
     String exact = like(t);
     if (length == 1) {
       List<Path> scan = List.of(new Path(null, false, exact));
-      return new Token(t, List.of(List.of(), scan, scan), List.of(1, 0, 0));
+      return new Token(t, byLevel(List.of(), scan, scan), byLevel(1, 0, 0));
     }
     if (length == 2) {
       List<Path> paths = List.of(new Path(t, false, exact));
       return isRare(t, df, rareLimit)
-          ? new Token(t, List.of(paths, paths, paths), List.of(0, 0, 0))
-          : new Token(t, List.of(List.of(), paths, paths), List.of(2, 0, 0));
+          ? new Token(t, byLevel(paths, paths, paths), byLevel(0, 0, 0))
+          : new Token(t, byLevel(List.of(), paths, paths), byLevel(2, 0, 0));
     }
     // 원문 정확 매치는 공백 제거 본문에 trigram 전부를 남기므로 trigram 경로가 후보 전체를 덮는다
     Set<Path> trigramPaths = new LinkedHashSet<>();
     for (String g : Text.trigrams(t))
       trigramPaths.add(new Path(rarest(Bigrams.bigramCounts(g).keySet(), df), true, like(g)));
     List<Path> all = List.copyOf(trigramPaths);
-    if (all.stream().allMatch(p -> isRare(p.driver(), df, rareLimit)))
-      return new Token(t, List.of(all, all, all), List.of(0, 0, 0));
+    // trigram 경로는 늘 구동 bigram이 있다(rarest) — requireNonNull은 실패하지 않는다
+    if (all.stream().allMatch(p -> isRare(Objects.requireNonNull(p.driver()), df, rareLimit)))
+      return new Token(t, byLevel(all, all, all), byLevel(0, 0, 0));
     String driver = rarest(Bigrams.bigramCounts(t).keySet(), df);
     List<Path> exactPath = List.of(new Path(driver, false, exact));
     return isRare(driver, df, rareLimit)
-        ? new Token(t, List.of(exactPath, exactPath, all), List.of(1, 1, 0))
-        : new Token(t, List.of(List.of(), exactPath, all), List.of(2, 1, 0));
+        ? new Token(t, byLevel(exactPath, exactPath, all), byLevel(1, 1, 0))
+        : new Token(t, byLevel(List.of(), exactPath, all), byLevel(2, 1, 0));
+  }
+
+  /** RARE·EXACT·ALL 순서의 값 셋을 단계별 표로. */
+  private static <T> Map<Level, T> byLevel(T rare, T exact, T all) {
+    Map<Level, T> out = new EnumMap<>(Level.class);
+    out.put(Level.RARE, rare);
+    out.put(Level.EXACT, exact);
+    out.put(Level.ALL, all);
+    return Collections.unmodifiableMap(out);
   }
 
   /** 토큰별 경로(질의 토큰 순서, 되풀이된 토큰도 따로). */

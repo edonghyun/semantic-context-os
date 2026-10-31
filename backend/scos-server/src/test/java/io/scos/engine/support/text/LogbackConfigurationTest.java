@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 
 /**
  * logback-spring.xml의 class 속성은 컴파일러가 보지 못하는 FQN이다(단계 3 Review Focus 1). 패키지를 옮기고 이 값을 놓치면 logback이
- * 인코더를 만들지 못해 데몬 로그가 JSON 한 줄 형식을 잃고 status.sh의 `"level":"warn|error"` grep이 조용히 0이 된다.
+ * 인코더를 만들지 못해 데몬 serve.jsonl이 JSON 한 줄 형식을 잃고 `status --log`의 `"level":"warn|error"` 찾기가 조용히 0이 된다.
  */
 @DisplayName("logback 설정의 io.scos class 값은 실제 클래스다(놓치면 JSON 로그를 잃는다)")
 class LogbackConfigurationTest {

@@ -11,7 +11,7 @@ import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.collection.internal.WorkClaimPort;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.SourceInstanceId;
 import io.scos.support.Eventually;
 import io.scos.support.ManualTaskScheduler;

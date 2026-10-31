@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * 임베딩 캐시 포트(F9, ADR-0026): (임베딩 세대, sha256(임베딩 입력)) → 벡터. TS 엔진에서 가져온 벡터를 재수집 투영이 같은 입력이면 다시 쓴다 — 그
+ * 임베딩 캐시 포트(F9, ADR-0026): (임베딩 세대, sha256(임베딩 입력)) → 벡터. 이전 엔진에서 가져온 벡터를 재수집 투영이 같은 입력이면 다시 쓴다 — 그
  * 입력은 Gemini에 보내지 않는다. 세대가 다르면(차원·입력 형식) 다른 키라 찾지 못한다. 계약은 {@code EmbeddingCacheContract}.
  */
 public interface EmbeddingCache {

@@ -45,6 +45,21 @@ public abstract class RawItemStoreContract {
     store = newStore();
   }
 
+  @Test
+  @DisplayName("검증된 부분 부재는 지정한 active 항목만 tombstone으로 바꾼다")
+  void tombstonesSelectedActiveItems() {
+    // given
+    upsert("removed-block", "v1", "0001");
+    upsert("preserved-block", "v1", "0001");
+    // when
+    store.tombstoneSelected(SOURCE, Set.of("removed-block"), RECONCILED);
+    // then
+    assertThat(store.get(SOURCE, "removed-block").orElseThrow())
+        .isInstanceOf(RawRecord.Deleted.class);
+    assertThat(store.get(SOURCE, "preserved-block").orElseThrow())
+        .isInstanceOf(RawRecord.Active.class);
+  }
+
   static SourceOrder order(String position) {
     return new SourceOrder("slack.message-state.v1", position);
   }

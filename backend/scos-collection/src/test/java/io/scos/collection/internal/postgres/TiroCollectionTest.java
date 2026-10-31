@@ -3,7 +3,7 @@ package io.scos.collection.internal.postgres;
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.connector.tiro.TiroAdapter;
 import io.scos.connector.tiro.internal.TiroCollectionContract;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;

@@ -6,7 +6,7 @@ import io.scos.collection.internal.postgres.PostgresCollectionObservations;
 import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.jira.JiraAssembly;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.support.FakeHttpServer.Response;

@@ -13,14 +13,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 자격 증명 하나의 Google 세션(TS GoogleDriveSession). 시도 하나의 교환만 한다 — 재시도·대기는 {@code ProviderCallExecutor}의
- * 몫이고, 토큰 갱신도 그 시도 안에서 한다.
+ * 자격 증명 하나의 Google 세션. 시도 하나의 교환만 한다 — 재시도·대기는 {@code ProviderCallExecutor}의 몫이고, 토큰 갱신도 그 시도 안에서
+ * 한다.
  *
  * <ul>
  *   <li>access token은 메모리에만 둔다. 만료 60초 전부터 refresh token으로 다시 받는다(토큰 끝점 POST 폼). 데이터 요청이 401이면 무효화해
@@ -28,7 +29,7 @@ import tools.jackson.databind.ObjectMapper;
  *       invalid_oauth_response.
  *   <li>경로는 서비스의 버전 접두로 시작해야 하고 역슬래시·줄바꿈이 없어야 한다 — 아니면 요청 없이 실패한다(자격 증명이 다른 곳으로 가지 않는다).
  *   <li>2xx가 아니면 {@link GoogleApiException}: 403은 본문(1 MiB까지)의 rate limit 이유만 허용 목록으로 꺼내고,
- *       Retry-After는 0보다 큰 초만. 3xx는 따르지 않고 응답 없는 전송 실패로 본다(TS fetch redirect:"error").
+ *       Retry-After는 0보다 큰 초만. 3xx는 따르지 않고 응답 없는 전송 실패로 본다.
  *   <li>JSON 응답은 UTF-8(BOM은 뗀다)로 읽은 객체여야 한다 — 아니면 502 invalid_json, 본문 없는 상태(204·205)는 502
  *       missing_body. 본문이 50 MiB를 넘으면 {@link GoogleContentTooLargeException}.
  * </ul>
@@ -36,6 +37,9 @@ import tools.jackson.databind.ObjectMapper;
  * 오류에는 상태와 허용 목록의 이유만 싣는다 — 자격 증명·access token·응답 본문은 싣지 않는다.
  */
 public final class GoogleDriveSession {
+  /** 유한하고 0보다 큰 초만(빈 값·0은 없음). */
+  private static final RetryAfter RETRY_AFTER = RetryAfter.positiveSeconds();
+
   static final long MAX_JSON_BYTES = 50L * 1024 * 1024;
   static final int MAX_SMALL_BODY_BYTES = 1024 * 1024;
   static final String TOKEN_PATH = "/token";
@@ -69,7 +73,7 @@ public final class GoogleDriveSession {
   private final ObjectMapper json;
   private final Clock clock;
   private final GoogleOrigins origins;
-  private String accessToken;
+  private @Nullable String accessToken;
   private double expiresAt;
 
   GoogleDriveSession(
@@ -134,9 +138,7 @@ public final class GoogleDriveSession {
             ? Optional.of(GoogleApiException.Reason.RATE_LIMITED)
             : Optional.empty();
     throw new GoogleApiException(
-        status,
-        reason,
-        RetryAfter.positiveSeconds(response.headers().getFirst(HttpHeaders.RETRY_AFTER)));
+        status, reason, RETRY_AFTER.read(response.headers().getFirst(HttpHeaders.RETRY_AFTER)));
   }
 
   /** 캐시한 access token, 만료 60초 전부터는 새로 받은 것. */
@@ -188,7 +190,7 @@ public final class GoogleDriveSession {
     }
   }
 
-  /** 403 본문의 errors[] 이유가 rate limit 계열인가(TS: 앞에서부터 보고, 객체가 아닌 항목이나 읽을 수 없는 본문이면 아니다). */
+  /** 403 본문의 errors[] 이유가 rate limit 계열인가(앞에서부터 보고, 객체가 아닌 항목이나 읽을 수 없는 본문이면 아니다). */
   private boolean rateLimited(byte[] body) {
     if (body.length > MAX_SMALL_BODY_BYTES) return false;
     try {
@@ -213,7 +215,7 @@ public final class GoogleDriveSession {
     return response.body();
   }
 
-  /** TS TextDecoder: WHATWG UTF-8(잘못된 시퀀스의 U+FFFD 수까지 같다), 앞 BOM은 뗀다. */
+  /** JS TextDecoder: WHATWG UTF-8(잘못된 시퀀스의 U+FFFD 수까지 같다), 앞 BOM은 뗀다. */
   static String text(byte[] bytes) {
     return Utf8.decodeLikeTextDecoder(bytes);
   }

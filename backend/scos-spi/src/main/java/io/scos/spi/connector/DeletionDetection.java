@@ -2,7 +2,7 @@ package io.scos.spi.connector;
 
 import java.util.Locale;
 
-/** TS SourceDeletionDetection: 원격 삭제가 로컬 tombstone이 되는 경로(소스 목록이 보여 준다). */
+/** 원격 삭제가 로컬 tombstone이 되는 경로(소스 목록이 보여 준다). */
 public enum DeletionDetection {
   /** 삭제를 알 길이 없다 — 부재로 지우지 않는다(Jira 등). */
   NONE,

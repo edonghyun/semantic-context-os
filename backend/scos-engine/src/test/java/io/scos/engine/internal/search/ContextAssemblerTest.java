@@ -1,11 +1,14 @@
 package io.scos.engine.internal.search;
 
 import static io.scos.engine.internal.search.SearchFixture.S;
+import static io.scos.engine.internal.search.SearchSettingsBuilder.DEFAULT_PLAN;
 import static io.scos.spi.store.ContextUnits.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 import io.scos.engine.internal.search.ContextAssembler.Bundle;
+import io.scos.engine.internal.search.signal.RecencySignal;
+import io.scos.engine.internal.search.signal.Scorer;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
@@ -15,8 +18,6 @@ import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.ScoredRef;
 import io.scos.spi.store.SearchFilter;
 import io.scos.spi.store.SpaceId;
-import io.scos.support.TestExecutors;
-import io.scos.support.TestMetrics;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.Test;
  */
 @DisplayName("맥락 조립은 예산 안에서 요약 우선·드릴다운·U자 배치로 담는다(CONTRACTS C)")
 class ContextAssemblerTest {
+  static final Scorer SCORER = new Scorer(List.of(new RecencySignal()));
   static final Clock NOW = Clock.fixed(Instant.parse("2026-10-13T00:00:00Z"), ZoneOffset.UTC);
 
   /** 이 파일의 어떤 후보 묶음도 다 담는 예산. */
@@ -104,7 +106,8 @@ class ContextAssemblerTest {
 
   /** 키워드 후보를 이 순위로 고정한 조립기로 조립한다. */
   Bundle assembleRanked(String query, int budget, String... ranked) {
-    return assemblerRanking(ranked).assemble(AccessScope.singleUser(), S, query, budget);
+    return assemblerRanking(ranked)
+        .assemble(AccessScope.singleUser(), S, query, budget, DEFAULT_PLAN.withRecency(true));
   }
 
   /** 고정 순위 색인은 fx.load가 채운 메모리 색인의 항목을 그대로 받는다(유닛 집합은 같고 순서만 명시). */
@@ -112,26 +115,21 @@ class ContextAssemblerTest {
     FixedRankKeywordIndex ranking = new FixedRankKeywordIndex(rankedUnitIds);
     ranking.upsert(
         S,
-        fx.units.listAll(S).stream()
+        fx.maintenance.listAll(S).stream()
             .map(
                 u ->
                     new IndexedText(
                         u.id(), u.documentId(), u.title(), u.content(), u.partition(), false))
             .toList());
-    return new ContextAssembler(fx.units, search(ranking), NOW);
+    return new ContextAssembler(fx.units, search(ranking), NOW, SCORER);
   }
 
   QuestionSearch search(KeywordIndex keywords) {
-    return new QuestionSearch(
-        fx.units,
-        keywords,
-        fx.vectors,
-        FixedEmbedder.zero(2),
-        Reranker.DISABLED,
-        SearchSettings.DEFAULT,
-        NOW,
-        TestMetrics.search(),
-        TestExecutors.CALLER_THREAD);
+    return QuestionSearchBuilder.over(fx)
+        .keywords(keywords)
+        .embedder(FixedEmbedder.zero(2))
+        .clock(NOW)
+        .build();
   }
 
   static List<String> ids(Bundle b) {
@@ -528,8 +526,9 @@ class ContextAssemblerTest {
 
       // when
       Bundle b =
-          new ContextAssembler(fx.units, search(fx.keywords), NOW)
-              .assemble(AccessScope.singleUser(), S, "정산", AMPLE_BUDGET);
+          new ContextAssembler(fx.units, search(fx.keywords), NOW, SCORER)
+              .assemble(
+                  AccessScope.singleUser(), S, "정산", AMPLE_BUDGET, DEFAULT_PLAN.withRecency(true));
 
       // then
       assertThat(ids(b)).containsExactly("k-1");

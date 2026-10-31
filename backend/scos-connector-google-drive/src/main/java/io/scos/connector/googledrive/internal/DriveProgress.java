@@ -1,5 +1,6 @@
 package io.scos.connector.googledrive.internal;
 
+import io.scos.engine.support.call.WorkQueue;
 import io.scos.engine.support.text.JsJson;
 import io.scos.spi.connector.Checkpoint;
 import java.util.ArrayList;
@@ -15,17 +16,17 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Drive run의 진행 상태(TS DriveProgress, 체크포인트 v1): 계정(permissionId), 작업 큐, 이번 탐색에서 본 파일, 내려받은 원본 버전,
- * 변경 토큰(`user`· `drive:<id>`), 수집한 파일의 드라이브 소속과 시트 범위 원본 id. 작업은 TS 객체처럼 JSON으로 다룬다 — 이어 읽기는 작업을
- * 복사해 pageToken만 바꾼다. 맵은 JS 객체 순서로 돈다({@link JsJson#entries}).
+ * Drive run의 진행 상태(체크포인트 v1): 계정(permissionId), 작업 큐, 이번 탐색에서 본 파일, 내려받은 원본 버전({@link
+ * DownloadedVersions}), 변경 토큰({@link ChangeTokens}), 수집한 파일의 드라이브 소속과 시트 범위 원본 id. 맵은 JS 객체 순서로
+ * 돈다({@link JsJson#entries}) — 체크포인트 바이트가 저장 형식과 같아야 한다.
  */
 final class DriveProgress {
-  final String accountId;
-  private List<DriveTask> pending;
-  final Set<String> seen;
-  final ObjectNode downloadedVersions;
-  final ObjectNode changeTokens;
-  final ObjectNode files;
+  private final String accountId;
+  private WorkQueue<DriveTask> pending;
+  private final Set<String> seen;
+  private final DownloadedVersions downloadedVersions;
+  private final ChangeTokens changeTokens;
+  private final ObjectNode files;
   private final ObjectMapper json;
 
   private DriveProgress(
@@ -33,19 +34,32 @@ final class DriveProgress {
       String accountId,
       List<DriveTask> pending,
       Set<String> seen,
-      ObjectNode downloadedVersions,
-      ObjectNode changeTokens,
+      DownloadedVersions downloadedVersions,
+      ChangeTokens changeTokens,
       ObjectNode files) {
     this.json = json;
     this.accountId = accountId;
-    this.pending = pending;
+    this.pending = WorkQueue.of(pending);
     this.seen = seen;
     this.downloadedVersions = downloadedVersions;
     this.changeTokens = changeTokens;
     this.files = files;
   }
 
-  /** TS resume: 체크포인트가 없거나 큐가 비었으면 처음부터(변경 피드 → 내 파일 → 공유 드라이브). 다른 계정·형식 위반은 요청 없이 실패한다. */
+  ChangeTokens changeTokens() {
+    return changeTokens;
+  }
+
+  DownloadedVersions downloadedVersions() {
+    return downloadedVersions;
+  }
+
+  /** 이번 탐색에서 처음 본 파일이면 true(그리고 본 것으로 남긴다). */
+  boolean firstSeen(String fileId) {
+    return seen.add(fileId);
+  }
+
+  /** 체크포인트가 없거나 큐가 비었으면 처음부터(변경 피드 → 내 파일 → 공유 드라이브). 다른 계정·형식 위반은 요청 없이 실패한다. */
   static DriveProgress resume(ObjectMapper json, Optional<Checkpoint> stored, String accountId) {
     if (stored.isEmpty())
       return new DriveProgress(
@@ -53,8 +67,8 @@ final class DriveProgress {
           accountId,
           new ArrayList<>(DriveTask.roots()),
           new LinkedHashSet<>(),
-          json.createObjectNode(),
-          json.createObjectNode(),
+          new DownloadedVersions(json.createObjectNode()),
+          new ChangeTokens(json.createObjectNode()),
           json.createObjectNode());
     JsonNode value = JsValues.object(json.readTree(stored.get().valueJson()));
     JsonNode pendingNode = value.get("pending");
@@ -68,24 +82,9 @@ final class DriveProgress {
         || anyNonString(seenNode)) throw invalid("Invalid Google Drive checkpoint");
     List<DriveTask> pending = new ArrayList<>();
     for (JsonNode entry : pendingNode) pending.add(DriveTask.parse(entry));
-    ObjectNode versions = (ObjectNode) JsValues.object(value.get("downloadedVersions")).deepCopy();
-    for (Map.Entry<String, JsonNode> e : versions.properties())
-      if (!e.getValue().isString()) throw invalid("Invalid Google Drive download checkpoint");
-    ObjectNode tokens = objectOrEmpty(json, value.get("changeTokens"));
-    for (Map.Entry<String, JsonNode> e : tokens.properties())
-      if (!JsValues.nonEmptyString(e.getValue()))
-        throw invalid("Invalid Google Drive change checkpoint");
-    ObjectNode files = objectOrEmpty(json, value.get("files"));
-    for (Map.Entry<String, JsonNode> e : files.properties()) {
-      JsonNode file = JsValues.object(e.getValue());
-      JsonNode children = file.get("children");
-      JsonNode driveId = file.get("driveId");
-      if (children == null
-          || !children.isArray()
-          || anyNonString(children)
-          || (driveId != null && !driveId.isString()))
-        throw invalid("Invalid Google Drive file checkpoint");
-    }
+    DownloadedVersions versions = DownloadedVersions.read(value.get("downloadedVersions"));
+    ChangeTokens tokens = ChangeTokens.read(json, value.get("changeTokens"));
+    ObjectNode files = readFiles(json, value.get("files"));
     Set<String> seen = new LinkedHashSet<>();
     if (!pending.isEmpty()) seenNode.forEach(id -> seen.add(id.asString()));
     return new DriveProgress(
@@ -98,8 +97,24 @@ final class DriveProgress {
         files);
   }
 
-  /** TS `value ?? {}`(null·undefined는 빈 객체) 뒤 googleObject. */
-  private static ObjectNode objectOrEmpty(ObjectMapper json, JsonNode value) {
+  /** 체크포인트의 `files`(JS `?? {}`): 파일마다 `{driveId?: 문자열, children: 문자열 배열}`. */
+  private static ObjectNode readFiles(ObjectMapper json, JsonNode stored) {
+    ObjectNode files = objectOrEmpty(json, stored);
+    for (Map.Entry<String, JsonNode> e : files.properties()) {
+      JsonNode file = JsValues.object(e.getValue());
+      JsonNode children = file.get("children");
+      JsonNode driveId = file.get("driveId");
+      if (children == null
+          || !children.isArray()
+          || anyNonString(children)
+          || (driveId != null && !driveId.isString()))
+        throw invalid("Invalid Google Drive file checkpoint");
+    }
+    return files;
+  }
+
+  /** JS `value ?? {}`(null·undefined는 빈 객체) 뒤 객체 검사. */
+  static ObjectNode objectOrEmpty(ObjectMapper json, JsonNode value) {
     if (value == null || value.isNull()) return json.createObjectNode();
     return (ObjectNode) JsValues.object(value).deepCopy();
   }
@@ -119,22 +134,17 @@ final class DriveProgress {
 
   /** 큐의 첫 작업(지금 할 것). */
   DriveTask head() {
-    return pending.getFirst();
+    return pending.head();
   }
 
-  /** 첫 작업을 끝냈다: 그 자리에 다음 작업들을 넣는다(TS `[...next, ...pending.slice(1)]`). */
+  /** 첫 작업을 끝냈다: 그 자리에 다음 작업들을 넣는다. */
   void advance(List<DriveTask> next) {
-    List<DriveTask> queue = new ArrayList<>(next);
-    queue.addAll(pending.subList(1, pending.size()));
-    pending = queue;
+    pending = pending.afterHead(1, next, List.of());
   }
 
   /** 첫 작업(지금 하는 것)은 두고 조건에 맞는 작업을 버린다. */
   void dropQueued(Predicate<DriveTask> drop) {
-    List<DriveTask> kept = new ArrayList<>();
-    for (int i = 0; i < pending.size(); i++)
-      if (i == 0 || !drop.test(pending.get(i))) kept.add(pending.get(i));
-    pending = kept;
+    pending = pending.withoutQueued(drop);
   }
 
   /** 이 파일의 시트 범위 원본 id(체크포인트에 남은 것). */
@@ -153,7 +163,7 @@ final class DriveProgress {
     return out;
   }
 
-  /** TS `progress.files[id] = {driveId?, children}`(이미 있으면 그 자리에서 바꾼다). */
+  /** 파일 기록 `{driveId?, children}`을 둔다(이미 있으면 그 자리에서 바꾼다). */
   void recordFile(String fileId, Optional<String> driveId, List<String> children) {
     ObjectNode entry = json.createObjectNode();
     driveId.ifPresent(d -> entry.put("driveId", d));
@@ -164,18 +174,18 @@ final class DriveProgress {
 
   void forget(String fileId) {
     files.remove(fileId);
-    downloadedVersions.remove(fileId);
+    downloadedVersions.forget(fileId);
   }
 
-  /** 지금 상태의 체크포인트 v1(TS structuredClone(progress)). */
+  /** 지금 상태의 체크포인트 v1. */
   Checkpoint checkpoint() {
     ObjectNode value = json.createObjectNode().put("accountId", accountId);
     ArrayNode queue = value.putArray("pending");
-    pending.forEach(task -> queue.add(task.json()));
+    pending.items().forEach(task -> queue.add(task.json()));
     ArrayNode seenFiles = value.putArray("seenFiles");
     seen.forEach(seenFiles::add);
-    value.set("downloadedVersions", downloadedVersions.deepCopy());
-    value.set("changeTokens", changeTokens.deepCopy());
+    value.set("downloadedVersions", downloadedVersions.json());
+    value.set("changeTokens", changeTokens.json());
     value.set("files", files.deepCopy());
     return new Checkpoint(1, JsJson.stringify(value));
   }

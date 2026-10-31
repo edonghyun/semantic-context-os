@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 # 운영 래퍼 공통(source로 읽는다). macOS /bin/bash 3.2와 GNU 둘 다에서 돈다.
-# 로그는 stderr에 TS JsonLineLogger와 같은 JSON 한 줄({"ts","level","event","detail"?})로 쓴다 — serve.log·status --log가 읽는다.
+# 래퍼 로그는 stderr에 JSON 한 줄({"ts","level","event","detail"?}, serve.jsonl과 같은 줄 모양)로 쓴다. 데몬 래퍼의 stderr는 launchd가 logs/serve.stderr.log로 넘긴다.
+# java가 끝난 뒤의 데몬 래퍼 이벤트(daemon.loop.died·daemon.out_of_memory·daemon.exited)는 serve.jsonl에도 덧붙인다(scos_log_jsonl, logging.md §9).
 
 SCOS_HOME="${SCOS_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SCOS_JAR="${SCOS_JAR:-$SCOS_HOME/scos-backend.jar}"
@@ -32,15 +33,29 @@ scos_json_string() {
   printf '"%s"' "$out"
 }
 
-# scos_log <level> <event> [detail JSON 객체]
-scos_log() {
+# scos_log_line <level> <event> [detail JSON 객체] — 래퍼 로그 줄 하나를 stdout에(줄바꿈 없이)
+scos_log_line() {
   local ts
   ts="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
   if [ -n "${3-}" ]; then
-    printf '{"ts":"%s","level":"%s","event":"%s","detail":%s}\n' "$ts" "$1" "$2" "$3" >&2
+    printf '{"ts":"%s","level":"%s","event":"%s","detail":%s}' "$ts" "$1" "$2" "$3"
   else
-    printf '{"ts":"%s","level":"%s","event":"%s"}\n' "$ts" "$1" "$2" >&2
+    printf '{"ts":"%s","level":"%s","event":"%s"}' "$ts" "$1" "$2"
   fi
+}
+
+# scos_log <level> <event> [detail JSON 객체]
+scos_log() {
+  printf '%s\n' "$(scos_log_line "$@")" >&2
+}
+
+# scos_log_jsonl <level> <event> [detail JSON 객체] — stderr에 쓰고 같은 줄을 $SCOS_LOG_DIR/serve.jsonl에도 덧붙인다(status --log가 읽게).
+# java가 끝난 뒤에만 부른다 — logback과 같은 파일에 동시에 쓰지 않는다. 덧붙이기가 실패해도(디렉터리 없음·권한) 래퍼는 실패하지 않는다.
+scos_log_jsonl() {
+  local line
+  line="$(scos_log_line "$@")"
+  printf '%s\n' "$line" >&2
+  { printf '%s\n' "$line" >> "$SCOS_LOG_DIR/serve.jsonl"; } 2> /dev/null || true
 }
 
 # 파일 권한 8진수. GNU stat -c를 먼저 시도하고 성공했을 때만 그 출력을 쓴다 — GNU에서 -f는 파일 시스템 정보 옵션이라 실패하면서도 stdout에

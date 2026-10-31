@@ -4,7 +4,7 @@ import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
 import io.scos.connector.googledrive.GoogleDriveAssembly;
-import io.scos.engine.support.text.MutableClock;
+import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import java.io.IOException;

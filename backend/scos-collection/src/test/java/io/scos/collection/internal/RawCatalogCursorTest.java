@@ -3,7 +3,7 @@ package io.scos.collection.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

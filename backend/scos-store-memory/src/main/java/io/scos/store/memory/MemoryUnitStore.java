@@ -4,7 +4,6 @@ import io.scos.spi.access.DocumentAccess;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SpaceId;
-import io.scos.spi.store.SpaceOwnershipException;
 import io.scos.spi.store.Tier;
 import io.scos.spi.store.UnitStore;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.Set;
 /** 메모리 참조 구현 — LinkedHashMap 삽입 순서 = 적재 순서(seq). */
 public final class MemoryUnitStore implements UnitStore {
   private final Map<SpaceId, LinkedHashMap<String, ContextUnit>> spaces = new LinkedHashMap<>();
-  private final Map<String, SpaceId> owners = new LinkedHashMap<>();
+  private final MemoryDocumentOwnership ownership;
 
   private final MemoryAclStore acl;
 
@@ -28,7 +27,12 @@ public final class MemoryUnitStore implements UnitStore {
   }
 
   public MemoryUnitStore(MemoryAclStore acl) {
+    this(acl, new MemoryDocumentOwnership());
+  }
+
+  public MemoryUnitStore(MemoryAclStore acl, MemoryDocumentOwnership ownership) {
     this.acl = acl;
+    this.ownership = ownership;
   }
 
   private Map<String, ContextUnit> space(SpaceId s) {
@@ -43,12 +47,7 @@ public final class MemoryUnitStore implements UnitStore {
   }
 
   synchronized void upsert(SpaceId space, List<ContextUnit> units) {
-    for (ContextUnit u : units) {
-      SpaceId owner = owners.get(u.documentId());
-      if (owner != null && !owner.equals(space))
-        throw new SpaceOwnershipException(u.documentId(), owner, space);
-    }
-    for (ContextUnit u : units) owners.putIfAbsent(u.documentId(), space);
+    ownership.claim(space, units);
     var map = spaces.computeIfAbsent(space, s -> new LinkedHashMap<>());
     for (ContextUnit u : units) map.put(u.id(), u);
   }

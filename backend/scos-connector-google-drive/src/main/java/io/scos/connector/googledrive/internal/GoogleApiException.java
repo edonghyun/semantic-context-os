@@ -9,9 +9,10 @@ import java.util.Optional;
  * 상태와 이유만 싣는다 — 응답 본문·토큰·자격 증명은 싣지 않는다.
  */
 public final class GoogleApiException extends RuntimeException {
-  /** 오류 메시지에 싣는 허용 목록의 이유(문자열을 바꾸지 않는다). */
+  /** 분류에 쓰는 허용 목록. 파일 ACL 거부는 기존 공개 오류 문구를 유지한다. */
   enum Reason {
     RATE_LIMITED("rate_limited"),
+    INSUFFICIENT_FILE_PERMISSIONS("insufficient_file_permissions"),
     INVALID_JSON("invalid_json"),
     MISSING_BODY("missing_body"),
     INVALID_OAUTH_RESPONSE("invalid_oauth_response"),
@@ -32,7 +33,10 @@ public final class GoogleApiException extends RuntimeException {
     super(
         "Google API request failed (HTTP "
             + status
-            + reason.map(r -> ", " + r.wire).orElse("")
+            + reason
+                .filter(r -> r != Reason.INSUFFICIENT_FILE_PERMISSIONS)
+                .map(r -> ", " + r.wire)
+                .orElse("")
             + ")");
     this.status = status;
     this.reason = reason;
@@ -50,6 +54,10 @@ public final class GoogleApiException extends RuntimeException {
 
   public Optional<Duration> retryAfter() {
     return retryAfter;
+  }
+
+  boolean aclUnreadable() {
+    return reason.filter(Reason.INSUFFICIENT_FILE_PERMISSIONS::equals).isPresent();
   }
 
   boolean rateLimited() {

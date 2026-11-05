@@ -2,7 +2,7 @@ package io.scos.spi.access;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +43,16 @@ class DomainPolicyTest {
 
     // then
     assertThat(admitted).isFalse();
+  }
+
+  @Test
+  @DisplayName("도메인 판정은 구분자 뒤 도메인을 비교하며 로컬 부분은 검사하지 않는다")
+  void domainComparisonDoesNotValidateLocalPart() {
+    var policy = new DomainPolicy(Set.of("example.com"), Map.of(DRIVE, "example.com"));
+    // when
+    boolean admitted = policy.admits("@example.com", DRIVE);
+    // then
+    assertThat(admitted).isTrue();
   }
 
   @Test

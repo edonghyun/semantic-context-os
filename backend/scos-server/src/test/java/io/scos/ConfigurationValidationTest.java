@@ -10,6 +10,8 @@ import io.scos.boot.McpConfiguration;
 import io.scos.boot.MetricsConfiguration;
 import io.scos.boot.ProjectionConfiguration;
 import io.scos.boot.RerankProperties;
+import io.scos.collection.internal.FixedSourceQueries;
+import io.scos.collection.internal.SourceQueries;
 import io.scos.harness.HarnessConfiguration;
 import io.scos.mcp.McpTools;
 import io.scos.server.DaemonConfiguration;
@@ -29,6 +31,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,6 +56,11 @@ import org.springframework.context.annotation.Configuration;
 class ConfigurationValidationTest {
   @Configuration(proxyBeanMethods = false)
   static class MemoryEngine {
+    @Bean
+    SourceQueries sourceQueries() {
+      return new FixedSourceQueries(List.of());
+    }
+
     @Bean
     MemoryUnitStore unitStore() {
       return new MemoryUnitStore();

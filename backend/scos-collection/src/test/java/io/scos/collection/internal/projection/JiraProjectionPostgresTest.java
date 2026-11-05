@@ -53,7 +53,7 @@ class JiraProjectionPostgresTest {
     ManualTaskScheduler scheduler = new ManualTaskScheduler();
     JiraDatasetCollection.collectInto(ds, clock, scheduler);
     List<ProjectionRun.Report> reports =
-        PostgresProjection.over(ds, clock, new ScriptedEmbedder())
+        PostgresProjection.withoutAccessCollection(ds, clock, new ScriptedEmbedder())
             .run("p1", scheduler)
             .runDue(CancellationToken.none());
     if (reports.size() != 1)

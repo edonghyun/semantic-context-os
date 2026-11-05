@@ -4,6 +4,7 @@ import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.SourceDescriptor;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.support.TransactionOperations;
@@ -14,8 +15,10 @@ import org.springframework.transaction.support.TransactionOperations;
  * 안다({@link CollectionStores}).
  */
 public final class PageCommit {
+  private final AclCommit acls;
+  private final boolean collectAccess;
   private final TransactionOperations tx;
-  private final WorkClaimPort claims;
+  private final WriteFence fence;
   private final RunStore runs;
   private final RawItemStore rawItems;
   private final CheckpointPort checkpoints;
@@ -26,13 +29,41 @@ public final class PageCommit {
   private final Progress progress;
   private final Optional<BodyCompletion> bodies;
   private final Optional<ReconciliationDiscovery> reconciliation;
-  private final Optional<SourceInstanceStore> sources;
 
   public PageCommit(
       CollectionStores stores, Clock clock, CollectionMetrics metrics, Progress progress) {
+    this(stores, clock, metrics, progress, SourceAdapters.of(List.of()), false);
+  }
+
+  public PageCommit(
+      CollectionStores stores,
+      Clock clock,
+      CollectionMetrics metrics,
+      Progress progress,
+      SourceAdapters adapters,
+      boolean collectAccess) {
+    this(
+        stores,
+        clock,
+        metrics,
+        progress,
+        adapters,
+        collectAccess,
+        AccessCollection.Options.DEFAULTS);
+  }
+
+  public PageCommit(
+      CollectionStores stores,
+      Clock clock,
+      CollectionMetrics metrics,
+      Progress progress,
+      SourceAdapters adapters,
+      boolean collectAccess,
+      AccessCollection.Options accessOptions) {
+    this.acls = new AclCommit(stores, adapters, clock, collectAccess, accessOptions);
+    this.collectAccess = collectAccess;
     this.tx = stores.tx();
-    this.sources = stores.sources();
-    this.claims = stores.claims();
+    this.fence = new WriteFence(stores);
     this.runs = stores.runs();
     this.rawItems = stores.rawItems();
     this.checkpoints = stores.checkpoints();
@@ -87,55 +118,64 @@ public final class PageCommit {
     return tx.execute(
         status -> {
           var now = clock.instant();
-          claims.requireActive(claim, now);
-          runs.requireRunning(runId, claim.source());
-          requireConfiguration(claim, expectedSource);
-          var resourceComparisons =
-              reconciliation
-                  .map(discovery -> discovery.beforeApply(claim.source(), runId, page))
-                  .orElseGet(List::of);
-          var tally = new PageTally(claim.source(), now, page.mutations().size());
-          for (RawMutation m : page.mutations()) tally.record(m, rawItems.apply(claim.source(), m));
-          if (!page.bodies().isEmpty())
-            tally.recordAbsences(
-                bodies
-                    .orElseThrow(
-                        () -> new IllegalStateException("Body completion store is not configured"))
-                    .apply(claim.source(), runId, page, now));
-          reconciliation.ifPresent(
-              discovery -> discovery.resourcesApplied(claim.source(), runId, resourceComparisons));
-          runs.observe(runId, tally.observed());
-          runs.addRejections(runId, claim.source(), now, page.rejections());
-          page.absenceVerification()
-              .ifPresent(
-                  verified ->
-                      runs.recordAbsenceValidation(
-                          runId,
-                          new RunStore.AbsenceValidation(
-                              verified.fingerprint(),
-                              verified.candidateToken(),
-                              verified.exclusions())));
+          fence.requireWritable(claim, runId, expectedSource, now);
+          var tally = applyPage(claim, runId, page, now);
+          boolean aclChanged = observeAcls(expectedSource, page, now);
+          recordObservations(claim, runId, page, tally, now);
           long revision =
               checkpoints.advance(claim.source(), expectedRevision, page.nextCheckpoint(), now);
           PageCommitResult result = tally.result(revision, page.rejections().size());
           runs.addPage(
               runId, result.upserted(), result.deleted(), result.unchanged(), result.rejected());
-          // 변경이 없는 페이지는 투영을 요청하지 않는다(backoff를 풀지 않는다)
-          if (tally.changedAny()) outbox.requestProjection(claim.source(), now);
+          // 본문 또는 ACL 의미가 바뀐 페이지만 투영 backoff를 푼다.
+          if (tally.changedAny() || aclChanged) outbox.requestProjection(claim.source(), now);
           changes.appendAll(tally.changes()); // 마지막 작업 — 변경 로그 쓰기 잠금은 여기서 커밋까지만(ADR-0021)
           return result;
         });
   }
 
-  private void requireConfiguration(WorkClaim claim, Optional<SourceDescriptor> expectedSource) {
-    expectedSource.ifPresent(
-        expected -> {
-          if (!claim.source().equals(expected.id()))
-            throw new SourceConfigurationChangedException();
-          sources
+  private PageTally applyPage(WorkClaim claim, RunId run, CollectionPage page, Instant now) {
+    var resourceComparisons =
+        reconciliation
+            .map(discovery -> discovery.beforeApply(claim.source(), run, page))
+            .orElseGet(List::of);
+    var tally = new PageTally(claim.source(), now, page.mutations().size());
+    for (RawMutation mutation : page.mutations())
+      tally.record(mutation, rawItems.apply(claim.source(), mutation));
+    if (!page.bodies().isEmpty())
+      tally.recordAbsences(
+          bodies
               .orElseThrow(
-                  () -> new IllegalStateException("Source configuration store is not configured"))
-              .requireCollectionConfiguration(expected);
-        });
+                  () -> new IllegalStateException("Body completion store is not configured"))
+              .apply(claim.source(), run, page, now));
+    reconciliation.ifPresent(
+        discovery -> discovery.resourcesApplied(claim.source(), run, resourceComparisons));
+    return tally;
+  }
+
+  private boolean observeAcls(Optional<SourceDescriptor> source, CollectionPage page, Instant now) {
+    if (!collectAccess) return false;
+    var expected =
+        source.orElseThrow(
+            () -> new IllegalStateException("ACL collection requires expected source"));
+    boolean changed = false;
+    for (RawMutation mutation : page.mutations()) {
+      if (mutation instanceof RawMutation.Upsert upsert)
+        changed |= acls.observe(expected, upsert.item(), now);
+    }
+    return changed;
+  }
+
+  private void recordObservations(
+      WorkClaim claim, RunId run, CollectionPage page, PageTally tally, Instant now) {
+    runs.observe(run, tally.observed());
+    runs.addRejections(run, claim.source(), now, page.rejections());
+    page.absenceVerification()
+        .ifPresent(
+            verified ->
+                runs.recordAbsenceValidation(
+                    run,
+                    new RunStore.AbsenceValidation(
+                        verified.fingerprint(), verified.candidateToken(), verified.exclusions())));
   }
 }

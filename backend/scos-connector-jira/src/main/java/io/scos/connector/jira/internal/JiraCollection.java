@@ -10,6 +10,7 @@ import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.PageSink;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
@@ -239,7 +240,8 @@ public final class JiraCollection {
             Optional.empty(),
             observedAt,
             JsJson.stringify(metadata),
-            Optional.of(content));
+            Optional.of(content),
+            RawAcl.notObserved());
     return new Collected(List.of(new RawMutation.Upsert(item)), List.of());
   }
 
@@ -396,7 +398,8 @@ public final class JiraCollection {
             stringField(fields, "updated"),
             observedAt,
             JsJson.stringify(metadata),
-            Optional.of(input.content().json("application/json", stringified)));
+            Optional.of(input.content().json("application/json", stringified)),
+            RawAcl.notObserved());
     return new RawMutation.Upsert(item);
   }
 

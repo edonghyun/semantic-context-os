@@ -26,7 +26,7 @@ import io.scos.collection.internal.SourceSupervisor.Attempt;
 import io.scos.collection.internal.SourceSupervisor.AttemptOutcome;
 import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.BackgroundThread;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -1085,5 +1085,13 @@ class CollectionDaemonTest {
           .isInstanceOf(IllegalArgumentException.class)
           .hasMessage(option + " must be positive");
     }
+  }
+
+  @Test
+  @DisplayName("활성 소스가 없어도 틱은 접근 만료를 실행한다")
+  void expiresAccessWithoutActiveSources() {
+    scenario.tickWithoutLoop();
+    // then
+    assertThat(scenario.expiryRuns()).isEqualTo(1);
   }
 }

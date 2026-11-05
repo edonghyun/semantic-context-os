@@ -1,7 +1,8 @@
 package io.scos.collection.internal;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Optional;
+import java.util.Set;
 
 /** 수집 보고 데이터(테스트 공용) — 다른 패키지 테스트가 11인자 생성자를 쓰지 않게 한다. */
 public final class Reports {
@@ -25,6 +26,7 @@ public final class Reports {
         0,
         0,
         Optional.empty(),
-        Optional.empty());
+        Optional.empty(),
+        Set.of());
   }
 }

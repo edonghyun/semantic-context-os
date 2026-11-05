@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunCompletion;
 import io.scos.collection.internal.RunId;
@@ -14,14 +15,15 @@ import io.scos.collection.internal.SnapshotShrinkLimits;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,7 +71,15 @@ class PostgresSnapshotShrinkGuardAtomicityTest {
       String id = String.format("note-%03d", i);
       adapters
           .rawItems()
-          .apply(SOURCE, new RawMutation.Upsert(RawItem.minimal(id, "v1", "{}", T0)));
+          .apply(
+              SOURCE,
+              new RawMutation.Upsert(
+                  RawItems.item(id)
+                      .resourceType("test.item")
+                      .version("v1")
+                      .metadata("{}")
+                      .observedAt(T0)
+                      .build()));
       ids.add(id);
     }
   }
@@ -96,7 +106,9 @@ class PostgresSnapshotShrinkGuardAtomicityTest {
                         RUN,
                         RunOutcome.succeeded(0),
                         CollectionCoverage.COMPLETE_SNAPSHOT,
-                        T0)));
+                        T0,
+                        AccessResult.SKIPPED,
+                        Optional.empty())));
     if (!(failure instanceof IllegalStateException e)
         || !e.getMessage().equals(FailingChangeLog.MESSAGE))
       throw new IllegalStateException("given 준비 실패: 완료가 변경 로그에서 실패하지 않았다", failure);

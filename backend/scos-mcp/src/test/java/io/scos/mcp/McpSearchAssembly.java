@@ -8,6 +8,8 @@ import io.scos.boot.AccessParts;
 import io.scos.boot.McpConfiguration;
 import io.scos.boot.MetricsConfiguration;
 import io.scos.boot.ProvidersConfiguration;
+import io.scos.collection.internal.FixedSourceQueries;
+import io.scos.collection.internal.SourceQueries;
 import io.scos.engine.support.call.ProviderCallPolicies;
 import io.scos.engine.support.call.ProviderCallPolicy;
 import io.scos.spi.store.ContextUnit;
@@ -61,6 +63,11 @@ final class McpSearchAssembly implements AutoCloseable {
 
   @Configuration(proxyBeanMethods = false)
   static class MemoryEngine {
+    @Bean
+    SourceQueries sourceQueries() {
+      return new FixedSourceQueries(List.of());
+    }
+
     @Bean
     MemoryUnitStore unitStore() {
       return new MemoryUnitStore();

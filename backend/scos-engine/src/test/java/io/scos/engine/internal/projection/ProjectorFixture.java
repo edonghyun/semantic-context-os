@@ -3,6 +3,7 @@ package io.scos.engine.internal.projection;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.SourceOrder;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
@@ -169,22 +170,22 @@ public final class ProjectorFixture {
       JsonNode c = n.get("content");
       JsonNode order = n.get("sourceOrder");
       items.add(
-          new RawItem(
-              n.get("key").get("externalId").asString(),
-              n.get("resourceType").asString(),
-              n.get("sourceVersion").asString(),
-              order == null || order.isNull()
-                  ? Optional.empty()
-                  : Optional.of(
-                      new SourceOrder(
-                          order.get("scheme").asString(), order.get("position").asString())),
-              optionalString(n, "sourceCreatedAt"),
-              optionalString(n, "sourceUpdatedAt"),
-              Instant.parse(n.get("observedAt").asString()),
-              M.writeValueAsString(n.get("metadata")),
-              Optional.of(
-                  new RawContent.Inline(
-                      c.get("mediaType").asString(), contentJson(c, jsonBlobs)))));
+          RawItems.item(n.get("key").get("externalId").asString())
+              .resourceType(n.get("resourceType").asString())
+              .version(n.get("sourceVersion").asString())
+              .order(
+                  order == null || order.isNull()
+                      ? Optional.empty()
+                      : Optional.of(
+                          new SourceOrder(
+                              order.get("scheme").asString(), order.get("position").asString())))
+              .sourceCreatedAt(optionalString(n, "sourceCreatedAt"))
+              .sourceUpdatedAt(optionalString(n, "sourceUpdatedAt"))
+              .observedAt(Instant.parse(n.get("observedAt").asString()))
+              .metadata(M.writeValueAsString(n.get("metadata")))
+              .content(
+                  new RawContent.Inline(c.get("mediaType").asString(), contentJson(c, jsonBlobs)))
+              .build());
     }
     return items;
   }

@@ -9,6 +9,7 @@ import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import java.time.Instant;
 import java.util.List;
@@ -25,7 +26,12 @@ class CollectedPagesTest {
   private final LocalContentCapture capture = new LocalContentCapture();
 
   private RawItem givenItem(String id) {
-    return RawItem.minimal(id, "version-" + id, "{}", OBSERVED_AT);
+    return RawItems.item(id)
+        .resourceType("test.item")
+        .version("version-" + id)
+        .metadata("{}")
+        .observedAt(OBSERVED_AT)
+        .build();
   }
 
   private RawItem givenJson(String json) {

@@ -1,16 +1,22 @@
 package io.scos.collection.internal.projection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import io.scos.collection.internal.RawItems;
 import io.scos.collection.internal.SourceInstances;
+import io.scos.connector.slack.SlackAssembly;
 import io.scos.engine.internal.projection.NotesProjector;
+import io.scos.spi.access.AccessKey;
+import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.connector.CancellationToken;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawAcl;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.embedding.FixedEmbedder;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.ContextUnit;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -50,12 +56,49 @@ class ProjectionRunProjectorTest {
         .runDue(CancellationToken.none());
   }
 
+  @Test
+  @DisplayName("계산한 문서 ACL을 sync 인자로 전달한다")
+  void passesCalculatedAclsToSync() {
+    // given
+    var projection = new MemoryProjection();
+    projection.collectingAccess(
+        SlackAssembly.adapter("http://127.0.0.1:1", "synthetic", projection.clock));
+    var source = projection.slackSourceWithOneMessage("slack-a", "권한 회수 검증을 위한 충분히 긴 메시지 본문입니다.");
+    var key = AccessKey.parse("group:slack-a:C1");
+    projection
+        .rawItems
+        .acls()
+        .observe(
+            source,
+            "C1:1760400000.000100",
+            RawAcl.observed(DocumentAcl.Status.OK, Set.of(key), MemoryProjection.T0),
+            MemoryProjection.T0);
+    // when
+    project(projection);
+    // then
+    assertThat(projection.syncedAcls())
+        .containsEntry(
+            "C1/day-2025-10-14",
+            new DocumentAcl(
+                "C1/day-2025-10-14", DocumentAcl.Status.OK, Set.of(key), MemoryProjection.T0));
+  }
+
   @Nested
   @DisplayName("notes 투영기를 등록한 투영에서 notes 소스를 투영하면")
   class RegisteredKind {
     @BeforeEach
     void givenNotesSourceAwaitingProjection() {
       notesSourceAwaitingProjection(fixture);
+    }
+
+    @Test
+    @DisplayName("반환한 보고의 문서 실패 목록은 수정할 수 없다")
+    void reportedDocumentFailuresAreImmutable() {
+      // when
+      var report = project(fixture).getFirst();
+      // then
+      assertThatThrownBy(() -> report.documentFailures().clear())
+          .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test

@@ -11,7 +11,7 @@ import io.scos.spi.connector.CollectionState.AbsenceCandidates;
 import io.scos.spi.connector.CollectionState.AbsenceStatus;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.SnapshotScope;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

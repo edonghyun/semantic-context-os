@@ -6,7 +6,7 @@ import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SnapshotGuardStore;
 import io.scos.collection.internal.SnapshotShrinkOverrides;
 import io.scos.collection.internal.SourceQueries;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,8 @@ class SourceStatusShrinkGuardJsonTest {
         Optional.empty(),
         guard,
         acceptedAt,
-        limits);
+        limits,
+        0);
   }
 
   @Nested

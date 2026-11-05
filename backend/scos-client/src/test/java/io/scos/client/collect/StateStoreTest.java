@@ -8,6 +8,7 @@ import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.ContentCapture;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -36,16 +37,13 @@ class StateStoreTest {
   private static final Duration PROMPT_OPEN = Duration.ofSeconds(2);
 
   private static RawItem item(String id, String type, String doc, String json) {
-    return new RawItem(
-            id,
-            type,
-            "v1",
-            Optional.empty(),
-            Optional.empty(),
-            Optional.of("2026-10-27T10:00:00.000Z"),
-            NOW,
-            "{\"documentId\":\"" + doc + "\"}",
-            Optional.empty())
+    return RawItems.item(id)
+        .resourceType(type)
+        .version("v1")
+        .sourceUpdatedAt(Optional.of("2026-10-27T10:00:00.000Z"))
+        .observedAt(NOW)
+        .metadata("{\"documentId\":\"" + doc + "\"}")
+        .build()
         .withContent(CAPTURE.json("application/json", json));
   }
 

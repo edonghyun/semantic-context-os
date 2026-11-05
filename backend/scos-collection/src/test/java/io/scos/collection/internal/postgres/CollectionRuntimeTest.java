@@ -8,11 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 import io.scos.collection.internal.AlreadyRunningException;
-import io.scos.collection.internal.ClaimLostException;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.RawRecord;
 import io.scos.collection.internal.RunId;
+import io.scos.collection.internal.RunStateException;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
 import io.scos.spi.connector.CancellationToken;
@@ -292,14 +292,12 @@ class CollectionRuntimeTest {
     }
 
     @Test
-    @DisplayName("A의 run 마감은 ClaimLost를 원인으로 실패한다")
+    @DisplayName("이미 stale로 마감된 A의 run을 다시 마감하지 않는다")
     void aIsFenced() {
       // then
       assertThat(aFailure)
-          .isInstanceOf(IllegalStateException.class)
-          .hasMessageContaining("Run finalization failed")
-          .hasMessageContaining("not running")
-          .hasCauseInstanceOf(ClaimLostException.class);
+          .isInstanceOf(RunStateException.class)
+          .hasMessageContaining("not running");
     }
 
     @Test

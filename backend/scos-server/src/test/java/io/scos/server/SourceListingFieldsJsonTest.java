@@ -14,7 +14,7 @@ import io.scos.spi.connector.ListingField;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package io.scos.collection.internal;
 
 import io.scos.engine.support.text.JsJson;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;

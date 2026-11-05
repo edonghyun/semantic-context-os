@@ -34,6 +34,9 @@ public final class FakeJiraServer implements AutoCloseable {
   private record Route(
       Map<String, String> params, List<Response> responses, AtomicInteger served) {}
 
+  private record RequestKey(String path, Map<String, String> params) {}
+
+  private final Map<RequestKey, Response> exactResponses = new ConcurrentHashMap<>();
   private final JsonNode dataset;
   private final FakeHttpServer http;
   private final Map<String, List<Route>> routes = new LinkedHashMap<>();
@@ -48,8 +51,8 @@ public final class FakeJiraServer implements AutoCloseable {
 
   private static final ObjectMapper JSON = new ObjectMapper();
 
-  /** 요청 상한 — 큐가 줄지 않거나 같은 페이지를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(400)와 검사 실패로 끝낸다. 데이터셋 run은 백 개 안쪽이다. */
-  static final int MAX_REQUESTS = 2000;
+  /** 서버 전체 수명의 요청 상한. 정상 첫 수집 39건을 여러 번 재개할 여유를 두고, 커서 소실 루프는 PIT 기한 전에 실패시킨다. */
+  static final int MAX_REQUESTS = 128;
 
   /** 동시에 n개가 모이기를 기다리는 상한 — 하나씩 부르는 구현은 이만큼 늦은 뒤 진행한다. */
   static final Duration WAIT_LIMIT = Duration.ofSeconds(2);
@@ -106,6 +109,12 @@ public final class FakeJiraServer implements AutoCloseable {
     if (!routes.containsKey(path)) http.on("GET", path, request -> answer(path, request));
   }
 
+  /** 이 경로와 디코드한 쿼리에만 답한다. 본문 읽기와 접근 읽기의 같은 경로를 구분한다. */
+  public void respondExactly(String path, Map<String, String> params, Response response) {
+    exactResponses.put(new RequestKey(path, Map.copyOf(params)), response);
+    if (!routes.containsKey(path)) http.on("GET", path, request -> answer(path, request));
+  }
+
   /** 이슈 검색 응답(데이터셋)에서 이 이슈를 뺀다. 그 밖의 요청은 데이터셋 그대로다. */
   void omitFromIssueSearch(String issueId) {
     filters.put(
@@ -151,11 +160,11 @@ public final class FakeJiraServer implements AutoCloseable {
     http.failNext(pathPrefix, Integer.MAX_VALUE, new Response(status, "{}", headers));
   }
 
-  List<Recorded> requests() {
+  public List<Recorded> requests() {
     return http.received();
   }
 
-  void gateOn(String pathContains, CountDownLatch latch, Consumer<String> onArrive) {
+  public void gateOn(String pathContains, CountDownLatch latch, Consumer<String> onArrive) {
     http.gateOn(pathContains, latch, onArrive);
   }
 
@@ -169,6 +178,8 @@ public final class FakeJiraServer implements AutoCloseable {
   }
 
   private Response answerNow(String path, Recorded request) {
+    Response exact = exactResponses.get(new RequestKey(path, request.params()));
+    if (exact != null) return exact;
     Function<Recorded, Response> override = overrides.get(path);
     if (override != null) return override.apply(request);
     for (Route route : routes.getOrDefault(path, List.of())) {

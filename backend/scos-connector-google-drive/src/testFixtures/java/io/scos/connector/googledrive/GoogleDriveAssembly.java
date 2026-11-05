@@ -9,7 +9,7 @@ import io.scos.connector.googledrive.internal.GoogleDriveFixtures;
 import io.scos.connector.googledrive.internal.GoogleOrigins;
 import io.scos.engine.support.call.ProviderCallPolicy;
 import io.scos.engine.support.call.ProviderHttp;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;

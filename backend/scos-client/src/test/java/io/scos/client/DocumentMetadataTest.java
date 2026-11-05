@@ -3,6 +3,7 @@ package io.scos.client;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -53,15 +54,11 @@ class DocumentMetadataTest {
   }
 
   private RawItem item(String metadata) {
-    return new RawItem(
-        "d/s1#0",
-        "claude.transcript.turn",
-        "v1",
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        Instant.parse("2026-10-28T00:00:00Z"),
-        metadata,
-        Optional.empty());
+    return RawItems.item("d/s1#0")
+        .resourceType("claude.transcript.turn")
+        .version("v1")
+        .observedAt(Instant.parse("2026-10-28T00:00:00Z"))
+        .metadata(metadata)
+        .build();
   }
 }

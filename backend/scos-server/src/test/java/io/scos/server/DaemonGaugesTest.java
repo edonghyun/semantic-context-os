@@ -9,7 +9,7 @@ import io.scos.collection.internal.ProjectionRetryPolicy;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.engine.support.time.MutableClock;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.ContextUnits;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.memory.MemoryUnitMaintenance;

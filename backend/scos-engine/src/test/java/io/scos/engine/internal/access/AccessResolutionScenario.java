@@ -2,7 +2,7 @@ package io.scos.engine.internal.access;
 
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.IdentityStore;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.Principal;
 import io.scos.store.memory.MemoryIdentityStore;

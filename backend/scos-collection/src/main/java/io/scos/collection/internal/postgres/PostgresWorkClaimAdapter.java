@@ -4,7 +4,7 @@ import io.scos.collection.internal.ClaimLostException;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.collection.internal.WorkClaimPort;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;

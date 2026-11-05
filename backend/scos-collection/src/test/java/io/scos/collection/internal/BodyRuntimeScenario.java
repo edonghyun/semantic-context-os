@@ -3,6 +3,7 @@ package io.scos.collection.internal;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionState;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.SourceAdapter;
 import java.util.List;
 import java.util.Map;

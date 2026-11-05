@@ -6,6 +6,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.SourceDocument;
 import java.time.Instant;
 import java.util.List;
@@ -86,16 +87,15 @@ class TiroProjectorTest {
   }
 
   static RawItem item(String resourceType, Optional<String> createdAt, Optional<String> updatedAt) {
-    return new RawItem(
-        NOTE_ID,
-        resourceType,
-        "v1",
-        Optional.empty(),
-        createdAt,
-        updatedAt,
-        OBSERVED,
-        "{}",
-        Optional.of(new RawContent.Inline("application/json", "{}")));
+    return RawItems.item(NOTE_ID)
+        .resourceType(resourceType)
+        .version("v1")
+        .sourceCreatedAt(createdAt)
+        .sourceUpdatedAt(updatedAt)
+        .observedAt(OBSERVED)
+        .metadata("{}")
+        .content(new RawContent.Inline("application/json", "{}"))
+        .build();
   }
 
   static final RawItem NOTE =

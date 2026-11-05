@@ -3,6 +3,7 @@ package io.scos.connector.slack;
 import io.scos.connector.slack.internal.SlackMrkdwnCleaner;
 import io.scos.connector.slack.internal.SlackTs;
 import io.scos.engine.support.text.Text;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import tools.jackson.databind.JsonNode;
@@ -34,10 +36,12 @@ public final class SlackProjector implements Projector {
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
   private final ObjectMapper json;
+  private final AccessPolicy access;
   private final SlackMrkdwnCleaner cleaner = new SlackMrkdwnCleaner();
 
   public SlackProjector(ObjectMapper json) {
     this.json = json;
+    this.access = AccessPolicy.supported(Set.of(RESOURCE_TYPE), Set.of(), this::documentId);
   }
 
   private Optional<String> meta(RawItem item, String field) {
@@ -69,15 +73,25 @@ public final class SlackProjector implements Projector {
   public Map<String, List<RawItem>> groupIntoDocuments(List<RawItem> items) {
     Map<String, List<RawItem>> groups = new TreeMap<>();
     for (RawItem item : items) {
-      if (!belongsToSlack(item)) continue;
-      String channelId = meta(item, "channelId").orElseThrow();
-      String documentId =
-          threadTs(item)
-              .map(t -> channelId + "/thread-" + t.text())
-              .orElseGet(() -> channelId + "/day-" + utcDate(messageTs(item).orElseThrow()));
+      Optional<String> document = access.documentOf(item);
+      if (document.isEmpty()) continue;
+      String documentId = document.orElseThrow();
       groups.computeIfAbsent(documentId, k -> new ArrayList<>()).add(item);
     }
     return groups;
+  }
+
+  public AccessPolicy accessPolicy() {
+    return access;
+  }
+
+  private Optional<String> documentId(RawItem item) {
+    if (!belongsToSlack(item)) return Optional.empty();
+    String channelId = meta(item, "channelId").orElseThrow();
+    return Optional.of(
+        threadTs(item)
+            .map(t -> channelId + "/thread-" + t.text())
+            .orElseGet(() -> channelId + "/day-" + utcDate(messageTs(item).orElseThrow())));
   }
 
   @Override

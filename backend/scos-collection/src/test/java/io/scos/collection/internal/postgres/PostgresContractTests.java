@@ -1,12 +1,18 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.AccessObservationScenario;
+import io.scos.collection.internal.AccessObservationStore;
+import io.scos.collection.internal.AccessObservationStoreContract;
 import io.scos.collection.internal.CheckpointContract;
 import io.scos.collection.internal.CheckpointPort;
 import io.scos.collection.internal.OutboxContract;
 import io.scos.collection.internal.OutboxPort;
+import io.scos.collection.internal.RawAclScenario;
+import io.scos.collection.internal.RawAclStoreContract;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawItemStoreContract;
+import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStore;
 import io.scos.collection.internal.RunStoreContract;
 import io.scos.collection.internal.SourceChangeLog;
@@ -21,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 /** P-1: PostgreSQL 어댑터가 메모리 참조 구현과 같은 계약을 통과한다. */
 @DisplayName("PostgreSQL 어댑터는 메모리와 같은 포트 계약을 지킨다(P-1)")
@@ -29,6 +36,24 @@ class PostgresContractTests {
   @BeforeEach
   void clean() {
     PostgresSupport.truncateAll();
+  }
+
+  @Nested
+  @DisplayName("접근 관측은 run 전체성에 따라 그룹과 신원을 확정한다")
+  class AccessObservations extends AccessObservationStoreContract {
+    @Override
+    protected AccessObservationScenario newScenario() {
+      return AccessObservationScenario.postgres(PostgresSupport.dataSource());
+    }
+  }
+
+  @Nested
+  @DisplayName("원본 ACL은 단조 관측과 동일 시각의 권한 제한을 지킨다")
+  class RawAcls extends RawAclStoreContract {
+    @Override
+    protected RawAclScenario newScenario() {
+      return RawAclScenario.postgres(PostgresSupport.dataSource());
+    }
   }
 
   @Nested
@@ -73,6 +98,21 @@ class PostgresContractTests {
     @Override
     protected RunStore newStore() {
       return PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource()).runs();
+    }
+
+    @Override
+    protected AccessObservationStore accessObservations() {
+      return PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource())
+          .accessObservations();
+    }
+
+    @Override
+    protected long accessObservationCount(RunId run) {
+      return JdbcClient.create(PostgresSupport.dataSource())
+          .sql("SELECT count(*) FROM access_observations WHERE run_id = :run")
+          .param("run", run.value())
+          .query(Long.class)
+          .single();
     }
 
     @Override

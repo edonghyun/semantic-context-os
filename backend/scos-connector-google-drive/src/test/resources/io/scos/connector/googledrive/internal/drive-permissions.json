@@ -1,0 +1,7 @@
+{
+  "permissions": [{
+    "id": "permission-alice", "type": "user", "role": "reader",
+    "emailAddress": "A@EXAMPLE.COM", "deleted": false,
+    "permissionDetails": [{"permissionType": "file", "role": "reader", "inherited": false}]
+  }]
+}

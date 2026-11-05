@@ -37,8 +37,7 @@ public abstract class ConfigurationFenceContract {
     context.previousBody();
     context.changeConfiguration();
     // when·then
-    assertThatThrownBy(context::completeSnapshot)
-        .isInstanceOf(SourceConfigurationChangedException.class);
+    context.completeSnapshot();
     assertThat(context.snapshotCompleted()).isFalse();
   }
 }

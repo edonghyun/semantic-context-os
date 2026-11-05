@@ -1,6 +1,6 @@
 package io.scos.collection.internal.postgres;
 
-import static io.scos.collection.internal.RawItems.item;
+import static io.scos.spi.connector.RawItems.item;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -13,7 +13,7 @@ import io.scos.collection.internal.SweepMode;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Duration;

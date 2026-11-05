@@ -75,7 +75,7 @@ class PostgresUnitStoreTest extends UnitStoreContract {
 
   @Override
   protected UnitStore newStore() {
-    units = new PostgresUnitStore(new NamedParameterJdbcTemplate(PostgresSupport.dataSource()));
+    units = PostgresTestAdapters.unitStore(PostgresSupport.dataSource());
     return units;
   }
 
@@ -132,7 +132,7 @@ class PostgresUnitStoreTest extends UnitStoreContract {
                       } finally {
                         DataSourceUtils.releaseConnection(c, ds);
                       }
-                      new PostgresUnitStore(new NamedParameterJdbcTemplate(ds))
+                      PostgresTestAdapters.unitStore(ds)
                           .upsert(new SpaceId(spaceA), List.of(unit("a-1", "contested")));
                       claimed.countDown();
                       try {
@@ -148,7 +148,7 @@ class PostgresUnitStoreTest extends UnitStoreContract {
     Future<?> b =
         pool.submit(
             () ->
-                new PostgresUnitStore(new NamedParameterJdbcTemplate(ds))
+                PostgresTestAdapters.unitStore(ds)
                     .upsert(new SpaceId(spaceB), List.of(unit("b-1", "contested"))));
 
     PgLocks.awaitBlockedBy(ds, pidA.get(), WAIT_LIMIT);

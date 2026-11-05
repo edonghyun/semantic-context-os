@@ -1,7 +1,7 @@
 package io.scos.collection.internal;
 
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Clock;
 
 /**

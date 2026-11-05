@@ -1,5 +1,6 @@
 package io.scos.collection.internal.projection;
 
+import io.scos.collection.internal.AccessCollection;
 import io.scos.collection.internal.ClaimLostException;
 import io.scos.collection.internal.LeaseHeartbeat;
 import io.scos.collection.internal.LeaseHeartbeats;
@@ -7,7 +8,9 @@ import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.ProjectionRetryPolicy;
+import io.scos.collection.internal.RawAclStore;
 import io.scos.collection.internal.RawItemStore;
+import io.scos.collection.internal.SourceAdapters;
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.WorkClaim;
@@ -15,20 +18,27 @@ import io.scos.collection.internal.WorkClaimPort;
 import io.scos.engine.EventLog;
 import io.scos.engine.support.projection.SourceSync;
 import io.scos.engine.support.projection.SyncReport;
+import io.scos.engine.support.projection.WriteGuardException;
 import io.scos.engine.support.text.Text;
+import io.scos.spi.access.AccessFailureReason;
+import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.connector.CancellationToken;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.spi.store.DocumentOwnership;
 import io.scos.spi.store.SpaceId;
 import java.net.SocketTimeoutException;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -36,16 +46,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * 투영 실행(G1·ADR-0007·ADR-0018 §6): Outbox의 due 소스마다 active 원본 전량(500개 페이지) → 투영기(kind별) → documentId
  * 정렬 순 투영 → SourceSync.sync(prune) → 성공이면 요청 완료, 실패(문서 실패 포함)면 attempts·backoff. 문서 실패는 documentRef
- * = sha256(uri)로만 보고한다(원문·URL 비노출). 알 수 없는 kind는 skipped(요청 완료 — 투영할 것이 없다).
+ * = sha256(uri, 렌더 실패는 documentId·그룹 실패는 sourceId)로만 보고한다(원문·URL 비노출). 알 수 없는 kind는 skipped(요청 완료 —
+ * 투영할 것이 없다).
  */
 public final class ProjectionRun {
   public enum Outcome {
@@ -74,12 +87,17 @@ public final class ProjectionRun {
       int units,
       int deleted,
       int projectionSkipped,
+      int ownershipSkipped,
       Optional<String> error,
       List<DocumentFailure> documentFailures) {
+    public Report {
+      documentFailures = List.copyOf(documentFailures);
+    }
+
     /** 투영까지 가지 못했다(셈은 모두 0). */
     static Report without(
         SourceInstanceId source, String kind, Outcome outcome, Optional<String> error) {
-      return new Report(source, kind, outcome, 0, 0, 0, 0, error, List.of());
+      return new Report(source, kind, outcome, 0, 0, 0, 0, 0, error, List.of());
     }
 
     static Report failed(SourceInstanceId source, String kind, String error) {
@@ -106,6 +124,7 @@ public final class ProjectionRun {
           result.units(),
           result.deleted(),
           skipped,
+          result.ownershipSkipped().size(),
           error,
           failures);
     }
@@ -113,7 +132,12 @@ public final class ProjectionRun {
 
   /** 투영기가 낸 문서(documentId 정렬 순), 살아 있는 documentId, 문서가 되지 않은 묶음 수. */
   private record ProjectedDocuments(
-      List<SourceDocument> documents, Set<String> live, int skipped) {}
+      List<SourceDocument> documents,
+      Set<String> live,
+      int skipped,
+      Map<String, DocumentAcl> acls,
+      List<DocumentFailure> failures,
+      Map<String, List<RawItem>> groups) {}
 
   private static final Logger log = LoggerFactory.getLogger(ProjectionRun.class);
   static final int PAGE_SIZE = 500;
@@ -131,6 +155,12 @@ public final class ProjectionRun {
   private final Clock clock;
   private final ProjectionMetrics metrics;
   private final Progress progress;
+  private final SourceAdapters adapters;
+  private final boolean collectAccess;
+  private final DocumentOwnership ownership;
+  private final RawAclStore rawAcls;
+  private final AccessCollection.Options accessOptions;
+  private final TransactionOperations tx;
 
   public ProjectionRun(
       OutboxPort outbox,
@@ -145,7 +175,19 @@ public final class ProjectionRun {
       LeaseHeartbeats heartbeats,
       Clock clock,
       ProjectionMetrics metrics,
-      Progress progress) {
+      Progress progress,
+      SourceAdapters adapters,
+      boolean collectAccess,
+      DocumentOwnership ownership,
+      RawAclStore rawAcls,
+      TransactionOperations tx,
+      AccessCollection.Options accessOptions) {
+    this.rawAcls = rawAcls;
+    this.accessOptions = accessOptions;
+    this.tx = tx;
+    this.ownership = ownership;
+    this.adapters = adapters;
+    this.collectAccess = collectAccess;
     this.progress = progress;
     this.metrics = metrics;
     this.outbox = outbox;
@@ -206,7 +248,7 @@ public final class ProjectionRun {
     try {
       // 점유 뒤의 어떤 실패도(heartbeat 등록 거부 포함) finally의 해제를 거친다 — 점유가 TTL까지 남지 않는다
       heartbeat.start();
-      return project(instance.get(), found.get(), seen, guard(heartbeat, claim), cancel);
+      return project(instance.get(), found.get(), seen, guard(heartbeat, claim, cancel), cancel);
     } catch (ClaimLostException e) {
       if (cancel.isCancelled()) return Report.cancelled(id, kind);
       // 경쟁자가 점유를 가져갔으면 그쪽이 요청을 끝낸다(SUPERSEDED, 실패 아님). 경쟁자 없이 만료만 됐으면(TTL보다 긴 투영) 실패로 세어
@@ -232,8 +274,9 @@ public final class ProjectionRun {
    * 수집과 같은 heartbeat(TTL/2) — TTL보다 긴 투영도 끝까지 간다. 쓰기 트랜잭션마다 heartbeat 실패·점유 검사를 함께 보고, 쓰기 하나를 긴 투영의
    * 진행 신호로 남긴다.
    */
-  private Runnable guard(LeaseHeartbeat heartbeat, WorkClaim claim) {
+  private Runnable guard(LeaseHeartbeat heartbeat, WorkClaim claim, CancellationToken cancel) {
     return () -> {
+      if (cancel.isCancelled()) throw new WriteGuardException("Projection cancelled");
       heartbeat.assertHealthy();
       claims.requireActive(claim, clock.instant());
       progress.mark();
@@ -258,14 +301,17 @@ public final class ProjectionRun {
     SourceInstanceId id = instance.id();
     String kind = instance.kind();
     SpaceId space = spaces.resolve(instance);
-    ProjectedDocuments projected = projectDocuments(id, projector);
+    ProjectedDocuments projected = projectDocuments(instance, projector, space);
     SyncReport result =
-        ingestor.sync(space, id.value(), projected.documents(), projected.live(), guard);
+        ingestor.sync(
+            space, id.value(), projected.documents(), projected.live(), projected.acls(), guard);
+    reportOwnershipSkipped(instance.id(), result.ownershipSkipped(), guard);
+    restrictForeignCarriers(instance, projected.groups(), result.ownershipSkipped(), guard);
     metrics.embeddings(result.embeddings());
-    List<DocumentFailure> failures =
-        result.errors().stream()
-            .map(d -> new DocumentFailure(Text.sha256Hex(d.uri()), d.stage(), reason(d.cause())))
-            .toList();
+    List<DocumentFailure> failures = new ArrayList<>(projected.failures());
+    result.errors().stream()
+        .map(d -> new DocumentFailure(Text.sha256Hex(d.uri()), d.stage(), reason(d.cause())))
+        .forEach(failures::add);
     if (!failures.isEmpty() && cancel.isCancelled()) return Report.cancelled(id, kind);
     if (failures.isEmpty()) {
       outbox.complete(id, seen);
@@ -276,22 +322,155 @@ public final class ProjectionRun {
     return Report.synced(id, kind, result, projected.skipped(), Optional.of(error), failures);
   }
 
-  private ProjectedDocuments projectDocuments(SourceInstanceId id, Projector projector) {
-    Map<String, List<RawItem>> groups = projector.groupIntoDocuments(readAllActive(id));
+  private void reportOwnershipSkipped(
+      SourceInstanceId source, Set<String> skipped, Runnable guard) {
+    tx.executeWithoutResult(
+        status -> {
+          guard.run();
+          sources.recordOwnershipSkipped(source, skipped.size());
+        });
+    if (!skipped.isEmpty())
+      EventLog.warn(log, "projection.document.ownership_skipped")
+          .source(source)
+          .detail(
+              "count",
+              skipped.size(),
+              "documentRefs",
+              skipped.stream().sorted().limit(20).map(Text::sha256Hex).toList())
+          .log();
+  }
+
+  private ProjectedDocuments projectDocuments(
+      SourceInstance instance, Projector projector, SpaceId space) {
+    Instant decidedAt = clock.instant();
+    List<RawItem> items = List.copyOf(readAllActive(instance.id()));
+    Map<String, List<RawItem>> groups;
+    Set<String> invalid;
+    try {
+      groups = new TreeMap<>(projector.groupIntoDocuments(items));
+      invalid =
+          collectAccess
+              ? adapters.require(instance.kind()).accessPolicy().invalidDocuments(items, groups)
+              : Set.of();
+      invalid.forEach(id -> groups.putIfAbsent(id, List.of()));
+    } catch (RuntimeException e) {
+      return groupingFailure(instance, space, decidedAt, e);
+    }
+    Map<String, DocumentAcl> acls = calculateAcls(instance, space, groups, decidedAt);
+    return renderDocuments(instance.id(), projector, groups, invalid, acls, decidedAt);
+  }
+
+  private Map<String, DocumentAcl> calculateAcls(
+      SourceInstance instance,
+      SpaceId space,
+      Map<String, List<RawItem>> groups,
+      Instant decidedAt) {
+    Map<String, DocumentAcl> acls = new HashMap<>();
+    if (collectAccess) {
+      var adapter = adapters.require(instance.kind());
+      var calculator = new DocumentAcls(accessOptions);
+      groups.forEach(
+          (id, items) ->
+              acls.put(
+                  id, calculator.calculate(instance.descriptor(), adapter, id, items, decidedAt)));
+      ownership.listDocumentIds(space, instance.id().value()).stream()
+          .filter(id -> !groups.containsKey(id))
+          .forEach(
+              id -> acls.put(id, failedAcl(id, decidedAt, AccessFailureReason.DOCUMENT_MISSING)));
+    }
+    return acls;
+  }
+
+  private ProjectedDocuments renderDocuments(
+      SourceInstanceId source,
+      Projector projector,
+      Map<String, List<RawItem>> groups,
+      Set<String> invalid,
+      Map<String, DocumentAcl> acls,
+      Instant decidedAt) {
     List<SourceDocument> documents = new ArrayList<>();
     Set<String> live = new HashSet<>();
+    List<DocumentFailure> failures = new ArrayList<>();
     int skipped = 0;
-    for (var e : groups.entrySet()) { // TreeMap: documentId 정렬 순
-      Optional<SourceDocument> doc =
-          projector.project(id.value(), e.getKey(), e.getValue(), this::readContent);
-      if (doc.isEmpty()) {
-        skipped++;
-        continue;
+    for (var e : groups.entrySet()) {
+      String id = e.getKey();
+      try {
+        if (invalid.contains(id))
+          throw new IllegalArgumentException("Incomplete document access carriers");
+        Optional<SourceDocument> doc =
+            projector.project(source.value(), id, e.getValue(), this::readContent);
+        if (doc.isEmpty()) {
+          skipped++;
+          if (collectAccess)
+            acls.put(id, failedAcl(id, decidedAt, AccessFailureReason.RENDER_FAILED));
+          continue;
+        }
+        if (!doc.get().documentId().equals(id) || !doc.get().sourceId().equals(source.value()))
+          throw new IllegalArgumentException("Projected document identity does not match bundle");
+        documents.add(doc.get());
+        live.add(id);
+      } catch (RuntimeException ex) {
+        live.add(id);
+        if (collectAccess)
+          acls.put(
+              id,
+              failedAcl(
+                  id,
+                  decidedAt,
+                  invalid.contains(id)
+                      ? AccessFailureReason.INVALID_CARRIER
+                      : AccessFailureReason.RENDER_FAILED));
+        failures.add(new DocumentFailure(Text.sha256Hex(id), "project", reason(ex)));
       }
-      documents.add(doc.get());
-      live.add(e.getKey());
     }
-    return new ProjectedDocuments(documents, live, skipped);
+    return new ProjectedDocuments(
+        documents, live, skipped, Map.copyOf(acls), List.copyOf(failures), groups);
+  }
+
+  private ProjectedDocuments groupingFailure(
+      SourceInstance instance, SpaceId space, Instant decidedAt, RuntimeException error) {
+    Set<String> live = ownership.listDocumentIds(space, instance.id().value());
+    Map<String, DocumentAcl> acls = new HashMap<>();
+    if (collectAccess)
+      live.forEach(
+          id -> acls.put(id, failedAcl(id, decidedAt, AccessFailureReason.GROUPING_FAILED)));
+    var failure =
+        new DocumentFailure(Text.sha256Hex(instance.id().value()), "project", reason(error));
+    return new ProjectedDocuments(List.of(), live, 0, Map.copyOf(acls), List.of(failure), Map.of());
+  }
+
+  /** 상대 소유 문서의 운반 원본만 차단한다. 변경과 후속 요청은 같은 투영 점유 트랜잭션이다. */
+  private void restrictForeignCarriers(
+      SourceInstance instance,
+      Map<String, List<RawItem>> groups,
+      Set<String> skipped,
+      Runnable guard) {
+    if (!collectAccess || skipped.isEmpty()) return;
+    var policy = adapters.require(instance.kind()).accessPolicy();
+    tx.executeWithoutResult(
+        s -> {
+          guard.run();
+          boolean changed = false;
+          for (String id : skipped) {
+            for (RawItem item : groups.getOrDefault(id, List.of())) {
+              if (!policy.carries(item)) continue;
+              Instant observedAt =
+                  item.acl() instanceof RawAcl.Observed acl ? acl.observedAt() : clock.instant();
+              changed |=
+                  rawAcls.observe(
+                      instance.id(),
+                      item.externalId(),
+                      RawAcl.failed(AccessFailureReason.OWNERSHIP_CONFLICT, observedAt),
+                      observedAt);
+            }
+          }
+          if (changed) outbox.requestProjection(instance.id(), clock.instant());
+        });
+  }
+
+  private static DocumentAcl failedAcl(
+      String documentId, Instant decidedAt, AccessFailureReason reason) {
+    return new DocumentAcl(documentId, DocumentAcl.Status.FAILED, Set.of(), decidedAt, reason);
   }
 
   /**

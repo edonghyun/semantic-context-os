@@ -40,7 +40,7 @@
 ### 1.1 사람 갈래 — Spring Boot 기본 콘솔 형식
 
 ```text
-2026-10-27T10:15:03.551+09:00 ERROR 4821 --- [scos] [ collector-2] i.s.c.i.CollectionRuntime  : collection.run.failed source=kep-notion run=8dff121d status=failed errorKind=invalid_provider_response errorSummary="Notion API error: invalid_provider_response" operation=notion.blocks.children.list violation=item_shape itemIndex=3 workKind=block_children blockId=104f…
+2026-10-27T10:15:03.551+09:00 ERROR 4821 --- [scos] [ collector-2] i.s.c.i.CollectionRuntime  : collection.run.failed source=team-notion run=8dff121d status=failed errorKind=invalid_provider_response errorSummary="Notion API error: invalid_provider_response" operation=notion.blocks.children.list violation=item_shape itemIndex=3 workKind=block_children blockId=104f…
 2026-10-27T10:15:07.002+09:00  INFO 4821 --- [scos] [    scheduler] i.s.server.DaemonMaintenance             : maintenance.sweep.completed scanned=120 deleted=3 retainedByReference=110 retainedByGrace=7 bytesFreed=40960 changesPruned=0
 2026-10-27T10:15:09.410+09:00  WARN 4821 --- [scos] [ HikariPool-1] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected
 ```
@@ -66,7 +66,7 @@
 ```
 
 ```json
-{"ts":"2026-10-27T01:15:03.551Z","level":"error","event":"collection.run.failed","sourceInstanceId":"kep-notion","runId":"8dff121d-…","detail":{"status":"failed","errorKind":"invalid_provider_response","errorSummary":"Notion API error: invalid_provider_response (cursor cycle: list=blocks:104f… trail=[-,a1b2c3d4,9f8e7d6c] next=a1b2c3d4 length=3)","operation":"notion.blocks.children.list","violation":"cursor_cycle","providerLocator":{"workKind":"block_children","blockId":"104f…"}}}
+{"ts":"2026-10-27T01:15:03.551Z","level":"error","event":"collection.run.failed","sourceInstanceId":"team-notion","runId":"8dff121d-…","detail":{"status":"failed","errorKind":"invalid_provider_response","errorSummary":"Notion API error: invalid_provider_response (cursor cycle: list=blocks:104f… trail=[-,a1b2c3d4,9f8e7d6c] next=a1b2c3d4 length=3)","operation":"notion.blocks.children.list","violation":"cursor_cycle","providerLocator":{"workKind":"block_children","blockId":"104f…"}}}
 {"ts":"2026-10-27T01:15:09.410Z","level":"warn","event":"log","detail":{"logger":"com.zaxxer.hikari.pool.HikariPool","message":"HikariPool-1 - Thread starvation or clock leap detected"}}
 ```
 
@@ -261,6 +261,17 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 | `http.authentication.failed` | error | `scos-server` `PrincipalBearerFilter`(토큰 저장소 조회 장애) | — | `ref` (+ `error`) | `PrincipalBearerFilterTest` |
 | `collection.run.failed` | error | `scos-collection` `CollectionRuntime`(run 마감 직전) | 소스·run | `status`·`errorKind`·`errorSummary`, 공급자 호출 실패면 `operation`, 응답 검사 위반이 알려졌으면 `violation`(검사 이름)·`itemIndex`(항목 검사일 때), 커넥터가 실패한 작업의 위치를 붙였으면 `providerLocator` | `CollectionRuntimeEventLogTest`, `CollectionRuntimeHeartbeatStartFailureTest`, `NotionAdapterFixtureTest`, `NotionApiClientTest`, `SlackAdapterFixtureTest` |
 | `collection.run.cancelled` | info | `scos-collection` `CollectionRuntime`(run 마감 직전) | 소스·run | `status`·`errorKind`·`errorSummary` | `CollectionRuntimeEventLogTest`, `DaemonProcessTest` |
+| `access.domain.unavailable` | warn | `scos-spring-boot-starter` `AccessDomainConfiguration`(기동 시 유효 Drive 도메인 정책 없음) | 소스 | `reason`(`missing_instance_domain`·`outside_org_domains`) | `AccessCollectionConfigurationTest` |
+| `collection.drive_access.finished` | info | `scos-connector-google-drive` `DriveAccessCollection`(접근 시도 종료, 대상 실패 포함) | 소스 | `targetCount`·`permissionCalls`(페이지·재시도 포함, OAuth 제외)·`elapsedMs` | `DriveAccessCollectionEventLogTest` |
+| `collection.access.expired` | warn | `scos-collection` `AccessExpiry` | 소스 | `rawClosed`·`documentsClosed`·`cutoff`·`reason` | `AccessExpiryTest` |
+| `collection.access.directory_expired` | warn | `scos-collection` `AccessExpiry` | 소스 | `groupsClosed`·`identitiesClosed`·`cutoff`·`reason` | `AccessExpiryTest` |
+| `collection.acl.closed` | warn | `scos-collection` `AclCommit` | 소스 | `reason`·`rawRef`(sha256) | `AccessCollectionTest` |
+| `projection.access.closed` | warn | `scos-engine` `DocumentIngestor` | 소스 | `reason`·`documentRef`(sha256) | `ProjectionAclMemoryTest` |
+| `collection.access.expiry_failed` | warn | `scos-collection` `AccessExpiry`(만료 저장 실패 격리) | 소스 | — (+ `error`) | `AccessExpiryTest` |
+| `collection.access.incomplete` | warn | `scos-collection` `AccessCollection`(접근 단계 예외 격리) | 소스·run | — (+ `error`) | `AccessCollectionTest` |
+| `collection.access.restricted` | warn | `scos-collection` `AccessCompletion`(참조 위반·전체성·상충으로 병합 제한) | 소스·run | — | `AccessRunCompletionTest.restrictedMergeLogsWarning` |
+| `collection.access.future_observation` | warn | `scos-collection` `AclCommit`(미래 수집 관측 시각 보정) | 소스 | `kind`·`observedAt`·`cappedAt` | `AclCommitTest.futureObservationLogsWarning` |
+| `collection.acl.skipped` | warn | `scos-collection` `AclCommit`(비정규 instance ACL 생략) | 소스 | `reason` | `PageAclCommitContract.nonCanonicalInstanceLogsSkippedAcl` |
 | `collection.item.rejected` | warn | `scos-collection` `CollectionRuntime`(페이지 커밋 뒤, 거부마다) | 소스·run | `failureKind`·`message`·`operation`?·`providerLocator`? | `CollectionRuntimeEventLogTest` |
 | `collection.reconciliation.completed` | info | `scos-collection` `CollectionRuntime`(run 마감 뒤 원장 보고) | 소스·run | `eligiblePages`·`missedPages`·`missRatio`·`partial`·`discoveries`(Count 문자열 배열)·`lastSuccessAgeSeconds` | `ReconciliationReportingTest` |
 | `collection.reconciliation.report_failed` | warn | `scos-collection` `CollectionRuntime`(run 마감 뒤 보고 실패, 마감 결과 유지) | 소스·run | — (+ `error`) | `ReconciliationReportingTest` |
@@ -278,6 +289,7 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 | `collection.snapshot.report_failed` | error | `scos-collection` `RunCompletion`(커밋 뒤 보호 보고 실패) | 소스·run | — (+ `error`) | `SnapshotShrinkReportFailureTest` |
 | `maintenance.sweep.completed` | info | `scos-server` `DaemonMaintenance` | — | `blob`{`scanned`·`deleted`·`retainedByReference`·`retainedByGrace`·`bytesFreed`}·`changesPruned` | `DaemonMaintenanceTest` |
 | `maintenance.sweep.failed` | error | `scos-server` `DaemonMaintenance` | — | `message` (+ `error`) | `DaemonMaintenanceTest` |
+| `projection.document.ownership_skipped` | warn | `scos-collection` `ProjectionRun` | 소스 | `count`·`documentRefs`(sha256, 최대 20개) | `ProjectionAclMemoryTest` |
 | `projection.request.failed_repeatedly` | error | `scos-collection` `ProjectionRun`(실패 기록 뒤 연속 실패 수가 maxAttempts 이상) | 소스 | `consecutiveFailures`·`attempts`·`parked`·`errorSummary` | `ProjectionEventLogTest` |
 | `search.rerank.fallback` | warn | `scos-engine` `DefaultContextEngine`(재정렬이 원 순서로 폴백) | — | `reason`(`provider_error`·`invalid_format`)·`message`?(공급자 오류 메시지) | `ContextEngineTest` |
 | `daemon.cycle.failed` | error | `scos-server` `CollectionDaemon`(틱이 예외로 끝남. 루프는 계속) | — | `message` (+ `error`) | `CollectionDaemonEventLogTest` |
@@ -332,3 +344,16 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 - 규칙마다 표본 자기 시험이 있다(`LoggingRulesSelfTest`·`scosrules.LoggingSamples`, `EventLogCallsTest`, `EventCatalogTest`의 `Parse`·`Compare`). 규칙을 고치면 표본도 함께 고친다.
 - **고정 목록(freeze)**: `LoggingRulesTest`의 기존 위반은 `verification/src/test/resources/frozen/`(ConventionRulesTest와 같은 저장소)에 둔다. 지금은 0건이다. 새 위반은 목록에 넣지 않고 코드에서 `EventLog`로 고친다(`freeze.refreeze=false`).
 - **갱신 절차**(고정된 위반을 고쳤을 때): `cd backend && ./gradlew :verification:fastTest --tests 'io.scos.LoggingRules*' -Pscos.freeze.update=true`. 고친 위반이 목록에서 빠진다. 바뀐 목록 파일을 같은 커밋에 넣는다. 새 위반은 이 모드에서도 실패한다. 규칙 설명 문장(`.as(…)`)은 저장소의 열쇠라 바꾸지 않는다. 바꿔야 하면 TESTING §13.2의 재고정 절차를 따른다.
+
+## 12. 접근 수집 운영 판독 (0.2-b)
+
+본문 run의 성공만으로 접근 완료를 판정하지 않는다. `source status`의 접근
+결과·완료 시각과 함께 §9의 `collection.access.incomplete`·`collection.access.restricted`,
+`projection.access.closed`·`collection.access.expired`·`collection.access.directory_expired`, `projection.document.ownership_skipped`와
+`projection.request.failed_repeatedly`를 확인한다. 각 이벤트의 실제 이름·detail은 §9가 기준이다.
+문서별 렌더 실패를 격리해도 요청은 backoff로 남을 수 있다. `ownershipSkipped`는 collect=false에도
+나타나며 C3 소유 점검으로 연결한다. 접근 미완료·만료·미연결은 같은 사건이 아니다.
+
+신원 이메일·본문·권한 키를 로그에 추가하지 않는다. `source access explain`은 운영자 전용
+읽기 출력으로, 해석 키를 포함할 수 있어 공개 로그로 복사하지 않는다. 이번 T-b19에는 새 제품
+이벤트가 없으며 기존 이벤트 카탈로그를 그대로 대조한다.

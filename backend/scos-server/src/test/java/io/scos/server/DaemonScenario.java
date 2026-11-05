@@ -21,8 +21,8 @@ import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.SourceAdapter;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.FixedEmbedder;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.BackgroundThread;
 import io.scos.support.CountedWorkers;
 import io.scos.support.Eventually;
@@ -95,7 +95,7 @@ final class DaemonScenario implements AutoCloseable {
 
   private final MutableClock clock = new MutableClock(T0);
   private final MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
-  private final MemoryRunStore runs = new MemoryRunStore();
+  private final MemoryRunStore runs = MemoryRunStore.create();
   private final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
   private final MemoryProjection projection = new MemoryProjection(clock, sources, claims);
   private final CountedWorkers workers = CountedWorkers.of(2);
@@ -104,6 +104,7 @@ final class DaemonScenario implements AutoCloseable {
       new LinkedBlockingQueue<>();
   private final List<CollectionDaemon.CycleOutcome> outcomes = new CopyOnWriteArrayList<>();
   private final List<CollectionMode> modesSeen = new CopyOnWriteArrayList<>();
+  private final AtomicInteger expiryRuns = new AtomicInteger();
   private final AtomicInteger maintenanceRuns = new AtomicInteger();
   private final AtomicInteger collectCalls = new AtomicInteger();
   private final Map<SourceInstanceId, Collector> collectorsBySource = new ConcurrentHashMap<>();
@@ -352,6 +353,10 @@ final class DaemonScenario implements AutoCloseable {
     return n == null ? 0 : n.get();
   }
 
+  int expiryRuns() {
+    return expiryRuns.get();
+  }
+
   int maintenanceRuns() {
     return maintenanceRuns.get();
   }
@@ -430,6 +435,7 @@ final class DaemonScenario implements AutoCloseable {
         maintenanceSweepFails
             ? new DaemonMaintenance(this::failMaintenanceSweep)
             : maintenanceRuns::incrementAndGet,
+        cancel -> expiryRuns.incrementAndGet(),
         new CollectionDaemon.Options(poll, MAINTENANCE_INTERVAL, shutdownTimeout),
         workers,
         clock,

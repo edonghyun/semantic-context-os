@@ -20,8 +20,8 @@ import io.scos.engine.support.logging.EventValues;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.EmbeddingGeneration;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.SpaceId;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -51,7 +51,7 @@ public final class Commands implements ApplicationRunner, ExitCodeGenerator {
   private static final String CYCLE_FAILED = "command.cycle.failed";
 
   static final String USAGE =
-      "usage: import --file=<units.json> [--space=<id>] [--embedding-generation=<provider:model:dim:input-format>] | source add --id=<id> --kind=<kind> [--name=<name>] --config=<file> --credential-ref=<env:|file:|command:…> [--interval-seconds=<n>] [--snapshot-interval-seconds=<n>] [--snapshot-guard-min-active=<n>] [--snapshot-guard-max-delete-percent=<1-100>] | source accept-shrink <id> | source list | source status <id> | source disable <id> | source enable <id> | source rejections <id> [--limit=<n>] | raw list [--limit=<n>] [--cursor=<c>] [--source=<id>] [--type=<type>] [--state=active|deleted] | raw get <source> <externalId> | status [--log=<serve.jsonl>] | collect --source=<id> [--mode=snapshot] | project | cycle | maintenance [--grace-days=<n>] [--dry-run] | reembed --space=<id> [--dry-run] | mcp | daemon";
+      "usage: import --file=<units.json> [--space=<id>] [--embedding-generation=<provider:model:dim:input-format>] | source add --id=<id> --kind=<kind> [--name=<name>] --config=<file> --credential-ref=<env:|file:|command:…> [--interval-seconds=<n>] [--snapshot-interval-seconds=<n>] [--snapshot-guard-min-active=<n>] [--snapshot-guard-max-delete-percent=<1-100>] | source accept-shrink <id> | source list | source status <id> | source access explain <documentId> [--user <id>] | source disable <id> | source enable <id> | source rejections <id> [--limit=<n>] | raw list [--limit=<n>] [--cursor=<c>] [--source=<id>] [--type=<type>] [--state=active|deleted] | raw get <source> <externalId> | status [--log=<serve.jsonl>] | collect --source=<id> [--mode=snapshot] | project | cycle | maintenance [--grace-days=<n>] [--dry-run] | reembed --space=<id> [--dry-run] | mcp | daemon";
 
   private final UnitJsonImport importer;
   private final SourceRegistrar registrar;

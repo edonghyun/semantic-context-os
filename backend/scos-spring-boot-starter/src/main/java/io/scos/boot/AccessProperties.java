@@ -1,11 +1,11 @@
 package io.scos.boot;
 
 import io.scos.spi.access.DomainPolicy;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -37,13 +37,14 @@ public record AccessProperties(
     }
   }
 
-  public DomainPolicy domainPolicy() {
-    return new DomainPolicy(
-        Set.copyOf(orgDomains),
-        instanceDomains.entrySet().stream()
-            .collect(
-                Collectors.toUnmodifiableMap(
-                    e -> new SourceInstanceId(e.getKey()), Map.Entry::getValue)));
+  /** 검증된 소스 계정 도메인을 기본값으로 쓰며 명시 오버레이가 우선한다. */
+  public DomainPolicy domainPolicy(Map<SourceInstanceId, String> accountEmails) {
+    var domains = new HashMap<SourceInstanceId, String>();
+    accountEmails.forEach(
+        (instance, email) -> domains.put(instance, email.substring(email.lastIndexOf('@') + 1)));
+    instanceDomains.forEach(
+        (instance, domain) -> domains.put(new SourceInstanceId(instance), domain));
+    return new DomainPolicy(Set.copyOf(orgDomains), domains);
   }
 
   public boolean collectAccess() {

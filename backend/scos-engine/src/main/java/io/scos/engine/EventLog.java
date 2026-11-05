@@ -3,7 +3,7 @@ package io.scos.engine;
 import io.scos.engine.support.logging.EventValues;
 import io.scos.engine.support.logging.JsonLineEncoder;
 import io.scos.engine.support.text.JsJson;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

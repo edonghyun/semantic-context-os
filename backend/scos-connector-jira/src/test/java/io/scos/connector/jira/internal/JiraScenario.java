@@ -198,7 +198,8 @@ final class JiraScenario implements AutoCloseable {
    * 한 run의 페이지 상한 — 큐가 줄지 않는 결함(변이)은 가짜의 요청 상한 뒤에도 실패한 읽기를 거부 항목으로 넘기며 끝없이 페이지를 낸다. 그런 run을 실패시킨다.
    * fixture run은 수십 쪽이다.
    */
-  static final int MAX_PAGES = 1000;
+  // 정상 run 최대 21쪽에 여유를 두며, HTTP 루프는 PIT 기한 전에 단언으로 드러낸다.
+  static final int MAX_PAGES = 64;
 
   Collection collect() {
     return collect(Optional.empty());

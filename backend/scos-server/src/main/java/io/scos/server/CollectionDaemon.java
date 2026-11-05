@@ -66,6 +66,7 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
   private final SourceSupervisor supervisor;
   private final ProjectionRun projection;
   private final Runnable maintenance;
+  private final Consumer<CancellationToken> accessExpiry;
   private final Options options;
   private final ExecutorService workers;
   private final Clock clock;
@@ -88,6 +89,7 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
       SourceSupervisor supervisor,
       ProjectionRun projection,
       Runnable maintenance,
+      Consumer<CancellationToken> accessExpiry,
       Options options,
       ExecutorService workers,
       Clock clock,
@@ -97,6 +99,7 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
     this.supervisor = supervisor;
     this.projection = projection;
     this.maintenance = maintenance;
+    this.accessExpiry = accessExpiry;
     this.options = options;
     this.workers = workers;
     this.clock = clock;
@@ -141,6 +144,7 @@ public final class CollectionDaemon implements SmartLifecycle, ExitCodeGenerator
     Optional<SourceSupervisor.Cycle> collection = Optional.empty();
     Optional<RuntimeException> failure = Optional.empty();
     try {
+      accessExpiry.accept(cancel);
       collection = supervisor.runDueSources(cancel, options.poll());
       if (!cancel.isCancelled()) projections.addAll(projection.runDue(cancel));
       if (!cancel.isCancelled()) runMaintenanceIfDue();

@@ -16,8 +16,9 @@ import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.PageSink;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.SourceAdapter;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.ManualTaskScheduler;
 import java.time.Duration;
 import java.time.Instant;
@@ -46,7 +47,7 @@ class CollectionMetricsTest {
   CollectionMetrics metrics = CollectionMetrics.of(registry);
   MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
   MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
-  MemoryRunStore runs = new MemoryRunStore();
+  MemoryRunStore runs = MemoryRunStore.create();
   ManualTaskScheduler scheduler = new ManualTaskScheduler();
 
   CollectionRuntime.Report collect(SourceAdapter adapter) {

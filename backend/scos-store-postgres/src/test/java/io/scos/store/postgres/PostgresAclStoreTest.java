@@ -25,6 +25,17 @@ class PostgresAclStoreTest extends AclStoreContract {
   }
 
   @Test
+  @DisplayName("새 바이너리의 모르는 실패 원인은 unknown으로 읽는다")
+  void unknownStoredFailureReasonIsReadable() {
+    store.put(A, List.of(new DocumentAcl("doc", DocumentAcl.Status.FAILED, Set.of(), OBSERVED)));
+    JdbcClient.create(PostgresSupport.dataSource())
+        .sql("UPDATE document_acl SET reason = 'FUTURE_POLICY'")
+        .update();
+    // then
+    assertThat(store.get(A, List.of("doc")).get("doc").reason().wire()).isEqualTo("unknown");
+  }
+
+  @Test
   @DisplayName("호출자 트랜잭션이 롤백되면 ACL 쓰기도 사라진다")
   void rollsBackWithCaller() {
     var tx =

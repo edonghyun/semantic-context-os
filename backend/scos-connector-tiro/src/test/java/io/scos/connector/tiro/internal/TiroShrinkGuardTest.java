@@ -56,7 +56,7 @@ class TiroShrinkGuardTest {
     AtomicInteger runs = new AtomicInteger();
     runtime =
         MemoryCollectionRuntime.over(
-                clock, sources, new MemoryWorkClaimPort(), new MemoryRunStore())
+                clock, sources, new MemoryWorkClaimPort(), MemoryRunStore.create())
             .rawItems(rawItems)
             .guards(guards)
             .metrics(CollectionMetrics.of(registry))

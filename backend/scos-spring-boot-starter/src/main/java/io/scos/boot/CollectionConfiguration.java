@@ -1,10 +1,14 @@
 package io.scos.boot;
 
+import io.scos.collection.internal.AccessCollection;
+import io.scos.collection.internal.AccessCompletion;
+import io.scos.collection.internal.AccessExpiry;
 import io.scos.collection.internal.BlobGarbageCollector;
 import io.scos.collection.internal.BlobMaintenancePort;
 import io.scos.collection.internal.CheckpointPort;
 import io.scos.collection.internal.CollectionMetrics;
 import io.scos.collection.internal.CollectionRuntime;
+import io.scos.collection.internal.CollectionStores;
 import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.Maintenance;
 import io.scos.collection.internal.OwnerId;
@@ -23,13 +27,18 @@ import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.SourceRegistrar;
 import io.scos.collection.internal.WorkClaimPort;
 import io.scos.collection.internal.credentials.SchemeCredentialResolver;
+import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.connector.slack.SlackAdapter;
 import io.scos.connector.slack.internal.SlackWebApiClient;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderHttp;
+import io.scos.spi.access.AclStore;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.connector.CredentialResolver;
 import io.scos.spi.connector.SourceAdapter;
+import io.scos.spi.source.SourceAccessDirectory;
+import io.scos.spi.store.DocumentOwnership;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -46,6 +55,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.validation.annotation.Validated;
@@ -56,7 +66,11 @@ import tools.jackson.databind.ObjectMapper;
  * heartbeat 스케줄러, 런타임(owner = 호스트:pid). 저장 포트는 PostgresCollectionConfiguration.
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(CollectionConfiguration.CollectionProperties.class)
+@Import(AccessDomainConfiguration.class)
+@EnableConfigurationProperties({
+  CollectionConfiguration.CollectionProperties.class,
+  CollectionConfiguration.AccessCollectionProperties.class
+})
 public class CollectionConfiguration {
   /** 잘못된 설정은 기동 시 Bean Validation이 거부한다(ADR-0009). 기본값은 @DefaultValue — 빈 값은 검증이 잡는다. */
   @Validated
@@ -66,6 +80,39 @@ public class CollectionConfiguration {
       @DefaultValue("https://slack.com") @NotBlank @Pattern(regexp = "https?://.+")
           String slackBaseUrl,
       @DefaultValue @Valid SnapshotGuard snapshotGuard) {}
+
+  @Validated
+  @ConfigurationProperties("scos.access")
+  public record AccessCollectionProperties(
+      @DefaultValue("24h") @DurationMin(seconds = 1) Duration maxAge) {}
+
+  @Bean
+  AccessCollection.Options accessCollectionOptions(AccessCollectionProperties properties) {
+    return new AccessCollection.Options(properties.maxAge());
+  }
+
+  @Bean
+  AccessExpiry accessExpiry(
+      CollectionStores stores,
+      SourceAdapters adapters,
+      ProjectionSpaces spaces,
+      AclStore acls,
+      DocumentOwnership ownership,
+      SourceAccessDirectory directory,
+      Clock clock,
+      AccessCollection.Options options,
+      AccessProperties access) {
+    return new AccessExpiry(
+        stores,
+        adapters,
+        spaces,
+        acls,
+        ownership,
+        directory,
+        clock,
+        options,
+        access.collectAccess());
+  }
 
   /**
    * 스냅샷 축소 보호 데몬 기본값(ADR-0028). 소스별 값(`source add --snapshot-guard-…`)이 우선한다. acceptTtl은 `source
@@ -164,6 +211,11 @@ public class CollectionConfiguration {
       RunStore runs,
       PageCommit pageCommit,
       RunCompletion completion,
+      CollectionStores stores,
+      AccessProperties access,
+      DomainPolicy domains,
+      ProjectionSpaces spaces,
+      AccessCollection.Options accessOptions,
       LeaseHeartbeats heartbeats,
       Clock clock,
       CollectionMetrics metrics,
@@ -178,6 +230,9 @@ public class CollectionConfiguration {
         runs,
         pageCommit,
         completion,
+        new AccessCollection(
+            stores, adapters, calls, domains, clock, access.collectAccess(), spaces, accessOptions),
+        new AccessCompletion(stores, clock),
         owner,
         heartbeats,
         clock,

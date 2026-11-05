@@ -2,6 +2,7 @@ package io.scos.connector.notion.internal;
 
 import static io.scos.connector.notion.internal.NotionFixtures.UNKNOWN_PAGE;
 
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.BodyCompletionStore;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.RawRecord;
@@ -450,6 +451,8 @@ final class NotionAbsenceScenario implements AutoCloseable {
             RunOutcome.succeeded(data.runs.get(NotionRefreshScenario.RUN).orElseThrow().rejected()),
             CollectionCoverage.COMPLETE_SNAPSHOT,
             data.clock.instant(),
+            AccessResult.SKIPPED,
+            Optional.empty(),
             Optional.empty(),
             Optional.of(scope)));
   }

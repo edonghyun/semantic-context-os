@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.Projector.ContentReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -60,18 +61,19 @@ class NotionBlockRendererTest {
     ObjectNode metadata = JSON.createObjectNode();
     metadata.set("type", b.get("type"));
     metadata.put("parentBlockId", b.get("parent").asString());
-    return new RawItem(
-        NotionBlockRenderer.BLOCK_PREFIX + b.get("id").asString(),
-        "notion.block",
-        "v",
-        Optional.empty(),
-        b.get("created").isNull() ? Optional.empty() : Optional.of(b.get("created").asString()),
-        Optional.empty(),
-        OBSERVED,
-        metadata.toString(),
-        b.get("content").isNull()
-            ? Optional.empty()
-            : Optional.of(new RawContent.Inline("application/json", b.get("content").toString())));
+    return RawItems.item(NotionBlockRenderer.BLOCK_PREFIX + b.get("id").asString())
+        .resourceType("notion.block")
+        .version("v")
+        .sourceCreatedAt(
+            b.get("created").isNull() ? Optional.empty() : Optional.of(b.get("created").asString()))
+        .observedAt(OBSERVED)
+        .metadata(metadata.toString())
+        .content(
+            b.get("content").isNull()
+                ? Optional.empty()
+                : Optional.of(
+                    new RawContent.Inline("application/json", b.get("content").toString())))
+        .build();
   }
 
   /** 표본의 블록 원본들. */

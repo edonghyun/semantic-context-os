@@ -1,5 +1,6 @@
 package io.scos.store.sqlite;
 
+import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.AclStore;
 import io.scos.spi.access.DocumentAcl;
@@ -59,12 +60,12 @@ public final class SqliteAclStore implements AclStore {
     List<String> keys = acl.keys().stream().map(AccessKey::toString).sorted().toList();
     StatementSpec statement =
         jdbc.sql(
-            "INSERT INTO document_acl (space_id, document_id, status, keys, fingerprint, observed_at)"
-                + " VALUES (:space, :doc, :status, :keys, :fingerprint, :observed)"
+            "INSERT INTO document_acl (space_id, document_id, status, keys, fingerprint, observed_at, reason)"
+                + " VALUES (:space, :doc, :status, :keys, :fingerprint, :observed, :reason)"
                 + " ON CONFLICT (space_id, document_id) DO UPDATE SET"
                 + " status = excluded.status, keys = excluded.keys,"
-                + " fingerprint = excluded.fingerprint, observed_at = excluded.observed_at"
-                + " WHERE document_acl.fingerprint <> excluded.fingerprint"
+                + " fingerprint = excluded.fingerprint, observed_at = excluded.observed_at, reason = excluded.reason"
+                + " WHERE (document_acl.fingerprint <> excluded.fingerprint OR document_acl.reason <> excluded.reason)"
                 + " AND document_acl.observed_at < excluded.observed_at");
     statement
         .param("space", space.value())
@@ -72,7 +73,8 @@ public final class SqliteAclStore implements AclStore {
         .param("status", acl.status().name().toLowerCase(Locale.ROOT))
         .param("keys", SqlParts.json(keys))
         .param("fingerprint", acl.fingerprint())
-        .param("observed", TIME.format(acl.observedAt()));
+        .param("observed", TIME.format(acl.observedAt()))
+        .param("reason", acl.reason().name());
     statement.update();
   }
 
@@ -81,7 +83,7 @@ public final class SqliteAclStore implements AclStore {
     if (documentIds.isEmpty()) return Map.of();
     Map<String, DocumentAcl> out = new HashMap<>();
     jdbc.sql(
-            "SELECT document_id, status, keys, observed_at FROM document_acl"
+            "SELECT document_id, status, keys, observed_at, reason FROM document_acl"
                 + " WHERE space_id = :space AND document_id IN (SELECT value FROM json_each(:docs))")
         .param("space", space.value())
         .param("docs", SqlParts.json(documentIds))
@@ -97,7 +99,8 @@ public final class SqliteAclStore implements AclStore {
         documentId,
         DocumentAcl.Status.valueOf(rs.getString("status").toUpperCase(Locale.ROOT)),
         keyTexts.stream().map(AccessKey::parse).collect(Collectors.toUnmodifiableSet()),
-        Instant.from(TIME.parse(rs.getString("observed_at"))));
+        Instant.from(TIME.parse(rs.getString("observed_at"))),
+        AccessFailureReason.fromStored(rs.getString("reason")));
   }
 
   @Override

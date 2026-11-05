@@ -1,11 +1,14 @@
 package io.scos.boot;
 
+import io.scos.collection.internal.AccessCollection;
 import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.ProjectionRetryPolicy;
+import io.scos.collection.internal.RawAclStore;
 import io.scos.collection.internal.RawItemStore;
+import io.scos.collection.internal.SourceAdapters;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.WorkClaimPort;
 import io.scos.collection.internal.projection.ProjectionMetrics;
@@ -20,9 +23,11 @@ import io.scos.engine.internal.projection.SpaceReembedding;
 import io.scos.engine.internal.projection.UnitImporter;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.engine.support.projection.SourceSync;
+import io.scos.spi.access.AclStore;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.Tokenizer;
+import io.scos.spi.store.DocumentOwnership;
 import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceId;
@@ -92,7 +97,9 @@ public class ProjectionConfiguration {
       Embedder embedder,
       EmbeddingCache cache,
       IngestPipeline pipeline,
-      Clock clock) {
+      Clock clock,
+      AclStore acls,
+      DocumentOwnership ownership) {
     return new DocumentIngestor(
         new TransactionTemplate(txm),
         units,
@@ -102,7 +109,9 @@ public class ProjectionConfiguration {
         embedder,
         cache,
         pipeline,
-        clock);
+        clock,
+        acls,
+        ownership);
   }
 
   /** 공간 재임베딩(`scos reembed`, stage2 §3.3) — 투영과 같은 임베더·캐시·트랜잭션 관리자를 쓴다. */
@@ -147,7 +156,13 @@ public class ProjectionConfiguration {
       Clock clock,
       ProjectionMetrics metrics,
       Progress progress,
-      OwnerId owner) {
+      OwnerId owner,
+      SourceAdapters adapters,
+      AccessProperties access,
+      DocumentOwnership ownership,
+      RawAclStore rawAcls,
+      PlatformTransactionManager txm,
+      AccessCollection.Options accessOptions) {
     return new ProjectionRun(
         outbox,
         sources,
@@ -161,6 +176,12 @@ public class ProjectionConfiguration {
         heartbeats,
         clock,
         metrics,
-        progress);
+        progress,
+        adapters,
+        access.collectAccess(),
+        ownership,
+        rawAcls,
+        new TransactionTemplate(txm),
+        accessOptions);
   }
 }

@@ -105,4 +105,18 @@ class GoogleDriveConfigurationTest {
     // then
     assertThat(config.downloadBinaries()).isTrue();
   }
+
+  @Test
+  @DisplayName("명시한 UNVERIFIED 설정은 null 없이 해당 enum을 보존한다")
+  void explicitUnverifiedIsPreserved() {
+    // when
+    var config =
+        GoogleDriveConfiguration.read(
+            GoogleDriveFixtures.JSON,
+            new SourceConfig(
+                1, "{\"accountEmail\":\"a@b\",\"permissionVisibility\":\"UNVERIFIED\"}"));
+    // then
+    assertThat(config.permissionVisibility())
+        .isEqualTo(GoogleDriveConfiguration.PermissionVisibility.UNVERIFIED);
+  }
 }

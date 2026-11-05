@@ -1,7 +1,6 @@
 package io.scos.collection.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.spi.connector.CollectionState.AbsenceStatus;
 import io.scos.spi.connector.SnapshotScope;
@@ -101,7 +100,7 @@ public abstract class AbsenceVerificationContract {
     context.verifyAllCandidatesOutside();
     context.claimWasReplacedBeforeExpiry();
     // when·then
-    assertThatThrownBy(context::complete).isInstanceOf(ClaimLostException.class);
+    assertThat(context.complete().errorKind()).contains("claim_lost");
     assertThat(context.lastCleanup()).isEmpty();
   }
 
@@ -361,7 +360,7 @@ public abstract class AbsenceVerificationContract {
     context.verifyAllCandidatesOutside();
     context.claimExpires();
     // then
-    assertThatThrownBy(context::complete).isInstanceOf(ClaimLostException.class);
+    assertThat(context.complete().errorKind()).contains("claim_lost");
     assertThat(context.lastCleanup()).isEmpty();
   }
 

@@ -9,19 +9,31 @@ import io.scos.boot.McpConfiguration.McpProperties;
 import io.scos.boot.PostgresIndexConfiguration;
 import io.scos.boot.RerankProperties;
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.engine.ContextEngine;
+import io.scos.engine.DocumentPage;
+import io.scos.engine.ReadRequest;
 import io.scos.mcp.QueryLog;
 import io.scos.server.McpHttpConfiguration.ReadResources;
 import io.scos.spi.access.AccessDirectory;
 import io.scos.spi.access.AccessDirectory.User;
+import io.scos.spi.access.AccessKey;
+import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.TokenHash;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.spi.store.ContextUnits;
+import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.UnitMaintenance;
 import io.scos.store.postgres.PostgresAccessSeed;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
@@ -64,6 +76,11 @@ final class McpHttpTokenPoolsScenario implements AutoCloseable {
             "server.port=8081")
         .withBean(
             AccessProperties.class, () -> new AccessProperties(Mode.MULTI_USER, null, null, null))
+        .withBean(
+            DomainPolicy.class,
+            () ->
+                new DomainPolicy(
+                    Set.of("example.com"), Map.of(new SourceInstanceId("drive-a"), "example.com")))
         .withBean(McpProperties.class, () -> new McpProperties("legacy", null))
         .withBean(
             RerankProperties.class, () -> new RerankProperties("none", null, null, null, null))
@@ -89,6 +106,40 @@ final class McpHttpTokenPoolsScenario implements AutoCloseable {
     properties.setUsername(PostgresSupport.username());
     properties.setPassword(PostgresSupport.password());
     return properties;
+  }
+
+  void givenDomainDocument() {
+    var configuration = new PostgresIndexConfiguration();
+    configuration
+        .newUnitMaintenance(PostgresSupport.dataSource())
+        .upsert(
+            SpaceId.LEGACY,
+            List.of(
+                ContextUnits.unit("domain-unit")
+                    .inDocument("domain-doc")
+                    .source("drive-a")
+                    .build()));
+    configuration
+        .newAclStore(PostgresSupport.dataSource())
+        .put(
+            SpaceId.LEGACY,
+            List.of(
+                new DocumentAcl(
+                    "domain-doc",
+                    DocumentAcl.Status.OK,
+                    Set.of(AccessKey.parse("domain:drive-a:example.com")),
+                    PrincipalBearerScenario.NOW)));
+  }
+
+  DocumentPage readDomainDocument() {
+    var page = new AtomicReference<DocumentPage>();
+    runner()
+        .run(
+            ctx ->
+                page.set(
+                    ctx.getBean("mcpHttpEngine", ContextEngine.class)
+                        .read(PrincipalBearerScenario.ALICE, ReadRequest.of("domain-doc"))));
+    return page.get();
   }
 
   Reply authenticateAndClose() {

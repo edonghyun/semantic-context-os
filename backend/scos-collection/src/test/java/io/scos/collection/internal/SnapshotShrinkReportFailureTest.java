@@ -15,9 +15,9 @@ import io.scos.collection.internal.memory.MemorySourceChangeLog;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.LogCapture;
 import java.time.Duration;
 import java.time.Instant;
@@ -53,7 +53,7 @@ class SnapshotShrinkReportFailureTest {
     }
   }
 
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
   final MemoryRawItemStore rawItems = new MemoryRawItemStore();
   final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
   final LogCapture log = LogCapture.of(RunCompletion.class);
@@ -66,7 +66,9 @@ class SnapshotShrinkReportFailureTest {
               rawItems,
               new MemoryCheckpointPort(),
               new MemoryOutboxPort(),
-              new MemorySourceChangeLog()),
+              new MemorySourceChangeLog(),
+              rawItems.acls(),
+              runs.accessObservations()),
           new SnapshotShrinkGuard(
               new MemorySourceInstanceStore(),
               new MemorySnapshotGuardStore(),
@@ -87,7 +89,14 @@ class SnapshotShrinkReportFailureTest {
     void givenGuardedCompletionWithFailingMetrics() {
       for (int i = 0; i < 20; i++)
         rawItems.apply(
-            SOURCE, new RawMutation.Upsert(RawItem.minimal("note-" + i, "v1", "{}", NOW)));
+            SOURCE,
+            new RawMutation.Upsert(
+                RawItems.item("note-" + i)
+                    .resourceType("test.item")
+                    .version("v1")
+                    .metadata("{}")
+                    .observedAt(NOW)
+                    .build()));
       WorkClaim claim = claims.tryClaim(SOURCE, new OwnerId("worker"), TTL, NOW).orElseThrow();
       runs.start(RUN, SOURCE, NOW);
 
@@ -100,7 +109,9 @@ class SnapshotShrinkReportFailureTest {
                           RUN,
                           RunOutcome.succeeded(0),
                           CollectionCoverage.COMPLETE_SNAPSHOT,
-                          NOW)));
+                          NOW,
+                          AccessResult.SKIPPED,
+                          Optional.empty())));
     }
 
     @Test

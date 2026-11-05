@@ -30,6 +30,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** `command:<셸 명령>`:stdout의 앞뒤 공백을 뗀 값. 실패 오류에는 종료 코드만 싣고 stdout·stderr는 싣지 않는다. */
 @Tag("process")
@@ -149,7 +151,9 @@ class CommandCredentialsTest {
 
   /** 이 테스트가 띄우는 오래 도는 명령(sleep·바쁜 루프) — 같은 JVM의 다른 테스트가 띄운 프로세스는 보지 않는다. */
   static boolean runsOneOfOurCommands(String commandLine) {
-    return commandLine.contains("sleep") || commandLine.contains("while :");
+    return commandLine.contains("sleep")
+        || commandLine.contains("while :")
+        || commandLine.contains("scos-credential");
   }
 
   /** 막 끝낸 프로세스는 잠깐 살아 보일 수 있다 — 모두 합쳐 PROCESS_SETTLE_LIMIT까지 기다린다(남은 것이 없으면 바로 끝난다). */
@@ -294,14 +298,62 @@ class CommandCredentialsTest {
       // then
       assertThat(survivorOf(pidFile)).isEmpty();
     }
+  }
+
+  @Nested
+  @DisplayName("부모가 백그라운드 자식보다 먼저 끝나면")
+  class ParentFinishesFirst {
+    @Test
+    @DisplayName("부모가 성공하면 stdout을 쥔 자식을 정리하고 값을 반환한다")
+    void backgroundHolderOfStdoutReturnsValue() throws IOException {
+      Path pid = dir.resolve("success-child.pid");
+      String resolved = commands.resolve("sleep 30 & echo $! > " + pid + "; echo " + SECRET);
+      // then
+      assertThat(resolved).isEqualTo(SECRET);
+      assertThat(survivorOf(pid)).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"exec true", "trap ':' EXIT; true"})
+    @DisplayName("명령의 exec·EXIT trap도 부모 성공 뒤 자손 정리를 우회하지 못한다")
+    void commandExitCannotBypassChildCleanup(String ending) throws IOException {
+      Path pid = dir.resolve("early-exit-child.pid");
+      String resolved =
+          commands.resolve("sleep 30 & echo $! > " + pid + "; echo " + SECRET + "; " + ending);
+      // then
+      assertThat(resolved).isEqualTo(SECRET);
+      assertThat(survivorOf(pid)).isEmpty();
+    }
 
     @Test
-    @DisplayName("stdout을 쥔 자식이 남아도 시간 초과로 끝낸다")
-    void backgroundHolderOfStdoutTimesOut() {
+    @DisplayName("보호자 완료 신호가 없으면 출력이 있어도 거부한다")
+    void missingCompletionStatusIsRejected() {
       // when·then
-      assertThatThrownBy(() -> commands.resolve(SLEEP_PAST_TIMEOUT + " & echo " + SECRET))
+      assertThatThrownBy(() -> patient.resolve("echo " + SECRET + "; kill -KILL \"$PPID\""))
           .isInstanceOf(CallFailureException.class)
-          .hasMessageContaining("timed out");
+          .hasMessageContaining("completion status")
+          .hasMessageNotContaining(SECRET)
+          .hasNoCause();
+    }
+
+    @Test
+    @DisplayName("부모가 실패한 뒤에도 백그라운드 자식은 남지 않는다")
+    void failedParentLeavesNoBackgroundChild() throws IOException {
+      Path pid = dir.resolve("failure-child.pid");
+      assertThatThrownBy(() -> patient.resolve("sleep 30 & echo $! > " + pid + "; exit 3"))
+          .isInstanceOf(CallFailureException.class);
+      // then
+      assertThat(survivorOf(pid)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("빈 출력을 거부한 뒤에도 백그라운드 자식은 남지 않는다")
+    void emptyOutputLeavesNoBackgroundChild() throws IOException {
+      Path pid = dir.resolve("empty-child.pid");
+      assertThatThrownBy(() -> patient.resolve("sleep 30 & echo $! > " + pid))
+          .isInstanceOf(CallFailureException.class);
+      // then
+      assertThat(survivorOf(pid)).isEmpty();
     }
   }
 

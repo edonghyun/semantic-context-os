@@ -16,6 +16,7 @@ import io.scos.mcp.ErrorExposure;
 import io.scos.mcp.McpToolSpecs;
 import io.scos.mcp.McpTools;
 import io.scos.mcp.QueryLog;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.UserTokens;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.TextGenerator;
@@ -145,6 +146,7 @@ class McpHttpConfiguration {
       ReadResources resources,
       McpProperties mcp,
       AccessProperties access,
+      DomainPolicy domains,
       RerankProperties rerank,
       ObjectProvider<TextGenerator> generators,
       Embedder embedder,
@@ -159,7 +161,7 @@ class McpHttpConfiguration {
         rerank,
         generators.getIfAvailable(),
         PostgresIndexConfiguration.newUnitStore(read),
-        assembly.accessParts(access, read),
+        assembly.accessParts(access, read, domains),
         PostgresIndexConfiguration.newKeywordIndex(read),
         PostgresIndexConfiguration.newVectorIndex(read),
         embedder,

@@ -18,7 +18,7 @@ import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CredentialResolver;
 import io.scos.spi.connector.SourceAdapter;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.FakeHttpServer;
 import io.scos.support.TestMetrics;
 import java.io.IOException;

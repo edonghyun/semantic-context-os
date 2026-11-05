@@ -3,6 +3,7 @@ package io.scos.server;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStatus;
@@ -12,9 +13,11 @@ import io.scos.collection.internal.SourceQueries;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.engine.support.time.MutableClock;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.embedding.EmbeddingGeneration;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.SpaceId;
+import io.scos.store.memory.MemoryIdentityStore;
 import io.scos.store.memory.MemorySpaceMeta;
 import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
@@ -25,6 +28,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -56,6 +60,16 @@ class QueryCommandsTest {
 
     @Override
     public Optional<SourceStatus> status(SourceInstanceId source, Instant now) {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<AccessExplanation> accessExplanation(String documentId) {
+      return Optional.empty();
+    }
+
+    @Override
+    public Optional<AccessStatus> accessStatus(SourceInstanceId source) {
       return Optional.empty();
     }
 
@@ -104,7 +118,10 @@ class QueryCommandsTest {
           EmbeddingGeneration.parse("test:query-commands:4:title+aliases+content"),
           clock,
           new SourceQueryJson(new ObjectMapper()),
-          outputs::add);
+          outputs::add,
+          false,
+          new AccessExplainer(
+              queries, new MemoryIdentityStore(), new DomainPolicy(Set.of(), Map.of())));
 
   static CommandArguments args(String... args) {
     return new CommandArguments(new DefaultApplicationArguments(args));
@@ -129,7 +146,10 @@ class QueryCommandsTest {
               0,
               Optional.empty(),
               Optional.empty(),
-              Optional.empty()));
+              Optional.empty(),
+              AccessResult.SKIPPED,
+              Optional.empty(),
+              Set.of()));
     return runs;
   }
 

@@ -1,5 +1,7 @@
 package io.scos.collection.internal.postgres;
 
+import io.scos.collection.internal.AccessObservationStore;
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.RunHistory;
 import io.scos.collection.internal.RunId;
@@ -9,7 +11,7 @@ import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -20,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 public final class PostgresRunStore implements RunStore {
   static final String COLUMNS =
-      "run_id, source_instance_id, status, started_at, finished_at, pages_applied, upserted, deleted, unchanged, rejected, error_count, error_kind, error_summary, coverage";
+      "run_id, source_instance_id, status, started_at, finished_at, pages_applied, upserted, deleted, unchanged, rejected, error_count, error_kind, error_summary, coverage, access_result, access_finished_at, acl_unreadable";
 
   /** 최근 run부터. 같은 시각이면 run id 코드 유닛 역순 — 감독·조회가 같은 run을 최신으로 본다. */
   static final String NEWEST_FIRST = " ORDER BY started_at DESC, run_id COLLATE \"C\" DESC";
@@ -40,8 +43,11 @@ public final class PostgresRunStore implements RunStore {
   private final JdbcClient jdbc;
   private final TransactionTemplate tx;
   private final BlobWriter blobs;
+  private final AccessObservationStore accessObservations;
 
-  public PostgresRunStore(JdbcClient jdbc, TransactionTemplate tx) {
+  public PostgresRunStore(
+      JdbcClient jdbc, TransactionTemplate tx, AccessObservationStore accessObservations) {
+    this.accessObservations = accessObservations;
     this.jdbc = jdbc;
     this.tx = tx;
     this.blobs = new BlobWriter(jdbc);
@@ -66,10 +72,12 @@ public final class PostgresRunStore implements RunStore {
                   .param("source", source.value())
                   .query(String.class)
                   .list();
-          if (!stale.isEmpty())
+          if (!stale.isEmpty()) {
             jdbc.sql("DELETE FROM run_observations WHERE run_id = ANY(:ids)")
                 .param("ids", stale.toArray(String[]::new))
                 .update();
+            stale.forEach(idValue -> accessObservations.discard(new RunId(idValue)));
+          }
           jdbc.sql(
                   "INSERT INTO collection_runs (run_id, source_instance_id, status, started_at) VALUES (:id, :source, 'running', :now)")
               .param("id", id.value())
@@ -78,6 +86,22 @@ public final class PostgresRunStore implements RunStore {
               .update();
           return get(id).orElseThrow();
         });
+  }
+
+  @Override
+  public void observeUnreadableAcls(RunId id, Set<String> externalIds) {
+    if (externalIds.isEmpty()) return;
+    int updated =
+        jdbc.sql(
+                """
+        UPDATE collection_runs SET acl_unreadable = ARRAY(
+          SELECT DISTINCT unnest(acl_unreadable || CAST(:ids AS text[])))
+        WHERE run_id = :id AND status = 'running'
+        """)
+            .param("ids", externalIds.toArray(String[]::new))
+            .param("id", id.value())
+            .update();
+    if (updated != 1) throw new RunStateException("Sync run is not running: " + id.value());
   }
 
   @Override
@@ -195,11 +219,14 @@ public final class PostgresRunStore implements RunStore {
       RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
-      int reconciled) {
+      int reconciled,
+      AccessResult accessResult,
+      Optional<Instant> accessFinishedAt) {
     jdbc.sql(
             """
             UPDATE collection_runs SET status = :status, coverage = :coverage, finished_at = :now, error_count = :errors,
-              error_kind = :kind, error_summary = :summary, deleted = deleted + :reconciled WHERE run_id = :id
+              error_kind = :kind, error_summary = :summary, deleted = deleted + :reconciled,
+              access_result = :accessResult, access_finished_at = :accessFinishedAt WHERE run_id = :id
             """)
         .param("status", outcome.status().wire())
         .param("coverage", coverage.wire())
@@ -208,6 +235,9 @@ public final class PostgresRunStore implements RunStore {
         .param("kind", outcome.errorKind().orElse(null))
         .param("summary", outcome.errorSummary().orElse(null))
         .param("reconciled", reconciled)
+        .param("accessResult", accessResult.wire())
+        .param(
+            "accessFinishedAt", accessFinishedAt.map(Timestamp::from).orElse(null), Types.TIMESTAMP)
         .param("id", id.value())
         .update();
     jdbc.sql("DELETE FROM run_observations WHERE run_id = :id").param("id", id.value()).update();
@@ -373,6 +403,9 @@ public final class PostgresRunStore implements RunStore {
         rs.getInt("error_count"),
         Optional.ofNullable(rs.getString("error_kind")),
         Optional.ofNullable(rs.getString("error_summary")),
-        Optional.ofNullable(rs.getString("coverage")).map(CollectionCoverage::fromWire));
+        Optional.ofNullable(rs.getString("coverage")).map(CollectionCoverage::fromWire),
+        AccessResult.valueOf(rs.getString("access_result").toUpperCase(Locale.ROOT)),
+        Optional.ofNullable(rs.getTimestamp("access_finished_at")).map(Timestamp::toInstant),
+        Set.of((String[]) rs.getArray("acl_unreadable").getArray()));
   }
 }

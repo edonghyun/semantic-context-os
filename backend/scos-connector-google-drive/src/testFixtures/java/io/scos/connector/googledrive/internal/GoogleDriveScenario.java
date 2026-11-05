@@ -41,8 +41,8 @@ import tools.jackson.databind.JsonNode;
 final class GoogleDriveScenario implements AutoCloseable {
   static final Instant NOW = Instant.parse(GoogleDriveFixtures.dataset().get("now").asString());
 
-  /** 한 run의 페이지 상한 — 큐가 줄지 않는 결함(변이)이 끝없이 페이지를 내면 수집을 실패시킨다. fixture run은 수십 쪽이다. */
-  static final int MAX_PAGES = 1000;
+  /** 한 run의 페이지 상한 — 큐가 줄지 않는 결함(변이)이 끝없이 페이지를 내면 수집을 실패시킨다. 정상 run 최대 36쪽에 여유를 둔다. */
+  static final int MAX_PAGES = 64;
 
   private final FakeGoogleServer google;
   private final MutableClock clock = new MutableClock(NOW);

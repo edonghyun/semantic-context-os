@@ -1,5 +1,6 @@
 package io.scos.collection.internal;
 
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.SourceOrder;
 import java.util.List;
 import java.util.Optional;

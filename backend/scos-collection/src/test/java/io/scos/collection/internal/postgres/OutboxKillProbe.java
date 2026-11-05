@@ -12,7 +12,8 @@ import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.ChildJvm;
 import io.scos.support.TestMetrics;
 import java.nio.file.Path;
@@ -55,7 +56,14 @@ public final class OutboxKillProbe {
                 .orElseThrow();
         List<RawItem> items =
             List.of("i1", "i2", "i3", "i4", "i5", "i6").stream()
-                .map(id -> RawItem.minimal(id, "v1", "{}", clock.instant()))
+                .map(
+                    id ->
+                        RawItems.item(id)
+                            .resourceType("test.item")
+                            .version("v1")
+                            .metadata("{}")
+                            .observedAt(clock.instant())
+                            .build())
                 .toList();
         CollectionPage page =
             CollectionPage.ofItems(items, new Checkpoint(1, "{\"after\":\"i6\"}"));

@@ -12,8 +12,8 @@ import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
-import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.HoldGate;
 import io.scos.support.TestMetrics;
 import java.time.Duration;
@@ -95,7 +95,14 @@ class ChangeLogLockScopeTest {
     adapters.runs().start(run, source, clock.instant());
     CollectionPage page =
         CollectionPage.ofItems(
-            List.of(RawItem.minimal(itemId, "v1", "{}", clock.instant())), new Checkpoint(1, "{}"));
+            List.of(
+                RawItems.item(itemId)
+                    .resourceType("test.item")
+                    .version("v1")
+                    .metadata("{}")
+                    .observedAt(clock.instant())
+                    .build()),
+            new Checkpoint(1, "{}"));
     return commit.commit(claim, run, 0, page).revision();
   }
 

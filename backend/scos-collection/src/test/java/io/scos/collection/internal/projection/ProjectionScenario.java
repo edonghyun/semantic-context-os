@@ -19,7 +19,7 @@ import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.SearchFilter;
@@ -103,7 +103,7 @@ final class ProjectionScenario implements AutoCloseable {
             .build();
     units = PostgresTestAdapters.unitMaintenance(ds);
     projections =
-        PostgresProjection.over(ds, clock, embedder)
+        PostgresProjection.withoutAccessCollection(ds, clock, embedder)
             .retry(RETRY)
             .leaseTtl(LEASE_TTL)
             .metrics(ProjectionMetrics.of(metrics));

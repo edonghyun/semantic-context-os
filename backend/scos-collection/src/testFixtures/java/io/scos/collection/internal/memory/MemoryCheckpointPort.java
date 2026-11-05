@@ -4,7 +4,7 @@ import io.scos.collection.internal.CheckpointConflictException;
 import io.scos.collection.internal.CheckpointPort;
 import io.scos.collection.internal.StoredCheckpoint;
 import io.scos.spi.connector.Checkpoint;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;

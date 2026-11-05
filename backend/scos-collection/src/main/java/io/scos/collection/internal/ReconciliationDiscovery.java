@@ -9,7 +9,7 @@ import io.scos.spi.connector.ReconciliationContext;
 import io.scos.spi.connector.ReconciliationKind;
 import io.scos.spi.connector.ReconciliationObservation;
 import io.scos.spi.connector.SnapshotScope;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

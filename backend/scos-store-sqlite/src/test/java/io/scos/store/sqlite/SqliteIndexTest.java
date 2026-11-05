@@ -169,6 +169,6 @@ class SqliteIndexTest {
     // then
     opening
         .isInstanceOf(IllegalStateException.class)
-        .hasMessage("index.sqlite schema 99 is newer than 1");
+        .hasMessage("index.sqlite schema 99 is newer than 2");
   }
 }

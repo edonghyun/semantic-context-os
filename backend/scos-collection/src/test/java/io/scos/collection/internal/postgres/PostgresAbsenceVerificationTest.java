@@ -5,8 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.AbsenceVerificationContract;
 import io.scos.collection.internal.AbsenceVerificationScenario;
+import io.scos.collection.internal.AbsenceVerificationScenario.CleanupEffects;
 import io.scos.collection.internal.AbsenceVerificationScenario.VerificationEffects;
 import io.scos.collection.internal.CommitContext;
+import io.scos.collection.internal.RunStatus;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,16 +29,22 @@ class PostgresAbsenceVerificationTest extends AbsenceVerificationContract {
   }
 
   @Test
-  @DisplayName("정리의 R2 쓰기 실패는 tombstone·완료 이력·run 마감을 함께 롤백한다")
+  @DisplayName("정리의 R2 쓰기 실패는 정리를 롤백하고 run은 실패로 마감한다")
   void discoveryFailureRollsBackCleanup() {
     // given
     context.verifyAllCandidatesOutside();
-    var before = context.cleanupEffects();
     withRejectedDiscoveryWrites(
         () -> {
+          // when
+          context.complete();
           // then
-          assertThatThrownBy(context::complete).isInstanceOf(DataIntegrityViolationException.class);
-          assertThat(context.cleanupEffects()).isEqualTo(before);
+          assertThat(context.cleanupEffects())
+              .isEqualTo(
+                  new CleanupEffects(
+                      List.of("outside", "seen", "unknown"),
+                      Optional.empty(),
+                      RunStatus.FAILED,
+                      0));
         });
   }
 

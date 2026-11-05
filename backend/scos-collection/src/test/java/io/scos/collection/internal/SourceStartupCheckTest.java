@@ -8,7 +8,7 @@ import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CredentialResolver;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

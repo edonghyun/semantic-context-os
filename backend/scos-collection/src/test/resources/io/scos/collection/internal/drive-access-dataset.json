@@ -1,0 +1,25 @@
+{
+  "about": {"user":{"emailAddress":"reader@example.com","permissionId":"reader-permission"}},
+  "file": {
+    "id":"F1", "name":"Deployment procedures", "mimeType":"application/vnd.google-apps.document",
+    "description":"Release checklist documents deployment procedures for workspace maintainers and release participants.",
+    "parents":["P1"], "driveId":"D1", "version":"1", "trashed":false,
+    "createdTime":"2026-10-14T00:00:00Z", "modifiedTime":"2026-10-14T00:00:00Z",
+    "webViewLink":"https://docs.google.com/document/d/F1/edit"
+  },
+  "folder": {
+    "id":"P1", "name":"Restricted folder", "mimeType":"application/vnd.google-apps.folder",
+    "parents":["D1"], "driveId":"D1", "version":"1", "trashed":false
+  },
+  "document": {
+    "documentId":"F1", "title":"Deployment procedures",
+    "body":{"content":[{"startIndex":1,"endIndex":123,"paragraph":{"elements":[
+      {"startIndex":1,"endIndex":123,"textRun":{"content":"Release checklist documents deployment procedures for workspace maintainers and release participants. Verify the release before deployment.\n"}}
+    ]}}]}
+  },
+  "drive": {"id":"D1","name":"Shared workspace"},
+  "member": {"id":"permission-u1","type":"user","role":"reader","emailAddress":"u1@example.com","deleted":false},
+  "reader": {"id":"permission-u2","type":"user","role":"reader","emailAddress":"u2@example.com","deleted":false},
+  "domain": {"id":"permission-domain","type":"domain","role":"reader","domain":"example.com","permissionDetails":[{"permissionType":"file","role":"reader","inherited":true,"inheritedFrom":"P1"}]},
+  "group": {"id":"permission-editors","type":"group","role":"reader","emailAddress":"editors@example.com","deleted":false}
+}

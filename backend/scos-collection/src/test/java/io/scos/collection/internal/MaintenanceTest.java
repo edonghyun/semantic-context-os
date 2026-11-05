@@ -3,7 +3,7 @@ package io.scos.collection.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.memory.MemorySourceChangeLog;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;

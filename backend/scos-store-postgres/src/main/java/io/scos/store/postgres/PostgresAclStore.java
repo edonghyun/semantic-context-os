@@ -1,5 +1,6 @@
 package io.scos.store.postgres;
 
+import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.AclStore;
 import io.scos.spi.access.DocumentAcl;
@@ -31,12 +32,12 @@ public final class PostgresAclStore implements AclStore {
     for (DocumentAcl acl : acls)
       jdbc.sql(
               """
-          INSERT INTO document_acl (space_id, document_id, status, keys, fingerprint, observed_at)
-          VALUES (:space, :doc, :status, :keys, :fingerprint, :observed)
+          INSERT INTO document_acl (space_id, document_id, status, keys, fingerprint, observed_at, reason)
+          VALUES (:space, :doc, :status, :keys, :fingerprint, :observed, :reason)
           ON CONFLICT (space_id, document_id) DO UPDATE SET
             status = EXCLUDED.status, keys = EXCLUDED.keys,
-            fingerprint = EXCLUDED.fingerprint, observed_at = EXCLUDED.observed_at
-          WHERE document_acl.fingerprint <> EXCLUDED.fingerprint
+            fingerprint = EXCLUDED.fingerprint, observed_at = EXCLUDED.observed_at, reason = EXCLUDED.reason
+          WHERE (document_acl.fingerprint <> EXCLUDED.fingerprint OR document_acl.reason IS DISTINCT FROM EXCLUDED.reason)
             AND document_acl.observed_at < EXCLUDED.observed_at
           """)
           .param("space", space.value())
@@ -46,6 +47,7 @@ public final class PostgresAclStore implements AclStore {
               "keys", acl.keys().stream().map(AccessKey::toString).sorted().toArray(String[]::new))
           .param("fingerprint", acl.fingerprint())
           .param("observed", Timestamp.from(acl.observedAt()))
+          .param("reason", acl.reason().name())
           .update();
   }
 
@@ -55,7 +57,7 @@ public final class PostgresAclStore implements AclStore {
     return jdbc
         .sql(
             """
-        SELECT document_id, status, keys, observed_at FROM document_acl
+        SELECT document_id, status, keys, observed_at, reason FROM document_acl
         WHERE space_id = :space AND document_id = ANY(:docs)
         """)
         .param("space", space.value())
@@ -68,7 +70,8 @@ public final class PostgresAclStore implements AclStore {
                     Arrays.stream((String[]) rs.getArray("keys").getArray())
                         .map(AccessKey::parse)
                         .collect(Collectors.toUnmodifiableSet()),
-                    rs.getTimestamp("observed_at").toInstant()))
+                    rs.getTimestamp("observed_at").toInstant(),
+                    AccessFailureReason.fromStored(rs.getString("reason"))))
         .list()
         .stream()
         .collect(Collectors.toUnmodifiableMap(DocumentAcl::documentId, acl -> acl));

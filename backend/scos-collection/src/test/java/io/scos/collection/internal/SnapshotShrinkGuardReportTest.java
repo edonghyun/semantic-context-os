@@ -15,9 +15,9 @@ import io.scos.collection.internal.memory.MemorySourceChangeLog;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.LogCapture;
 import java.time.Duration;
 import java.time.Instant;
@@ -54,7 +54,7 @@ class SnapshotShrinkGuardReportTest {
   final MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
   final MemorySnapshotGuardStore guards = new MemorySnapshotGuardStore();
   final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
   final MemoryRawItemStore rawItems = new MemoryRawItemStore();
   final SnapshotShrinkGuard guard =
       new SnapshotShrinkGuard(
@@ -68,7 +68,9 @@ class SnapshotShrinkGuardReportTest {
               rawItems,
               new MemoryCheckpointPort(),
               new MemoryOutboxPort(),
-              new MemorySourceChangeLog()),
+              new MemorySourceChangeLog(),
+              rawItems.acls(),
+              runs.accessObservations()),
           guard);
   final LogCapture log = LogCapture.of(SnapshotShrinkGuard.class);
   final List<String> ids = new ArrayList<>();
@@ -87,7 +89,15 @@ class SnapshotShrinkGuardReportTest {
   void givenActive(int count) {
     for (int i = 0; i < count; i++) {
       String id = String.format("note-%03d", i);
-      rawItems.apply(SOURCE, new RawMutation.Upsert(RawItem.minimal(id, "v1", "{}", NOW)));
+      rawItems.apply(
+          SOURCE,
+          new RawMutation.Upsert(
+              RawItems.item(id)
+                  .resourceType("test.item")
+                  .version("v1")
+                  .metadata("{}")
+                  .observedAt(NOW)
+                  .build()));
       ids.add(id);
     }
   }
@@ -104,7 +114,13 @@ class SnapshotShrinkGuardReportTest {
     runs.observe(run, ids.subList(0, observed));
     completion.complete(
         new RunCompletion.Input(
-            claim, run, RunOutcome.succeeded(0), CollectionCoverage.COMPLETE_SNAPSHOT, at));
+            claim,
+            run,
+            RunOutcome.succeeded(0),
+            CollectionCoverage.COMPLETE_SNAPSHOT,
+            at,
+            AccessResult.SKIPPED,
+            Optional.empty()));
     claims.release(claim, at);
   }
 

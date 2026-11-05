@@ -1,8 +1,10 @@
 package io.scos.connector.jira;
 
+import io.scos.connector.jira.internal.JiraAccessCollection;
 import io.scos.connector.jira.internal.JiraApiClient;
 import io.scos.connector.jira.internal.JiraCollection;
 import io.scos.connector.jira.internal.JiraConfiguration;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
@@ -27,6 +29,7 @@ public final class JiraAdapter implements SourceAdapter {
   private final JiraApiClient client;
   private final ObjectMapper json;
   private final Clock clock;
+  private final AccessPolicy access;
 
   public JiraAdapter(
       CredentialResolver credentials, JiraApiClient client, ObjectMapper json, Clock clock) {
@@ -34,11 +37,19 @@ public final class JiraAdapter implements SourceAdapter {
     this.client = client;
     this.json = json;
     this.clock = clock;
+    access =
+        JiraProjector.ACCESS.collecting(
+            new JiraAccessCollection(credentials, client, json, clock)::collect);
   }
 
   @Override
   public String kind() {
     return KIND;
+  }
+
+  @Override
+  public AccessPolicy accessPolicy() {
+    return access;
   }
 
   @Override

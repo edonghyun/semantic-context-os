@@ -13,13 +13,19 @@ import io.scos.engine.support.projection.EmbeddingCounts;
 import io.scos.engine.support.projection.SyncReport;
 import io.scos.engine.support.projection.WriteGuardException;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.AccessKey;
+import io.scos.spi.access.AclStore;
+import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.projection.SourceDocument;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.ContextUnits;
+import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.SearchFilter;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.Tier;
+import io.scos.store.memory.MemoryAclStore;
+import io.scos.store.memory.MemoryDocumentOwnership;
 import io.scos.store.memory.MemoryEmbeddingCache;
 import io.scos.store.memory.MemoryKeywordIndex;
 import io.scos.store.memory.MemorySpaceMeta;
@@ -49,23 +55,31 @@ class DocumentIngestorTest {
   static final SpaceId S = new SpaceId("legacy");
   static final String SRC = "slack-synthetic";
 
-  MemoryUnitStore units = new MemoryUnitStore();
+  MemoryAclStore acls = new MemoryAclStore();
+  MemoryDocumentOwnership ownership = new MemoryDocumentOwnership();
+  MemoryUnitStore units = new MemoryUnitStore(acls, ownership);
   MemoryKeywordIndex keywords = new MemoryKeywordIndex();
   MemoryVectorIndex vectors = new MemoryVectorIndex();
   final MemoryUnitMaintenance maintenance = new MemoryUnitMaintenance(units, vectors);
   MemorySpaceMeta meta = new MemorySpaceMeta();
   RecordingEmbedder embedder = new RecordingEmbedder();
   MutableClock clock = new MutableClock(Instant.parse("2026-10-14T00:00:00Z"));
-  DocumentIngestor ingestor =
-      new DocumentIngestor(
-          TransactionOperations.withoutTransaction(),
-          maintenance,
-          keywords,
-          vectors,
-          meta,
-          embedder,
-          new IngestPipeline(new JtokkitTokenizer()),
-          clock);
+  DocumentIngestor ingestor = ingestor(acls);
+
+  DocumentIngestor ingestor(AclStore store) {
+    return new DocumentIngestor(
+        TransactionOperations.withoutTransaction(),
+        maintenance,
+        keywords,
+        vectors,
+        meta,
+        embedder,
+        EmbeddingCache.NONE,
+        new IngestPipeline(new JtokkitTokenizer()),
+        clock,
+        store,
+        ownership);
+  }
 
   static SourceDocument doc(String id, String body, String updatedAt) {
     return new SourceDocument(
@@ -90,7 +104,7 @@ class DocumentIngestorTest {
   /** 주어진 문서만 현존하는 것으로 투영한다. */
   SyncReport sync(List<SourceDocument> docs) {
     Set<String> present = docs.stream().map(SourceDocument::documentId).collect(Collectors.toSet());
-    return ingestor.sync(S, SRC, docs, present);
+    return ingestor.sync(S, SRC, docs, present, Map.of(), () -> {});
   }
 
   SyncReport sync(SourceDocument doc) {
@@ -99,6 +113,63 @@ class DocumentIngestorTest {
 
   List<String> unitIds() {
     return maintenance.listAll(S).stream().map(ContextUnit::id).toList();
+  }
+
+  SyncReport syncForeignDocument() {
+    var foreign =
+        new SourceDocument("foreign", "a", "slack://foreign/a", "제목 a", BODY_A, DAY1, DAY1);
+    var acl =
+        new DocumentAcl(
+            "a",
+            DocumentAcl.Status.OK,
+            Set.of(AccessKey.parse("user:foreign:reader")),
+            clock.instant());
+    return ingestor.sync(S, "foreign", List.of(foreign), Set.of("a"), Map.of("a", acl), () -> {});
+  }
+
+  SyncReport syncWithoutAclStores() {
+    var acl = new DocumentAcl("a", DocumentAcl.Status.FAILED, Set.of(), clock.instant());
+    return cachedIngestor.sync(
+        S, SRC, List.of(doc("a", BODY_A, DAY1)), Set.of("a"), Map.of("a", acl), () -> {});
+  }
+
+  @Test
+  @DisplayName("다른 출처의 문서는 문서 오류 대신 소유 충돌 건너뜀으로 보고한다")
+  void foreignSourceIsOwnershipSkipped() {
+    // given
+    sync(doc("a", BODY_A, DAY1));
+    // when
+    var result = syncForeignDocument();
+    // then
+    assertThat(result.ownershipSkipped()).containsExactly("a");
+  }
+
+  @Test
+  @DisplayName("ACL 저장 포트 없는 조립이 ACL 맵을 받으면 즉시 거부한다")
+  void aclMapRequiresAclStores() {
+    // when
+    Throwable error = catchThrowable(this::syncWithoutAclStores);
+    // then
+    assertThat(error)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("ACL stores are required");
+  }
+
+  SyncReport syncWithAclWriteFailure() {
+    var acl = new DocumentAcl("a", DocumentAcl.Status.FAILED, Set.of(), clock.instant());
+    return ingestor(new FailingAclStore(acls))
+        .sync(S, SRC, List.of(doc("a", BODY_A, DAY1)), Set.of("a"), Map.of("a", acl), () -> {});
+  }
+
+  @Test
+  @DisplayName("ACL 저장 장애는 문서 오류로 삼키지 않고 전파한다")
+  void aclStoreFailurePropagates() {
+    // when
+    Throwable error = catchThrowable(this::syncWithAclWriteFailure);
+    // then
+    assertThat(error)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("injected ACL put failure");
   }
 
   @Nested
@@ -176,7 +247,9 @@ class DocumentIngestorTest {
             S,
             SRC,
             docs,
-            docs.stream().map(SourceDocument::documentId).collect(Collectors.toSet()));
+            docs.stream().map(SourceDocument::documentId).collect(Collectors.toSet()),
+            Map.of(),
+            () -> {});
     return List.copyOf(probe.calls);
   }
 
@@ -203,7 +276,12 @@ class DocumentIngestorTest {
 
   SyncReport syncWithCache(List<SourceDocument> docs) {
     return cachedIngestor.sync(
-        S, SRC, docs, docs.stream().map(SourceDocument::documentId).collect(Collectors.toSet()));
+        S,
+        SRC,
+        docs,
+        docs.stream().map(SourceDocument::documentId).collect(Collectors.toSet()),
+        Map.of(),
+        () -> {});
   }
 
   @Nested
@@ -872,8 +950,8 @@ class DocumentIngestorTest {
   @Nested
   @DisplayName("guard가 a의 저장을 거부할 때")
   class GuardRejects {
-    /** prune이 guard를 부르지 않으니 첫 호출이 a의 persist 트랜잭션이다. */
-    static final int PERSIST_CALL = 1;
+    /** a의 소유 확인 뒤 두 번째 guard가 persist 트랜잭션이다(prune 없음). */
+    static final int PERSIST_CALL = 2;
 
     int guardCalls;
 
@@ -884,8 +962,10 @@ class DocumentIngestorTest {
           SRC,
           List.of(doc("a", BODY_A, DAY1)),
           Set.of("a"),
+          Map.of(),
           () -> {
             guardCalls++;
+            if (guardCalls == 1 && embedder.calls.isEmpty()) return;
             if (guardCalls != PERSIST_CALL || embedder.calls.isEmpty())
               throw new IllegalStateException(
                   "given 준비 실패: a의 persist 전에 guard가 " + guardCalls + "번 불렸다");

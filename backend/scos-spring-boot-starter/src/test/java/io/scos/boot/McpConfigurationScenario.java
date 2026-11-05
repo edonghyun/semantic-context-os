@@ -2,6 +2,9 @@ package io.scos.boot;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.collection.internal.FixedSourceQueries;
+import io.scos.collection.internal.SourceQueries;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.KeywordIndex;
@@ -11,6 +14,9 @@ import io.scos.spi.store.VectorIndex;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -39,10 +45,15 @@ final class McpConfigurationScenario {
                 new McpConfiguration()
                     .accessParts(
                         new AccessProperties(AccessProperties.Mode.MULTI_USER, null, null, null),
-                        new DriverManagerDataSource()));
+                        new DriverManagerDataSource(),
+                        new DomainPolicy(Set.of(), Map.of())));
   }
 
   ApplicationContextRunner context() {
+    return context(CLOCK, new FixedSourceQueries(List.of()));
+  }
+
+  ApplicationContextRunner context(Clock clock, SourceQueries queries) {
     DataSource dataSource = new DriverManagerDataSource();
     return new ApplicationContextRunner()
         .withUserConfiguration(McpConfiguration.class)
@@ -55,7 +66,8 @@ final class McpConfigurationScenario {
         .withBean(KeywordIndex.class, () -> PostgresIndexConfiguration.newKeywordIndex(dataSource))
         .withBean(VectorIndex.class, () -> PostgresIndexConfiguration.newVectorIndex(dataSource))
         .withBean(Embedder.class, () -> FixedEmbedder.zero(2))
-        .withBean(Clock.class, () -> CLOCK)
+        .withBean(Clock.class, () -> clock)
+        .withBean(SourceQueries.class, () -> queries)
         .withBean(ObjectMapper.class, ObjectMapper::new)
         .withBean(MeterRegistry.class, SimpleMeterRegistry::new)
         .withBean(

@@ -20,6 +20,25 @@ import org.springframework.transaction.annotation.Transactional;
 @DisplayName("제품 코드는 공개 경계 밖의 의존 규칙을 지킨다(ADR-0001·0012)")
 class ArchitectureRulesTest {
   @ArchTest
+  static final ArchRule sourceDirectoryValuesAreIndependent =
+      noClasses()
+          .that()
+          .resideInAPackage("io.scos.spi.source..")
+          .should()
+          .dependOnClassesThat()
+          .resideInAnyPackage(
+              "io.scos.spi.connector..", "io.scos.spi.access..", "io.scos.spi.store..");
+
+  @ArchTest
+  static final ArchRule accessDoesNotDependOnConnectorPackage =
+      noClasses()
+          .that()
+          .resideInAPackage("io.scos.spi.access..")
+          .should()
+          .dependOnClassesThat()
+          .resideInAPackage("io.scos.spi.connector..");
+
+  @ArchTest
   static final ArchRule sharedHasNoSpring =
       noClasses()
           .that()

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.spi.connector.ReconciliationContext.Path;
 import io.scos.spi.connector.ReconciliationKind;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;

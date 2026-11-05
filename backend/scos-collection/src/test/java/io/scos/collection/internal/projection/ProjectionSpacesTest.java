@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstances;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.SpaceId;
 import java.time.Instant;
 import java.util.Map;

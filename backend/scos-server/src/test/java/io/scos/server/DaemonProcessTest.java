@@ -11,7 +11,7 @@ import io.scos.server.DaemonProcessScenario.Daemon;
 import io.scos.server.DaemonProcessScenario.Http;
 import io.scos.server.DaemonProcessScenario.Settings;
 import io.scos.server.fault.DaemonLoopFault;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import jakarta.servlet.http.HttpServletResponse;
 import java.nio.file.Path;
 import java.util.List;

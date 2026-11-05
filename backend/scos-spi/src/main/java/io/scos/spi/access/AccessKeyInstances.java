@@ -1,6 +1,6 @@
 package io.scos.spi.access;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 
 /** 접근 키에 쓸 수 있는 원천 인스턴스를 판정하고, 신원 조회에서 제외한 인스턴스의 경고를 남긴다. */
 public final class AccessKeyInstances {

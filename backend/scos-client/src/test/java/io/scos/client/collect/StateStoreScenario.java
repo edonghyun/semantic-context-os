@@ -6,6 +6,7 @@ import io.scos.client.DocumentMetadata;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -139,16 +140,13 @@ final class StateStoreScenario implements AutoCloseable {
 
   private RawItem memoryItem(String externalId, String text, String metadata) {
     String version = new ContentHash().sha256(text.getBytes(StandardCharsets.UTF_8));
-    return new RawItem(
-            externalId,
-            "claude.memory.file",
-            version,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.of("2026-10-27T10:00:00.000Z"),
-            Instant.parse("2026-10-28T00:00:00Z"),
-            metadata,
-            Optional.empty())
+    return RawItems.item(externalId)
+        .resourceType("claude.memory.file")
+        .version(version)
+        .sourceUpdatedAt(Optional.of("2026-10-27T10:00:00.000Z"))
+        .observedAt(Instant.parse("2026-10-28T00:00:00Z"))
+        .metadata(metadata)
+        .build()
         .withContent(
             new LocalContentCapture()
                 .json(

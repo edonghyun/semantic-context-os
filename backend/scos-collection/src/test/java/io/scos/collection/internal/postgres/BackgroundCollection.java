@@ -3,7 +3,7 @@ package io.scos.collection.internal.postgres;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

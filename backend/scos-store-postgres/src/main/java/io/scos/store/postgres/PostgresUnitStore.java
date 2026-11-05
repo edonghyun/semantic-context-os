@@ -4,7 +4,6 @@ import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.Provenance;
 import io.scos.spi.store.SpaceId;
-import io.scos.spi.store.SpaceOwnershipException;
 import io.scos.spi.store.Tier;
 import io.scos.spi.store.UnitStore;
 import java.sql.Array;
@@ -14,7 +13,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * PostgreSQL 유닛 저장소 — 계약은 UnitStoreContract. 공간별 SQL은 space_id 조건을 가진다(CONTRACTS A1). 전체 공간 압축 개수는
@@ -58,10 +57,14 @@ public final class PostgresUnitStore implements UnitStore {
 
   private final JdbcClient jdbc;
   private final NamedParameterJdbcOperations batch;
+  private final PostgresDocumentOwnership ownership;
+  private final TransactionOperations tx;
 
-  public PostgresUnitStore(NamedParameterJdbcTemplate template) {
+  public PostgresUnitStore(NamedParameterJdbcTemplate template, TransactionOperations tx) {
     this.jdbc = JdbcClient.create(template);
     this.batch = template;
+    this.ownership = new PostgresDocumentOwnership(jdbc);
+    this.tx = tx;
   }
 
   long countCompacted() {
@@ -76,12 +79,19 @@ public final class PostgresUnitStore implements UnitStore {
   }
 
   /**
-   * 배치 적재: 소유 확인(한 문장) 뒤 유닛마다 같은 upsert 문장을 JDBC batch 하나로 보낸다(왕복 1회). 문장이 행마다 따로 실행되므로 같은 id가 배치에
-   * 다시 나와도 행 단위 upsert와 결과가 같다(마지막 내용, 처음 seq).
+   * 소유 등록과 유닛 쓰기를 한 트랜잭션으로 묶어 배치 전체를 거부한다. 호출자 트랜잭션이 있으면 참여한다. 문서 순서로 잠가 서로 다른 배치의 교차 소유 경쟁도 같은 순서로
+   * 직렬화한다.
    */
   void upsert(SpaceId space, List<ContextUnit> units) {
-    claimOwnership(space, units);
     if (units.isEmpty()) return;
+    tx.executeWithoutResult(
+        status -> {
+          ownership.claimAll(space, units);
+          writeUnits(space, units);
+        });
+  }
+
+  private void writeUnits(SpaceId space, List<ContextUnit> units) {
     batch.batchUpdate(
         """
               INSERT INTO units (space_id, id, document_id, partition, title, content, content_hash, tokens, tier, source_id, uri, captured_at, importance,
@@ -94,59 +104,30 @@ public final class PostgresUnitStore implements UnitStore {
                 captured_at = EXCLUDED.captured_at, importance = EXCLUDED.importance, valid_from = EXCLUDED.valid_from, invalidated_at = EXCLUDED.invalidated_at,
                 links = EXCLUDED.links, tags = EXCLUDED.tags, aliases = EXCLUDED.aliases, compacted_from = EXCLUDED.compacted_from
               """,
-        units.stream()
-            .map(
-                u ->
-                    new MapSqlParameterSource()
-                        .addValue("space", space.value())
-                        .addValue("id", u.id())
-                        .addValue("doc", u.documentId())
-                        .addValue("partition", u.partition())
-                        .addValue("title", u.title())
-                        .addValue("content", u.content())
-                        .addValue("hash", u.contentHash())
-                        .addValue("tokens", u.tokens())
-                        .addValue("tier", u.tier().wire())
-                        .addValue("source", u.provenance().sourceId())
-                        .addValue("uri", u.provenance().uri())
-                        .addValue("captured", u.provenance().capturedAt())
-                        .addValue("importance", u.importance())
-                        .addValue("validFrom", u.validFrom().orElse(null), Types.VARCHAR)
-                        .addValue("invalidatedAt", u.invalidatedAt().orElse(null), Types.VARCHAR)
-                        .addValue("links", u.links().toArray(String[]::new))
-                        .addValue("tags", u.tags().toArray(String[]::new))
-                        .addValue("aliases", u.aliases().toArray(String[]::new))
-                        .addValue("compactedFrom", u.compactedFrom().toArray(String[]::new)))
-            .toArray(SqlParameterSource[]::new));
+        units.stream().map(u -> parameters(space, u)).toArray(SqlParameterSource[]::new));
   }
 
-  /**
-   * A2: 배치의 모든 문서를 한 문장으로 먼저 확인한다 — 첫 기록자가 소유, 불일치는 계약 위반(아무것도 쓰기 전에 거부). `ON CONFLICT DO UPDATE
-   * SET space_id = document_spaces.space_id RETURNING`은 충돌 행을 잠그고 현재 소유자를 돌려주므로 동시 경합에서도 한 문장으로
-   * 직렬화된다(DO NOTHING + SELECT는 문장 스냅샷 때문에 방금 커밋된 행을 못 봤다).
-   */
-  private void claimOwnership(SpaceId space, List<ContextUnit> units) {
-    Map<String, String> sourcesByDocument = new LinkedHashMap<>();
-    for (ContextUnit unit : units)
-      sourcesByDocument.putIfAbsent(unit.documentId(), unit.provenance().sourceId());
-    String[] docs = sourcesByDocument.keySet().toArray(String[]::new);
-    if (docs.length == 0) return;
-    List<OwnerRow> owners =
-        jdbc.sql(
-                """
-            INSERT INTO document_spaces (document_id, space_id, source_id)
-            SELECT d, :space, s FROM unnest(:docs, :sources) AS t(d, s)
-            ON CONFLICT (document_id) DO UPDATE SET space_id = document_spaces.space_id
-            RETURNING document_id, space_id
-            """)
-            .param("space", space.value())
-            .param("docs", docs)
-            .param("sources", sourcesByDocument.values().toArray(String[]::new))
-            .query((rs, i) -> new OwnerRow(rs.getString(1), rs.getString(2)))
-            .list();
-    for (OwnerRow row : owners)
-      if (!row.spaceId().equals(space.value()))
-        throw new SpaceOwnershipException(row.documentId(), new SpaceId(row.spaceId()), space);
+  private static SqlParameterSource parameters(SpaceId space, ContextUnit u) {
+    return new MapSqlParameterSource()
+        .addValue("space", space.value())
+        .addValue("id", u.id())
+        .addValue("doc", u.documentId())
+        .addValue("partition", u.partition())
+        .addValue("title", u.title())
+        .addValue("content", u.content())
+        .addValue("hash", u.contentHash())
+        .addValue("tokens", u.tokens())
+        .addValue("tier", u.tier().wire())
+        .addValue("source", u.provenance().sourceId())
+        .addValue("uri", u.provenance().uri())
+        .addValue("captured", u.provenance().capturedAt())
+        .addValue("importance", u.importance())
+        .addValue("validFrom", u.validFrom().orElse(null), Types.VARCHAR)
+        .addValue("invalidatedAt", u.invalidatedAt().orElse(null), Types.VARCHAR)
+        .addValue("links", u.links().toArray(String[]::new))
+        .addValue("tags", u.tags().toArray(String[]::new))
+        .addValue("aliases", u.aliases().toArray(String[]::new))
+        .addValue("compactedFrom", u.compactedFrom().toArray(String[]::new));
   }
 
   @Override
@@ -250,9 +231,6 @@ public final class PostgresUnitStore implements UnitStore {
         .query(UNIT)
         .list();
   }
-
-  /** 문서 소유 확인이 돌려준 행: 문서와 그 현재 소유 공간. */
-  private record OwnerRow(String documentId, String spaceId) {}
 
   /** 지운 유닛과 적재 순서. */
   private record DeletedUnit(String id, long seq) {}

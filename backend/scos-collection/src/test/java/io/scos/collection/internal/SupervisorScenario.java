@@ -7,7 +7,7 @@ import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.BackgroundThread;
 import io.scos.support.CountedWorkers;
 import io.scos.support.Eventually;
@@ -75,7 +75,7 @@ final class SupervisorScenario implements AutoCloseable {
 
   private final MutableClock clock = new MutableClock(T0);
   private final MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
-  private final MemoryRunStore runs = new MemoryRunStore();
+  private final MemoryRunStore runs = MemoryRunStore.create();
   private final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
   private final CountedWorkers workers = CountedWorkers.of(4);
   private final ExecutorService caller = Executors.newCachedThreadPool();
@@ -393,6 +393,8 @@ final class SupervisorScenario implements AutoCloseable {
             RunOutcome.failed(RunStatus.FAILED, "dependency_unavailable", "down"),
             CollectionCoverage.INCREMENTAL,
             clock.instant(),
-            0));
+            0,
+            AccessResult.SKIPPED,
+            Optional.empty()));
   }
 }

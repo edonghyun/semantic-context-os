@@ -18,7 +18,7 @@ class PostgresUnitMaintenanceTest extends UnitMaintenanceContract {
   @Override
   protected UnitMaintenance newMaintenance() {
     PostgresSupport.truncateAll();
-    units = new PostgresUnitStore(new NamedParameterJdbcTemplate(PostgresSupport.dataSource()));
+    units = PostgresTestAdapters.unitStore(PostgresSupport.dataSource());
     vectors = new PostgresVectorIndex(new NamedParameterJdbcTemplate(PostgresSupport.dataSource()));
     return new PostgresUnitMaintenance(units, vectors);
   }

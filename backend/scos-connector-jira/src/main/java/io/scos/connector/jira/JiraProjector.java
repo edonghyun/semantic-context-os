@@ -2,6 +2,7 @@ package io.scos.connector.jira;
 
 import io.scos.connector.jira.internal.JiraValueRenderer;
 import io.scos.engine.support.text.JsJson;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
@@ -50,6 +51,26 @@ public final class JiraProjector implements Projector {
           Map.entry("changelog", "변경 이력"),
           Map.entry("worklogs", "작업 기록"),
           Map.entry("remoteLinks", "관련 링크"));
+  static final AccessPolicy ACCESS =
+      AccessPolicy.supported(
+          Set.of(
+              ISSUE,
+              "jira.project",
+              "jira.component",
+              "jira.version",
+              "jira.filter",
+              "jira.dashboard",
+              "jira.board",
+              "jira.sprint"),
+          Set.of(
+              ISSUE,
+              "jira.project",
+              "jira.component",
+              "jira.version",
+              "jira.filter",
+              "jira.dashboard",
+              "jira.board",
+              "jira.sprint"));
   private static final DateTimeFormatter ISO_MILLIS =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 

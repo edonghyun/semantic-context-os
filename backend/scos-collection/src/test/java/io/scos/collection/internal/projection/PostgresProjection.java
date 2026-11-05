@@ -1,10 +1,13 @@
 package io.scos.collection.internal.projection;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.boot.PostgresIndexConfiguration;
+import io.scos.collection.internal.AccessCollection;
 import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.ProjectionRetryPolicy;
+import io.scos.collection.internal.SourceAdapters;
 import io.scos.connector.googledrive.GoogleDriveProjector;
 import io.scos.connector.jira.JiraProjector;
 import io.scos.connector.notion.NotionProjector;
@@ -13,15 +16,22 @@ import io.scos.connector.tiro.TiroProjector;
 import io.scos.engine.internal.projection.DocumentIngestor;
 import io.scos.engine.internal.projection.JtokkitTokenizer;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
+import io.scos.engine.support.projection.SyncReport;
+import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.embedding.Embedder;
+import io.scos.spi.projection.Projector;
+import io.scos.spi.store.DocumentOwnership;
 import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.postgres.PostgresTestAdapters;
 import io.scos.support.TestMetrics;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
@@ -39,17 +49,63 @@ public final class PostgresProjection {
   private final Clock clock;
   private final PostgresCollectionConfiguration.Adapters adapters;
   private final DocumentIngestor ingestor;
+  private final DocumentOwnership ownership;
+  private final TransactionTemplate tx;
+  private boolean collectAccess;
+  private Optional<SyncReport> lastSync = Optional.empty();
+  private Runnable afterSync = () -> {};
+
+  void afterNextSync(Runnable action) {
+    afterSync = action;
+  }
+
+  Set<String> ownershipSkipped() {
+    return lastSync.orElseThrow().ownershipSkipped();
+  }
+
+  private final SourceAdapters sourceAdapters;
+  private final List<Projector> projectors =
+      new ArrayList<>(
+          List.of(
+              new SlackProjector(JSON),
+              new TiroProjector(JSON),
+              new JiraProjector(JSON),
+              new NotionProjector(JSON),
+              new GoogleDriveProjector(JSON)));
+
+  PostgresProjection projector(Projector projector) {
+    projectors.removeIf(existing -> existing.kind().equals(projector.kind()));
+    projectors.add(projector);
+    return this;
+  }
+
+  PostgresProjection withoutAccessCollection() {
+    collectAccess = false;
+    return this;
+  }
+
   private ProjectionRetryPolicy retry = ProjectionRetryPolicy.defaults();
   private Duration leaseTtl = Duration.ofSeconds(30);
   private ProjectionMetrics metrics = TestMetrics.projection();
   private Map<String, SpaceId> explicitSpaces = Map.of();
 
-  private PostgresProjection(DataSource ds, Clock clock, Embedder embedder, EmbeddingCache cache) {
+  private PostgresProjection(
+      DataSource ds,
+      Clock clock,
+      Embedder embedder,
+      EmbeddingCache cache,
+      SourceAdapters sourceAdapters,
+      boolean collectAccess) {
+    this.tx = new TransactionTemplate(new DataSourceTransactionManager(ds));
+    this.sourceAdapters = sourceAdapters;
+    this.collectAccess = collectAccess;
     this.clock = clock;
     this.adapters = PostgresCollectionConfiguration.adapters(ds);
+    var index = new PostgresIndexConfiguration();
+    this.ownership = index.newDocumentOwnership(ds);
     this.ingestor =
         new DocumentIngestor(
-            new TransactionTemplate(new DataSourceTransactionManager(ds)),
+            tx,
             PostgresTestAdapters.unitMaintenance(ds),
             PostgresTestAdapters.keywordIndex(ds),
             PostgresTestAdapters.vectorIndex(ds),
@@ -57,17 +113,25 @@ public final class PostgresProjection {
             embedder,
             cache,
             new IngestPipeline(new JtokkitTokenizer()),
-            clock);
+            clock,
+            index.newAclStore(ds),
+            ownership);
   }
 
-  static PostgresProjection over(DataSource ds, Clock clock, Embedder embedder) {
-    return new PostgresProjection(ds, clock, embedder, EmbeddingCache.NONE);
+  static PostgresProjection withoutAccessCollection(DataSource ds, Clock clock, Embedder embedder) {
+    return withoutAccessCollection(ds, clock, embedder, EmbeddingCache.NONE);
+  }
+
+  static PostgresProjection collectingAccess(
+      DataSource ds, Clock clock, Embedder embedder, SourceAdapter adapter) {
+    return new PostgresProjection(
+        ds, clock, embedder, EmbeddingCache.NONE, SourceAdapters.of(List.of(adapter)), true);
   }
 
   /** 임베딩 캐시(F9, ADR-0026)를 먼저 보는 투영 — 재수집 리허설(migration 서브프로젝트)이 쓴다. */
-  public static PostgresProjection over(
+  public static PostgresProjection withoutAccessCollection(
       DataSource ds, Clock clock, Embedder embedder, EmbeddingCache cache) {
-    return new PostgresProjection(ds, clock, embedder, cache);
+    return new PostgresProjection(ds, clock, embedder, cache, SourceAdapters.of(List.of()), false);
   }
 
   PostgresProjection retry(ProjectionRetryPolicy policy) {
@@ -97,14 +161,15 @@ public final class PostgresProjection {
         adapters.outbox(),
         adapters.sources(),
         adapters.rawItems(),
-        Projectors.of(
-            List.of(
-                new SlackProjector(JSON),
-                new TiroProjector(JSON),
-                new JiraProjector(JSON),
-                new NotionProjector(JSON),
-                new GoogleDriveProjector(JSON))),
-        ingestor,
+        Projectors.of(projectors),
+        (space, source, documents, live, acls, guard) -> {
+          var report = ingestor.sync(space, source, documents, live, acls, guard);
+          lastSync = Optional.of(report);
+          Runnable action = afterSync;
+          afterSync = () -> {};
+          action.run();
+          return report;
+        },
         new ProjectionSpaces(explicitSpaces, SPACE, JSON),
         retry,
         adapters.claims(),
@@ -113,6 +178,12 @@ public final class PostgresProjection {
             adapters.claims(), leaseTtl, clock, heartbeats, TestMetrics.collection()),
         clock,
         metrics,
-        new Progress(clock));
+        new Progress(clock),
+        sourceAdapters,
+        collectAccess,
+        ownership,
+        adapters.rawAcls(),
+        tx,
+        AccessCollection.Options.DEFAULTS);
   }
 }

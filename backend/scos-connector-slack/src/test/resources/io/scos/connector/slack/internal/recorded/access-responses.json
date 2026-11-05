@@ -1,0 +1,69 @@
+{
+  "users": {
+    "ok": true,
+    "members": [
+      {
+        "id": "U1",
+        "team_id": "T1",
+        "deleted": false,
+        "is_bot": false,
+        "is_restricted": false,
+        "is_ultra_restricted": false,
+        "is_stranger": false,
+        "is_email_confirmed": true,
+        "profile": {
+          "email": "u1@example.com"
+        }
+      },
+      {
+        "id": "U2",
+        "team_id": "T1",
+        "deleted": false,
+        "is_bot": false,
+        "is_restricted": true,
+        "is_ultra_restricted": false,
+        "is_stranger": false,
+        "is_email_confirmed": false,
+        "profile": {
+          "email": "u2@example.com"
+        }
+      },
+      {
+        "id": "U3",
+        "team_id": "T1",
+        "deleted": true,
+        "profile": {}
+      },
+      {
+        "id": "U4",
+        "team_id": "T1",
+        "deleted": false,
+        "is_bot": true,
+        "is_restricted": false,
+        "is_ultra_restricted": false,
+        "profile": {}
+      }
+    ],
+    "response_metadata": {
+      "next_cursor": ""
+    }
+  },
+  "dm": {
+    "ok": true,
+    "channel": {
+      "id": "C1",
+      "is_im": true,
+      "is_org_shared": false,
+      "user": "U2"
+    }
+  },
+  "members": {
+    "ok": true,
+    "members": [
+      "U2"
+    ],
+    "response_metadata": {
+      "next_cursor": ""
+    }
+  }
+}

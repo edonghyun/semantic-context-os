@@ -2,7 +2,7 @@ package io.scos.collection.internal;
 
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 /** run·관측·rejection·스냅샷 완료 기록 포트. 페이지 커밋·완료 유스케이스의 트랜잭션에 참여한다. */
 public interface RunStore {
-  /** 같은 소스에 running으로 남은 run(죽은 프로세스)은 failed(errorKind=stale_run)로 마감하고 관측을 지운다 — ADR-0008 E-5. */
+  /** 같은 소스의 running run은 stale_run으로 마감하고 그 run의 본문·접근 관측만 지운다 — ADR-0008 E-5. */
   CollectionRun start(RunId id, SourceInstanceId source, Instant startedAt);
 
   Optional<CollectionRun> get(RunId id);
@@ -26,13 +26,18 @@ public interface RunStore {
 
   Set<String> observations(RunId id);
 
-  /** run을 이 결과로 마감하고 관측을 지운다. reconciled는 완료가 tombstone으로 바꾼 수(deleted에 더한다). */
+  /** 확정 ACL 읽기 거부 파일의 run별 합집합. 빈 입력은 무동작이며 마감 뒤에도 보존한다. */
+  void observeUnreadableAcls(RunId id, Set<String> externalIds);
+
+  /** 본문·접근 결과를 독립 저장하고 본문 관측을 지운다. 접근 관측의 폐기는 병합 수명 소유자의 책임이다. */
   CollectionRun finish(
       RunId id,
       RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
-      int reconciled);
+      int reconciled,
+      AccessResult accessResult,
+      Optional<Instant> accessFinishedAt);
 
   void addRejections(
       RunId id, SourceInstanceId source, Instant capturedAt, List<RejectedItem> rejections);

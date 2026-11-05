@@ -13,8 +13,8 @@ import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
-import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.PgLocks;
 import io.scos.support.TestMetrics;
 import java.sql.Connection;
@@ -120,7 +120,14 @@ class PostgresWorkClaimFencingTest {
               new Progress(clock));
       CollectionPage page =
           CollectionPage.ofItems(
-              List.of(RawItem.minimal("i1", "v1", "{}", clock.instant())), new Checkpoint(1, "{}"));
+              List.of(
+                  RawItems.item("i1")
+                      .resourceType("test.item")
+                      .version("v1")
+                      .metadata("{}")
+                      .observedAt(clock.instant())
+                      .build()),
+              new Checkpoint(1, "{}"));
       CompletableFuture<Long> aCommit =
           CompletableFuture.supplyAsync(() -> commit.commit(a, run, 0, page).revision());
       if (!gated.inTx.await(WAIT_LIMIT.toSeconds(), TimeUnit.SECONDS))

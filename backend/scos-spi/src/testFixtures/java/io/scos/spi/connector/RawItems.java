@@ -1,9 +1,5 @@
-package io.scos.collection.internal;
+package io.scos.spi.connector;
 
-import io.scos.spi.connector.RawContent;
-import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceOrder;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -11,12 +7,16 @@ import java.util.Optional;
 public final class RawItems {
   public static final Instant T0 = Instant.parse("2026-10-14T00:00:00Z");
 
-  private String externalId;
+  private final String externalId;
   private String resourceType = "slack.message";
   private String version = "v1";
   private Optional<SourceOrder> order = Optional.empty();
   private Instant observedAt = T0;
-  private String metadataJson = "{}";
+  private String metadataJson =
+      "{\"channelId\":\"C1\",\"messageTs\":\"1700000000.000001\",\"threadTs\":null,\"authorId\":\"U1\",\"subtype\":null}";
+  private RawAcl acl = RawAcl.notObserved();
+  private Optional<String> sourceCreatedAt = Optional.empty();
+  private Optional<String> sourceUpdatedAt = Optional.empty();
   private Optional<RawContent> content = Optional.empty();
 
   private RawItems(String externalId) {
@@ -68,17 +68,43 @@ public final class RawItems {
     return this;
   }
 
+  public RawItems acl(RawAcl acl) {
+    this.acl = acl;
+    return this;
+  }
+
+  public RawItems sourceCreatedAt(Optional<String> at) {
+    this.sourceCreatedAt = at;
+    return this;
+  }
+
+  public RawItems sourceUpdatedAt(Optional<String> at) {
+    this.sourceUpdatedAt = at;
+    return this;
+  }
+
+  public RawItems order(Optional<SourceOrder> order) {
+    this.order = order;
+    return this;
+  }
+
+  public RawItems content(Optional<RawContent> content) {
+    this.content = content;
+    return this;
+  }
+
   public RawItem build() {
     return new RawItem(
         externalId,
         resourceType,
         version,
         order,
-        Optional.empty(),
-        Optional.empty(),
+        sourceCreatedAt,
+        sourceUpdatedAt,
         observedAt,
         metadataJson,
-        content);
+        content,
+        acl);
   }
 
   public RawMutation.Upsert upsert() {

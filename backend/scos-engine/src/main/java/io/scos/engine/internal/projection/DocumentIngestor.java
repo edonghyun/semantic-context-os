@@ -6,23 +6,31 @@ import static io.scos.engine.internal.projection.UnitState.withLifecycle;
 
 import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.EmbeddingGenerationMismatchException;
+import io.scos.engine.EventLog;
 import io.scos.engine.internal.projection.UnitEmbedding.Tally;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.engine.support.projection.DeadLetter;
 import io.scos.engine.support.projection.SourceSync;
 import io.scos.engine.support.projection.SyncReport;
 import io.scos.engine.support.projection.WriteGuardException;
+import io.scos.engine.support.text.Text;
+import io.scos.spi.access.AclStore;
+import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.EmbeddingGeneration;
 import io.scos.spi.projection.SourceDocument;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.ContextUnit;
+import io.scos.spi.store.DocumentOwnership;
 import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.SpaceMeta;
+import io.scos.spi.store.SpaceOwnershipException;
 import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.VectorIndex;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -33,17 +41,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * 문서 인제스트(G5·G6·G9): 문서마다 파이프라인 → 기존 유닛과 대조해 바뀐 것만 저장·재임베딩 → 문서의 나머지 유닛 삭제(keepIds), 끝에 prune(현존 목록
  * 밖 문서 삭제). 유닛 id가 결정론이라 재시도·재투영에 중복 유닛이 생기지 않는다(불변식 4). 문서 단위 실패는 DeadLetter로 격리하고 다른 문서는 계속한다. 한
  * 문서의 저장(유닛·키워드·벡터·삭제)은 한 트랜잭션이다(어댑터 조합의 성질, DESIGN-PATTERNS §10). 공간의 임베딩 세대가 이 임베더와 다르거나 재임베딩이
- * 끝나지 않았으면 쓰지 않고 거부한다 — 시작 때 한 번, 쓰기 트랜잭션마다 잠가 읽어 한 번(stage2 §3.3). 다시 임베딩은 {@code scos reembed}로만
- * 한다.
+ * 끝나지 않았으면 유닛 쓰기를 거부한다 — 모든 ACL 확정 뒤 한 번, 유닛 쓰기 트랜잭션마다 잠가 읽어 한 번(stage2 §3.3). 다시 임베딩은 {@code scos
+ * reembed}로만 한다.
  */
 public final class DocumentIngestor implements SourceSync {
+  private static final Logger log = LoggerFactory.getLogger(DocumentIngestor.class);
+  private static final int ACCESS_BATCH_SIZE = 500;
   private final TransactionOperations tx;
   private final UnitMaintenance units;
   private final KeywordIndex keywords;
@@ -53,6 +68,134 @@ public final class DocumentIngestor implements SourceSync {
   private final EmbeddingGeneration generation;
   private final IngestPipeline pipeline;
   private final Clock clock;
+  private final DocumentAccess documentAccess;
+
+  /** 소유 확인과 ACL 확정을 본문보다 먼저 마친다. ACL 수집이 꺼져도 상대 소유 문서는 처리하지 않는다. */
+  private record AccessStores(
+      TransactionOperations tx, AclStore acls, DocumentOwnership ownership) {}
+
+  /** 포트 유무는 로컬 적재 능력이며 접근 수집 on/off 플래그가 아니다. 운영 투영은 항상 포트를 제공한다. */
+  private record DocumentAccess(Optional<AccessStores> stores) {
+    Set<String> commit(
+        SpaceId space,
+        String sourceId,
+        List<SourceDocument> documents,
+        Map<String, DocumentAcl> candidates,
+        Runnable guard) {
+      if (stores.isEmpty()) {
+        if (!candidates.isEmpty()) throw new IllegalStateException("ACL stores are required");
+        return Set.of();
+      }
+      Set<String> documentIds = new TreeSet<>(candidates.keySet());
+      documents.forEach(doc -> documentIds.add(doc.documentId()));
+      List<String> ordered = List.copyOf(documentIds);
+      Set<String> skipped = new HashSet<>();
+      // ACL 확정은 모든 본문 처리보다 앞선다. 배치는 잠금 보유량과 커밋 수를 함께 제한한다.
+      for (int offset = 0; offset < ordered.size(); offset += ACCESS_BATCH_SIZE) {
+        var batch = ordered.subList(offset, Math.min(offset + ACCESS_BATCH_SIZE, ordered.size()));
+        stores
+            .orElseThrow()
+            .tx
+            .executeWithoutResult(
+                s -> {
+                  guard.run();
+                  commitBatch(space, sourceId, batch, candidates, skipped);
+                });
+      }
+      return Set.copyOf(skipped);
+    }
+
+    private void commitBatch(
+        SpaceId space,
+        String sourceId,
+        List<String> documents,
+        Map<String, DocumentAcl> candidates,
+        Set<String> skipped) {
+      var storage = stores.orElseThrow();
+      for (String document : documents) {
+        try {
+          if (storage.ownership.claim(space, sourceId, document)
+              == DocumentOwnership.Claim.OTHER_SOURCE) {
+            skipped.add(document);
+            continue;
+          }
+          DocumentAcl candidate = candidates.get(document);
+          if (candidate != null) storeDecision(space, sourceId, candidate);
+        } catch (SpaceOwnershipException conflict) {
+          skipped.add(document);
+        }
+      }
+    }
+
+    private void storeDecision(SpaceId space, String source, DocumentAcl candidate) {
+      var previous =
+          stores
+              .orElseThrow()
+              .acls
+              .get(space, List.of(candidate.documentId()))
+              .get(candidate.documentId());
+      stores.orElseThrow().acls.put(space, List.of(decision(candidate, previous)));
+      if (candidate.status() == DocumentAcl.Status.FAILED
+          && (previous == null
+              || previous.status() != DocumentAcl.Status.FAILED
+              || previous.reason() != candidate.reason())) reportClosure(source, candidate);
+    }
+
+    private void reportClosure(String source, DocumentAcl candidate) {
+      Runnable report =
+          () ->
+              EventLog.warn(log, "projection.access.closed")
+                  .source(new SourceInstanceId(source))
+                  .detail(
+                      "reason",
+                      candidate.reason().wire(),
+                      "documentRef",
+                      Text.sha256Hex(candidate.documentId()))
+                  .log();
+      if (!TransactionSynchronizationManager.isSynchronizationActive()) report.run();
+      else
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronization() {
+              @Override
+              public void afterCommit() {
+                report.run();
+              }
+            });
+    }
+
+    private DocumentAcl decision(DocumentAcl candidate, @Nullable DocumentAcl previous) {
+      Instant decidedAt = candidate.observedAt();
+      if (previous != null) {
+        Instant next = previous.observedAt().plus(1, ChronoUnit.MICROS);
+        if (decidedAt.isBefore(next)) decidedAt = next;
+      }
+      return new DocumentAcl(
+          candidate.documentId(),
+          candidate.status(),
+          candidate.keys(),
+          decidedAt,
+          candidate.reason());
+    }
+
+    Set<String> ownedDocumentIds(SpaceId space, String source) {
+      return stores
+          .map(storage -> storage.ownership.listDocumentIds(space, source))
+          .orElseGet(Set::of);
+    }
+
+    boolean claimOwnership(SpaceId space, String source, String document) {
+      return stores
+          .map(
+              storage ->
+                  storage.ownership.claim(space, source, document)
+                      != DocumentOwnership.Claim.OTHER_SOURCE)
+          .orElse(true);
+    }
+
+    void deleteAcl(SpaceId space, String document) {
+      stores.ifPresent(storage -> storage.acls.delete(space, List.of(document)));
+    }
+  }
 
   /** 임베딩 캐시 없이(모든 입력을 임베더로). */
   public DocumentIngestor(
@@ -101,6 +244,54 @@ public final class DocumentIngestor implements SourceSync {
       UnitEmbedding embedding,
       IngestPipeline pipeline,
       Clock clock) {
+    this(
+        tx,
+        units,
+        keywords,
+        vectors,
+        meta,
+        embedding,
+        pipeline,
+        clock,
+        new DocumentAccess(Optional.empty()));
+  }
+
+  /** 원본 ACL을 수집하는 조립은 유닛과 같은 저장 자원의 ACL·소유 포트를 명시한다. */
+  public DocumentIngestor(
+      TransactionOperations tx,
+      UnitMaintenance units,
+      KeywordIndex keywords,
+      VectorIndex vectors,
+      SpaceMeta meta,
+      Embedder embedder,
+      EmbeddingCache cache,
+      IngestPipeline pipeline,
+      Clock clock,
+      AclStore acls,
+      DocumentOwnership ownership) {
+    this(
+        tx,
+        units,
+        keywords,
+        vectors,
+        meta,
+        new EmbedderUnitEmbedding(embedder, cache),
+        pipeline,
+        clock,
+        new DocumentAccess(Optional.of(new AccessStores(tx, acls, ownership))));
+  }
+
+  private DocumentIngestor(
+      TransactionOperations tx,
+      UnitMaintenance units,
+      KeywordIndex keywords,
+      VectorIndex vectors,
+      SpaceMeta meta,
+      UnitEmbedding embedding,
+      IngestPipeline pipeline,
+      Clock clock,
+      DocumentAccess documentAccess) {
+    this.documentAccess = documentAccess;
     this.tx = tx;
     this.units = units;
     this.keywords = keywords;
@@ -117,15 +308,10 @@ public final class DocumentIngestor implements SourceSync {
     return generation.value();
   }
 
-  public SyncReport sync(
-      SpaceId space, String sourceId, List<SourceDocument> documents, Set<String> liveDocumentIds) {
-    return sync(space, sourceId, documents, liveDocumentIds, () -> {});
-  }
-
   /**
    * guard는 쓰기 트랜잭션마다 그 안에서 먼저 실행된다 — 투영 점유 검사(저장 경계 fencing). 던지면 그 트랜잭션은 롤백된다. {@link
-   * WriteGuardException}과 {@link EmbeddingGenerationMismatchException}은 문서 격리 없이 전파되고, 다른 예외는 그 문서만
-   * 격리한다.
+   * WriteGuardException}과 {@link EmbeddingGenerationMismatchException} 및 ACL 저장 실패는 run 실패로 전파한다.
+   * 다른 본문 처리 예외는 그 문서만 격리한다. ACL 포트 없는 로컬 적재 조립은 빈 ACL 맵만 받을 수 있다.
    */
   @Override
   public SyncReport sync(
@@ -133,14 +319,17 @@ public final class DocumentIngestor implements SourceSync {
       String sourceId,
       List<SourceDocument> documents,
       Set<String> liveDocumentIds,
+      Map<String, DocumentAcl> acls,
       Runnable guard) {
     String startedAt =
         DateTimeFormatter.ISO_INSTANT.format(clock.instant().truncatedTo(ChronoUnit.MILLIS));
     Tally tally = new Tally();
+    Set<String> ownershipSkipped = documentAccess.commit(space, sourceId, documents, acls, guard);
     EmbeddingGenerationCheck.verify(meta, List.of(space), generation);
     int docs = 0, unitCount = 0, deleted = 0;
     List<DeadLetter> errors = new ArrayList<>();
     for (SourceDocument doc : documents) {
+      if (ownershipSkipped.contains(doc.documentId())) continue;
       String stage = "pipeline";
       try {
         List<ContextUnit> built = pipeline.apply(doc);
@@ -157,7 +346,8 @@ public final class DocumentIngestor implements SourceSync {
     deleted += prune(space, sourceId, liveDocumentIds, guard);
     // 커서는 수집 시작 시각 — 수집 도중 변경된 문서는 다음 sync에서 다시 잡힌다
     meta.set(space, "cursor:" + sourceId, startedAt);
-    return new SyncReport(docs, unitCount, deleted, List.copyOf(errors), tally.counts());
+    return new SyncReport(
+        docs, unitCount, deleted, List.copyOf(errors), tally.counts(), ownershipSkipped);
   }
 
   private static DeadLetter deadLetter(SourceDocument doc, String stage, RuntimeException e) {
@@ -168,17 +358,22 @@ public final class DocumentIngestor implements SourceSync {
         e);
   }
 
-  /** 현존 목록 밖 문서를 지운다: 문서마다 유닛·키워드·벡터 삭제를 한 트랜잭션으로(고아 색인 행 0). */
+  /** 현존 목록 밖의 소유 문서는 유닛·키워드·벡터·ACL을 함께 지운다. 첫 소유 행은 유지한다. */
   private int prune(SpaceId space, String sourceId, Set<String> live, Runnable guard) {
     int deleted = 0;
-    for (String documentId : units.listDocumentIds(space, sourceId)) {
+    Set<String> candidates = new HashSet<>(units.listDocumentIds(space, sourceId));
+    candidates.addAll(documentAccess.ownedDocumentIds(space, sourceId));
+    for (String documentId : candidates) {
       if (live.contains(documentId)) continue;
       Integer n =
           tx.execute(
               s -> {
                 guard.run();
                 requireGeneration(space);
-                return deleteUnits(space, sourceId, documentId, List.of());
+                if (!documentAccess.claimOwnership(space, sourceId, documentId)) return 0;
+                int removed = deleteUnits(space, sourceId, documentId, List.of());
+                documentAccess.deleteAcl(space, documentId);
+                return removed;
               });
       deleted += n == null ? 0 : n;
     }

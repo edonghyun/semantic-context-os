@@ -2,7 +2,7 @@ package io.scos.collection.internal.postgres;
 
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SnapshotGuardStore;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;

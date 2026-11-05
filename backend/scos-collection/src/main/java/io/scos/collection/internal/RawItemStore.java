@@ -2,7 +2,8 @@ package io.scos.collection.internal;
 
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.spi.store.SpaceId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,28 @@ public interface RawItemStore {
    * 직전 페이지의 마지막 externalId.
    */
   Page listActive(SourceInstanceId source, int limit, Optional<String> cursor);
+
+  /**
+   * 본문 없는 접근 후보. cutoff가 있으면 그 시각 이하의 관측 중 만료 처리가 끝나지 않은 것만 고른다. 완료된 관측도 대상 문서가 다시 FAILED 이외의 상태가
+   * 되고 이 공간·소스가 소유할 수 있으면 반환한다. cutoff 없는 수집 후보에는 완료 여부가 영향을 주지 않는다. kinds가 비면 0행이다.
+   */
+  Page accessCandidates(
+      SourceInstanceId source,
+      Set<String> kinds,
+      Optional<Instant> cutoff,
+      int limit,
+      Optional<String> cursor);
+
+  /**
+   * 같은 시각의 EXPIRED 관측에 대한 만료 처리를 완료한다. 대상 문서가 없거나 FAILED 또는 다른 공간·소스 소유이면 후보에서 제외한다. 새 관측은 다시 대상이며,
+   * 다른 시각·상태의 원본에는 영향을 주지 않는다. 호출자의 만료 트랜잭션에 참여한다.
+   */
+  void completeAccessExpiry(
+      SourceInstanceId source,
+      String externalId,
+      Instant observedAt,
+      SpaceId space,
+      Optional<String> document);
 
   /** 이 소스의 active 항목 수. */
   int count(SourceInstanceId source);

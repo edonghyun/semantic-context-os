@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.scos.collection.internal.OutboxPort;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.ContextUnit;
 import java.time.Duration;
 import java.time.Instant;

@@ -1,8 +1,12 @@
 package io.scos.collection.internal;
 
+import static io.scos.support.MeterRegistryAssert.assertThatMetrics;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.collection.internal.memory.MemoryAccessObservationStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
@@ -10,7 +14,9 @@ import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.store.memory.MemoryIdentityStore;
+import io.scos.store.memory.MemorySourceAccessDirectory;
 import io.scos.support.LogCapture;
 import io.scos.support.ManualTaskScheduler;
 import java.time.Instant;
@@ -37,7 +43,8 @@ class CollectionRuntimeHeartbeatStartFailureTest {
 
   final MutableClock clock = new MutableClock(Instant.parse("2026-10-16T00:00:00Z"));
   final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
+  final SimpleMeterRegistry registry = new SimpleMeterRegistry();
   final LogCapture log = LogCapture.of(CollectionRuntime.class);
 
   @AfterEach
@@ -55,6 +62,7 @@ class CollectionRuntimeHeartbeatStartFailureTest {
     CollectionRuntime runtime =
         MemoryCollectionRuntime.over(clock, sources, claims, runStore)
             .heartbeats(ManualTaskScheduler.rejecting(REJECT_REASON))
+            .metrics(CollectionMetrics.of(registry))
             .build();
     return catchThrowable(
         () -> runtime.collect(SOURCE, CollectionMode.INCREMENTAL, CancellationToken.none()));
@@ -64,6 +72,18 @@ class CollectionRuntimeHeartbeatStartFailureTest {
   Optional<WorkClaim> claimByAnotherWorker() {
     return claims.tryClaim(
         SOURCE, new OwnerId("w2"), MemoryCollectionRuntime.LEASE_TTL, clock.instant());
+  }
+
+  @Test
+  @DisplayName("heartbeat 등록 거부도 실패한 run 지표에 남긴다")
+  void rejectedHeartbeatRecordsFailedRunMetric() {
+    collectWithRejectingScheduler();
+    // then
+    assertThatMetrics(registry)
+        .hasCounter(
+            CollectionMetrics.RUNS,
+            Tags.of("status", "failed", "error_kind", "TaskRejectedException"),
+            1);
   }
 
   @Test
@@ -129,15 +149,21 @@ class CollectionRuntimeHeartbeatStartFailureTest {
   @Nested
   @DisplayName("run 마감마저 실패하면")
   class FinishAlsoFails {
+    final MemoryRunStore.Records records = new MemoryRunStore.Records();
+    final MemoryIdentityStore identities = new MemoryIdentityStore();
+    final MemoryAccessObservationStore observations =
+        new MemoryAccessObservationStore(new MemorySourceAccessDirectory(identities), records);
     final MemoryRunStore failingFinish =
-        new MemoryRunStore() {
+        new MemoryRunStore(records, identities, observations) {
           @Override
           public synchronized CollectionRun finish(
               RunId id,
               RunOutcome outcome,
               CollectionCoverage coverage,
               Instant finishedAt,
-              int reconciled) {
+              int reconciled,
+              AccessResult accessResult,
+              Optional<Instant> accessFinishedAt) {
             throw new IllegalStateException(FINISH_FAILURE);
           }
         };

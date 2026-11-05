@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import tools.jackson.databind.JsonNode;
@@ -56,10 +57,10 @@ public final class FakeSlackServer implements AutoCloseable {
   private static final int CURSOR_REPEATS = 2;
 
   /**
-   * 요청 상한 — 같은 history 페이지를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(invalid_provider_response)와 검사 실패로 끝낸다. 데이터셋
-   * run은 백 개 안쪽이다.
+   * 요청 상한 — 같은 history 페이지를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(invalid_provider_response)와 검사 실패로 끝낸다. 정상
+   * fixture는 run당 7요청이다. 서버 생애의 누적 상한으로, 두 번 수집과 재시도 여유를 둔다.
    */
-  static final int MAX_REQUESTS = 2000;
+  static final int MAX_REQUESTS = 128;
 
   private final ObjectMapper json = new ObjectMapper();
   private final ObjectNode dataset;
@@ -79,10 +80,79 @@ public final class FakeSlackServer implements AutoCloseable {
     http.on("GET", CHANNELS, r -> answer(CHANNELS, this::channels, r));
     http.on("GET", HISTORY, r -> answer(HISTORY, this::history, r));
     http.on("GET", REPLIES, r -> answer(REPLIES, this::replies, r));
+    // 옛 본문 fixture에는 디렉터리 데이터가 없다. 인식한 접근 API는 권한을 추정하지 않고 scope 거부로 답한다.
+    if (dataset.has("access")) {
+      http.on("GET", "/api/auth.test", r -> answer("/api/auth.test", this::auth, r));
+      http.on(
+          "GET", "/api/conversations.info", r -> answer("/api/conversations.info", this::info, r));
+      http.on(
+          "GET",
+          "/api/conversations.members",
+          r -> answer("/api/conversations.members", this::members, r));
+      http.on("GET", "/api/users.list", r -> answer("/api/users.list", this::users, r));
+    } else {
+      http.on("GET", "/api/auth.test", r -> apiFailure(200, "missing_scope"));
+    }
   }
 
   public String baseUrl() {
     return http.baseUrl();
+  }
+
+  public synchronized void changeAccess(Consumer<ObjectNode> change) {
+    change.accept((ObjectNode) dataset.get("access"));
+  }
+
+  public synchronized void clearChannels() {
+    ((ArrayNode) dataset.get("channels")).removeAll();
+  }
+
+  public synchronized void addAccessChannel(String id, Set<String> members) {
+    ((ArrayNode) dataset.path("channels")).add(id);
+    ObjectNode access = (ObjectNode) dataset.path("access");
+    ((ObjectNode) access.path("conversations"))
+        .putObject(id)
+        .put("id", id)
+        .put("is_private", true)
+        .put("is_im", false)
+        .put("is_mpim", false)
+        .put("is_archived", false);
+    ArrayNode page = ((ObjectNode) access.path("memberPages")).putArray(id).addArray();
+    members.stream().sorted().forEach(page::add);
+  }
+
+  private ObjectNode auth(Map<String, String> query) {
+    return json.createObjectNode()
+        .put("ok", true)
+        .set("team_id", dataset.path("access").path("teamId"));
+  }
+
+  private ObjectNode info(Map<String, String> query) {
+    JsonNode channel = dataset.path("access").path("conversations").path(query.get("channel"));
+    if (channel.isMissingNode())
+      return json.createObjectNode().put("ok", false).put("error", "channel_not_found");
+    return json.createObjectNode().put("ok", true).set("channel", channel);
+  }
+
+  private ObjectNode members(Map<String, String> query) {
+    return accessPage(
+        dataset.path("access").path("memberPages").path(query.get("channel")), query, "members");
+  }
+
+  private ObjectNode users(Map<String, String> query) {
+    return accessPage(dataset.path("access").path("userPages"), query, "members");
+  }
+
+  private ObjectNode accessPage(JsonNode pages, Map<String, String> query, String field) {
+    int index =
+        query.containsKey("cursor")
+            ? Integer.parseInt(query.get("cursor").substring("page:".length()))
+            : 0;
+    ObjectNode body = json.createObjectNode().put("ok", true);
+    if (pages.isArray() && index < pages.size()) body.set(field, pages.get(index));
+    if (index + 1 < pages.size())
+      body.putObject("response_metadata").put("next_cursor", "page:" + (index + 1));
+    return body;
   }
 
   public String token() {
@@ -217,7 +287,17 @@ public final class FakeSlackServer implements AutoCloseable {
   }
 
   private ObjectNode channels(Map<String, String> q) {
-    ArrayNode all = (ArrayNode) dataset.get("channels");
+    List<JsonNode> all = new ArrayList<>();
+    for (JsonNode id : dataset.path("channels")) {
+      boolean archived =
+          dataset
+              .path("access")
+              .path("conversations")
+              .path(id.asString())
+              .path("is_archived")
+              .asBoolean(false);
+      if (!"true".equals(q.get("exclude_archived")) || !archived) all.add(id);
+    }
     int size = dataset.get("conversationsPageSize").asInt();
     int from = q.get("cursor") == null ? 0 : Integer.parseInt(q.get("cursor"));
     ObjectNode body = json.createObjectNode().put("ok", true);

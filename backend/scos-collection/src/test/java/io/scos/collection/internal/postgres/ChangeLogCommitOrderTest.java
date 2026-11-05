@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.SourceChangeLog;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.Eventually;
 import io.scos.support.HoldGate;
 import io.scos.support.PgLocks;

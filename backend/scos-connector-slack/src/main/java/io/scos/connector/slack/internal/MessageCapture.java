@@ -5,6 +5,7 @@ import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.RejectedItem;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ final class MessageCapture {
   private final Clock clock;
   private final ContentCapture contents;
   private final String channelId;
+  private final SourceInstanceId source;
   private final Optional<SlackTs> thread;
   private final Optional<SlackTs> historySince;
 
@@ -35,12 +37,14 @@ final class MessageCapture {
       ObjectMapper json,
       Clock clock,
       ContentCapture contents,
+      SourceInstanceId source,
       String channelId,
       Optional<SlackTs> thread,
       Optional<SlackTs> historySince) {
     this.json = json;
     this.clock = clock;
     this.contents = contents;
+    this.source = source;
     this.channelId = channelId;
     this.thread = thread;
     this.historySince = historySince;
@@ -72,7 +76,7 @@ final class MessageCapture {
       return;
     }
     tally.accept(
-        message.toRawItem(json, channelId, now, content),
+        message.toRawItem(json, source, channelId, now, content),
         message.ts().get(),
         thread.isEmpty() && message.startsThread());
   }

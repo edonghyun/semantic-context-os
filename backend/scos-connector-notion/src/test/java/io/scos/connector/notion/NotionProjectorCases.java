@@ -2,6 +2,7 @@ package io.scos.connector.notion;
 
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.Projector.ContentReader;
 import io.scos.spi.projection.SourceDocument;
 import java.io.IOException;
@@ -67,18 +68,17 @@ record NotionProjectorCases(String label, JsonNode row) {
     List<RawItem> out = new ArrayList<>();
     for (JsonNode n : row.get("items"))
       out.add(
-          new RawItem(
-              n.get("key").get("externalId").asString(),
-              n.get("resourceType").asString(),
-              n.get("sourceVersion").asString(),
-              Optional.empty(),
-              text(n, "sourceCreatedAt"),
-              text(n, "sourceUpdatedAt"),
-              Instant.parse(n.get("observedAt").asString()),
-              n.get("metadata").toString(),
-              Optional.of(
+          RawItems.item(n.get("key").get("externalId").asString())
+              .resourceType(n.get("resourceType").asString())
+              .version(n.get("sourceVersion").asString())
+              .sourceCreatedAt(text(n, "sourceCreatedAt"))
+              .sourceUpdatedAt(text(n, "sourceUpdatedAt"))
+              .observedAt(Instant.parse(n.get("observedAt").asString()))
+              .metadata(n.get("metadata").toString())
+              .content(
                   new RawContent.Inline(
-                      "application/json", n.get("content").get("value").toString()))));
+                      "application/json", n.get("content").get("value").toString()))
+              .build());
     return out;
   }
 

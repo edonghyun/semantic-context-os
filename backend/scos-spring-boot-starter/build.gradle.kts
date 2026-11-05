@@ -29,6 +29,8 @@ dependencies {
     implementation("io.micrometer:micrometer-core")
 
     testImplementation(testFixtures(project(":scos-spi")))
+    testImplementation(testFixtures(project(":scos-collection")))
+    testImplementation(project(":scos-store-memory"))
     testImplementation(project(":scos-test-support"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

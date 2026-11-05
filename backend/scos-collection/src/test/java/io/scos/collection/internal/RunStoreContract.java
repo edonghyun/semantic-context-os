@@ -1,12 +1,16 @@
 package io.scos.collection.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.scos.spi.connector.AclPage;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.GroupSnapshot;
+import io.scos.spi.source.SourceIdentityRecord;
+import io.scos.spi.source.SourceInstanceId;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
@@ -40,12 +44,83 @@ public abstract class RunStoreContract {
 
   protected abstract RunStore newStore();
 
+  protected abstract AccessObservationStore accessObservations();
+
+  protected abstract long accessObservationCount(RunId run);
+
   /** 격리 blob 데이터 읽기(공용 blob 저장소). */
   protected abstract Optional<byte[]> storedBlob(String sha256);
 
   @BeforeEach
   void setUpContract() {
     store = newStore();
+  }
+
+  @Test
+  @DisplayName("빈 독자 거부 관측은 없는 run에도 무동작이다")
+  void emptyUnreadableObservationIsNoOp() {
+    // when·then
+    assertThatCode(() -> store.observeUnreadableAcls(new RunId("missing"), Set.of()))
+        .doesNotThrowAnyException();
+    assertThat(store.get(new RunId("missing"))).isEmpty();
+  }
+
+  @Test
+  @DisplayName("독자 거부 파일은 중복 없이 run 결과와 마감 뒤에도 보존한다")
+  void unreadableAclIdsSurviveCompletion() {
+    store.start(R1, SOURCE, T0);
+    store.observeUnreadableAcls(R1, Set.of("file:F1"));
+    store.observeUnreadableAcls(R1, Set.of("file:F1", "file:F2"));
+    var finished =
+        store.finish(
+            R1,
+            RunOutcome.succeeded(0),
+            CollectionCoverage.INCREMENTAL,
+            FINISHED,
+            0,
+            AccessResult.COMPLETE,
+            Optional.of(FINISHED));
+    // then
+    assertThat(finished.aclUnreadable()).containsExactlyInAnyOrder("file:F1", "file:F2");
+    assertThat(store.get(R1).orElseThrow().aclUnreadable())
+        .containsExactlyInAnyOrder("file:F1", "file:F2");
+  }
+
+  @Test
+  @DisplayName("새 run은 같은 소스의 stale 접근 관측만 지운다")
+  void staleRunDiscardsOnlyItsAccessObservations() {
+    // given
+    store.start(R1, SOURCE, T0);
+    stageAccess(R1);
+    finishAs(R1, RunStatus.SUCCEEDED, T0.plusSeconds(1));
+    store.start(DEAD, SOURCE, T0);
+    stageAccess(DEAD);
+    store.start(OTHER, OTHER_SOURCE, T0);
+    stageAccess(OTHER);
+    // when
+    store.start(NEW, SOURCE, RESTART);
+    // then
+    assertThat(
+            Map.of(
+                DEAD,
+                accessObservationCount(DEAD),
+                OTHER,
+                accessObservationCount(OTHER),
+                R1,
+                accessObservationCount(R1)))
+        .containsExactlyInAnyOrderEntriesOf(Map.of(DEAD, 0L, OTHER, 2L, R1, 2L));
+  }
+
+  private void stageAccess(RunId run) {
+    accessObservations()
+        .stage(
+            run,
+            new AclPage(
+                Map.of(),
+                List.of(new GroupSnapshot("C1", Set.of("U1"), T0)),
+                List.of(
+                    new SourceIdentityRecord(
+                        "U1", Optional.of("user@example.com"), true, false, false, T0))));
   }
 
   CollectionRun finishAs(RunId id, RunStatus status, Instant at) {
@@ -55,7 +130,9 @@ public abstract class RunStoreContract {
             status, status == RunStatus.SUCCEEDED ? 0 : 1, Optional.empty(), Optional.empty()),
         CollectionCoverage.INCREMENTAL,
         at,
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 
   @Test
@@ -112,6 +189,14 @@ public abstract class RunStoreContract {
     }
 
     @Test
+    @DisplayName("stale run의 종료 실패는 오류 수에 한 건을 더한다")
+    void supersededRunCountsOneFailure() {
+      startNew();
+      // then
+      assertThat(store.get(DEAD).orElseThrow().errorCount()).isEqualTo(1);
+    }
+
+    @Test
     @DisplayName("마감한 stale run의 관측을 지운다")
     void startClearsStaleObservations() {
       // when
@@ -152,7 +237,9 @@ public abstract class RunStoreContract {
         RunOutcome.failed(RunStatus.PARTIALLY_SUCCEEDED, "rate_limited", "429"),
         CollectionCoverage.INCREMENTAL,
         T0.plusSeconds(1),
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
 
     // when
     store.start(new RunId("r2"), SOURCE, RESTART);
@@ -179,6 +266,78 @@ public abstract class RunStoreContract {
     @BeforeEach
     void givenStarted() {
       store.start(R1, SOURCE, T0);
+    }
+
+    @Test
+    @DisplayName("본문 성공과 독립된 접근 미완료 결과를 저장한다")
+    void finishPersistsIndependentAccessResult() {
+      // when
+      store.finish(
+          R1,
+          RunOutcome.succeeded(0),
+          CollectionCoverage.INCREMENTAL,
+          FINISHED,
+          0,
+          AccessResult.INCOMPLETE,
+          Optional.of(RESTART));
+      // then
+      assertThat(store.get(R1).orElseThrow())
+          .extracting(
+              CollectionRun::status, CollectionRun::accessResult, CollectionRun::accessFinishedAt)
+          .containsExactly(RunStatus.SUCCEEDED, AccessResult.INCOMPLETE, Optional.of(RESTART));
+    }
+
+    @Test
+    @DisplayName("건너뛴 접근 단계에는 완료 시각이 없다")
+    void skippedAccessHasNoFinishTime() {
+      // when
+      var finished =
+          store.finish(
+              R1,
+              RunOutcome.succeeded(0),
+              CollectionCoverage.INCREMENTAL,
+              FINISHED,
+              0,
+              AccessResult.SKIPPED,
+              Optional.empty());
+      // then
+      assertThat(finished)
+          .extracting(CollectionRun::accessResult, CollectionRun::accessFinishedAt)
+          .containsExactly(AccessResult.SKIPPED, Optional.empty());
+    }
+
+    @Test
+    @DisplayName("접근 실패는 본문 성공 최신성에 영향을 주지 않는다")
+    void accessFailureDoesNotChangeSuccessFreshness() {
+      // given
+      store.finish(
+          R1,
+          RunOutcome.succeeded(0),
+          CollectionCoverage.INCREMENTAL,
+          FINISHED,
+          0,
+          AccessResult.INCOMPLETE,
+          Optional.of(RESTART));
+      // when
+      var succeeded = store.lastSucceededAt(Set.of(SOURCE));
+      // then
+      assertThat(succeeded).containsExactlyEntriesOf(Map.of(SOURCE, FINISHED));
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccessResult.class)
+    @DisplayName("최신 run 조회는 접근 결과와 시각을 보존한다")
+    void latestPreservesAccessResult(AccessResult result) {
+      // given
+      var at = result == AccessResult.SKIPPED ? Optional.<Instant>empty() : Optional.of(RESTART);
+      store.finish(
+          R1, RunOutcome.succeeded(0), CollectionCoverage.INCREMENTAL, FINISHED, 0, result, at);
+      // when
+      var latest = store.latest(SOURCE).orElseThrow();
+      // then
+      assertThat(latest)
+          .extracting(CollectionRun::accessResult, CollectionRun::accessFinishedAt)
+          .containsExactly(result, at);
     }
 
     @Test
@@ -210,7 +369,9 @@ public abstract class RunStoreContract {
               RunOutcome.failed(RunStatus.FAILED, "rate_limited", "429"),
               CollectionCoverage.INCREMENTAL,
               FINISHED,
-              0);
+              0,
+              AccessResult.SKIPPED,
+              Optional.empty());
 
       // then
       assertThat(failed)
@@ -247,7 +408,13 @@ public abstract class RunStoreContract {
     /** 4건을 reconcile하며 성공으로 끝낸다. */
     CollectionRun finishReconciling() {
       return store.finish(
-          R1, RunOutcome.succeeded(0), CollectionCoverage.COMPLETE_SNAPSHOT, FINISHED, 4);
+          R1,
+          RunOutcome.succeeded(0),
+          CollectionCoverage.COMPLETE_SNAPSHOT,
+          FINISHED,
+          4,
+          AccessResult.SKIPPED,
+          Optional.empty());
     }
 
     @Test

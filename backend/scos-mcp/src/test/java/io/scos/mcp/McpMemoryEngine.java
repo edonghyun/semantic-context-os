@@ -4,6 +4,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.scos.boot.AccessParts;
 import io.scos.boot.RerankProperties;
+import io.scos.collection.internal.FixedSourceQueries;
+import io.scos.collection.internal.SourceQueries;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.KeywordIndex;
@@ -13,6 +15,7 @@ import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import java.time.Clock;
+import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -23,6 +26,11 @@ import org.springframework.context.annotation.Bean;
  */
 @EnableConfigurationProperties(RerankProperties.class)
 class McpMemoryEngine {
+  @Bean
+  SourceQueries sourceQueries() {
+    return new FixedSourceQueries(List.of());
+  }
+
   @Bean
   MemoryUnitStore unitStore() {
     return new MemoryUnitStore();

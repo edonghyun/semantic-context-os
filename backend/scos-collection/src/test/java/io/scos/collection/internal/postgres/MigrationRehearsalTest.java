@@ -8,7 +8,7 @@ import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.RawRecord;
 import io.scos.collection.internal.StoredCheckpoint;
 import io.scos.collection.internal.WorkClaim;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;

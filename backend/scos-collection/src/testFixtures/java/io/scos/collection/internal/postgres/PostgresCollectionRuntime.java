@@ -1,34 +1,47 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.AccessCollection;
+import io.scos.collection.internal.AccessCompletion;
+import io.scos.collection.internal.AccessObservationStore;
 import io.scos.collection.internal.CheckpointPort;
 import io.scos.collection.internal.CollectionMetrics;
 import io.scos.collection.internal.CollectionRuntime;
+import io.scos.collection.internal.CollectionStores;
 import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.PageCommit;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.RawContentCapture;
 import io.scos.collection.internal.RunCompletion;
+import io.scos.collection.internal.RunHistoryFreshness;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SnapshotShrinkGuard;
 import io.scos.collection.internal.SnapshotShrinkLimits;
 import io.scos.collection.internal.SourceAdapters;
+import io.scos.collection.internal.WorkClaimPort;
+import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
+import io.scos.spi.access.DomainPolicy;
+import io.scos.spi.access.SourceFreshness;
 import io.scos.spi.connector.SourceAdapter;
+import io.scos.spi.store.SpaceId;
 import io.scos.support.ManualTaskScheduler;
 import io.scos.support.TestMetrics;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionTemplate;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * PostgreSQL 어댑터 위의 실제 수집 런타임 조립(DB 종단 테스트·자식 JVM 공용). 메모리 판은 `MemoryCollectionRuntime`. 커넥터는 자기
@@ -51,6 +64,10 @@ public final class PostgresCollectionRuntime {
 
   private final DataSource dataSource;
   private final Clock clock;
+  private boolean collectAccess;
+  private DomainPolicy domains = new DomainPolicy(Set.of(), Map.of());
+  private AccessObservationStore accessObservations;
+  private WorkClaimPort claims;
   private SourceAdapter adapter;
   private String owner = "w1";
   private Duration leaseTtl = LEASE_TTL;
@@ -69,6 +86,11 @@ public final class PostgresCollectionRuntime {
 
   public static PostgresCollectionRuntime over(DataSource dataSource, Clock clock) {
     return new PostgresCollectionRuntime(dataSource, clock);
+  }
+
+  /** 수집 이력 읽기만 필요한 검색 테스트도 운영 저장소 조립을 재사용한다. */
+  public static SourceFreshness sourceFreshness(DataSource dataSource) {
+    return new RunHistoryFreshness(PostgresCollectionConfiguration.adapters(dataSource).runs());
   }
 
   /** 이 런타임이 걷는 커넥터 어댑터(필수). */
@@ -131,34 +153,86 @@ public final class PostgresCollectionRuntime {
     return this;
   }
 
+  public PostgresCollectionRuntime domains(DomainPolicy policy) {
+    this.domains = policy;
+    return this;
+  }
+
+  public PostgresCollectionRuntime collectAccess(boolean enabled) {
+    this.collectAccess = enabled;
+    return this;
+  }
+
+  public PostgresCollectionRuntime accessObservations(AccessObservationStore observations) {
+    this.accessObservations = observations;
+    return this;
+  }
+
+  public PostgresCollectionRuntime claims(WorkClaimPort claims) {
+    this.claims = claims;
+    return this;
+  }
+
   public CollectionRuntime build() {
     if (adapter == null) throw new IllegalStateException("adapter가 없다");
     var adapters = PostgresCollectionConfiguration.adapters(dataSource);
     var stores =
         adapters.stores(new TransactionTemplate(new DataSourceTransactionManager(dataSource)));
+    if (accessObservations != null || claims != null)
+      stores =
+          new CollectionStores(
+              stores.tx(),
+              claims == null ? stores.claims() : claims,
+              stores.runs(),
+              stores.rawItems(),
+              stores.checkpoints(),
+              stores.outbox(),
+              stores.changes(),
+              stores.rawAcls(),
+              accessObservations == null ? stores.accessObservations() : accessObservations,
+              stores.bodies(),
+              stores.sources());
     String runOwner = owner;
     AtomicInteger counter = runCounter;
-    return new CollectionRuntime(
-        adapters.sources(),
-        SourceAdapters.of(List.of(adapter)),
-        RawContentCapture.defaults(),
+    var selectedCalls =
         calls != null
             ? calls
             : new ProviderCallExecutor(
                 ProviderCallPolicy.defaults(() -> 0.0),
                 clock,
                 waiter,
-                ProviderCallMetrics.of(metrics.registry())),
-        adapters.claims(),
+                ProviderCallMetrics.of(metrics.registry()));
+    return new CollectionRuntime(
+        adapters.sources(),
+        SourceAdapters.of(List.of(adapter)),
+        RawContentCapture.defaults(),
+        selectedCalls,
+        stores.claims(),
         checkpointReads == null ? adapters.checkpoints() : checkpointReads,
         adapters.runs(),
-        new PageCommit(stores, clock, metrics, new Progress(clock)),
+        new PageCommit(
+            stores,
+            clock,
+            metrics,
+            new Progress(clock),
+            SourceAdapters.of(List.of(adapter)),
+            collectAccess),
         new RunCompletion(
             stores,
             new SnapshotShrinkGuard(
                 adapters.sources(), adapters.guards(), SnapshotShrinkLimits.DEFAULTS, metrics)),
+        new AccessCollection(
+            stores,
+            SourceAdapters.of(List.of(adapter)),
+            selectedCalls,
+            domains,
+            clock,
+            collectAccess,
+            new ProjectionSpaces(Map.of(), new SpaceId("legacy"), new ObjectMapper()),
+            AccessCollection.Options.DEFAULTS),
+        new AccessCompletion(stores, clock),
         new OwnerId(runOwner),
-        new LeaseHeartbeats(adapters.claims(), leaseTtl, clock, heartbeats, metrics),
+        new LeaseHeartbeats(stores.claims(), leaseTtl, clock, heartbeats, metrics),
         clock,
         runIds == null ? () -> new RunId(runOwner + "-run-" + counter.incrementAndGet()) : runIds,
         metrics);

@@ -61,6 +61,25 @@ class FakeSlackServerTest {
     return "Bearer " + server.token();
   }
 
+  @Test
+  @DisplayName("본문 전용 데이터셋의 접근 요청도 등록된 Slack 응답을 받는다")
+  void bodyOnlyDatasetRecognizesAccessApi() throws Exception {
+    int status = send("GET", "/api/auth.test", bearer());
+
+    // then
+    assertThat(status).isEqualTo(200);
+  }
+
+  @Test
+  @DisplayName("ACL 데이터가 없는 본문 fixture는 접근 권한을 추정하지 않는다")
+  void bodyOnlyDatasetDeniesUnconfiguredDirectory() throws Exception {
+    JsonNode body = get("/api/auth.test");
+
+    // then
+    assertThat(body.path("ok").asBoolean()).isFalse();
+    assertThat(body.path("error").asString()).isEqualTo("missing_scope");
+  }
+
   @Nested
   @DisplayName("등록되지 않은 메서드의 요청은")
   class WrongMethod {

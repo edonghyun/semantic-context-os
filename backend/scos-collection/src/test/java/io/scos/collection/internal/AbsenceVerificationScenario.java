@@ -8,6 +8,7 @@ import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.CollectionState;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.ReconciliationContext;
 import io.scos.spi.connector.ReconciliationKind;
@@ -424,6 +425,8 @@ public final class AbsenceVerificationScenario {
             RunOutcome.succeeded(0),
             CollectionCoverage.COMPLETE_SNAPSHOT,
             clock.instant(),
+            AccessResult.SKIPPED,
+            Optional.empty(),
             Optional.of(source),
             Optional.of(scope)));
   }

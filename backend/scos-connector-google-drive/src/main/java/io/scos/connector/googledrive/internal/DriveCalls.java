@@ -2,8 +2,12 @@ package io.scos.connector.googledrive.internal;
 
 import io.scos.engine.support.text.JsJson;
 import io.scos.engine.support.text.Text;
+import io.scos.spi.connector.CallExecutor;
 import io.scos.spi.connector.CallFailure;
+import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionInput;
+import io.scos.spi.connector.ContentCapture;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
@@ -16,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
@@ -37,10 +42,13 @@ final class DriveCalls {
   /** 읽기 하나가 필수인지(실패가 run 실패) 선택인지(실패가 수집 제한). */
   enum Availability {
     REQUIRED,
+    ACL,
     OPTIONAL
   }
 
-  private final CollectionInput input;
+  private final CallExecutor calls;
+  private final CancellationToken cancel;
+  private final @Nullable ContentCapture content;
   private final GoogleDriveSession session;
   private final GoogleDriveConfiguration config;
   private final ObjectMapper json;
@@ -50,7 +58,29 @@ final class DriveCalls {
       GoogleDriveSession session,
       GoogleDriveConfiguration config,
       ObjectMapper json) {
-    this.input = input;
+    this(input.calls(), input.cancel(), input.content(), session, config, json);
+  }
+
+  /** 접근 수집은 본문 캡처 없이 같은 세션·재시도 정책만 소비한다. */
+  DriveCalls(
+      CallExecutor calls,
+      CancellationToken cancel,
+      GoogleDriveSession session,
+      GoogleDriveConfiguration config,
+      ObjectMapper json) {
+    this(calls, cancel, null, session, config, json);
+  }
+
+  private DriveCalls(
+      CallExecutor calls,
+      CancellationToken cancel,
+      @Nullable ContentCapture content,
+      GoogleDriveSession session,
+      GoogleDriveConfiguration config,
+      ObjectMapper json) {
+    this.calls = calls;
+    this.cancel = cancel;
+    this.content = content;
     this.session = session;
     this.config = config;
     this.json = json;
@@ -59,13 +89,11 @@ final class DriveCalls {
   /** JSON 객체 응답 하나(operation `google-drive.<서비스>.read`). */
   ObjectNode json(GoogleService service, String path, Availability availability) {
     return (ObjectNode)
-        input
-            .calls()
-            .execute(
-                "google-drive." + service.name().toLowerCase(Locale.ROOT) + ".read",
-                timeout -> session.json(service, path, timeout),
-                e -> classify(e, availability),
-                input.cancel());
+        calls.execute(
+            "google-drive." + service.name().toLowerCase(Locale.ROOT) + ".read",
+            timeout -> session.json(service, path, timeout),
+            e -> classify(e, availability),
+            cancel);
   }
 
   /**
@@ -73,24 +101,26 @@ final class DriveCalls {
    * incomplete_download(재시도).
    */
   byte[] download(String fileId, OptionalDouble expectedBytes, long maxBytes) {
-    return input
-        .calls()
-        .execute(
-            "google-drive.download",
-            timeout -> {
-              byte[] bytes = session.download(fileId, timeout, maxBytes);
-              if (expectedBytes.isPresent() && bytes.length != expectedBytes.getAsDouble())
-                throw GoogleApiException.of(
-                    BAD_GATEWAY, GoogleApiException.Reason.INCOMPLETE_DOWNLOAD);
-              return bytes;
-            },
-            e -> classify(e, Availability.OPTIONAL),
-            input.cancel());
+    return calls.execute(
+        "google-drive.download",
+        timeout -> {
+          byte[] bytes = session.download(fileId, timeout, maxBytes);
+          if (expectedBytes.isPresent() && bytes.length != expectedBytes.getAsDouble())
+            throw GoogleApiException.of(BAD_GATEWAY, GoogleApiException.Reason.INCOMPLETE_DOWNLOAD);
+          return bytes;
+        },
+        e -> classify(e, Availability.OPTIONAL),
+        cancel);
   }
 
   /** 받은 바이트를 원본 콘텐츠로 담는다(캡처 상한을 넘으면 {@code RawContentTooLargeException}). */
   RawContent capture(String mediaType, byte[] bytes) {
-    return input.content().bytes(mediaType, bytes);
+    return bodyContent().bytes(mediaType, bytes);
+  }
+
+  private ContentCapture bodyContent() {
+    // 본문 전용 연산은 CollectionInput 생성 경계에서만 호출한다.
+    return Objects.requireNonNull(content, "Body capture is unavailable during access collection");
   }
 
   boolean downloadsBinaries() {
@@ -118,6 +148,10 @@ final class DriveCalls {
         throw new UnavailableContent(Objects.requireNonNull(tooLarge.getMessage()));
       throw tooLarge;
     }
+    if (availability == Availability.ACL
+        && e instanceof GoogleApiException api
+        && api.status() == 403
+        && api.aclUnreadable()) throw new UnreadableAcl();
     if (availability == Availability.OPTIONAL
         && e instanceof GoogleApiException api
         && UNAVAILABLE.contains(api.status())
@@ -155,7 +189,8 @@ final class DriveCalls {
             text(file.get("modifiedTime")),
             observedAt,
             JsJson.stringify(metadata),
-            Optional.of(input.content().json("application/json", stringified)));
+            Optional.of(bodyContent().json("application/json", stringified)),
+            RawAcl.notObserved());
     return new RawMutation.Upsert(item);
   }
 

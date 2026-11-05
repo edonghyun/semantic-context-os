@@ -74,6 +74,8 @@ public final class ConfigurationFenceScenario {
             RunOutcome.succeeded(0),
             CollectionCoverage.COMPLETE_SNAPSHOT,
             body.clock.instant(),
+            AccessResult.SKIPPED,
+            Optional.empty(),
             Optional.of(expected)));
   }
 

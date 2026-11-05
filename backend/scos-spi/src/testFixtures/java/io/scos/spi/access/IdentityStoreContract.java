@@ -6,7 +6,7 @@ import io.scos.spi.access.AccessDirectory.Group;
 import io.scos.spi.access.AccessDirectory.Identity;
 import io.scos.spi.access.AccessDirectory.Link;
 import io.scos.spi.access.AccessDirectory.User;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;

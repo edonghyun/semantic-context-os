@@ -75,6 +75,7 @@ public final class GoogleDriveSession {
   private final GoogleOrigins origins;
   private @Nullable String accessToken;
   private double expiresAt;
+  private int dataRequests;
 
   GoogleDriveSession(
       GoogleCredential credential,
@@ -104,6 +105,11 @@ public final class GoogleDriveSession {
     return value;
   }
 
+  /** 이 세션의 데이터 API 전송 시도 수. OAuth·경로/헤더 검증 거부는 제외한다. */
+  int dataRequests() {
+    return dataRequests;
+  }
+
   /** 파일 원본(alt=media). maxBytes를 넘으면 {@link GoogleContentTooLargeException}. */
   public byte[] download(String fileId, Duration timeout, long maxBytes) {
     String path =
@@ -116,14 +122,15 @@ public final class GoogleDriveSession {
     if (!pathAndQuery.startsWith(service.pathPrefix()) || UNSAFE_PATH.matcher(pathAndQuery).find())
       throw new IllegalArgumentException("Invalid Google API path");
     URI uri = URI.create(origins.of(service) + pathAndQuery);
-    String token = token(timeout);
+    String authorization = CredentialResolver.headerValue("Bearer " + token(timeout));
     ProviderHttp.BinaryResponse response;
     try {
+      dataRequests++;
       response =
           http.getBytes(
               uri,
               // 헤더로 보낼 수 없는 access token(토큰 끝점이 준 값)은 헤더 지점에서 설정 오류로 끊는다 — 값은 싣지 않는다
-              Map.of(HttpHeaders.AUTHORIZATION, CredentialResolver.headerValue("Bearer " + token)),
+              Map.of(HttpHeaders.AUTHORIZATION, authorization),
               timeout,
               maxBytes);
     } catch (ProviderHttp.ResponseTooLargeException e) {
@@ -134,9 +141,7 @@ public final class GoogleDriveSession {
     if (status >= REDIRECT_MIN && status <= REDIRECT_MAX) throw new RedirectRefused();
     if (status == UNAUTHORIZED) invalidate();
     Optional<GoogleApiException.Reason> reason =
-        status == FORBIDDEN && rateLimited(response.body())
-            ? Optional.of(GoogleApiException.Reason.RATE_LIMITED)
-            : Optional.empty();
+        status == FORBIDDEN ? forbiddenReason(response.body()) : Optional.empty();
     throw new GoogleApiException(
         status, reason, RETRY_AFTER.read(response.headers().getFirst(HttpHeaders.RETRY_AFTER)));
   }
@@ -191,21 +196,25 @@ public final class GoogleDriveSession {
   }
 
   /** 403 본문의 errors[] 이유가 rate limit 계열인가(앞에서부터 보고, 객체가 아닌 항목이나 읽을 수 없는 본문이면 아니다). */
-  private boolean rateLimited(byte[] body) {
-    if (body.length > MAX_SMALL_BODY_BYTES) return false;
+  private Optional<GoogleApiException.Reason> forbiddenReason(byte[] body) {
+    if (body.length > MAX_SMALL_BODY_BYTES) return Optional.empty();
     try {
       JsonNode root = json.readTree(text(body));
-      JsonNode error = root.isObject() ? root.get("error") : null;
-      if (error == null || !error.isObject()) return false;
-      JsonNode errors = error.get("errors");
-      if (errors == null || !errors.isArray()) return false;
+      JsonNode errors = root.path("error").path("errors");
+      if (!errors.isArray() || errors.isEmpty()) return Optional.empty();
+      boolean unreadable = true;
       for (JsonNode entry : errors) {
-        if (!entry.isObject()) return false;
-        if (RATE_LIMIT_REASONS.contains(JsValues.string(entry.get("reason")))) return true;
+        if (!entry.isObject()) return Optional.empty();
+        String reason = JsValues.string(entry.get("reason"));
+        if (RATE_LIMIT_REASONS.contains(reason))
+          return Optional.of(GoogleApiException.Reason.RATE_LIMITED);
+        unreadable &= reason.equals("insufficientFilePermissions");
       }
-      return false;
+      return unreadable
+          ? Optional.of(GoogleApiException.Reason.INSUFFICIENT_FILE_PERMISSIONS)
+          : Optional.empty();
     } catch (JacksonException e) {
-      return false;
+      return Optional.empty();
     }
   }
 

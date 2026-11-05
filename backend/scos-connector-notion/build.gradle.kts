@@ -12,6 +12,7 @@ dependencies {
     implementation("org.springframework:spring-web")
     implementation("org.slf4j:slf4j-api")
 
+    testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(testFixtures(project(":scos-engine")))
     testImplementation(testFixtures(project(":scos-collection")))
     testImplementation(project(":scos-spring-boot-starter"))

@@ -8,7 +8,7 @@ import io.scos.connector.jira.internal.JiraApiClient;
 import io.scos.connector.jira.internal.JiraFixtures;
 import io.scos.engine.support.call.ProviderCallPolicy;
 import io.scos.engine.support.call.ProviderHttp;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;

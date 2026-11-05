@@ -181,10 +181,10 @@ pitest {
         // 인자 해석(CommandArguments)·소스 설정 입력(SourceConfigInput)은 순수라 대상이다
         "io.scos.server.Commands*", "io.scos.server.QueryCommands*", "io.scos.server.SourceQueryJson*", "io.scos.server.UnitJsonImport*",
         "io.scos.server.DatabaseVersionCheck*", "io.scos.server.CommandOutput*", "io.scos.server.LaunchMode*",
-        // 런타임 조립(수집 run·투영 run·적재·단위 가져오기·투영 공간): 저장 포트를 엮는 흐름이라 Postgres 통합 테스트(db 태그)가 증명한다
+        // 런타임 조립(수집 run·단위 가져오기·투영 공간): 저장 포트를 엮는 흐름이라 Postgres 통합 테스트(db 태그)가 증명한다
         // (메모리 포트 단위 테스트가 생기면 대상에 넣는다)
-        "io.scos.collection.internal.CollectionRuntime*", "io.scos.collection.internal.projection.ProjectionRun*",
-        "io.scos.collection.internal.projection.ProjectionSpaces*", "io.scos.engine.internal.projection.DocumentIngestor*",
+        "io.scos.collection.internal.CollectionRuntime*",
+        "io.scos.collection.internal.projection.ProjectionSpaces*",
         "io.scos.engine.internal.projection.UnitImporter*"
     )
     targetTests = setOf("io.scos.*")

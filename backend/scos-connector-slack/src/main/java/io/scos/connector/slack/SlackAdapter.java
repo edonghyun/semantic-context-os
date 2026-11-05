@@ -1,9 +1,11 @@
 package io.scos.connector.slack;
 
+import io.scos.connector.slack.internal.SlackAccessCollection;
 import io.scos.connector.slack.internal.SlackCheckpoint;
 import io.scos.connector.slack.internal.SlackCollection;
 import io.scos.connector.slack.internal.SlackConfiguration;
 import io.scos.connector.slack.internal.SlackWebApiClient;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.Checkpoint;
@@ -35,6 +37,7 @@ public final class SlackAdapter implements SourceAdapter {
   private final SlackWebApiClient client;
   private final ObjectMapper json;
   private final Clock clock;
+  private final AccessPolicy access;
 
   public SlackAdapter(
       CredentialResolver credentials, SlackWebApiClient client, ObjectMapper json, Clock clock) {
@@ -42,11 +45,23 @@ public final class SlackAdapter implements SourceAdapter {
     this.client = client;
     this.json = json;
     this.clock = clock;
+    SlackAccessCollection collection = new SlackAccessCollection(credentials, client, clock);
+    this.access =
+        new SlackProjector(json)
+            .accessPolicy()
+            .collecting(
+                collection::collect,
+                (source, id, at) -> Optional.of(collection.aclFromExternalId(source, id, at)));
   }
 
   @Override
   public String kind() {
     return KIND;
+  }
+
+  @Override
+  public AccessPolicy accessPolicy() {
+    return access;
   }
 
   @Override

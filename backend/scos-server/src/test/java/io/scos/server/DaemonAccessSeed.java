@@ -11,7 +11,7 @@ import io.scos.spi.access.AccessDirectory.User;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.access.TokenHash;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.IndexedText;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.postgres.PostgresAccessSeed;

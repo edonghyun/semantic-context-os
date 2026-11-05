@@ -20,7 +20,7 @@ import io.scos.collection.internal.SourceSupervisor.Attempt;
 import io.scos.collection.internal.SourceSupervisor.AttemptOutcome;
 import io.scos.collection.internal.SourceSupervisor.Cycle;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;

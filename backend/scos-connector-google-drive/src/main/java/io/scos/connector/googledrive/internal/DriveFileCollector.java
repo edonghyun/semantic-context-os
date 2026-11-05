@@ -3,6 +3,7 @@ package io.scos.connector.googledrive.internal;
 import io.scos.connector.googledrive.internal.DriveCalls.Availability;
 import io.scos.engine.support.call.CursorTrail;
 import io.scos.engine.support.text.JsJson;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawContentTooLargeException;
 import io.scos.spi.connector.RawItem;
@@ -223,7 +224,8 @@ final class DriveFileCollector {
             Optional.empty(),
             envelope.observedAt,
             JsJson.stringify(metadata),
-            Optional.of(captured)));
+            Optional.of(captured),
+            RawAcl.notObserved()));
   }
 
   /** JS `??`의 의미: null·undefined가 아니다. */

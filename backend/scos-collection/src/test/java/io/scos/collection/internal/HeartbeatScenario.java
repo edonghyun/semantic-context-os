@@ -3,7 +3,7 @@ package io.scos.collection.internal;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.engine.support.time.MutableClock;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.BackgroundThread;
 import io.scos.support.Eventually;
 import io.scos.support.HoldGate;

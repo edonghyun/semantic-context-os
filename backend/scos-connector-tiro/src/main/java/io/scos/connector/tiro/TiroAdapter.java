@@ -4,6 +4,7 @@ import io.scos.connector.tiro.internal.TiroApiClient;
 import io.scos.connector.tiro.internal.TiroCheckpoint;
 import io.scos.connector.tiro.internal.TiroCollection;
 import io.scos.connector.tiro.internal.TiroConfiguration;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
@@ -51,6 +52,11 @@ public final class TiroAdapter implements SourceAdapter {
   @Override
   public String kind() {
     return KIND;
+  }
+
+  @Override
+  public AccessPolicy accessPolicy() {
+    return TiroProjector.ACCESS;
   }
 
   @Override

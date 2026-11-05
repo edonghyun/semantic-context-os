@@ -1,0 +1,39 @@
+{
+  "user": {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=U1",
+    "accountId": "U1",
+    "accountType": "atlassian",
+    "displayName": "Synthetic Reader",
+    "active": true
+  },
+  "project": {
+    "id": "P1",
+    "key": "SYN",
+    "name": "Synthetic project",
+    "style": "next-gen",
+    "simplified": true,
+    "projectTypeKey": "software",
+    "isPrivate": false
+  },
+  "issue": {
+    "id": "10001",
+    "key": "SYN-1",
+    "fields": {
+      "project": {
+        "id": "P1"
+      },
+      "security": null,
+      "reporter": {
+        "accountId": "U1",
+        "active": true,
+        "accountType": "atlassian"
+      },
+      "creator": {
+        "accountId": "U1",
+        "active": true,
+        "accountType": "atlassian"
+      },
+      "assignee": null
+    }
+  }
+}

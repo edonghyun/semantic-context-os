@@ -1,9 +1,11 @@
 package io.scos.connector.googledrive;
 
+import io.scos.connector.googledrive.internal.DriveAccessCollection;
 import io.scos.connector.googledrive.internal.GoogleDriveApiClient;
 import io.scos.connector.googledrive.internal.GoogleDriveCollection;
 import io.scos.connector.googledrive.internal.GoogleDriveConfiguration;
 import io.scos.connector.googledrive.internal.GoogleDriveSession;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
@@ -29,6 +31,7 @@ public final class GoogleDriveAdapter implements SourceAdapter {
   private final GoogleDriveApiClient client;
   private final ObjectMapper json;
   private final Clock clock;
+  private final AccessPolicy access;
 
   public GoogleDriveAdapter(
       CredentialResolver credentials, GoogleDriveApiClient client, ObjectMapper json, Clock clock) {
@@ -36,11 +39,19 @@ public final class GoogleDriveAdapter implements SourceAdapter {
     this.client = client;
     this.json = json;
     this.clock = clock;
+    this.access =
+        GoogleDriveProjector.ACCESS.collecting(
+            new DriveAccessCollection(credentials, client, json, clock)::collect);
   }
 
   @Override
   public String kind() {
     return KIND;
+  }
+
+  @Override
+  public AccessPolicy accessPolicy() {
+    return access;
   }
 
   @Override

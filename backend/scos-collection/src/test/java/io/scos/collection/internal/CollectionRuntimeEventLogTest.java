@@ -14,7 +14,7 @@ import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.connector.SourceAdapter;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.LogCapture;
 import java.time.Instant;
 import java.util.List;
@@ -55,7 +55,7 @@ class CollectionRuntimeEventLogTest {
   void collectWith(SourceAdapter adapter) {
     MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
     sources.save(SourceInstances.noop(SOURCE, clock.instant()));
-    MemoryCollectionRuntime.over(clock, sources, new MemoryWorkClaimPort(), new MemoryRunStore())
+    MemoryCollectionRuntime.over(clock, sources, new MemoryWorkClaimPort(), MemoryRunStore.create())
         .runIds(() -> RUN)
         .adapter(adapter)
         .build()

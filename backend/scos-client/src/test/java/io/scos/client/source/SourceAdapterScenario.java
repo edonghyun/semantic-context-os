@@ -15,7 +15,7 @@ import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.ArrayList;

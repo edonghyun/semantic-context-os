@@ -1,11 +1,10 @@
 package io.scos.collection.internal.postgres;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import io.scos.boot.PostgresCollectionConfiguration;
-import io.scos.collection.internal.ClaimLostException;
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.CommitContext;
 import io.scos.collection.internal.OwnerId;
@@ -21,8 +20,8 @@ import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionPage;
-import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -66,7 +65,16 @@ class PostgresRunCompletionTest {
 
   CollectionPage page(String... ids) {
     return CollectionPage.ofItems(
-        Arrays.stream(ids).map(id -> RawItem.minimal(id, "v1", "{}", clock.instant())).toList(),
+        Arrays.stream(ids)
+            .map(
+                id ->
+                    RawItems.item(id)
+                        .resourceType("test.item")
+                        .version("v1")
+                        .metadata("{}")
+                        .observedAt(clock.instant())
+                        .build())
+            .toList(),
         new Checkpoint(1, "{\"after\":\"" + ids[ids.length - 1] + "\"}"));
   }
 
@@ -89,7 +97,13 @@ class PostgresRunCompletionTest {
     pageCommit.commit(first, r0, 0, page("a", "b", "c"));
     completion.complete(
         new RunCompletion.Input(
-            first, r0, RunOutcome.succeeded(0), CollectionCoverage.INCREMENTAL, clock.instant()));
+            first,
+            r0,
+            RunOutcome.succeeded(0),
+            CollectionCoverage.INCREMENTAL,
+            clock.instant(),
+            AccessResult.SKIPPED,
+            Optional.empty()));
     adapters.claims().release(first, clock.instant());
     WorkClaim claim =
         adapters.claims().tryClaim(SOURCE, new OwnerId("w1"), TTL, clock.instant()).orElseThrow();
@@ -117,7 +131,9 @@ class PostgresRunCompletionTest {
             run,
             new RunOutcome(status, status.isSuccess() ? 0 : 1, Optional.empty(), Optional.empty()),
             coverage,
-            clock.instant()));
+            clock.instant(),
+            AccessResult.SKIPPED,
+            Optional.empty()));
   }
 
   @Nested
@@ -200,7 +216,9 @@ class PostgresRunCompletionTest {
                               run,
                               RunOutcome.succeeded(0),
                               CollectionCoverage.COMPLETE_SNAPSHOT,
-                              clock.instant())));
+                              clock.instant(),
+                              AccessResult.SKIPPED,
+                              Optional.empty())));
       if (!(thrown instanceof IllegalStateException e)
           || !e.getMessage().equals(FailingChangeLog.MESSAGE))
         throw new IllegalStateException("given 준비 실패: 완료가 변경 로그에서 실패하지 않았다", thrown);
@@ -310,50 +328,40 @@ class PostgresRunCompletionTest {
     }
 
     @Test
-    @DisplayName("ClaimLostException이다")
+    @DisplayName("성공 대신 점유 상실 부분 성공으로 마감한다")
     void successRequiresLiveLease() {
-      // when·then
-      assertThatThrownBy(() -> complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT))
-          .isInstanceOf(ClaimLostException.class);
-    }
-
-    @Test
-    @DisplayName("거부되고, run을 마감하지 않는다")
-    void rejectedSuccessChangesNothing() {
-      // when
-      Throwable rejected =
-          catchThrowable(() -> complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT));
-
+      CollectionRun done = complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT);
       // then
-      assertThat(rejected).isInstanceOf(ClaimLostException.class);
-      assertThat(adapters.runs().get(run).orElseThrow().status()).isEqualTo(RunStatus.RUNNING);
+      assertThat(done)
+          .extracting(CollectionRun::status, CollectionRun::errorKind)
+          .containsExactly(RunStatus.PARTIALLY_SUCCEEDED, Optional.of("claim_lost"));
     }
 
     @Test
-    @DisplayName("거부되고, 원본을 지우지 않는다")
+    @DisplayName("점유 상실에도 run을 terminal 상태로 마감한다")
+    void lostSuccessFinishesRun() {
+      complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT);
+      // then
+      assertThat(adapters.runs().get(run).orElseThrow().status())
+          .isEqualTo(RunStatus.PARTIALLY_SUCCEEDED);
+    }
+
+    @Test
+    @DisplayName("점유 상실이면 원본을 지우지 않는다")
     void rejectedSuccessKeepsItems() {
-      // when
-      Throwable rejected =
-          catchThrowable(() -> complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT));
-
+      complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT);
       // then
-      assertThat(rejected).isInstanceOf(ClaimLostException.class);
       assertThat(adapters.rawItems().count(SOURCE)).isEqualTo(3);
     }
   }
 
   @Nested
-  @DisplayName("만료 뒤 succeeded가 거부된 run을 failed로 마감하면")
+  @DisplayName("점유가 만료된 run을 명시적인 failed로 마감하면")
   class FailedAfterRejection {
     @BeforeEach
     void givenSuccessRejected() {
       givenOnlyAObserved();
       clock.advance(TTL.plusSeconds(1));
-      Throwable rejected =
-          catchThrowable(() -> complete(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT));
-      if (!(rejected instanceof ClaimLostException))
-        throw new IllegalStateException(
-            "given 준비 실패: 만료 뒤 succeeded 완료가 ClaimLostException으로 거부돼야 한다", rejected);
     }
 
     CollectionRun completeFailed() {
@@ -363,7 +371,9 @@ class PostgresRunCompletionTest {
               run,
               RunOutcome.failed(RunStatus.FAILED, "claim_lost", "x".repeat(700)),
               CollectionCoverage.COMPLETE_SNAPSHOT,
-              clock.instant()));
+              clock.instant(),
+              AccessResult.SKIPPED,
+              Optional.empty()));
     }
 
     @Test

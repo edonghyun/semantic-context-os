@@ -4,7 +4,7 @@ import io.scos.collection.internal.BodyCompletionStore;
 import io.scos.collection.internal.ReconciliationDiscovery.Comparison;
 import io.scos.collection.internal.ReconciliationDiscovery.Discovery;
 import io.scos.collection.internal.RunId;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

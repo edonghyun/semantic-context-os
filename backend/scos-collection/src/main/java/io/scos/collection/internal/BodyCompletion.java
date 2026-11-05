@@ -6,7 +6,7 @@ import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.CollectionState;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;

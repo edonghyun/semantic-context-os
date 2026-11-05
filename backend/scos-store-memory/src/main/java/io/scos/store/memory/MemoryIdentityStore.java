@@ -4,7 +4,8 @@ import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.AccessKeyInstances;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.IdentityStore;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +19,28 @@ public final class MemoryIdentityStore implements IdentityStore {
   private volatile Directory directory =
       new Directory(List.of(), List.of(), List.of(), List.of(), Set.of());
 
-  public void replace(Directory snapshot) {
+  public synchronized void replace(Directory snapshot) {
     directory = snapshot;
+  }
+
+  /** 원천 접근 상태만 원자적으로 교체한다. 사용자·연결·조직 지정과 다른 원천은 유지한다. */
+  public synchronized void replaceSourceAccess(
+      SourceInstanceId source, List<Identity> identities, List<Group> groups) {
+    if (identities.stream().anyMatch(i -> !i.instance().equals(source))
+        || groups.stream().anyMatch(g -> !g.instance().equals(source)))
+      throw new IllegalArgumentException("Source access must belong to the replaced source");
+    Directory current = directory;
+    var nextIdentities =
+        new ArrayList<>(
+            current.identities().stream().filter(i -> !i.instance().equals(source)).toList());
+    nextIdentities.addAll(identities);
+    var nextGroups =
+        new ArrayList<>(
+            current.groups().stream().filter(g -> !g.instance().equals(source)).toList());
+    nextGroups.addAll(groups);
+    directory =
+        new Directory(
+            current.users(), nextIdentities, current.links(), nextGroups, current.scopes());
   }
 
   boolean containsUser(String userId) {

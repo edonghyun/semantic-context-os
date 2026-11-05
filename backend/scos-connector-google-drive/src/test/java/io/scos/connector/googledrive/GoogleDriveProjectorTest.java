@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.SourceDocument;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -88,17 +89,16 @@ class GoogleDriveProjectorTest {
   }
 
   static RawItem item(JsonNode n) {
-    return new RawItem(
-        n.get("key").get("externalId").asString(),
-        n.get("resourceType").asString(),
-        n.get("sourceVersion").asString(),
-        Optional.empty(),
-        Optional.ofNullable(n.get("sourceCreatedAt")).map(JsonNode::asString),
-        Optional.ofNullable(n.get("sourceUpdatedAt")).map(JsonNode::asString),
-        Instant.parse(n.get("observedAt").asString()),
-        n.get("metadata").toString(),
-        Optional.of(
-            new RawContent.Inline("application/json", n.get("content").get("value").toString())));
+    return RawItems.item(n.get("key").get("externalId").asString())
+        .resourceType(n.get("resourceType").asString())
+        .version(n.get("sourceVersion").asString())
+        .sourceCreatedAt(Optional.ofNullable(n.get("sourceCreatedAt")).map(JsonNode::asString))
+        .sourceUpdatedAt(Optional.ofNullable(n.get("sourceUpdatedAt")).map(JsonNode::asString))
+        .observedAt(Instant.parse(n.get("observedAt").asString()))
+        .metadata(n.get("metadata").toString())
+        .content(
+            new RawContent.Inline("application/json", n.get("content").get("value").toString()))
+        .build();
   }
 
   static List<Doc> project(JsonNode c) {

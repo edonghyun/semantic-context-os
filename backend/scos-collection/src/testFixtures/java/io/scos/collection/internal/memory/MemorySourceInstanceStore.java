@@ -4,7 +4,8 @@ import io.scos.collection.internal.SourceConfigurationChangedException;
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +14,18 @@ import java.util.TreeMap;
 /** 메모리 참조 구현. */
 public final class MemorySourceInstanceStore implements SourceInstanceStore {
   private final Map<String, SourceInstance> byId = new TreeMap<>();
+
+  private final Map<SourceInstanceId, Integer> skipped = new HashMap<>();
+
+  @Override
+  public synchronized void recordOwnershipSkipped(SourceInstanceId source, int count) {
+    if (byId.containsKey(source.value())) skipped.put(source, count);
+  }
+
+  @Override
+  public synchronized int ownershipSkipped(SourceInstanceId source) {
+    return skipped.getOrDefault(source, 0);
+  }
 
   @Override
   public synchronized void save(SourceInstance instance) {
@@ -29,6 +42,11 @@ public final class MemorySourceInstanceStore implements SourceInstanceStore {
     get(expected.id())
         .orElseThrow(SourceConfigurationChangedException::new)
         .requireCollectionConfiguration(expected);
+  }
+
+  @Override
+  public synchronized List<SourceInstance> listAll() {
+    return List.copyOf(byId.values());
   }
 
   @Override

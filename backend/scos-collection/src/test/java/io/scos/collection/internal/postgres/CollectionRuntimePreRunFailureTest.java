@@ -18,7 +18,7 @@ import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.UnaryOperator;

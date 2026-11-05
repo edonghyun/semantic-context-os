@@ -4,6 +4,7 @@ import io.scos.connector.googledrive.internal.DocsRenderer;
 import io.scos.connector.googledrive.internal.JsText;
 import io.scos.connector.googledrive.internal.SheetsRenderer;
 import io.scos.connector.googledrive.internal.SlidesRenderer;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
@@ -16,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -36,6 +38,8 @@ public final class GoogleDriveProjector implements Projector {
   static final String FILE = "gdrive.file";
   static final String DRIVE = "gdrive.drive";
   static final String SHEET = "gdrive.sheet";
+  static final AccessPolicy ACCESS =
+      AccessPolicy.supported(Set.of(FILE, DRIVE), Set.of(FILE, DRIVE));
   private static final DateTimeFormatter ISO_MILLIS =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
@@ -58,7 +62,7 @@ public final class GoogleDriveProjector implements Projector {
   public Map<String, List<RawItem>> groupIntoDocuments(List<RawItem> items) {
     Map<String, List<RawItem>> groups = new LinkedHashMap<>();
     for (RawItem item : items)
-      if (item.resourceType().equals(FILE) || item.resourceType().equals(DRIVE)) {
+      if (ACCESS.carries(item)) {
         List<RawItem> group = new ArrayList<>();
         group.add(item);
         groups.put(item.externalId(), group);

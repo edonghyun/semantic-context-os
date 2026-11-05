@@ -1,9 +1,8 @@
 package io.scos.collection.internal;
 
-import static io.scos.collection.internal.RawItems.item;
+import static io.scos.spi.connector.RawItems.item;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
@@ -13,7 +12,7 @@ import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -74,16 +73,48 @@ class RunCompletionTest {
         RUN,
         RunOutcome.failed(RunStatus.FAILED, errorKind, errorSummary),
         CollectionCoverage.INCREMENTAL,
-        clock.instant());
+        clock.instant(),
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 
   RunCompletion.Input input(RunStatus status, CollectionCoverage coverage) {
-    return new RunCompletion.Input(claim, RUN, RunOutcome.clean(status), coverage, clock.instant());
+    return new RunCompletion.Input(
+        claim,
+        RUN,
+        RunOutcome.clean(status),
+        coverage,
+        clock.instant(),
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 
   /** 이번 run을 succeeded + complete_snapshot으로 완료한다. */
   CollectionRun completeSucceededSnapshot() {
     return completion.complete(input(RunStatus.SUCCEEDED, CollectionCoverage.COMPLETE_SNAPSHOT));
+  }
+
+  @Test
+  @DisplayName("본문 마감은 독립된 접근 결과와 시각을 함께 전달한다")
+  void completionPersistsIndependentAccessResult() {
+    // when
+    completion.complete(
+        new RunCompletion.Input(
+            claim,
+            RUN,
+            RunOutcome.succeeded(0),
+            CollectionCoverage.INCREMENTAL,
+            clock.instant(),
+            AccessResult.INCOMPLETE,
+            Optional.of(clock.instant().minusSeconds(1))));
+    // then
+    assertThat(runs.get(RUN).orElseThrow())
+        .extracting(
+            CollectionRun::status, CollectionRun::accessResult, CollectionRun::accessFinishedAt)
+        .containsExactly(
+            RunStatus.SUCCEEDED,
+            AccessResult.INCOMPLETE,
+            Optional.of(Instant.parse("2026-10-13T23:59:59Z")));
   }
 
   @Test
@@ -242,7 +273,9 @@ class RunCompletionTest {
                   RESUMED,
                   RunOutcome.succeeded(0),
                   CollectionCoverage.COMPLETE_SNAPSHOT,
-                  clock.instant()));
+                  clock.instant(),
+                  AccessResult.SKIPPED,
+                  Optional.empty()));
     }
 
     @Test
@@ -284,7 +317,9 @@ class RunCompletionTest {
                   EMPTY,
                   RunOutcome.succeeded(0),
                   CollectionCoverage.COMPLETE_SNAPSHOT,
-                  clock.instant()));
+                  clock.instant(),
+                  AccessResult.SKIPPED,
+                  Optional.empty()));
     }
 
     @Test
@@ -364,33 +399,33 @@ class RunCompletionTest {
     }
 
     @Test
-    @DisplayName("ClaimLostException이다")
+    @DisplayName("점유 상실 종류로 실패 마감한다")
     void succeededRequiresLiveClaim() {
-      // when
-      Throwable rejected = catchThrowable(RunCompletionTest.this::completeSucceededSnapshot);
-
+      CollectionRun done = completeSucceededSnapshot();
       // then
-      assertThat(rejected).isInstanceOf(ClaimLostException.class);
+      assertThat(done)
+          .extracting(CollectionRun::status, CollectionRun::errorKind)
+          .containsExactly(RunStatus.FAILED, Optional.of("claim_lost"));
     }
 
     @Test
     @DisplayName("원본을 지우지 않는다")
     void keepsItems() {
       // when
-      var unused = catchThrowable(RunCompletionTest.this::completeSucceededSnapshot);
+      completeSucceededSnapshot();
 
       // then
       assertThat(rawItems.count(SOURCE)).isEqualTo(3);
     }
 
     @Test
-    @DisplayName("run을 마감하지 않는다")
-    void leavesRunRunning() {
+    @DisplayName("run을 terminal 상태로 마감한다")
+    void finishesLostRun() {
       // when
-      var unused = catchThrowable(RunCompletionTest.this::completeSucceededSnapshot);
+      completeSucceededSnapshot();
 
       // then
-      assertThat(runs.get(RUN).orElseThrow().status()).isEqualTo(RunStatus.RUNNING);
+      assertThat(runs.get(RUN).orElseThrow().status()).isEqualTo(RunStatus.FAILED);
     }
   }
 

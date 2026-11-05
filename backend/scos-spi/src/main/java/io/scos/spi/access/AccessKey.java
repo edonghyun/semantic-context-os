@@ -1,6 +1,6 @@
 package io.scos.spi.access;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Locale;
 
 /** 원천 인스턴스 안에서 식별되는 접근 키(접근 설계 §3.1). */

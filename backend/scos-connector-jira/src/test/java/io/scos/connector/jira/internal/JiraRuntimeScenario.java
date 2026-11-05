@@ -42,7 +42,7 @@ final class JiraRuntimeScenario implements AutoCloseable {
     sources.save(JiraAssembly.instance(JiraAssembly.SYNTHETIC_SITE, JiraScenario.NOW));
     runtime =
         MemoryCollectionRuntime.over(
-                clock, sources, new MemoryWorkClaimPort(), new MemoryRunStore())
+                clock, sources, new MemoryWorkClaimPort(), MemoryRunStore.create())
             .rawItems(rawItems)
             .checkpoints(checkpoints)
             .adapter(JiraAssembly.adapter(jira.baseUrl(), jira.token(), clock))

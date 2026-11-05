@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStatus;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ class MemoryRunStoreTest {
   static final Instant T0 = Instant.parse("2026-10-16T00:00:00Z");
   static final Instant T1 = Instant.parse("2026-10-16T00:01:00Z");
 
-  final MemoryRunStore store = new MemoryRunStore();
+  final MemoryRunStore store = MemoryRunStore.create();
 
   @Nested
   @DisplayName("같은 소스에 running run이 있으면")

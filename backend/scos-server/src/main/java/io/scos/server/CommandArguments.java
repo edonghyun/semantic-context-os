@@ -44,6 +44,18 @@ final class CommandArguments {
     return Optional.of(values.getFirst());
   }
 
+  /** 명시한 텍스트 옵션 하나는 --name=value 또는 --name value를 허용한다. */
+  Optional<String> followingOption(String name) {
+    if (!args.containsOption(name)) return Optional.empty();
+    var values = Objects.requireNonNull(args.getOptionValues(name));
+    if (!values.isEmpty() && !values.getFirst().isEmpty()) return Optional.of(values.getFirst());
+    String[] raw = args.getSourceArgs();
+    for (int i = 0; i + 1 < raw.length; i++)
+      if (raw[i].equals("--" + name) && !raw[i + 1].startsWith("--"))
+        return Optional.of(raw[i + 1]);
+    throw new IllegalArgumentException("--" + name + " needs a value. " + Commands.USAGE);
+  }
+
   String required(String name) {
     List<String> values =
         args.containsOption(name) ? Objects.requireNonNull(args.getOptionValues(name)) : List.of();

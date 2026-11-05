@@ -64,7 +64,7 @@ final class NotionRefreshScenario implements AutoCloseable {
   final MutableClock clock = new MutableClock(NotionScopeScenario.NOW);
   final MemoryRawItemStore raw = new MemoryRawItemStore();
   final MemoryBodyCompletionStore bodies = new MemoryBodyCompletionStore();
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
   final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
   NotionReconciliationState state =
       NotionReconciliationState.read(
@@ -98,7 +98,9 @@ final class NotionRefreshScenario implements AutoCloseable {
                 raw,
                 new MemoryCheckpointPort(),
                 new MemoryOutboxPort(),
-                new MemorySourceChangeLog())
+                new MemorySourceChangeLog(),
+                raw.acls(),
+                runs.accessObservations())
             .withBodies(bodies);
     commits = new PageCommit(stores, clock, TestMetrics.collection(), new Progress(clock));
     input =

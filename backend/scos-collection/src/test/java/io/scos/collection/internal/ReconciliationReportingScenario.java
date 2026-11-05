@@ -15,6 +15,7 @@ import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.PageSink;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.ReconciliationContext;
 import io.scos.support.LogCapture;
 import java.util.List;
@@ -28,7 +29,7 @@ final class ReconciliationReportingScenario implements AutoCloseable {
   final CollectionMetrics metrics = CollectionMetrics.of(registry);
   final LogCapture log = LogCapture.of(CollectionRuntime.class);
   final MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
   final MemoryRawItemStore raw = new MemoryRawItemStore();
   final MemoryBodyCompletionStore bodies = new MemoryBodyCompletionStore();
   final MutableClock clock = new MutableClock(ReconciliationDiscoveryScenario.NOW);

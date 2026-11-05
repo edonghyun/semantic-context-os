@@ -22,6 +22,50 @@ class CommandArgumentsTest {
   }
 
   @Test
+  @DisplayName("텍스트 옵션을 주지 않으면 값이 없다")
+  void followingOptionMayBeAbsent() {
+    var value = args("source", "access", "explain", "doc").followingOption("user");
+    // then
+    assertThat(value).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"--user", "--user="})
+  @DisplayName("값 없는 텍스트 옵션은 거부한다")
+  void followingOptionRequiresValue(String option) {
+    // when·then
+    assertThatThrownBy(
+            () -> args("source", "access", "explain", "doc", option).followingOption("user"))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("--user needs a value");
+  }
+
+  @Test
+  @DisplayName("다음 옵션을 텍스트 값으로 오인하지 않는다")
+  void followingOptionDoesNotConsumeAnotherOption() {
+    // when·then
+    assertThatThrownBy(() -> args("--user", "--limit=2").followingOption("user"))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  @DisplayName("공백 텍스트 옵션은 앞선 다른 인자를 건너뛴다")
+  void followingOptionFindsSeparatedValue() {
+    var value =
+        args("source", "access", "explain", "doc", "--user", "reader").followingOption("user");
+    // then
+    assertThat(value).contains("reader");
+  }
+
+  @Test
+  @DisplayName("등호 텍스트 옵션도 같은 값으로 읽는다")
+  void followingOptionAcceptsEquals() {
+    var value = args("--user=reader").followingOption("user");
+    // then
+    assertThat(value).contains("reader");
+  }
+
+  @Test
   @DisplayName("양의 정수 초 옵션은 그 초의 기간이다")
   void positiveSeconds() {
     // when

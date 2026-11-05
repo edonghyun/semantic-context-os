@@ -5,7 +5,7 @@ import static io.scos.spi.store.ContextUnits.unit;
 import io.scos.engine.Freshness;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.RecordedSourceFreshness;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.Principal;
 import io.scos.spi.store.SpaceId;

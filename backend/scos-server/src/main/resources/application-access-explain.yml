@@ -1,0 +1,6 @@
+# 원인 조회는 연결과 기본 트랜잭션 모두 읽기 전용이며 Flyway는 validate만 한다.
+spring:
+  datasource:
+    hikari:
+      read-only: true
+      connection-init-sql: SET default_transaction_read_only = on

@@ -12,6 +12,7 @@ import io.scos.connector.notion.internal.NotionRootTraversal;
 import io.scos.connector.notion.internal.NotionScopeIdentity;
 import io.scos.connector.notion.internal.NotionSearchCollection;
 import io.scos.connector.notion.internal.NotionSearchState;
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
@@ -56,6 +57,11 @@ public final class NotionAdapter implements SourceAdapter {
   @Override
   public String kind() {
     return KIND;
+  }
+
+  @Override
+  public AccessPolicy accessPolicy() {
+    return AccessPolicy.scoped(KIND);
   }
 
   @Override

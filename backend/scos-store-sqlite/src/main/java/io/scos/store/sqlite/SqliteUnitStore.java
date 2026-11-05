@@ -120,11 +120,14 @@ public final class SqliteUnitStore implements UnitStore {
         .update();
   }
 
-  /** A2: 배치의 모든 문서를 한 문장으로 먼저 확인한다 — 첫 기록자가 소유하고, 불일치는 쓰기 전에 거부한다. */
+  /** A2·A3: 배치의 공간·출처 소유가 모두 일치해야 유닛을 쓴다. 호출자의 트랜잭션이 신규 소유 등록까지 함께 롤백한다. */
   private void claimOwnership(SpaceId space, List<ContextUnit> units) {
     Map<String, String> sourcesByDocument = new LinkedHashMap<>();
-    for (ContextUnit unit : units)
-      sourcesByDocument.putIfAbsent(unit.documentId(), unit.provenance().sourceId());
+    for (ContextUnit unit : units) {
+      String prior = sourcesByDocument.putIfAbsent(unit.documentId(), unit.provenance().sourceId());
+      if (prior != null && !prior.equals(unit.provenance().sourceId()))
+        throw new IllegalArgumentException("다른 출처 소유 문서의 쓰기 거부: " + unit.documentId());
+    }
     List<Map<String, String>> claims =
         sourcesByDocument.entrySet().stream()
             .map(e -> Map.of("d", e.getKey(), "s", e.getValue()))
@@ -135,15 +138,18 @@ public final class SqliteUnitStore implements UnitStore {
                 INSERT INTO document_spaces (document_id, space_id, source_id)
                 SELECT json_extract(value, '$.d'), :space, json_extract(value, '$.s') FROM json_each(:claims) WHERE true
                 ON CONFLICT (document_id) DO UPDATE SET space_id = document_spaces.space_id
-                RETURNING document_id, space_id
+                RETURNING document_id, space_id, source_id
                 """)
             .param("space", space.value())
             .param("claims", json(claims))
-            .query((rs, i) -> new OwnerRow(rs.getString(1), rs.getString(2)))
+            .query((rs, i) -> new OwnerRow(rs.getString(1), rs.getString(2), rs.getString(3)))
             .list();
-    for (OwnerRow row : owners)
+    for (OwnerRow row : owners) {
       if (!row.spaceId().equals(space.value()))
         throw new SpaceOwnershipException(row.documentId(), new SpaceId(row.spaceId()), space);
+      if (!row.sourceId().equals(sourcesByDocument.get(row.documentId())))
+        throw new IllegalArgumentException("다른 출처 소유 문서의 쓰기 거부: " + row.documentId());
+    }
   }
 
   @Override
@@ -300,8 +306,8 @@ public final class SqliteUnitStore implements UnitStore {
     return units.stream().collect(Collectors.toMap(ContextUnit::id, Function.identity()));
   }
 
-  /** 문서 소유 확인이 돌려준 행: 문서와 그 현재 소유 공간. */
-  private record OwnerRow(String documentId, String spaceId) {}
+  /** 문서 소유 확인이 돌려준 행: 문서와 그 현재 소유 공간·출처. */
+  private record OwnerRow(String documentId, String spaceId, String sourceId) {}
 
   /** 지운 유닛과 적재 순서. */
   private record DeletedUnit(String id, long seq) {}

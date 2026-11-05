@@ -7,6 +7,7 @@ import io.scos.mcp.JsonlQueryLog;
 import io.scos.mcp.McpStdioServer;
 import io.scos.mcp.McpTools;
 import io.scos.mcp.QueryLog;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.TextGenerator;
 import io.scos.spi.store.KeywordIndex;
@@ -28,6 +29,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.validation.annotation.Validated;
 import tools.jackson.databind.ObjectMapper;
 
@@ -36,6 +38,7 @@ import tools.jackson.databind.ObjectMapper;
  * 본다(CONTRACTS A1). Embedder는 필수다 — 없으면 기동 실패(B11: 키워드 전용 저하 없음, 리뷰 I-2).
  */
 @Configuration(proxyBeanMethods = false)
+@Import(AccessDomainConfiguration.class)
 @EnableConfigurationProperties({McpConfiguration.McpProperties.class, AccessProperties.class})
 public class McpConfiguration {
   @Validated
@@ -111,7 +114,8 @@ public class McpConfiguration {
   /** stdio는 기존 풀, HTTP는 색인·유닛과 같은 읽기 전용 풀을 넘긴다. */
   @Bean
   @ConditionalOnMissingBean(AccessParts.class)
-  public AccessParts accessParts(AccessProperties properties, DataSource dataSource) {
+  public AccessParts accessParts(
+      AccessProperties properties, DataSource dataSource, DomainPolicy domains) {
     return switch (properties.mode()) {
       case SINGLE_USER ->
           new AccessParts.Unrestricted(
@@ -120,7 +124,7 @@ public class McpConfiguration {
           new AccessParts.Restricted(
               new PostgresIndexConfiguration().newIdentityStore(dataSource),
               new PostgresCollectionConfiguration().newSourceFreshness(dataSource),
-              properties.domainPolicy());
+              domains);
     };
   }
 

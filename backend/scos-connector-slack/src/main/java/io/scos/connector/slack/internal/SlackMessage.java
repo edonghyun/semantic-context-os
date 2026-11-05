@@ -1,9 +1,14 @@
 package io.scos.connector.slack.internal;
 
+import io.scos.spi.access.AccessKey;
+import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -11,6 +16,11 @@ import tools.jackson.databind.node.ObjectNode;
 /** history·replies가 준 메시지 하나. ts는 객체이고 유효한 문자열일 때만 있다. */
 record SlackMessage(JsonNode node, Optional<SlackTs> ts) {
   static final String RESOURCE_TYPE = "slack.message";
+
+  static RawAcl aclForChannel(SourceInstanceId source, String channel, Instant at) {
+    return RawAcl.observed(
+        DocumentAcl.Status.OK, Set.of(new AccessKey(AccessKey.Kind.GROUP, source, channel)), at);
+  }
 
   static SlackMessage parse(ObjectMapper json, String raw) {
     JsonNode node = json.readTree(raw);
@@ -34,7 +44,12 @@ record SlackMessage(JsonNode node, Optional<SlackTs> ts) {
    * 키 channelId:ts, sourceVersion = edited.ts ?? ts, metadata{channelId, messageTs, threadTs,
    * authorId, subtype}.
    */
-  RawItem toRawItem(ObjectMapper json, String channelId, Instant observedAt, RawContent content) {
+  RawItem toRawItem(
+      ObjectMapper json,
+      SourceInstanceId source,
+      String channelId,
+      Instant observedAt,
+      RawContent content) {
     SlackTs messageTs = ts.orElseThrow();
     SlackTs sourceVersion = editedTs().orElse(messageTs);
     ObjectNode metadata = json.createObjectNode();
@@ -52,7 +67,8 @@ record SlackMessage(JsonNode node, Optional<SlackTs> ts) {
         Optional.empty(),
         observedAt,
         json.writeValueAsString(metadata),
-        Optional.of(content));
+        Optional.of(content),
+        aclForChannel(source, channelId, observedAt));
   }
 
   private Optional<SlackTs> editedTs() {

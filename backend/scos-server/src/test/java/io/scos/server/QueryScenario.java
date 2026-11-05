@@ -1,6 +1,7 @@
 package io.scos.server;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.boot.PostgresIndexConfiguration;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunId;
@@ -20,6 +21,7 @@ import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.engine.support.text.JsJson;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
@@ -31,14 +33,15 @@ import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
 import io.scos.spi.embedding.EmbedderIdentity;
 import io.scos.spi.embedding.EmbeddingGeneration;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.SpaceId;
 import io.scos.store.postgres.PostgresTestAdapters;
 import java.io.IOException;
@@ -50,6 +53,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -116,6 +120,10 @@ final class QueryScenario {
    * 돌려준다.
    */
   List<String> run(List<String> tsArgs) {
+    return run(tsArgs, false);
+  }
+
+  List<String> run(List<String> tsArgs, boolean collectAccess) {
     List<String> outputs = new ArrayList<>();
     QueryCommands commands =
         new QueryCommands(
@@ -133,7 +141,12 @@ final class QueryScenario {
             CONFIGURED_GENERATION,
             clock,
             new SourceQueryJson(JSON),
-            outputs::add);
+            outputs::add,
+            collectAccess,
+            new AccessExplainer(
+                PostgresCollectionConfiguration.adapters(dataSource).queries(),
+                new PostgresIndexConfiguration().newIdentityStore(dataSource),
+                new DomainPolicy(Set.of(), Map.of())));
     var args = new CommandArguments(new DefaultApplicationArguments(javaArgs(tsArgs)));
     switch (tsArgs.get(0)) {
       case "source" -> commands.source(tsArgs.get(1), args);
@@ -142,6 +155,12 @@ final class QueryScenario {
       default -> throw new IllegalArgumentException("각본에 없는 명령: " + tsArgs);
     }
     return outputs;
+  }
+
+  void givenRunningAccess() {
+    PostgresCollectionConfiguration.adapters(dataSource)
+        .runs()
+        .start(new RunId("access-running"), new SourceInstanceId("slack-main"), now.plusSeconds(1));
   }
 
   /** 공간에 저장된 임베딩 세대(투영·재임베딩이 남긴 값). */
@@ -308,23 +327,24 @@ final class QueryScenario {
 
   private static RawItem item(JsonNode item) {
     JsonNode content = item.get("content");
-    return new RawItem(
-        externalId(item),
-        item.get("resourceType").asString(),
-        item.get("sourceVersion").asString(),
-        item.has("sourceOrder")
-            ? Optional.of(
-                new SourceOrder(
-                    item.get("sourceOrder").get("scheme").asString(),
-                    item.get("sourceOrder").get("position").asString()))
-            : Optional.empty(),
-        optionalText(item, "sourceCreatedAt"),
-        optionalText(item, "sourceUpdatedAt"),
-        Instant.parse(item.get("observedAt").asString()),
-        JsJson.stringify(item.get("metadata")),
-        Optional.of(
+    return RawItems.item(externalId(item))
+        .resourceType(item.get("resourceType").asString())
+        .version(item.get("sourceVersion").asString())
+        .order(
+            item.has("sourceOrder")
+                ? Optional.of(
+                    new SourceOrder(
+                        item.get("sourceOrder").get("scheme").asString(),
+                        item.get("sourceOrder").get("position").asString()))
+                : Optional.empty())
+        .sourceCreatedAt(optionalText(item, "sourceCreatedAt"))
+        .sourceUpdatedAt(optionalText(item, "sourceUpdatedAt"))
+        .observedAt(Instant.parse(item.get("observedAt").asString()))
+        .metadata(JsJson.stringify(item.get("metadata")))
+        .content(
             new RawContent.Inline(
-                content.get("mediaType").asString(), JsJson.stringify(content.get("value")))));
+                content.get("mediaType").asString(), JsJson.stringify(content.get("value"))))
+        .build();
   }
 
   private static RejectedItem rejection(JsonNode r) {

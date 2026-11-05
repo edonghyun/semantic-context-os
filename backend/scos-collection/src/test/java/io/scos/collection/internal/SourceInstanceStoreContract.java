@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -77,6 +77,35 @@ public abstract class SourceInstanceStoreContract {
     @BeforeEach
     void givenSaved() {
       givenThreeSources();
+    }
+
+    @Test
+    @DisplayName("없는 소스의 소유 충돌 보고는 소스를 만들지 않는다")
+    void ownershipSkippedDoesNotCreateMissingSource() {
+      var source = new SourceInstanceId("missing");
+      store.recordOwnershipSkipped(source, 2);
+      // then
+      assertThat(store.ownershipSkipped(source)).isZero();
+      assertThat(store.get(source)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("소유 충돌 수는 소스별 최근 투영 값으로 대체된다")
+    void ownershipSkippedTracksLatestProjection() {
+      store.save(instance("a", true));
+      store.save(instance("b", true));
+      store.recordOwnershipSkipped(new SourceInstanceId("a"), 2);
+      store.recordOwnershipSkipped(new SourceInstanceId("a"), 1);
+      // then
+      assertThat(store.ownershipSkipped(new SourceInstanceId("a"))).isEqualTo(1);
+      assertThat(store.ownershipSkipped(new SourceInstanceId("b"))).isZero();
+    }
+
+    @Test
+    @DisplayName("전체 목록은 비활성 소스도 id 순서로 포함한다")
+    void allSourcesIncludeDisabled() {
+      // then
+      assertThat(ids(store.listAll())).containsExactly("a", "b", "c");
     }
 
     @Test

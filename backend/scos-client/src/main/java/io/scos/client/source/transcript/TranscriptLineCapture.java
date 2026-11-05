@@ -6,6 +6,7 @@ import io.scos.client.DocumentMetadata;
 import io.scos.client.redact.JsonRedaction;
 import io.scos.client.source.Rejections;
 import io.scos.spi.connector.ContentCapture;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RejectedItem;
@@ -62,7 +63,8 @@ final class TranscriptLineCapture {
             timestamp.isEmpty() ? Optional.empty() : Optional.of(timestamp),
             now,
             DocumentMetadata.of("transcript/" + documentKey).toJson(),
-            Optional.of(captured)),
+            Optional.of(captured),
+            RawAcl.notObserved()),
         bytes.length);
   }
 

@@ -25,7 +25,7 @@ class MemoryNotionCollectionTest extends NotionCollectionContract {
       NotionAdapter adapter, MutableClock clock, ProviderCallExecutor calls) {
     MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
     MemoryRawItemStore rawItems = new MemoryRawItemStore();
-    MemoryRunStore runStore = new MemoryRunStore();
+    MemoryRunStore runStore = MemoryRunStore.create();
     MemoryCheckpointPort checkpoints = new MemoryCheckpointPort();
     MemorySnapshotGuardStore guards = new MemorySnapshotGuardStore();
     AtomicInteger runs = new AtomicInteger();

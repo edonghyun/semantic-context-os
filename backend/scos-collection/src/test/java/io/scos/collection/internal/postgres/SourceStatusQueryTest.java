@@ -1,9 +1,12 @@
 package io.scos.collection.internal.postgres;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.AccessResult;
+import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunOutcome;
@@ -11,7 +14,7 @@ import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.SourceQueries;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -35,6 +38,33 @@ class SourceStatusQueryTest {
   static final Duration STEP = Duration.ofMinutes(1);
   static final Duration LEASE_TTL = Duration.ofSeconds(30);
 
+  @Test
+  @DisplayName("최근 run 조회는 본문과 독립된 접근 결과를 보존한다")
+  void recentRunsPreservesAccessResult() {
+    // given
+    PostgresSupport.truncateAll();
+    var adapters = PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource());
+    adapters.sources().save(SourceInstances.noop(SOURCE, T0));
+    var id = new RunId("access-result");
+    adapters.runs().start(id, SOURCE, T0);
+    adapters
+        .runs()
+        .finish(
+            id,
+            RunOutcome.succeeded(0),
+            CollectionCoverage.INCREMENTAL,
+            T0.plusSeconds(2),
+            0,
+            AccessResult.INCOMPLETE,
+            Optional.of(T0.plusSeconds(1)));
+    // when
+    var recent = adapters.queries().recentRuns(1);
+    // then
+    assertThat(recent)
+        .extracting(CollectionRun::accessResult, CollectionRun::accessFinishedAt)
+        .containsExactly(tuple(AccessResult.INCOMPLETE, Optional.of(T0.plusSeconds(1))));
+  }
+
   static void finished(
       PostgresCollectionConfiguration.Adapters adapters, String id, Instant at, RunStatus status) {
     adapters.runs().start(new RunId(id), SOURCE, at);
@@ -47,7 +77,9 @@ class SourceStatusQueryTest {
                 : RunOutcome.failed(status, "dependency_unavailable", "down"),
             CollectionCoverage.INCREMENTAL,
             at.plusSeconds(1),
-            0);
+            0,
+            AccessResult.SKIPPED,
+            Optional.empty());
   }
 
   @Nested

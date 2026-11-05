@@ -1,6 +1,7 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStatus;
@@ -8,7 +9,7 @@ import io.scos.collection.internal.RunStore;
 import io.scos.spi.access.SourceFreshness;
 import io.scos.spi.access.SourceFreshnessContract;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +47,8 @@ class PostgresRunHistoryFreshnessTest extends SourceFreshnessContract {
         new RunOutcome(status, 0, Optional.empty(), Optional.empty()),
         CollectionCoverage.INCREMENTAL,
         at,
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 }

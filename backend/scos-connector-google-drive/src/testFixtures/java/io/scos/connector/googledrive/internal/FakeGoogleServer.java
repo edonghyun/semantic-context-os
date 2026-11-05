@@ -28,8 +28,11 @@ import tools.jackson.databind.JsonNode;
  * 미등록으로 남긴다. 실제 Google로는 나가지 않는다.
  */
 public final class FakeGoogleServer implements AutoCloseable {
-  /** 데이터 요청 상한 — 같은 페이지 토큰을 끝없이 다시 묻는 결함(변이)을 비재시도 실패(400)로 끝낸다. fixture run은 백 개 안쪽이다. */
-  static final int MAX_REQUESTS = 2000;
+  /**
+   * 서버 전체 수명의 요청 상한. 첫 수집 92 + 다음 run 47에 재시도 여유를 둔다. 무한 순회는 HTTP 응답 수천 건을 기다리기 전에 비재시도 400으로 끝내
+   * PIT의 테스트 기한 안에 단언으로 드러낸다.
+   */
+  static final int MAX_REQUESTS = 200;
 
   private static final Pattern AMPERSAND = Pattern.compile("&");
 
@@ -179,7 +182,7 @@ public final class FakeGoogleServer implements AutoCloseable {
     }
   }
 
-  List<Recorded> requests() {
+  public List<Recorded> requests() {
     return http.received();
   }
 

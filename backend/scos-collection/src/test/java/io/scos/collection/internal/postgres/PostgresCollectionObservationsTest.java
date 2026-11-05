@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.OwnerId;
-import io.scos.collection.internal.RawItems;
 import io.scos.collection.internal.RunId;
 import io.scos.engine.support.time.MutableClock;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;

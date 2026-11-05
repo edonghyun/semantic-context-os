@@ -26,7 +26,7 @@ class MemoryTiroCollectionTest extends TiroCollectionContract {
     AtomicInteger runs = new AtomicInteger();
     return new Assembled(
         MemoryCollectionRuntime.over(
-                clock, sources, new MemoryWorkClaimPort(), new MemoryRunStore())
+                clock, sources, new MemoryWorkClaimPort(), MemoryRunStore.create())
             .rawItems(rawItems)
             .checkpoints(checkpoints)
             .adapter(adapter)

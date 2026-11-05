@@ -1,0 +1,87 @@
+{
+  "user": {
+    "self": "https://example.atlassian.net/rest/api/3/user?accountId=U1",
+    "accountId": "U1",
+    "accountType": "atlassian",
+    "displayName": "Reader",
+    "active": true,
+    "timeZone": "Asia/Seoul",
+    "avatarUrls": {
+      "48x48": "https://example.atlassian.net/avatar/reader"
+    }
+  },
+  "project": {
+    "id": "P1",
+    "key": "P1",
+    "name": "Product",
+    "style": "classic",
+    "simplified": false,
+    "projectTypeKey": "software",
+    "lead": {
+      "accountId": "U1"
+    }
+  },
+  "schemeReference": {
+    "id": "SP1",
+    "name": "Product permission scheme"
+  },
+  "scheme": {
+    "id": "SP1",
+    "name": "Product permission scheme",
+    "permissions": []
+  },
+  "permission": {
+    "id": 10000,
+    "permission": "BROWSE_PROJECTS",
+    "holder": {
+      "type": "user",
+      "parameter": "U1"
+    }
+  },
+  "role": {
+    "id": 100,
+    "name": "Viewer",
+    "description": "Product viewers",
+    "actors": []
+  },
+  "securityMapping": {
+    "projectId": "P1",
+    "issueSecuritySchemeId": "SEC1"
+  },
+  "securityLevel": {
+    "id": "L1",
+    "issueSecuritySchemeId": "SEC1",
+    "name": "Internal",
+    "isDefault": false
+  },
+  "securityMember": {
+    "id": "M0",
+    "issueSecurityLevelId": "L1",
+    "issueSecuritySchemeId": "SEC1",
+    "holder": {
+      "type": "user",
+      "parameter": "U2"
+    }
+  },
+  "pageTemplate": "{\"startAt\":%d,\"maxResults\":50,\"total\":%d,\"isLast\":%s,\"values\":[%s]}",
+  "issue": {
+    "id": "10001",
+    "key": "PROD-1",
+    "fields": {
+      "summary": "Product issue",
+      "project": {
+        "id": "P1",
+        "key": "PROD",
+        "name": "Product"
+      },
+      "security": null,
+      "reporter": {
+        "accountId": "U1"
+      },
+      "assignee": {
+        "accountId": "U2"
+      }
+    },
+    "schema": {}
+  }
+}

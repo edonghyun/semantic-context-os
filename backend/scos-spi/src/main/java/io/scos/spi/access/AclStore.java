@@ -10,7 +10,7 @@ public interface AclStore {
   /** 모든 공간·상태를 대상으로 행이 하나라도 있는가. 비어 있으면 false. */
   boolean hasAny();
 
-  /** fingerprint가 다르고 observedAt이 저장값보다 새로운 ACL만 바꾼다. 빈 목록은 변경 없음. */
+  /** 권한 지문 또는 실패 원인이 다르고 observedAt이 저장값보다 새로운 ACL만 바꾼다. 빈 목록은 변경 없음. */
   void put(SpaceId space, List<DocumentAcl> acls);
 
   /** 요청한 문서 중 저장된 ACL만 돌려준다. 없는 문서와 빈 입력은 결과에서 빠진다. */

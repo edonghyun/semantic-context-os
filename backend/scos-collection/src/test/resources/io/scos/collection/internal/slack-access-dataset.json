@@ -1,0 +1,87 @@
+{
+  "token": "slack-propagation-local-fake",
+  "now": "2026-10-14T00:00:00Z",
+  "conversationsPageSize": 1,
+  "channels": [
+    "C1"
+  ],
+  "history": {
+    "C1": {
+      "pages": [
+        {
+          "messages": [
+            {
+              "type": "message",
+              "user": "U2",
+              "text": "Release checklist documents the deployment process and rollback procedures for the workspace maintainers.",
+              "ts": "1760400000.000100"
+            }
+          ]
+        }
+      ],
+      "threads": {}
+    }
+  },
+  "access": {
+    "teamId": "T1",
+    "conversations": {
+      "C1": {
+        "id": "C1",
+        "is_private": false,
+        "is_im": false,
+        "is_mpim": false,
+        "is_archived": false
+      }
+    },
+    "memberPages": {
+      "C1": [
+        [
+          "U2"
+        ]
+      ]
+    },
+    "userPages": [
+      [
+        {
+          "id": "U1",
+          "team_id": "T1",
+          "deleted": false,
+          "is_bot": false,
+          "is_restricted": false,
+          "is_ultra_restricted": false,
+          "is_stranger": false,
+          "is_email_confirmed": true,
+          "profile": {
+            "email": "u1@example.com"
+          }
+        },
+        {
+          "id": "U2",
+          "team_id": "T1",
+          "deleted": false,
+          "is_bot": false,
+          "is_restricted": false,
+          "is_ultra_restricted": false,
+          "is_stranger": false,
+          "is_email_confirmed": true,
+          "profile": {
+            "email": "u2@example.com"
+          }
+        },
+        {
+          "id": "U3",
+          "team_id": "T1",
+          "deleted": false,
+          "is_bot": false,
+          "is_restricted": false,
+          "is_ultra_restricted": false,
+          "is_stranger": false,
+          "is_email_confirmed": true,
+          "profile": {
+            "email": "u3@example.com"
+          }
+        }
+      ]
+    ]
+  }
+}

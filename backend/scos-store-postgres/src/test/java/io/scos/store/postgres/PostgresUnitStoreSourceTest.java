@@ -2,6 +2,7 @@ package io.scos.store.postgres;
 
 import static io.scos.spi.store.ContextUnits.unit;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.spi.store.SpaceId;
 import java.util.List;
@@ -25,7 +26,7 @@ class PostgresUnitStoreSourceTest {
   @DisplayName("새 문서의 소유 행은 첫 유닛의 출처를 기록한다")
   void recordsFirstUnitSource() {
     var first = unit("first").inDocument("doc").source("slack-a").build();
-    var second = unit("second").inDocument("doc").source("drive-a").build();
+    var second = unit("second").inDocument("doc").source("slack-a").build();
 
     scenario.store().upsert(SPACE, List.of(first, second));
 
@@ -34,14 +35,16 @@ class PostgresUnitStoreSourceTest {
   }
 
   @Test
-  @DisplayName("이미 있는 소유 행의 출처는 다른 출처의 upsert로 바뀌지 않는다")
+  @DisplayName("다른 출처의 upsert는 거부하고 이미 있는 소유 행의 출처를 보존한다")
   void preservesExistingOwnerSource() {
     scenario
         .store()
         .upsert(SPACE, List.of(unit("first").inDocument("doc").source("slack-a").build()));
     var other = unit("other").inDocument("doc").source("drive-a").build();
 
-    scenario.store().upsert(SPACE, List.of(other));
+    assertThatThrownBy(() -> scenario.store().upsert(SPACE, List.of(other)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("doc");
 
     // then
     assertThat(scenario.sourceOf("doc")).contains("slack-a");

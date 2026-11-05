@@ -7,13 +7,14 @@ import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.CountedWorkers;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +40,7 @@ class SupervisorShrinkGuardTest {
   static final Optional<String> GUARDED = Optional.of(SnapshotShrinkGuard.ERROR_KIND);
 
   final MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
   final CountedWorkers workers = CountedWorkers.of(1);
 
   @BeforeEach
@@ -60,7 +61,9 @@ class SupervisorShrinkGuardTest {
         new RunOutcome(status, status.isSuccess() ? 0 : 1, kind, Optional.empty()),
         CollectionCoverage.COMPLETE_SNAPSHOT,
         started.plusSeconds(1),
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 
   SourceSupervisor supervisor(SourceSupervisor.Collector collector) {
@@ -94,7 +97,8 @@ class SupervisorShrinkGuardTest {
         0,
         0,
         GUARDED,
-        Optional.of("complete snapshot reconcile skipped"));
+        Optional.of("complete snapshot reconcile skipped"),
+        Set.of());
   }
 
   @Nested

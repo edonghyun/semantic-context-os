@@ -15,6 +15,8 @@ import io.scos.engine.internal.projection.SpaceReembedding;
 import io.scos.engine.internal.projection.UnitImporter;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.spi.access.AclStore;
+import io.scos.spi.access.DomainPolicy;
+import io.scos.spi.access.IdentityStore;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.store.SpaceMeta;
 import io.scos.spi.store.UnitMaintenance;
@@ -89,6 +91,11 @@ public class OpsConfiguration {
         CommandOutput.stderr());
   }
 
+  @Bean
+  AccessGauges accessGauges(SourceQueries queries, Clock clock, AccessProperties access) {
+    return new AccessGauges(queries, clock, access.collectAccess());
+  }
+
   /** 운영 조회 명령: 결과는 stdout(CommandOutput), 최신성은 투영 공간마다. */
   @Bean
   QueryCommands queryCommands(
@@ -99,7 +106,10 @@ public class OpsConfiguration {
       SpaceMeta meta,
       Embedder embedder,
       Clock clock,
-      ObjectMapper json) {
+      ObjectMapper json,
+      AccessProperties access,
+      IdentityStore identities,
+      DomainPolicy domains) {
     return new QueryCommands(
         queries,
         adapters,
@@ -109,6 +119,8 @@ public class OpsConfiguration {
         EmbeddingGenerationCheck.generationOf(embedder),
         clock,
         new SourceQueryJson(json),
-        CommandOutput.stdout());
+        CommandOutput.stdout(),
+        access.collectAccess(),
+        new AccessExplainer(queries, identities, domains));
   }
 }

@@ -11,7 +11,7 @@ import io.scos.connector.slack.internal.FakeSlackServer;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.ManualTaskScheduler;
 import io.scos.support.RequestGate;
 import java.io.IOException;

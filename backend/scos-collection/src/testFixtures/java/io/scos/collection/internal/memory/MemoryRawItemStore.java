@@ -1,12 +1,20 @@
 package io.scos.collection.internal.memory;
 
 import io.scos.collection.internal.MutationDecision;
+import io.scos.collection.internal.RawAclStore;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawRecord;
+import io.scos.spi.access.AccessFailureReason;
+import io.scos.spi.access.AclStore;
+import io.scos.spi.access.DocumentAcl.Status;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.spi.store.SpaceId;
+import io.scos.store.memory.MemoryAclStore;
+import io.scos.store.memory.MemoryDocumentOwnership;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,9 +26,91 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /** 메모리 참조 구현(F4). 소스별 TreeMap(externalId 코드 유닛 순). */
-public final class MemoryRawItemStore implements RawItemStore {
+public class MemoryRawItemStore implements RawItemStore {
   private final Map<SourceInstanceId, TreeMap<String, RawRecord>> sources = new HashMap<>();
   private final Map<String, byte[]> blobs = new HashMap<>();
+
+  private final RawAclStore acls;
+  private final AclStore documents;
+  private final MemoryDocumentOwnership ownership;
+  private final Map<ExpiryKey, ExpiryClosure> expired = new HashMap<>();
+
+  private record ExpiryKey(SourceInstanceId source, String id) {}
+
+  private record ExpiryClosure(Instant observedAt, SpaceId space, Optional<String> document) {}
+
+  public MemoryRawItemStore() {
+    this(new MemoryRawAclStore());
+  }
+
+  public MemoryRawItemStore(RawAclStore acls) {
+    this(acls, new MemoryAclStore());
+  }
+
+  public MemoryRawItemStore(RawAclStore acls, AclStore documents) {
+    this(acls, documents, new MemoryDocumentOwnership());
+  }
+
+  public MemoryRawItemStore(
+      RawAclStore acls, AclStore documents, MemoryDocumentOwnership ownership) {
+    this.acls = acls;
+    this.documents = documents;
+    this.ownership = ownership;
+  }
+
+  @Override
+  public synchronized void completeAccessExpiry(
+      SourceInstanceId source,
+      String externalId,
+      Instant observedAt,
+      SpaceId space,
+      Optional<String> document) {
+    if (!records(source).containsKey(externalId)) return;
+    var acl = acls.get(source, List.of(externalId)).get(externalId);
+    if (acl != null && isExpired(acl) && acl.observedAt().equals(observedAt))
+      expired.put(
+          new ExpiryKey(source, externalId), new ExpiryClosure(observedAt, space, document));
+  }
+
+  private boolean pendingExpiry(SourceInstanceId source, RawItem item) {
+    var closure = expired.get(new ExpiryKey(source, item.externalId()));
+    if (!(item.acl() instanceof RawAcl.Observed acl)
+        || !isExpired(acl)
+        || closure == null
+        || !closure.observedAt().equals(acl.observedAt())) return true;
+    return closure
+        .document()
+        .filter(id -> ownership.canClaim(closure.space(), source.value(), id))
+        .map(id -> documents.get(closure.space(), List.of(id)).get(id))
+        .filter(document -> document.status() != Status.FAILED)
+        .isPresent();
+  }
+
+  private boolean isExpired(RawAcl.Observed acl) {
+    return acl.status() == Status.FAILED && acl.reason() == AccessFailureReason.EXPIRED;
+  }
+
+  public RawAclStore acls() {
+    return acls;
+  }
+
+  private RawItem withAcl(SourceInstanceId source, RawItem item) {
+    RawAcl acl =
+        Optional.<RawAcl>ofNullable(
+                acls.get(source, List.of(item.externalId())).get(item.externalId()))
+            .orElseGet(RawAcl::notObserved);
+    return new RawItem(
+        item.externalId(),
+        item.resourceType(),
+        item.sourceVersion(),
+        item.sourceOrder(),
+        item.sourceCreatedAt(),
+        item.sourceUpdatedAt(),
+        item.observedAt(),
+        item.metadataJson(),
+        item.content(),
+        acl);
+  }
 
   private NavigableMap<String, RawRecord> records(SourceInstanceId source) {
     return sources.computeIfAbsent(source, s -> new TreeMap<>());
@@ -37,8 +127,10 @@ public final class MemoryRawItemStore implements RawItemStore {
         RawItem item = withStoredBlob(write.item());
         map.put(item.externalId(), new RawRecord.Active(item));
       }
-      case MutationDecision.WriteTombstone write ->
-          map.put(write.tombstone().externalId(), write.tombstone());
+      case MutationDecision.WriteTombstone write -> {
+        map.put(write.tombstone().externalId(), write.tombstone());
+        acls.delete(source, List.of(write.tombstone().externalId()));
+      }
     }
     return decision.outcome();
   }
@@ -53,7 +145,14 @@ public final class MemoryRawItemStore implements RawItemStore {
 
   @Override
   public synchronized Optional<RawRecord> get(SourceInstanceId source, String externalId) {
-    return Optional.ofNullable(records(source).get(externalId));
+    return Optional.ofNullable(records(source).get(externalId))
+        .map(
+            record ->
+                switch (record) {
+                  case RawRecord.Active active ->
+                      new RawRecord.Active(withAcl(source, active.item()));
+                  case RawRecord.Deleted deleted -> deleted;
+                });
   }
 
   @Override
@@ -68,9 +167,52 @@ public final class MemoryRawItemStore implements RawItemStore {
         next = items.get(items.size() - 1).externalId();
         break;
       }
-      items.add(a.item());
+      items.add(withAcl(source, a.item()));
     }
     return new Page(items, Optional.ofNullable(next));
+  }
+
+  @Override
+  public synchronized Page accessCandidates(
+      SourceInstanceId source,
+      Set<String> kinds,
+      Optional<Instant> cutoff,
+      int limit,
+      Optional<String> cursor) {
+    if (limit < 1) throw new IllegalArgumentException("limit must be >= 1");
+    List<RawItem> rows =
+        records(source).values().stream()
+            .filter(RawRecord.Active.class::isInstance)
+            .map(RawRecord.Active.class::cast)
+            .map(RawRecord.Active::item)
+            .filter(item -> kinds.contains(item.resourceType()))
+            .filter(
+                item -> cursor.isEmpty() || item.externalId().compareTo(cursor.orElseThrow()) > 0)
+            .map(item -> accessItem(withAcl(source, item)))
+            .filter(
+                item ->
+                    cutoff.isEmpty()
+                        || (item.acl() instanceof RawAcl.Observed acl
+                            && !acl.observedAt().isAfter(cutoff.orElseThrow())
+                            && pendingExpiry(source, item)))
+            .limit((long) limit + 1)
+            .toList();
+    if (rows.size() <= limit) return new Page(rows, Optional.empty());
+    return new Page(rows.subList(0, limit), Optional.of(rows.get(limit - 1).externalId()));
+  }
+
+  private RawItem accessItem(RawItem item) {
+    return new RawItem(
+        item.externalId(),
+        item.resourceType(),
+        item.sourceVersion(),
+        item.sourceOrder(),
+        item.sourceCreatedAt(),
+        item.sourceUpdatedAt(),
+        item.observedAt(),
+        item.metadataJson(),
+        Optional.empty(),
+        item.acl());
   }
 
   @Override
@@ -109,6 +251,7 @@ public final class MemoryRawItemStore implements RawItemStore {
               at));
       n.add(e.getKey());
     }
+    acls.delete(source, n);
     return n;
   }
 
@@ -130,6 +273,7 @@ public final class MemoryRawItemStore implements RawItemStore {
                   at));
       removed.add(id);
     }
+    acls.delete(source, removed);
     return List.copyOf(removed);
   }
 

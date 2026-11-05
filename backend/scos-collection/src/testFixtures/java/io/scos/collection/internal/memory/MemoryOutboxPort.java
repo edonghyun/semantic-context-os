@@ -2,7 +2,7 @@ package io.scos.collection.internal.memory;
 
 import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.ProjectionRetryPolicy;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;

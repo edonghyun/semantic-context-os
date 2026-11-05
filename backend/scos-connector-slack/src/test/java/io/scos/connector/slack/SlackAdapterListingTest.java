@@ -25,6 +25,15 @@ class SlackAdapterListingTest {
 
   final SlackAdapter adapter = SlackAssembly.adapter(UNREACHABLE, "t", Clock.systemUTC());
 
+  @Test
+  @DisplayName("명시한 채널 ID는 소스 목록의 선택 범위에 남는다")
+  void configuredChannelIdsAreListed() {
+    var fields = adapter.listingFields(new SourceConfig(1, "{\"channelIds\":[\"C1\",\"C2\"]}"));
+    // then
+    assertThat(JSON.readTree(fields.getFirst().valueJson()).path("channelIds").toString())
+        .isEqualTo("[\"C1\",\"C2\"]");
+  }
+
   @ParameterizedTest(name = "{0} → {1}")
   @CsvSource(
       delimiter = '|',

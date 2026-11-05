@@ -62,7 +62,7 @@ class TiroProjectionPostgresTest {
     }
     List<ProjectionRun.Report> reports =
         configure
-            .apply(PostgresProjection.over(ds, clock, new ScriptedEmbedder()))
+            .apply(PostgresProjection.withoutAccessCollection(ds, clock, new ScriptedEmbedder()))
             .run("p1", scheduler)
             .runDue(CancellationToken.none());
     if (reports.size() != 1)

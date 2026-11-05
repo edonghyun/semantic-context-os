@@ -10,20 +10,25 @@ import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceQueries;
 import io.scos.collection.internal.WorkClaim;
 import io.scos.engine.Freshness;
+import io.scos.spi.access.AccessKey;
+import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.ListingField;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.SourceAdapter;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
 import io.scos.spi.embedding.EmbeddingGeneration;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.SpaceId;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -101,6 +106,99 @@ final class SourceQueryJson {
     return status.<JsonNode>map(this::status).orElse(json.nullNode());
   }
 
+  JsonNode status(
+      Optional<SourceQueries.SourceStatus> status, Optional<SourceQueries.AccessStatus> access) {
+    return status
+        .<JsonNode>map(
+            value -> {
+              ObjectNode out = status(value);
+              access.ifPresent(a -> out.set("access", accessStatus(a)));
+              return out;
+            })
+        .orElse(json.nullNode());
+  }
+
+  JsonNode accessExplanation(Optional<AccessExplainer.Result> result) {
+    if (result.isEmpty()) return json.nullNode();
+    var value = result.orElseThrow();
+    var document = value.document();
+    ObjectNode out = json.createObjectNode();
+    out.put("documentId", document.documentId());
+    out.put("sourceInstanceId", document.source().value());
+    out.put("spaceId", document.space().value());
+    out.set("acl", documentAccess(document.acl()));
+    var carriers = out.putArray("carriers");
+    document.carriers().forEach(carrier -> carriers.add(rawAccess(carrier)));
+    value
+        .user()
+        .ifPresent(
+            user -> {
+              var node = out.putObject("user");
+              node.put("id", user.id());
+              node.put("known", user.known());
+              node.set("keys", accessKeys(user.keys()));
+              node.set("intersection", accessKeys(user.intersection()));
+              node.put("visible", user.visible());
+            });
+    return out;
+  }
+
+  private ObjectNode documentAccess(Optional<DocumentAcl> acl) {
+    var out = json.createObjectNode();
+    if (acl.isEmpty()) {
+      out.put("status", "missing");
+      out.put("reason", "acl_missing");
+      out.set("keys", accessKeys(Set.of()));
+      return out;
+    }
+    var value = acl.orElseThrow();
+    out.put("status", value.status().name().toLowerCase(Locale.ROOT));
+    out.set("keys", accessKeys(value.keys()));
+    out.put("decidedAt", iso(value.observedAt()));
+    out.put("reason", value.reason().wire());
+    return out;
+  }
+
+  private ObjectNode rawAccess(SourceQueries.RawAccess carrier) {
+    var out = json.createObjectNode();
+    out.put("externalId", carrier.externalId());
+    if (carrier.acl() instanceof RawAcl.Observed observed) {
+      out.put("status", observed.status().name().toLowerCase(Locale.ROOT));
+      out.set("keys", accessKeys(observed.keys()));
+      out.put("observedAt", iso(observed.observedAt()));
+      out.put("reason", observed.reason().wire());
+    } else {
+      out.put("status", "not_observed");
+      out.put("reason", "unobserved_carrier");
+    }
+    return out;
+  }
+
+  private JsonNode accessKeys(Set<AccessKey> keys) {
+    return json.valueToTree(keys.stream().map(AccessKey::toString).sorted().toList());
+  }
+
+  ObjectNode accessStatus(SourceQueries.AccessStatus status) {
+    ObjectNode out = json.createObjectNode();
+    if (status.running()) out.put("result", "running");
+    else status.result().ifPresent(result -> out.put("result", result.wire()));
+    status.finishedAt().ifPresent(at -> out.put("finishedAt", iso(at)));
+    out.put("consecutiveIncomplete", status.consecutiveIncomplete());
+    status.lastCompleteAt().ifPresent(at -> out.put("lastCompleteAt", iso(at)));
+    out.put("documentsHidden", status.documentsHidden());
+    out.put("aclUnreadable", status.aclUnreadable());
+    out.set(
+        "aclUnreadableFiles",
+        json.valueToTree(status.unreadableFiles().stream().sorted().toList()));
+    out.put("rawUnknown", status.rawUnknown());
+    out.put("rawFailed", status.rawFailed());
+    out.put("documentsMissingAcl", status.documentsMissingAcl());
+    out.put("rawUnobserved", status.rawUnobserved());
+    out.put("rawStale", status.rawStale());
+    status.oldestObservedAt().ifPresent(at -> out.put("oldestObservedAt", iso(at)));
+    return out;
+  }
+
   ObjectNode status(SourceQueries.SourceStatus s) {
     ObjectNode out = json.createObjectNode();
     out.put("sourceInstanceId", s.source().value());
@@ -109,6 +207,7 @@ final class SourceQueryJson {
     out.put("currentItemCount", s.currentItemCount());
     out.put("tombstoneCount", s.tombstoneCount());
     out.put("recentFailureCount", s.recentFailureCount());
+    if (s.ownershipSkipped() > 0) out.put("ownershipSkipped", s.ownershipSkipped());
     events(out.putObject("events"));
     s.activeLeaseExpiresAt().ifPresent(at -> out.put("activeLeaseExpiresAt", iso(at)));
     s.lastCompleteSnapshot()

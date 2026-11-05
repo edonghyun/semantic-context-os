@@ -69,7 +69,8 @@ public final class ProjectionKillProbe {
     Clock clock = Clock.systemUTC();
     UnitMaintenance units = PostgresTestAdapters.unitMaintenance(ds);
     ProjectionRun projection =
-        PostgresProjection.over(ds, clock, new GatingEmbedder(markers, phase.equals("run")))
+        PostgresProjection.withoutAccessCollection(
+                ds, clock, new GatingEmbedder(markers, phase.equals("run")))
             .leaseTtl(Duration.ofSeconds(2))
             .run("probe-" + phase, RealTimeScheduler.create());
     if (phase.equals("run")) {

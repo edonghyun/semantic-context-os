@@ -15,7 +15,7 @@ import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
@@ -38,7 +38,7 @@ class CollectionRuntimePreRunFailureTest {
 
   final MutableClock clock = new MutableClock(Instant.parse("2026-10-16T00:00:00Z"));
   final MemoryWorkClaimPort claims = new MemoryWorkClaimPort();
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
   final MemorySourceInstanceStore sources = new MemorySourceInstanceStore();
 
   /** 체크포인트 읽기가 던지는 포트. */

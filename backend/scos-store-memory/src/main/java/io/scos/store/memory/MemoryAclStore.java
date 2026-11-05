@@ -26,7 +26,8 @@ public final class MemoryAclStore implements AclStore {
           new DocumentKey(space, acl.documentId()),
           (key, previous) ->
               previous != null
-                      && (previous.fingerprint().equals(acl.fingerprint())
+                      && ((previous.fingerprint().equals(acl.fingerprint())
+                              && previous.reason() == acl.reason())
                           || !acl.observedAt().isAfter(previous.observedAt()))
                   ? previous
                   : acl);

@@ -103,6 +103,29 @@ class FakeJiraServerTest {
     assertThat(statuses).containsExactly(418, 418);
   }
 
+  @Test
+  @DisplayName("정확한 쿼리 응답 교체는 같은 경로의 다른 데이터셋 쿼리를 보존한다")
+  void exactResponseDoesNotOverrideOtherQueries() throws Exception {
+    // given
+    jira.respondExactly(DASHBOARDS, Map.of("startAt", "7"), new Response(418, "{}", Map.of()));
+    // when
+    var statuses = statusesOf(DASHBOARDS + "?startAt=7", DASHBOARDS_FIRST_PAGE);
+    // then
+    assertThat(statuses).containsExactly(418, 200);
+  }
+
+  @Test
+  @DisplayName("정확한 쿼리로 등록한 새 경로도 다른 쿼리는 미등록으로 실패한다")
+  void exactResponseRejectsUnknownQuery() throws Exception {
+    // given
+    jira.respondExactly(
+        "/rest/api/3/user", Map.of("accountId", "U1"), new Response(200, "{}", Map.of()));
+    // when
+    send("/rest/api/3/user?accountId=U2", jira.basicAuthorization());
+    // then
+    assertThatThrownBy(jira::assertNoUnmatched).hasMessageContaining("accountId=U2");
+  }
+
   @Nested
   @DisplayName("TS 장애 사례(필드 목록이 계속 429)를 걸면")
   class FailAlways {

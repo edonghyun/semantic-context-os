@@ -9,8 +9,8 @@ import io.scos.collection.internal.SourceQueries.RawState;
 import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.engine.support.text.JsJson;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.EmbeddingGeneration;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.SpaceMeta;
@@ -27,8 +27,10 @@ import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import tools.jackson.databind.JsonNode;
 
 /**
  * 운영 조회 명령(source list·status·rejections, raw list·get과 status.sh 대체 `status`). 출력 JSON(들여쓰기 2칸;
@@ -36,6 +38,8 @@ import java.util.regex.Pattern;
  * SCOS_DB_URL이다(TS `--db` 없음, ADR-0024 §1). 쓰기는 하지 않는다.
  */
 final class QueryCommands {
+  private final boolean collectAccess;
+  private final AccessExplainer explainer;
   static final int REJECTIONS_DEFAULT_LIMIT = 20;
   static final int REJECTIONS_MAX_LIMIT = 200;
   static final int RAW_DEFAULT_LIMIT = 100;
@@ -66,8 +70,12 @@ final class QueryCommands {
       EmbeddingGeneration configured,
       Clock clock,
       SourceQueryJson render,
-      CommandOutput out) {
+      CommandOutput out,
+      boolean collectAccess,
+      AccessExplainer explainer) {
+    this.explainer = explainer;
     this.queries = queries;
+    this.collectAccess = collectAccess;
     this.adapters = adapters;
     this.freshness = freshness;
     this.spaces = Set.copyOf(spaces);
@@ -81,10 +89,16 @@ final class QueryCommands {
   /** `source list|status <id>|rejections <id> [--limit=<n>]`. */
   void source(String sub, CommandArguments args) {
     switch (sub) {
+      case "access" -> {
+        if (!args.positional(2).equals("explain"))
+          throw new IllegalArgumentException(Commands.USAGE);
+        out.write(
+            JsJson.pretty(
+                render.accessExplanation(
+                    explainer.explain(args.positional(3), args.followingOption("user")))));
+      }
       case "list" -> out.write(JsJson.pretty(render.sources(queries.listSources(), adapters)));
-      case "status" ->
-          out.write(
-              JsJson.pretty(render.status(queries.status(sourceArgument(args), clock.instant()))));
+      case "status" -> out.write(JsJson.pretty(sourceStatus(sourceArgument(args))));
       case "rejections" -> {
         int limit =
             Math.min(
@@ -95,6 +109,11 @@ final class QueryCommands {
       }
       default -> throw new IllegalArgumentException(Commands.USAGE);
     }
+  }
+
+  private JsonNode sourceStatus(SourceInstanceId source) {
+    var status = queries.status(source, clock.instant());
+    return render.status(status, collectAccess ? queries.accessStatus(source) : Optional.empty());
   }
 
   /**

@@ -4,7 +4,7 @@ import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.spi.access.SourceFreshness;
 import io.scos.spi.access.SourceFreshnessContract;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,7 @@ class RunHistoryFreshnessTest extends SourceFreshnessContract {
 
   @Override
   protected SourceFreshness newFreshness() {
-    runs = new MemoryRunStore();
+    runs = MemoryRunStore.create();
     sequence = 0;
     return new RunHistoryFreshness(runs);
   }
@@ -39,6 +39,8 @@ class RunHistoryFreshnessTest extends SourceFreshnessContract {
         new RunOutcome(status, 0, Optional.empty(), Optional.empty()),
         CollectionCoverage.INCREMENTAL,
         at,
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 }

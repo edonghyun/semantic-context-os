@@ -1,6 +1,7 @@
 package io.scos.server;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.scos.collection.internal.AccessExpiry;
 import io.scos.collection.internal.CollectionMetrics;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.GracePeriod;
@@ -203,6 +204,7 @@ public class DaemonConfiguration {
       Clock clock,
       DaemonObserver observer,
       Maintenance maintenance,
+      AccessExpiry accessExpiry,
       Progress progress) {
     return new CollectionDaemon(
         supervisor,
@@ -211,6 +213,7 @@ public class DaemonConfiguration {
             () ->
                 maintenance.run(
                     GracePeriod.ofDays(props.maintenanceGraceDays()), SweepMode.DELETE)),
+        accessExpiry::sweep,
         new CollectionDaemon.Options(
             props.poll(), props.maintenanceInterval(), props.shutdownTimeout()),
         collectionWorkers,

@@ -9,13 +9,23 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** 원천에서 관측한 문서 접근 상태. 모든 구성 요소는 null을 허용하지 않는다. */
+/** 합성한 문서 접근 상태. observedAt은 잠긴 문서 아래의 단조 결정 시각이며 원본 관측 시각과 구분한다. 모든 구성 요소는 null을 허용하지 않는다. */
 public record DocumentAcl(
-    String documentId, Status status, Set<AccessKey> keys, Instant observedAt) {
+    String documentId,
+    Status status,
+    Set<AccessKey> keys,
+    Instant observedAt,
+    AccessFailureReason reason) {
+  public DocumentAcl(String documentId, Status status, Set<AccessKey> keys, Instant observedAt) {
+    this(documentId, status, keys, observedAt, AccessFailureReason.UNSPECIFIED);
+  }
+
   public DocumentAcl {
     Objects.requireNonNull(documentId, "documentId");
     Objects.requireNonNull(status, "status");
     Objects.requireNonNull(observedAt, "observedAt");
+    Objects.requireNonNull(reason, "reason");
+    if (status != Status.FAILED) reason = AccessFailureReason.NONE;
     keys = Set.copyOf(keys);
     if (status == Status.UNSUPPORTED
         && keys.stream().anyMatch(key -> key.kind() != AccessKey.Kind.SCOPE))

@@ -2,3 +2,5 @@
 build/
 out/
 .kotlin/
+# IDE(VS Code·Eclipse Java) 출력 — 옛 어휘 등 사내 산출물이 남을 수 있어 추적하지 않는다
+bin/

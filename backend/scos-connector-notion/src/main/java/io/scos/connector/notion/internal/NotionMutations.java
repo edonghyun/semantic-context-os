@@ -2,6 +2,7 @@ package io.scos.connector.notion.internal;
 
 import io.scos.engine.support.text.JsJson;
 import io.scos.spi.connector.ContentCapture;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.SourceOrder;
@@ -127,7 +128,8 @@ public final class NotionMutations {
             Optional.of(edited),
             observedAt,
             JsJson.stringify(metadata),
-            Optional.of(capture.json(JSON_MEDIA, JsJson.stringify(value)))));
+            Optional.of(capture.json(JSON_MEDIA, JsJson.stringify(value))),
+            RawAcl.notObserved()));
   }
 
   /** 원본 순서 position: 편집 시각을 JS `new Date(v).toISOString()`처럼 밀리초 UTC로 정규화한 것. */

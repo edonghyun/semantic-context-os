@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.SourceDocument;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -47,19 +48,18 @@ class JiraProjectorTest {
 
   /** TS 원본 항목 JSON → RawItem(내용은 inline JSON). */
   static RawItem rawItem(JsonNode n) {
-    return new RawItem(
-        n.get("key").get("externalId").asString(),
-        n.get("resourceType").asString(),
-        n.get("sourceVersion").asString(),
-        Optional.empty(),
-        optionalString(n.get("sourceCreatedAt")),
-        optionalString(n.get("sourceUpdatedAt")),
-        Instant.parse(n.get("observedAt").asString()),
-        JSON.writeValueAsString(n.get("metadata")),
-        Optional.of(
+    return RawItems.item(n.get("key").get("externalId").asString())
+        .resourceType(n.get("resourceType").asString())
+        .version(n.get("sourceVersion").asString())
+        .sourceCreatedAt(optionalString(n.get("sourceCreatedAt")))
+        .sourceUpdatedAt(optionalString(n.get("sourceUpdatedAt")))
+        .observedAt(Instant.parse(n.get("observedAt").asString()))
+        .metadata(JSON.writeValueAsString(n.get("metadata")))
+        .content(
             new RawContent.Inline(
                 n.get("content").get("mediaType").asString(),
-                JSON.writeValueAsString(n.get("content").get("value")))));
+                JSON.writeValueAsString(n.get("content").get("value"))))
+        .build();
   }
 
   static Optional<String> optionalString(JsonNode value) {
@@ -142,16 +142,12 @@ class JiraProjectorTest {
 
   /** 이 resourceType의 원본 하나(TS 묶기 사례와 같은 외부 id `<type>:<n>`). */
   static RawItem itemOfType(String resourceType, int n) {
-    return new RawItem(
-        resourceType + ":" + n,
-        resourceType,
-        "v",
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        Instant.EPOCH,
-        "{}",
-        Optional.empty());
+    return RawItems.item(resourceType + ":" + n)
+        .resourceType(resourceType)
+        .version("v")
+        .observedAt(Instant.EPOCH)
+        .metadata("{}")
+        .build();
   }
 
   static Optional<String> inline(RawItem item) {

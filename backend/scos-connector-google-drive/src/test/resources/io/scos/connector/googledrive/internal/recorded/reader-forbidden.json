@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": 403,
+    "message": "The user does not have sufficient permissions for this file.",
+    "errors": [
+      {
+        "message": "The user does not have sufficient permissions for this file.",
+        "domain": "global",
+        "reason": "insufficientFilePermissions"
+      }
+    ]
+  }
+}

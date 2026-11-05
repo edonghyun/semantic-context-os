@@ -10,6 +10,19 @@ import org.junit.jupiter.api.Test;
 @DisplayName("HTTP 토큰 인증과 사용 기록은 실제 읽기·쓰기 연결을 나눠 쓴다")
 class McpHttpTokenPoolsTest {
   @Test
+  @DisplayName("HTTP 읽기 엔진도 공유 정책의 도메인 키로 문서를 읽는다")
+  void httpEngineUsesSharedDomainPolicy() {
+    try (var http = new McpHttpTokenPoolsScenario()) {
+      http.givenDomainDocument();
+
+      var page = http.readDomainDocument();
+
+      // then
+      assertThat(page.units()).hasSize(1);
+    }
+  }
+
+  @Test
   @DisplayName("사용자 토큰은 읽기 전용 풀을 거쳐 인증된다")
   void authenticationAcquiresReadConnection() {
     try (var http = new McpHttpTokenPoolsScenario()) {

@@ -10,6 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 enum LaunchMode {
   /** 한 번 돌고 끝나는 명령. */
   COMMAND(Optional.empty(), WebApplicationType.NONE),
+  ACCESS_EXPLAIN(Optional.of("access-explain"), WebApplicationType.NONE),
   /** 프로필 mcp(읽기 전용 연결·Flyway validate만·stdio 수명주기). 서버 시작은 SmartLifecycle이 한다. */
   MCP(Optional.of("mcp"), WebApplicationType.NONE),
   /** 프로필 daemon(감독 루프). 웹(Actuator HTTP)은 이 방식만 연다(ADR-0020 §3). */
@@ -25,6 +26,10 @@ enum LaunchMode {
 
   static LaunchMode of(String[] args) {
     if (args.length == 0) return COMMAND;
+    if (args.length >= 3
+        && args[0].equals("source")
+        && args[1].equals("access")
+        && args[2].equals("explain")) return ACCESS_EXPLAIN;
     return switch (args[0]) {
       case "mcp" -> MCP;
       case "daemon" -> DAEMON;
@@ -56,7 +61,7 @@ enum LaunchMode {
       switch (this) {
         case DAEMON -> context.getBean(CollectionDaemon.class).awaitTermination();
         case MCP -> context.getBean(McpStdioServer.class).awaitStdinEof();
-        case COMMAND -> {}
+        case COMMAND, ACCESS_EXPLAIN -> {}
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

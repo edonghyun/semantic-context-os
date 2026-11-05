@@ -8,6 +8,7 @@ import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.PageSink;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
 import java.util.List;

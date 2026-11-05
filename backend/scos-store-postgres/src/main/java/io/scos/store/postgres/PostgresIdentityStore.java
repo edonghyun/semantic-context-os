@@ -4,7 +4,7 @@ import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.AccessKeyInstances;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.IdentityStore;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;

@@ -7,7 +7,7 @@ import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.SourceSchedule;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -25,6 +25,24 @@ public final class PostgresSourceInstanceStore implements SourceInstanceStore {
 
   public PostgresSourceInstanceStore(JdbcClient jdbc) {
     this.jdbc = jdbc;
+  }
+
+  @Override
+  public void recordOwnershipSkipped(SourceInstanceId source, int count) {
+    jdbc.sql(
+            "UPDATE source_instances SET ownership_skipped = :count WHERE id = :source AND ownership_skipped IS DISTINCT FROM :count")
+        .param("count", count)
+        .param("source", source.value())
+        .update();
+  }
+
+  @Override
+  public int ownershipSkipped(SourceInstanceId source) {
+    return jdbc.sql("SELECT ownership_skipped FROM source_instances WHERE id = :source")
+        .param("source", source.value())
+        .query(Integer.class)
+        .optional()
+        .orElse(0);
   }
 
   @Override
@@ -72,6 +90,13 @@ public final class PostgresSourceInstanceStore implements SourceInstanceStore {
         .optional()
         .orElseThrow(SourceConfigurationChangedException::new)
         .requireCollectionConfiguration(expected);
+  }
+
+  @Override
+  public List<SourceInstance> listAll() {
+    return jdbc.sql("SELECT " + COLUMNS + " FROM source_instances ORDER BY id COLLATE \"C\"")
+        .query(PostgresSourceInstanceStore::map)
+        .list();
   }
 
   @Override

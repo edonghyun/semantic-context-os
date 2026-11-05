@@ -1,6 +1,6 @@
 package io.scos.collection.internal;
 
-import static io.scos.collection.internal.RawItems.item;
+import static io.scos.spi.connector.RawItems.item;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -16,7 +16,7 @@ import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;

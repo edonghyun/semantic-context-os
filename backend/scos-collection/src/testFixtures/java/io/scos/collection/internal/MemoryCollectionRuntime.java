@@ -4,20 +4,27 @@ import io.scos.collection.internal.memory.MemoryBodyCompletionStore;
 import io.scos.collection.internal.memory.MemoryCheckpointPort;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
+import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySnapshotGuardStore;
 import io.scos.collection.internal.memory.MemorySourceChangeLog;
+import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.connector.SourceAdapter;
+import io.scos.spi.store.SpaceId;
 import io.scos.support.ManualTaskScheduler;
 import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionOperations;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 메모리 포트 위의 실제 수집 런타임 조립(테스트 공용): 점유·run 기록·페이지 커밋·완료·heartbeat·취소 경로가 제품 코드다. 호출자는 함께 보는
@@ -33,21 +40,23 @@ public final class MemoryCollectionRuntime {
   private final MutableClock clock;
   private final SourceInstanceStore sources;
   private final WorkClaimPort claims;
-  private final RunStore runs;
+  private final MemoryRunStore runs;
   private BodyCompletionStore bodies = new MemoryBodyCompletionStore();
-  private RawItemStore rawItems = new MemoryRawItemStore();
+  private MemoryRawItemStore rawItems = new MemoryRawItemStore();
   private OutboxPort outbox = new MemoryOutboxPort();
   private CheckpointPort checkpoints = new MemoryCheckpointPort();
   private SnapshotGuardStore guards = new MemorySnapshotGuardStore();
   private Progress progress;
   private TaskScheduler heartbeats = new ManualTaskScheduler();
+  private boolean collectAccess;
+  private AccessObservationStore accessObservations;
   private SourceAdapter adapter = SourceInstances.NOOP_ADAPTER;
   private ProviderCallExecutor calls; // 없으면 build()가 지표 레지스트리로 만든다
   private CollectionMetrics metrics = TestMetrics.collection();
   private Supplier<RunId> runIds = () -> new RunId("run-1");
 
   private MemoryCollectionRuntime(
-      MutableClock clock, SourceInstanceStore sources, WorkClaimPort claims, RunStore runs) {
+      MutableClock clock, SourceInstanceStore sources, WorkClaimPort claims, MemoryRunStore runs) {
     this.clock = clock;
     this.sources = sources;
     this.claims = claims;
@@ -56,11 +65,11 @@ public final class MemoryCollectionRuntime {
   }
 
   public static MemoryCollectionRuntime over(
-      MutableClock clock, SourceInstanceStore sources, WorkClaimPort claims, RunStore runs) {
+      MutableClock clock, SourceInstanceStore sources, WorkClaimPort claims, MemoryRunStore runs) {
     return new MemoryCollectionRuntime(clock, sources, claims, runs);
   }
 
-  public MemoryCollectionRuntime rawItems(RawItemStore rawItems) {
+  public MemoryCollectionRuntime rawItems(MemoryRawItemStore rawItems) {
     this.rawItems = rawItems;
     return this;
   }
@@ -120,6 +129,16 @@ public final class MemoryCollectionRuntime {
     return this;
   }
 
+  public MemoryCollectionRuntime collectAccess(boolean enabled) {
+    this.collectAccess = enabled;
+    return this;
+  }
+
+  public MemoryCollectionRuntime accessObservations(AccessObservationStore observations) {
+    this.accessObservations = observations;
+    return this;
+  }
+
   public CollectionRuntime build() {
     var stores =
         new CollectionStores(
@@ -129,27 +148,42 @@ public final class MemoryCollectionRuntime {
                 rawItems,
                 checkpoints,
                 outbox,
-                new MemorySourceChangeLog())
+                new MemorySourceChangeLog(),
+                rawItems.acls(),
+                accessObservations == null ? runs.accessObservations() : accessObservations)
             .withBodies(bodies)
             .withSources(sources);
-    return new CollectionRuntime(
-        sources,
-        SourceAdapters.of(List.of(adapter)),
-        RawContentCapture.defaults(),
+    var selectedCalls =
         calls != null
             ? calls
             : new ProviderCallExecutor(
                 ProviderCallPolicy.defaults(() -> 0.0),
                 clock,
                 NO_WAIT,
-                ProviderCallMetrics.of(metrics.registry())),
+                ProviderCallMetrics.of(metrics.registry()));
+    return new CollectionRuntime(
+        sources,
+        SourceAdapters.of(List.of(adapter)),
+        RawContentCapture.defaults(),
+        selectedCalls,
         claims,
         checkpoints,
         runs,
-        new PageCommit(stores, clock, metrics, progress),
+        new PageCommit(
+            stores, clock, metrics, progress, SourceAdapters.of(List.of(adapter)), collectAccess),
         new RunCompletion(
             stores,
             new SnapshotShrinkGuard(sources, guards, SnapshotShrinkLimits.DEFAULTS, metrics)),
+        new AccessCollection(
+            stores,
+            SourceAdapters.of(List.of(adapter)),
+            selectedCalls,
+            new DomainPolicy(Set.of(), Map.of()),
+            clock,
+            collectAccess,
+            new ProjectionSpaces(Map.of(), new SpaceId("legacy"), new ObjectMapper()),
+            AccessCollection.Options.DEFAULTS),
+        new AccessCompletion(stores, clock),
         new OwnerId("memory-runtime"),
         new LeaseHeartbeats(claims, LEASE_TTL, clock, heartbeats, metrics),
         clock,

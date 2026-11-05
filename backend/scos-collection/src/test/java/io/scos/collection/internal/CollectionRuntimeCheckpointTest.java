@@ -11,8 +11,9 @@ import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.SourceAdapter;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -58,7 +59,8 @@ class CollectionRuntimeCheckpointTest {
   /** 점유 직전에 체크포인트가 전진하는 상황에서 한 번 수집한다. */
   CollectionRuntime.Report collectRacingAnotherInstance() {
     sources.save(SourceInstances.noop(SOURCE, clock.instant()));
-    return MemoryCollectionRuntime.over(clock, sources, new AdvancingClaims(), new MemoryRunStore())
+    return MemoryCollectionRuntime.over(
+            clock, sources, new AdvancingClaims(), MemoryRunStore.create())
         .checkpoints(checkpoints)
         .adapter(recordingAdapter)
         .build()

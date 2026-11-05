@@ -3,23 +3,26 @@ package io.scos.store.postgres;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceMeta;
 import io.scos.spi.store.UnitMaintenance;
-import io.scos.spi.store.UnitStore;
 import io.scos.spi.store.VectorIndex;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /** 다른 패키지의 테스트(projection 등)가 package-private 어댑터를 쓰기 위한 테스트 지원(제품 코드의 static 팩터리 대신). */
 public final class PostgresTestAdapters {
   private PostgresTestAdapters() {}
 
-  public static UnitStore unitStore(DataSource ds) {
-    return new PostgresUnitStore(new NamedParameterJdbcTemplate(ds));
+  public static PostgresUnitStore unitStore(DataSource ds) {
+    return new PostgresUnitStore(
+        new NamedParameterJdbcTemplate(ds),
+        new TransactionTemplate(new DataSourceTransactionManager(ds)));
   }
 
   public static UnitMaintenance unitMaintenance(DataSource ds) {
     var jdbc = new NamedParameterJdbcTemplate(ds);
-    return new PostgresUnitMaintenance(new PostgresUnitStore(jdbc), new PostgresVectorIndex(jdbc));
+    return new PostgresUnitMaintenance(unitStore(ds), new PostgresVectorIndex(jdbc));
   }
 
   public static KeywordIndex keywordIndex(DataSource ds) {

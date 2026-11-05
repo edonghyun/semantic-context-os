@@ -236,7 +236,7 @@ public final class FakeNotionServer implements AutoCloseable {
     register(method + " " + path);
   }
 
-  List<Recorded> requests() {
+  public List<Recorded> requests() {
     return http.received();
   }
 

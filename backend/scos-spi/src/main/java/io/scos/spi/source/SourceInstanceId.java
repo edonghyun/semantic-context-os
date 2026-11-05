@@ -1,4 +1,4 @@
-package io.scos.spi.connector;
+package io.scos.spi.source;
 
 /** 수집 연결 식별자. 빈 값은 계약 위반이다. */
 public record SourceInstanceId(String value) {

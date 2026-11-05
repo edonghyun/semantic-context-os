@@ -8,7 +8,7 @@ import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.slack.SlackAssembly;
 import io.scos.connector.slack.internal.FakeSlackServer;
 import io.scos.server.fault.DaemonLoopFault;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.ChildJvm;
 import io.scos.support.Eventually;
 import io.scos.support.FakeHttpServer;

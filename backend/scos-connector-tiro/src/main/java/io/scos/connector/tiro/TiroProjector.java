@@ -1,5 +1,6 @@
 package io.scos.connector.tiro;
 
+import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -28,6 +30,8 @@ public final class TiroProjector implements Projector {
   static final String TIRO_ORIGIN = "https://tiro.ooo/";
   private static final Map<String, String> LABELS =
       Map.of("paragraphs", "전사 원문", "summaries", "AI 요약", "documents", "회의 문서");
+  static final AccessPolicy ACCESS =
+      AccessPolicy.supported(Set.of(RESOURCE_TYPE), Set.of(RESOURCE_TYPE));
   private static final DateTimeFormatter ISO_MILLIS =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
@@ -47,7 +51,7 @@ public final class TiroProjector implements Projector {
   public Map<String, List<RawItem>> groupIntoDocuments(List<RawItem> items) {
     Map<String, List<RawItem>> groups = new TreeMap<>();
     for (RawItem item : items)
-      if (item.resourceType().equals(RESOURCE_TYPE)) groups.put(item.externalId(), List.of(item));
+      if (ACCESS.carries(item)) groups.put(item.externalId(), List.of(item));
     return groups;
   }
 

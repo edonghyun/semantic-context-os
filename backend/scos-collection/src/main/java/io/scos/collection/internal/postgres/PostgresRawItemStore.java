@@ -1,21 +1,27 @@
 package io.scos.collection.internal.postgres;
 
 import io.scos.collection.internal.MutationDecision;
+import io.scos.collection.internal.RawAclStore;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawRecord;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.spi.store.SpaceId;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
@@ -24,12 +30,117 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 public final class PostgresRawItemStore implements RawItemStore {
   static final String COLUMNS =
       "external_id, state, resource_type, source_version, order_scheme, order_position, source_created_at, source_updated_at, observed_at, metadata, content_storage, content_media_type, content_inline, content_sha256, content_size, deleted_at";
+  static final String READ_COLUMNS =
+      Arrays.stream(COLUMNS.split(", "))
+              .map(column -> "r." + column)
+              .collect(Collectors.joining(", "))
+          + ", a.status AS acl_status, a.keys AS acl_keys, a.observed_at AS acl_observed_at, a.reason AS acl_reason";
+  static final String READ_FROM =
+      " FROM raw_items r LEFT JOIN raw_acl a ON r.source_instance_id = a.source_instance_id AND r.external_id = a.external_id";
   private final JdbcClient jdbc;
   private final BlobWriter blobs;
+  private final RawAclStore acls;
 
-  public PostgresRawItemStore(JdbcClient jdbc) {
+  public PostgresRawItemStore(JdbcClient jdbc, RawAclStore acls) {
+    this.acls = acls;
     this.jdbc = jdbc;
     this.blobs = new BlobWriter(jdbc);
+  }
+
+  @Override
+  public Page accessCandidates(
+      SourceInstanceId source,
+      Set<String> kinds,
+      Optional<Instant> cutoff,
+      int limit,
+      Optional<String> cursor) {
+    if (limit < 1) throw new IllegalArgumentException("limit must be >= 1");
+    if (kinds.isEmpty()) return new Page(List.of(), Optional.empty());
+    var rows =
+        jdbc.sql(
+                """
+        SELECT r.external_id, r.resource_type, r.source_version, r.order_scheme, r.order_position,
+               r.source_created_at, r.source_updated_at, r.observed_at, r.metadata,
+               a.status AS acl_status, a.keys AS acl_keys, a.observed_at AS acl_observed_at, a.reason AS acl_reason
+        """
+                    + READ_FROM
+                    + " "
+                    + """
+        WHERE r.source_instance_id = :source AND r.state = 'active'
+          AND r.resource_type = ANY(:kinds)
+          AND (CAST(:cursor AS text) IS NULL OR r.external_id COLLATE "C" > :cursor)
+        """
+                    + (cutoff.isPresent() ? EXPIRY_CANDIDATES : "")
+                    + " ORDER BY r.external_id COLLATE \"C\" LIMIT :limit")
+            .param("source", source.value())
+            .param("kinds", kinds.toArray(String[]::new))
+            .param("cursor", cursor.orElse(null), Types.VARCHAR)
+            .param("limit", limit + 1);
+    cutoff.ifPresent(at -> rows.param("cutoff", Timestamp.from(at)));
+    List<RawItem> found =
+        rows.query(
+                (rs, row) ->
+                    new RawItem(
+                        rs.getString("external_id"),
+                        rs.getString("resource_type"),
+                        rs.getString("source_version"),
+                        rs.getString("order_scheme") == null
+                            ? Optional.empty()
+                            : Optional.of(
+                                new SourceOrder(
+                                    rs.getString("order_scheme"), rs.getString("order_position"))),
+                        Optional.ofNullable(rs.getString("source_created_at")),
+                        Optional.ofNullable(rs.getString("source_updated_at")),
+                        rs.getTimestamp("observed_at").toInstant(),
+                        rs.getString("metadata"),
+                        Optional.empty(),
+                        rs.getString("acl_status") == null
+                            ? RawAcl.notObserved()
+                            : PostgresRawAclStore.observed(rs, "acl_")))
+            .list();
+    if (found.size() <= limit) return new Page(found, Optional.empty());
+    return new Page(found.subList(0, limit), Optional.of(found.get(limit - 1).externalId()));
+  }
+
+  // 문서 저장 상태를 함께 읽어, 닫힘 이후 지연된 OK 쓰기도 다음 sweep에서 다시 제한한다.
+  private static final String EXPIRY_CANDIDATES =
+      """
+      AND a.observed_at <= :cutoff
+      AND (a.status <> 'failed' OR a.reason <> 'EXPIRED'
+           OR r.access_expired_at IS DISTINCT FROM a.observed_at
+           OR EXISTS (SELECT 1 FROM document_acl d
+                      WHERE d.space_id = r.access_expiry_space
+                        AND d.document_id = r.access_expiry_document AND d.status <> 'failed'
+                        AND NOT EXISTS (SELECT 1 FROM document_spaces o
+                                        WHERE o.document_id = d.document_id
+                                          AND (o.source_id <> r.source_instance_id OR o.space_id <> d.space_id))))
+      """;
+
+  @Override
+  public void completeAccessExpiry(
+      SourceInstanceId source,
+      String externalId,
+      Instant observedAt,
+      SpaceId space,
+      Optional<String> document) {
+    jdbc.sql(
+            """
+        UPDATE raw_items r SET access_expired_at = :observed,
+               access_expiry_space = :space, access_expiry_document = :document
+        WHERE r.source_instance_id = :source AND r.external_id = :id
+          AND (r.access_expired_at IS DISTINCT FROM :observed
+               OR r.access_expiry_space IS DISTINCT FROM :space
+               OR r.access_expiry_document IS DISTINCT FROM :document)
+          AND EXISTS (SELECT 1 FROM raw_acl a
+                      WHERE a.source_instance_id = r.source_instance_id AND a.external_id = r.external_id
+                        AND a.status = 'failed' AND a.reason = 'EXPIRED' AND a.observed_at = :observed)
+        """)
+        .param("source", source.value())
+        .param("id", externalId)
+        .param("observed", Timestamp.from(observedAt))
+        .param("space", space.value())
+        .param("document", document.orElse(null), Types.VARCHAR)
+        .update();
   }
 
   @Override
@@ -37,8 +148,9 @@ public final class PostgresRawItemStore implements RawItemStore {
     Optional<RawRecord> existing =
         jdbc.sql(
                 "SELECT "
-                    + COLUMNS
-                    + " FROM raw_items WHERE source_instance_id = :source AND external_id = :id FOR UPDATE")
+                    + READ_COLUMNS
+                    + READ_FROM
+                    + " WHERE r.source_instance_id = :source AND r.external_id = :id FOR UPDATE OF r")
             .param("source", source.value())
             .param("id", mutation.externalId())
             .query(PostgresRawItemStore::map)
@@ -109,14 +221,16 @@ public final class PostgresRawItemStore implements RawItemStore {
         .param("observed", Timestamp.from(t.observedAt()))
         .param("deleted", Timestamp.from(t.deletedAt()))
         .update();
+    deleteAcls(source, List.of(t.externalId()));
   }
 
   @Override
   public Optional<RawRecord> get(SourceInstanceId source, String externalId) {
     return jdbc.sql(
             "SELECT "
-                + COLUMNS
-                + " FROM raw_items WHERE source_instance_id = :source AND external_id = :id")
+                + READ_COLUMNS
+                + READ_FROM
+                + " WHERE r.source_instance_id = :source AND r.external_id = :id")
         .param("source", source.value())
         .param("id", externalId)
         .query(PostgresRawItemStore::map)
@@ -129,9 +243,10 @@ public final class PostgresRawItemStore implements RawItemStore {
     List<RawRecord> rows =
         jdbc.sql(
                 "SELECT "
-                    + COLUMNS
-                    + " FROM raw_items WHERE source_instance_id = :source AND state = 'active'"
-                    + " AND (CAST(:cursor AS text) IS NULL OR external_id COLLATE \"C\" > CAST(:cursor AS text)) ORDER BY external_id COLLATE \"C\" LIMIT :limit")
+                    + READ_COLUMNS
+                    + READ_FROM
+                    + " WHERE r.source_instance_id = :source AND r.state = 'active'"
+                    + " AND (CAST(:cursor AS text) IS NULL OR r.external_id COLLATE \"C\" > CAST(:cursor AS text)) ORDER BY r.external_id COLLATE \"C\" LIMIT :limit")
             .param("source", source.value())
             .param("cursor", cursor.orElse(null))
             .param("limit", limit + 1)
@@ -191,26 +306,30 @@ public final class PostgresRawItemStore implements RawItemStore {
     String[] absent =
         active.stream().filter(id -> !observedExternalIds.contains(id)).toArray(String[]::new);
     if (absent.length == 0) return List.of();
-    return jdbc.sql(
-            """
+    List<String> removed =
+        jdbc.sql(
+                """
             UPDATE raw_items SET state = 'deleted', order_scheme = NULL, order_position = NULL, source_created_at = NULL,
               source_updated_at = NULL, observed_at = :at, metadata = NULL, content_storage = NULL, content_media_type = NULL,
               content_inline = NULL, content_sha256 = NULL, content_size = NULL, deleted_at = :at
             WHERE source_instance_id = :source AND state = 'active' AND external_id = ANY(:ids)
             RETURNING external_id
             """)
-        .param("at", Timestamp.from(at))
-        .param("source", source.value())
-        .param("ids", absent)
-        .query(String.class)
-        .list();
+            .param("at", Timestamp.from(at))
+            .param("source", source.value())
+            .param("ids", absent)
+            .query(String.class)
+            .list();
+    deleteAcls(source, removed);
+    return removed;
   }
 
   @Override
   public List<String> tombstoneSelected(SourceInstanceId source, Set<String> ids, Instant at) {
     if (ids.isEmpty()) return List.of();
-    return jdbc.sql(
-            """
+    List<String> removed =
+        jdbc.sql(
+                """
         UPDATE raw_items SET state = 'deleted', order_scheme = NULL, order_position = NULL,
           source_created_at = NULL, source_updated_at = NULL, observed_at = :at, metadata = NULL,
           content_storage = NULL, content_media_type = NULL, content_inline = NULL,
@@ -218,11 +337,18 @@ public final class PostgresRawItemStore implements RawItemStore {
         WHERE source_instance_id = :source AND state = 'active' AND external_id = ANY(:ids)
         RETURNING external_id
         """)
-        .param("source", source.value())
-        .param("ids", ids.toArray(String[]::new))
-        .param("at", Timestamp.from(at))
-        .query(String.class)
-        .list();
+            .param("source", source.value())
+            .param("ids", ids.toArray(String[]::new))
+            .param("at", Timestamp.from(at))
+            .query(String.class)
+            .list();
+    deleteAcls(source, removed);
+    return removed;
+  }
+
+  private void deleteAcls(SourceInstanceId source, List<String> ids) {
+    if (ids.isEmpty()) return;
+    acls.delete(source, ids);
   }
 
   @Override
@@ -260,6 +386,9 @@ public final class PostgresRawItemStore implements RawItemStore {
             Optional.ofNullable(rs.getString("source_updated_at")),
             rs.getTimestamp("observed_at").toInstant(),
             rs.getString("metadata"),
-            content));
+            content,
+            rs.getString("acl_status") == null
+                ? RawAcl.notObserved()
+                : PostgresRawAclStore.observed(rs, "acl_")));
   }
 }

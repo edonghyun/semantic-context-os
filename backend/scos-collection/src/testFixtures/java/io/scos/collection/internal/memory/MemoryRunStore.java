@@ -1,5 +1,6 @@
 package io.scos.collection.internal.memory;
 
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.RunHistory;
 import io.scos.collection.internal.RunId;
@@ -10,7 +11,9 @@ import io.scos.collection.internal.RunStore;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.store.memory.MemoryIdentityStore;
+import io.scos.store.memory.MemorySourceAccessDirectory;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,9 +28,41 @@ import java.util.Set;
 
 /** 메모리 참조 구현. */
 public class MemoryRunStore implements RunStore {
+  private final MemoryIdentityStore identities;
+  private final MemoryAccessObservationStore accessObservations;
+
+  public static final class Records {
+    private final Map<RunId, CollectionRun> values = new LinkedHashMap<>();
+
+    Optional<CollectionRun> get(RunId run) {
+      return Optional.ofNullable(values.get(run));
+    }
+  }
+
+  public MemoryRunStore(
+      Records records,
+      MemoryIdentityStore identities,
+      MemoryAccessObservationStore accessObservations) {
+    this.runs = records.values;
+    this.identities = identities;
+    this.accessObservations = accessObservations;
+  }
+
+  public static MemoryRunStore create() {
+    var records = new Records();
+    var identities = new MemoryIdentityStore();
+    var observations =
+        new MemoryAccessObservationStore(new MemorySourceAccessDirectory(identities), records);
+    return new MemoryRunStore(records, identities, observations);
+  }
+
+  public MemoryIdentityStore identities() {
+    return identities;
+  }
+
   private final Map<RunId, AbsenceValidation> absenceValidations = new HashMap<>();
   private final Map<RunId, String> absenceRequirements = new HashMap<>();
-  private final Map<RunId, CollectionRun> runs = new LinkedHashMap<>();
+  private final Map<RunId, CollectionRun> runs;
   private final Map<RunId, Set<String>> observations = new HashMap<>();
   private final Map<RunId, List<RejectedItem>> rejections = new HashMap<>();
 
@@ -36,6 +71,20 @@ public class MemoryRunStore implements RunStore {
   private final Map<SourceInstanceId, Snapshot> snapshots = new HashMap<>();
   private final Map<String, byte[]> blobs = new HashMap<>();
 
+  @Override
+  public synchronized void observeUnreadableAcls(RunId id, Set<String> externalIds) {
+    if (externalIds.isEmpty()) return;
+    var run = get(id).orElseThrow();
+    requireRunning(id, run.source());
+    Set<String> ids = new HashSet<>(run.aclUnreadable());
+    ids.addAll(externalIds);
+    runs.put(id, run.withUnreadableAcls(ids));
+  }
+
+  public MemoryAccessObservationStore accessObservations() {
+    return accessObservations;
+  }
+
   /**
    * 가짜 수집기용(제품 경로가 부른다): 실제 런타임처럼 run을 시작하고(같은 소스의 running run은 stale_run으로 마감) 바로 succeeded로 끝낸다.
    * 제품이 부르는 쪽이라 전제 검사를 하지 않는다 — "given 준비 실패"를 던지면 감독이 그것을 실패 시도로 삼켜 테스트가 엉뚱하게 녹색이 된다. 테스트 given은
@@ -43,7 +92,14 @@ public class MemoryRunStore implements RunStore {
    */
   public synchronized CollectionRun recordSucceeded(RunId id, SourceInstanceId source, Instant at) {
     start(id, source, at);
-    return finish(id, RunOutcome.succeeded(0), CollectionCoverage.INCREMENTAL, at, 0);
+    return finish(
+        id,
+        RunOutcome.succeeded(0),
+        CollectionCoverage.INCREMENTAL,
+        at,
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 
   /**
@@ -70,7 +126,9 @@ public class MemoryRunStore implements RunStore {
             status, status == RunStatus.SUCCEEDED ? 0 : 1, Optional.empty(), Optional.empty()),
         CollectionCoverage.INCREMENTAL,
         finishedAt,
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
   }
 
   @Override
@@ -80,6 +138,7 @@ public class MemoryRunStore implements RunStore {
       if (r.source().equals(source) && r.status() == RunStatus.RUNNING) {
         e.setValue(r.supersededAt(startedAt));
         observations.remove(r.id());
+        accessObservations.discard(r.id());
       }
     }
     CollectionRun run = CollectionRun.started(id, source, startedAt);
@@ -161,8 +220,12 @@ public class MemoryRunStore implements RunStore {
       RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
-      int reconciled) {
-    CollectionRun finished = runs.get(id).finished(outcome, coverage, finishedAt, reconciled);
+      int reconciled,
+      AccessResult accessResult,
+      Optional<Instant> accessFinishedAt) {
+    CollectionRun finished =
+        runs.get(id)
+            .finished(outcome, coverage, finishedAt, reconciled, accessResult, accessFinishedAt);
     runs.put(id, finished);
     observations.remove(id);
     return finished;

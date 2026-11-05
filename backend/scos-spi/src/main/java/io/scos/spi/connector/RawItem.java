@@ -13,7 +13,8 @@ public record RawItem(
     Optional<String> sourceUpdatedAt,
     Instant observedAt,
     String metadataJson,
-    Optional<RawContent> content) {
+    Optional<RawContent> content,
+    RawAcl acl) {
   public RawItem {
     if (externalId == null || externalId.isBlank())
       throw new IllegalArgumentException("externalId must not be blank");
@@ -22,26 +23,12 @@ public record RawItem(
     if (sourceVersion == null || sourceVersion.isBlank())
       throw new IllegalArgumentException("sourceVersion must not be blank");
     if (observedAt == null) throw new IllegalArgumentException("observedAt must not be null");
+    if (acl == null) throw new IllegalArgumentException("acl must not be null");
     sourceOrder = sourceOrder == null ? Optional.empty() : sourceOrder;
     sourceCreatedAt = sourceCreatedAt == null ? Optional.empty() : sourceCreatedAt;
     sourceUpdatedAt = sourceUpdatedAt == null ? Optional.empty() : sourceUpdatedAt;
     metadataJson = metadataJson == null ? "{}" : metadataJson;
     content = content == null ? Optional.empty() : content;
-  }
-
-  /** 테스트·실험용 최소형: 메타데이터만 있는 항목. */
-  public static RawItem minimal(
-      String externalId, String sourceVersion, String metadataJson, Instant observedAt) {
-    return new RawItem(
-        externalId,
-        "test.item",
-        sourceVersion,
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        observedAt,
-        metadataJson,
-        Optional.empty());
   }
 
   public RawItem withContent(RawContent c) {
@@ -54,6 +41,7 @@ public record RawItem(
         sourceUpdatedAt,
         observedAt,
         metadataJson,
-        Optional.of(c));
+        Optional.of(c),
+        acl);
   }
 }

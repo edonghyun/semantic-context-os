@@ -6,7 +6,7 @@ import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionState;
 import io.scos.spi.connector.SnapshotScope;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionOperations;
 
 /**
- * run 완료 유스케이스(F5, 불변식 6). succeeded만 live 점유를 요구하고, succeeded + complete_snapshot일 때만 이번 run에서
+ * run 완료 유스케이스(F5, 불변식 6). 성공한 본문의 소스 쓰기는 live 점유를 요구하고, succeeded + complete_snapshot일 때만 이번 run에서
  * 관측되지 않은 active 항목을 tombstone으로 바꾼다(reconcile). 단 그 수가 스냅샷 축소 보호 기준을 넘으면 정리하지 않고 run을 succeeded +
  * errorKind snapshot_shrink_guarded로 마감한다(ADR-0028). 비성공 완료는 점유 없이도 기록된다 — 실패가 점유 오류로 가려지지 않게. 완료 후
- * 관측은 지워진다.
+ * 본문·접근 관측은 지워진다. 점유·설정 변경은 소스 쓰기 트랜잭션을 롤백한 뒤 별도 terminal 마감으로 전환한다.
  */
 public final class RunCompletion {
   public record Input(
@@ -30,6 +30,8 @@ public final class RunCompletion {
       RunOutcome outcome,
       CollectionCoverage coverage,
       Instant finishedAt,
+      AccessResult accessResult,
+      Optional<Instant> accessFinishedAt,
       Optional<SourceDescriptor> expectedSource,
       Optional<SnapshotScope> expectedVerification) {
     public Input(
@@ -38,8 +40,19 @@ public final class RunCompletion {
         RunOutcome outcome,
         CollectionCoverage coverage,
         Instant finishedAt,
+        AccessResult accessResult,
+        Optional<Instant> accessFinishedAt,
         Optional<SourceDescriptor> expectedSource) {
-      this(claim, runId, outcome, coverage, finishedAt, expectedSource, Optional.empty());
+      this(
+          claim,
+          runId,
+          outcome,
+          coverage,
+          finishedAt,
+          accessResult,
+          accessFinishedAt,
+          expectedSource,
+          Optional.empty());
     }
 
     public Input(
@@ -47,8 +60,19 @@ public final class RunCompletion {
         RunId runId,
         RunOutcome outcome,
         CollectionCoverage coverage,
-        Instant finishedAt) {
-      this(claim, runId, outcome, coverage, finishedAt, Optional.empty(), Optional.empty());
+        Instant finishedAt,
+        AccessResult accessResult,
+        Optional<Instant> accessFinishedAt) {
+      this(
+          claim,
+          runId,
+          outcome,
+          coverage,
+          finishedAt,
+          accessResult,
+          accessFinishedAt,
+          Optional.empty(),
+          Optional.empty());
     }
 
     RunStatus status() {
@@ -60,21 +84,21 @@ public final class RunCompletion {
   private static final Logger log = LoggerFactory.getLogger(RunCompletion.class);
 
   private final TransactionOperations tx;
-  private final WorkClaimPort claims;
+  private final WriteFence fence;
   private final RunStore runs;
   private final RawItemStore rawItems;
   private final OutboxPort outbox;
   private final SourceChangeLog changes;
   private final SnapshotShrinkGuard shrinkGuard;
-  private final Optional<SourceInstanceStore> sources;
   private final Optional<BodyCompletion> bodies;
   private final SnapshotAbsences absences;
   private final Optional<ReconciliationDiscovery> reconciliation;
+  private final AccessObservationStore accessObservations;
 
   public RunCompletion(CollectionStores stores, SnapshotShrinkGuard shrinkGuard) {
     this.tx = stores.tx();
-    this.sources = stores.sources();
-    this.claims = stores.claims();
+    this.accessObservations = stores.accessObservations();
+    this.fence = new WriteFence(stores);
     this.runs = stores.runs();
     this.rawItems = stores.rawItems();
     this.outbox = stores.outbox();
@@ -120,7 +144,18 @@ public final class RunCompletion {
 
   public CollectionRun complete(Input in) {
     SourceInstanceId source = in.claim().source();
-    Completed completed = tx.execute(status -> completeInTransaction(in));
+    Completed completed;
+    try {
+      completed = tx.execute(status -> completeInTransaction(in));
+    } catch (RuntimeException error) {
+      if (!in.status().isSuccess()) throw error;
+      try {
+        completed = finishWithoutSourceWrites(in, error);
+      } catch (RuntimeException finalization) {
+        if (!finalization.equals(error)) error.addSuppressed(finalization);
+        throw error;
+      }
+    }
     // 커밋 뒤의 보고가 실패해도 run은 이미 마감됐다 — 던지면 호출자가 끝난 run을 실패로 다시 마감하려 한다(로그만 남긴다)
     try {
       completed.verdict().ifPresent(v -> shrinkGuard.report(source, in.runId(), v));
@@ -132,6 +167,24 @@ public final class RunCompletion {
           .log();
     }
     return completed.run();
+  }
+
+  private Completed finishWithoutSourceWrites(Input in, RuntimeException error) {
+    RunFailure failure = RunFailure.of(error);
+    int pages = runs.get(in.runId()).orElseThrow().pagesApplied();
+    RunOutcome outcome = RunOutcome.interrupted(false, pages, failure.kind(), failure.summary());
+    Input terminal =
+        new Input(
+            in.claim(),
+            in.runId(),
+            outcome,
+            in.coverage(),
+            in.finishedAt(),
+            in.accessResult(),
+            in.accessFinishedAt(),
+            in.expectedSource(),
+            in.expectedVerification());
+    return tx.execute(status -> completeInTransaction(terminal));
   }
 
   /**
@@ -147,20 +200,8 @@ public final class RunCompletion {
 
   private Completed completeInTransaction(Input in) {
     SourceInstanceId source = in.claim().source();
-    if (in.status() == RunStatus.SUCCEEDED) claims.requireActive(in.claim(), in.finishedAt());
-    runs.requireRunning(in.runId(), source);
-    if (in.status() == RunStatus.SUCCEEDED)
-      in.expectedSource()
-          .ifPresent(
-              expected -> {
-                if (!source.equals(expected.id())) throw new SourceConfigurationChangedException();
-                sources
-                    .orElseThrow(
-                        () ->
-                            new IllegalStateException(
-                                "Source configuration store is not configured"))
-                    .requireCollectionConfiguration(expected);
-              });
+    requireSourceWrites(in);
+    if (!in.status().isSuccess()) runs.requireRunning(in.runId(), source);
     SnapshotReconcile reconciled =
         reconcilesSnapshot(in) ? reconcile(in) : SnapshotReconcile.skipped(in.outcome());
     List<SourceChangeLog.Entry> changed = new ArrayList<>(reconciled.changes());
@@ -169,11 +210,25 @@ public final class RunCompletion {
       changed.add(
           SourceChangeLog.Entry.collectionIncomplete(
               source, in.status(), in.outcome().errorKind(), in.finishedAt()));
+    accessObservations.discard(in.runId());
     CollectionRun finished =
         runs.finish(
-            in.runId(), reconciled.outcome(), in.coverage(), in.finishedAt(), reconciled.count());
+            in.runId(),
+            reconciled.outcome(),
+            in.coverage(),
+            in.finishedAt(),
+            reconciled.count(),
+            in.accessResult(),
+            in.accessFinishedAt());
     changes.appendAll(changed); // 마지막 작업 — 변경 로그 쓰기 잠금은 여기서 커밋까지만(ADR-0021)
     return new Completed(finished, reconciled.verdict());
+  }
+
+  private void requireSourceWrites(Input in) {
+    if (!in.status().isSuccess()) return;
+    if (in.accessResult() == AccessResult.CLAIM_LOST)
+      throw new ClaimLostException("Access collection lost the claim");
+    fence.requireWritable(in.claim(), in.runId(), in.expectedSource(), in.finishedAt());
   }
 
   /**

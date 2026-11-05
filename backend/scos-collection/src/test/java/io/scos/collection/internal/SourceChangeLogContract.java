@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import io.scos.collection.internal.SourceChangeLog.Change;
 import io.scos.collection.internal.SourceChangeLog.Kind;
 import io.scos.collection.internal.SourceChangeLog.Page;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

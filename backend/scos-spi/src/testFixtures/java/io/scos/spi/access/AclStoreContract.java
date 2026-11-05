@@ -29,6 +29,32 @@ public abstract class AclStoreContract {
   }
 
   @Test
+  @DisplayName("FAILED 원인이 달라지면 같은 접근 키여도 최신 원인을 보존한다")
+  void newerFailureReasonIsStored() {
+    store.put(
+        A,
+        List.of(
+            new DocumentAcl(
+                "doc",
+                DocumentAcl.Status.FAILED,
+                Set.of(),
+                OBSERVED,
+                AccessFailureReason.MISSING_TARGET)));
+    store.put(
+        A,
+        List.of(
+            new DocumentAcl(
+                "doc",
+                DocumentAcl.Status.FAILED,
+                Set.of(),
+                OBSERVED.plusSeconds(1),
+                AccessFailureReason.EXPIRED)));
+    // then
+    assertThat(store.get(A, List.of("doc")).get("doc").reason())
+        .isEqualTo(AccessFailureReason.EXPIRED);
+  }
+
+  @Test
   @DisplayName("비어 있으면 ACL 행이 없다고 알려준다")
   void emptyStoreHasNoAcl() {
     boolean any = store.hasAny();

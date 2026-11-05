@@ -77,6 +77,41 @@ public abstract class UnitMaintenanceContract {
     return ContextUnits.unit(id).inDocument(doc).build();
   }
 
+  @Test
+  @DisplayName("다른 출처가 새 문서와 소유 문서를 한 배치로 쓰면 아무 유닛도 바꾸지 않는다")
+  void foreignSourceBatchIsRejectedBeforeAnyWrite() {
+    maintenance.upsert(A, List.of(unit("owner", "doc-1", "source-a")));
+
+    assertThatThrownBy(
+            () ->
+                maintenance.upsert(
+                    A,
+                    List.of(unit("new", "doc-2", "source-b"), unit("owner", "doc-1", "source-b"))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("doc-1");
+
+    // then
+    assertThat(maintenance.previousUnits(A, List.of("owner", "new")))
+        .extracting(ContextUnit::id, u -> u.provenance().sourceId())
+        .containsExactly(tuple("owner", "source-a"));
+  }
+
+  @Test
+  @DisplayName("새 문서 하나에 출처가 섞인 배치도 전부 거부한다")
+  void mixedSourcesForNewDocumentAreRejected() {
+    assertThatThrownBy(
+            () ->
+                maintenance.upsert(
+                    A,
+                    List.of(
+                        unit("first", "doc-1", "source-a"), unit("second", "doc-1", "source-b"))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("doc-1");
+
+    // then
+    assertThat(maintenance.listAll(A)).isEmpty();
+  }
+
   private static ContextUnit unit(String id, String doc, String sourceId) {
     return ContextUnits.unit(id).inDocument(doc).source(sourceId).build();
   }
@@ -91,6 +126,17 @@ public abstract class UnitMaintenanceContract {
 
   List<String> idsOf(SpaceId space, String document) {
     return ids(store.listByDocument(space, AccessScope.singleUser(), document, ALL));
+  }
+
+  @Test
+  @DisplayName("저장된 관측 시각이 모두 빈 문자열이면 최신 시각도 없다")
+  void emptyCapturedAtDoesNotInventLatestTimestamp() {
+    maintenance.upsert(
+        A,
+        List.of(
+            ContextUnits.unit("without-time").inDocument("without-time").capturedAt("").build()));
+    // then
+    assertThat(maintenance.latestCapturedAt(A)).isEmpty();
   }
 
   @Nested

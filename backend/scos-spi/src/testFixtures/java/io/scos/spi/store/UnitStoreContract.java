@@ -57,6 +57,22 @@ public abstract class UnitStoreContract {
     return ids(store.listByDocument(space, AccessScope.singleUser(), document, ALL));
   }
 
+  @Test
+  @DisplayName("저장된 관측 시각이 모두 빈 문자열이면 최신 시각도 없다")
+  void emptyCapturedAtDoesNotInventLatestTimestamp() {
+    maintenance.upsert(
+        A,
+        List.of(
+            ContextUnits.unit("without-time").inDocument("without-time").capturedAt("").build()));
+    // then
+    assertThat(
+            store
+                .getDocuments(A, AccessScope.singleUser(), List.of("without-time"))
+                .getFirst()
+                .latestCapturedAt())
+        .isEmpty();
+  }
+
   @Nested
   @DisplayName("허용·다른 키·UNKNOWN·FAILED·UNSUPPORTED·ACL 없는 문서가 있을 때")
   class AccessReads {

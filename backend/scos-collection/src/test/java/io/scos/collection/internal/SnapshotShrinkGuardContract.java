@@ -6,9 +6,9 @@ import io.scos.collection.internal.SnapshotGuardStore.Acceptance;
 import io.scos.collection.internal.SnapshotGuardStore.Guarded;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -63,7 +63,15 @@ public abstract class SnapshotShrinkGuardContract {
       String id = String.format("note-%03d", i);
       ports
           .rawItems()
-          .apply(SOURCE, new RawMutation.Upsert(RawItem.minimal(id, "v1", "{}", REGISTERED)));
+          .apply(
+              SOURCE,
+              new RawMutation.Upsert(
+                  RawItems.item(id)
+                      .resourceType("test.item")
+                      .version("v1")
+                      .metadata("{}")
+                      .observedAt(REGISTERED)
+                      .build()));
       activeIds.add(id);
     }
     if (ports.rawItems().count(SOURCE) != count)
@@ -102,7 +110,15 @@ public abstract class SnapshotShrinkGuardContract {
       String id = String.format("new-%03d", i);
       ports
           .rawItems()
-          .apply(SOURCE, new RawMutation.Upsert(RawItem.minimal(id, "v1", "{}", REGISTERED)));
+          .apply(
+              SOURCE,
+              new RawMutation.Upsert(
+                  RawItems.item(id)
+                      .resourceType("test.item")
+                      .version("v1")
+                      .metadata("{}")
+                      .observedAt(REGISTERED)
+                      .build()));
       added.add(id);
     }
     ports.runs().observe(run, added);
@@ -145,7 +161,9 @@ public abstract class SnapshotShrinkGuardContract {
                 run,
                 RunOutcome.clean(status),
                 CollectionCoverage.COMPLETE_SNAPSHOT,
-                clock.instant()));
+                clock.instant(),
+                AccessResult.SKIPPED,
+                Optional.empty()));
     ports.claims().release(claim, clock.instant());
     return done;
   }

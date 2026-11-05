@@ -40,6 +40,9 @@ jobs:
           distribution: temurin
           java-version: "21"
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+      # 하네스 기준선 테스트(BaselineMainTest)가 rg를 실행한다. ubuntu 러너에는 없다
+      - name: ripgrep
+        run: sudo apt-get update -q && sudo apt-get install -y -q ripgrep
       - name: check + bootJar + harnessJar
         working-directory: backend
         # pitest는 check에 들어 있지 않다(2026-10-26) — -x pitest는 안전장치로 남긴다. 변이 테스트는 아래 pitest job이 맡는다

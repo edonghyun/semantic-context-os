@@ -1,6 +1,6 @@
 package io.scos.spi.access;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;

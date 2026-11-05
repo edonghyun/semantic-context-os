@@ -2,7 +2,7 @@ package io.scos.collection.internal.postgres;
 
 import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.ProjectionRetryPolicy;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;

@@ -3,7 +3,7 @@ package io.scos.engine.internal.search;
 import io.scos.engine.Freshness;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.SourceFreshness;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.UnitMaintenance;

@@ -5,6 +5,7 @@ import io.scos.engine.internal.projection.JtokkitTokenizer;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.SourceDocument;
 import io.scos.spi.store.ContextUnit;
 import io.scos.store.postgres.internal.Bigrams;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
@@ -142,16 +142,13 @@ class SheetUnitPolicyProbeTest {
   }
 
   static RawItem item(String id, String type, ObjectNode value, String metadata) {
-    return new RawItem(
-        id,
-        type,
-        "v",
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        AT,
-        metadata,
-        Optional.of(new RawContent.Inline("application/json", value.toString())));
+    return RawItems.item(id)
+        .resourceType(type)
+        .version("v")
+        .observedAt(AT)
+        .metadata(metadata)
+        .content(new RawContent.Inline("application/json", value.toString()))
+        .build();
   }
 
   // ---- 후보(같은 셀 데이터, 본문만 다르게) ----

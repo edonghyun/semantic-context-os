@@ -5,12 +5,13 @@ import io.scos.spi.connector.BodyObservation;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.ReconciliationContext;
 import io.scos.spi.connector.ReconciliationKind;
 import io.scos.spi.connector.ReconciliationObservation;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
@@ -189,7 +190,7 @@ public final class ReconciliationDiscoveryScenario {
 
   void confirmFromNextIncrementalRun() {
     var nextRun = new RunId("confirmation-run");
-    ports.runs().finish(RUN, outcome, coverage, NOW, 0);
+    ports.runs().finish(RUN, outcome, coverage, NOW, 0, AccessResult.SKIPPED, Optional.empty());
     ports.runs().start(nextRun, SOURCE, NOW);
     var body =
         new BodyObservation(
@@ -437,7 +438,7 @@ public final class ReconciliationDiscoveryScenario {
 
   public void reconcile() {
     commitPage(BodyObservation.Outcome.COMPLETE, path);
-    ports.runs().finish(RUN, outcome, coverage, NOW, 0);
+    ports.runs().finish(RUN, outcome, coverage, NOW, 0, AccessResult.SKIPPED, Optional.empty());
   }
 
   private void commitPage(BodyObservation.Outcome outcome, ReconciliationContext.Path path) {

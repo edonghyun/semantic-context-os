@@ -3,6 +3,7 @@ package io.scos.collection.internal.postgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.collection.internal.AccessResult;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStatus;
@@ -10,7 +11,7 @@ import io.scos.collection.internal.SnapshotGuardStore;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.SourceQueries;
 import io.scos.spi.connector.CollectionCoverage;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,7 +141,9 @@ class SourceStatusShrinkGuardQueryTest {
             new RunOutcome(status, status.isSuccess() ? 0 : 1, errorKind, Optional.empty()),
             CollectionCoverage.COMPLETE_SNAPSHOT,
             startedAt.plusSeconds(1),
-            0);
+            0,
+            AccessResult.SKIPPED,
+            Optional.empty());
   }
 
   @Nested

@@ -10,7 +10,9 @@ dependencies {
     implementation(project(":scos-engine"))
     implementation("tools.jackson.core:jackson-databind")
     implementation("org.springframework:spring-web")
+    implementation("org.slf4j:slf4j-api")
 
+    testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(testFixtures(project(":scos-engine")))
     testImplementation(testFixtures(project(":scos-collection")))
     testImplementation(project(":scos-spring-boot-starter"))

@@ -38,6 +38,32 @@ class LeaseHeartbeatTest {
     scenario.close();
   }
 
+  @Test
+  @DisplayName("정상 heartbeat는 비예외 조회도 healthy다")
+  void healthyQueryAcceptsLiveHeartbeat() {
+    LeaseHeartbeat heartbeat = scenario.start();
+    // then
+    assertThat(heartbeat.healthy()).isTrue();
+  }
+
+  @Test
+  @DisplayName("갱신 실패 뒤 비예외 조회는 false다")
+  void healthyQueryRejectsFailedHeartbeat() {
+    LeaseHeartbeat heartbeat = scenario.start();
+    scenario.advanceClock(TTL.plusSeconds(1));
+    scenario.tick();
+    // then
+    assertThat(heartbeat.healthy()).isFalse();
+  }
+
+  @Test
+  @DisplayName("정상 heartbeat의 점유 상실 조회는 false다")
+  void claimLostQueryAcceptsLiveHeartbeat() {
+    LeaseHeartbeat heartbeat = scenario.start();
+    // then
+    assertThat(heartbeat.claimLost()).isFalse();
+  }
+
   @Nested
   @DisplayName("시작해 TTL 안에서 tick하면")
   class TickWithinTtl {
@@ -109,6 +135,14 @@ class LeaseHeartbeatTest {
     void givenStartedThenExpired() {
       heartbeat = scenario.start();
       scenario.advanceClock(TTL.plusSeconds(1));
+    }
+
+    @Test
+    @DisplayName("점유 만료로 갱신 실패하면 점유 상실로 조회한다")
+    void claimLostQueryDetectsExpiredClaim() {
+      scenario.tick();
+      // then
+      assertThat(heartbeat.claimLost()).isTrue();
     }
 
     @Test
@@ -212,6 +246,13 @@ class LeaseHeartbeatTest {
       heartbeat = scenario.nextRenewFails(failure).start();
       scenario.advanceClock(WITHIN_TTL);
       scenario.tick();
+    }
+
+    @Test
+    @DisplayName("일반 저장소 장애는 점유 상실로 조회하지 않는다")
+    void claimLostQueryRejectsStorageFailure() {
+      // then
+      assertThat(heartbeat.claimLost()).isFalse();
     }
 
     @Test

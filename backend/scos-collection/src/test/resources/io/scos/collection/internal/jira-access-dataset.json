@@ -1,0 +1,918 @@
+{
+  "email": "reader@example.com",
+  "token": "test-token",
+  "routes": [
+    {
+      "path": "/rest/api/3/field",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": []
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/100",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "100",
+            "key": "PROD100",
+            "name": "Product 100",
+            "style": "classic",
+            "simplified": false,
+            "projectTypeKey": "software",
+            "lead": {
+              "accountId": "U1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/100/components",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/100/versions",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/search/jql",
+      "params": {
+        "maxResults": "50",
+        "jql": "project = 100 ORDER BY id ASC",
+        "fields": "summary"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "issues": [
+              {
+                "id": "10001"
+              }
+            ],
+            "isLast": true
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/100/permissionscheme",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "S100",
+            "name": "Browse scheme"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/permissionscheme/S100",
+      "params": {
+        "expand": "permissions"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "S100",
+            "permissions": [
+              {
+                "permission": "BROWSE_PROJECTS",
+                "holder": {
+                  "type": "projectRole",
+                  "parameter": "100"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/100/role/100",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": 100,
+            "name": "Viewer",
+            "description": "Product viewers",
+            "actors": [
+              {
+                "type": "atlassian-user-role-actor",
+                "actorUser": {
+                  "accountId": "U1"
+                }
+              },
+              {
+                "type": "atlassian-user-role-actor",
+                "actorUser": {
+                  "accountId": "U2"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issuesecurityschemes/project",
+      "params": {
+        "projectId": "100",
+        "startAt": "0",
+        "maxResults": "50"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issue/10001",
+      "params": {
+        "fields": "*all",
+        "expand": "names,changelog"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "10001",
+            "key": "PROD100-1",
+            "fields": {
+              "summary": "Deployment product 100",
+              "project": {
+                "id": "100",
+                "key": "PROD100",
+                "name": "Product 100"
+              },
+              "security": null,
+              "reporter": {
+                "accountId": "U1"
+              },
+              "assignee": {
+                "accountId": "U2"
+              },
+              "description": null,
+              "created": "2026-10-14T00:00:00Z",
+              "updated": "2026-10-14T00:00:00Z",
+              "attachment": [],
+              "comment": {
+                "comments": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              },
+              "worklog": {
+                "worklogs": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              }
+            },
+            "schema": {},
+            "changelog": {
+              "histories": [],
+              "total": 0,
+              "startAt": 0,
+              "maxResults": 100
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issue/10001",
+      "params": {
+        "fields": "project,security,reporter,assignee",
+        "expand": "schema"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "10001",
+            "key": "PROD100-1",
+            "fields": {
+              "summary": "Deployment product 100",
+              "project": {
+                "id": "100",
+                "key": "PROD100",
+                "name": "Product 100"
+              },
+              "security": null,
+              "reporter": {
+                "accountId": "U1"
+              },
+              "assignee": {
+                "accountId": "U2"
+              },
+              "description": null,
+              "created": "2026-10-14T00:00:00Z",
+              "updated": "2026-10-14T00:00:00Z",
+              "attachment": [],
+              "comment": {
+                "comments": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              },
+              "worklog": {
+                "worklogs": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              }
+            },
+            "schema": {},
+            "changelog": {
+              "histories": [],
+              "total": 0,
+              "startAt": 0,
+              "maxResults": 100
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issue/10001/remotelink",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": []
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/200",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "200",
+            "key": "PROD200",
+            "name": "Product 200",
+            "style": "classic",
+            "simplified": false,
+            "projectTypeKey": "software",
+            "lead": {
+              "accountId": "U1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/200/components",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/200/versions",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/search/jql",
+      "params": {
+        "maxResults": "50",
+        "jql": "project = 200 ORDER BY id ASC",
+        "fields": "summary"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "issues": [
+              {
+                "id": "20001"
+              }
+            ],
+            "isLast": true
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/200/permissionscheme",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "S200",
+            "name": "Browse scheme"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/permissionscheme/S200",
+      "params": {
+        "expand": "permissions"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "S200",
+            "permissions": [
+              {
+                "permission": "BROWSE_PROJECTS",
+                "holder": {
+                  "type": "projectRole",
+                  "parameter": "100"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/200/role/100",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": 100,
+            "name": "Viewer",
+            "description": "Product viewers",
+            "actors": [
+              {
+                "type": "atlassian-user-role-actor",
+                "actorUser": {
+                  "accountId": "U1"
+                }
+              },
+              {
+                "type": "atlassian-user-role-actor",
+                "actorUser": {
+                  "accountId": "U2"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issuesecurityschemes/project",
+      "params": {
+        "projectId": "200",
+        "startAt": "0",
+        "maxResults": "50"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issue/20001",
+      "params": {
+        "fields": "*all",
+        "expand": "names,changelog"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "20001",
+            "key": "PROD200-1",
+            "fields": {
+              "summary": "Deployment product 200",
+              "project": {
+                "id": "200",
+                "key": "PROD200",
+                "name": "Product 200"
+              },
+              "security": null,
+              "reporter": {
+                "accountId": "U1"
+              },
+              "assignee": {
+                "accountId": "U2"
+              },
+              "description": null,
+              "created": "2026-10-14T00:00:00Z",
+              "updated": "2026-10-14T00:00:00Z",
+              "attachment": [],
+              "comment": {
+                "comments": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              },
+              "worklog": {
+                "worklogs": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              }
+            },
+            "schema": {},
+            "changelog": {
+              "histories": [],
+              "total": 0,
+              "startAt": 0,
+              "maxResults": 100
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issue/20001",
+      "params": {
+        "fields": "project,security,reporter,assignee",
+        "expand": "schema"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "20001",
+            "key": "PROD200-1",
+            "fields": {
+              "summary": "Deployment product 200",
+              "project": {
+                "id": "200",
+                "key": "PROD200",
+                "name": "Product 200"
+              },
+              "security": null,
+              "reporter": {
+                "accountId": "U1"
+              },
+              "assignee": {
+                "accountId": "U2"
+              },
+              "description": null,
+              "created": "2026-10-14T00:00:00Z",
+              "updated": "2026-10-14T00:00:00Z",
+              "attachment": [],
+              "comment": {
+                "comments": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              },
+              "worklog": {
+                "worklogs": [],
+                "total": 0,
+                "startAt": 0,
+                "maxResults": 100
+              }
+            },
+            "schema": {},
+            "changelog": {
+              "histories": [],
+              "total": 0,
+              "startAt": 0,
+              "maxResults": 100
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issue/20001/remotelink",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": []
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/900",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "900",
+            "key": "PROD900",
+            "name": "Product 900",
+            "style": "classic",
+            "simplified": false,
+            "projectTypeKey": "software",
+            "lead": {
+              "accountId": "U1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/900/components",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/900/versions",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/search/jql",
+      "params": {
+        "maxResults": "50",
+        "jql": "project = 900 ORDER BY id ASC",
+        "fields": "summary"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "issues": [],
+            "isLast": true
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/900/permissionscheme",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "S900",
+            "name": "Browse scheme"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/permissionscheme/S900",
+      "params": {
+        "expand": "permissions"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": "S900",
+            "permissions": [
+              {
+                "permission": "BROWSE_PROJECTS",
+                "holder": {
+                  "type": "projectRole",
+                  "parameter": "100"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/900/role/100",
+      "params": {},
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "id": 100,
+            "name": "Viewer",
+            "description": "Product viewers",
+            "actors": [
+              {
+                "type": "atlassian-user-role-actor",
+                "actorUser": {
+                  "accountId": "U1"
+                }
+              },
+              {
+                "type": "atlassian-user-role-actor",
+                "actorUser": {
+                  "accountId": "U2"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/issuesecurityschemes/project",
+      "params": {
+        "projectId": "900",
+        "startAt": "0",
+        "maxResults": "50"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/project/search",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0",
+        "expand": "description"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 3,
+            "isLast": true,
+            "values": [
+              {
+                "id": "100",
+                "key": "PROD100",
+                "name": "Product 100",
+                "style": "classic",
+                "simplified": false,
+                "projectTypeKey": "software",
+                "lead": {
+                  "accountId": "U1"
+                }
+              },
+              {
+                "id": "200",
+                "key": "PROD200",
+                "name": "Product 200",
+                "style": "classic",
+                "simplified": false,
+                "projectTypeKey": "software",
+                "lead": {
+                  "accountId": "U1"
+                }
+              },
+              {
+                "id": "900",
+                "key": "PROD900",
+                "name": "Product 900",
+                "style": "classic",
+                "simplified": false,
+                "projectTypeKey": "software",
+                "lead": {
+                  "accountId": "U1"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/agile/1.0/board",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/filter/search",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0",
+        "expand": "description,jql"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "values": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/dashboard",
+      "params": {
+        "maxResults": "50",
+        "startAt": "0"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "startAt": 0,
+            "maxResults": 50,
+            "total": 0,
+            "isLast": true,
+            "dashboards": []
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/user",
+      "params": {
+        "accountId": "U1"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "self": "https://example.atlassian.net/rest/api/3/user?accountId=U1",
+            "accountId": "U1",
+            "accountType": "atlassian",
+            "displayName": "Reader",
+            "active": true,
+            "timeZone": "Asia/Seoul",
+            "avatarUrls": {
+              "48x48": "https://example.atlassian.net/avatar/reader"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/user",
+      "params": {
+        "accountId": "U2"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "self": "https://example.atlassian.net/rest/api/3/user?accountId=U1",
+            "accountId": "U2",
+            "accountType": "atlassian",
+            "displayName": "Reader",
+            "active": true,
+            "timeZone": "Asia/Seoul",
+            "avatarUrls": {
+              "48x48": "https://example.atlassian.net/avatar/reader"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": "/rest/api/3/user",
+      "params": {
+        "accountId": "U3"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "self": "https://example.atlassian.net/rest/api/3/user?accountId=U1",
+            "accountId": "U3",
+            "accountType": "atlassian",
+            "displayName": "Reader",
+            "active": true,
+            "timeZone": "Asia/Seoul",
+            "avatarUrls": {
+              "48x48": "https://example.atlassian.net/avatar/reader"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

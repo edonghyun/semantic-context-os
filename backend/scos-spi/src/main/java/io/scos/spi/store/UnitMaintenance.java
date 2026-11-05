@@ -13,7 +13,10 @@ public interface UnitMaintenance {
   /** 모든 공간의 COMPACTED 유닛 수. 비어 있으면 0. 기동 시 다중 사용자 모드의 압축 유입을 검사한다. */
   long countCompacted();
 
-  /** 같은 id를 다시 넣으면 내용만 바꾸고 처음 적재 순서를 유지한다. 다른 공간 소유 문서는 배치 전체를 거부한다. */
+  /**
+   * 같은 id를 다시 넣으면 내용만 바꾸고 처음 적재 순서를 유지한다. 다른 공간 소유는 SpaceOwnershipException, 다른 출처 소유는
+   * IllegalArgumentException으로 소유 등록을 포함한 배치 전체를 거부한다.
+   */
   void upsert(SpaceId space, List<ContextUnit> units);
 
   /** 적재 diff: 입력 순서 유지, 없는 id 생략, 같은 id는 나온 자리마다. */

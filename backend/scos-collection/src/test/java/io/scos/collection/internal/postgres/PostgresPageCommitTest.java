@@ -20,8 +20,8 @@ import io.scos.collection.internal.memory.MemoryOutboxPort;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
-import io.scos.spi.connector.RawItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.TestMetrics;
 import java.time.Duration;
 import java.time.Instant;
@@ -83,7 +83,14 @@ class PostgresPageCommitTest {
   CollectionPage page(String... ids) {
     return CollectionPage.ofItems(
         Arrays.stream(ids)
-            .map(id -> RawItem.minimal(id, "v1", "{\"id\":\"" + id + "\"}", clock.instant()))
+            .map(
+                id ->
+                    RawItems.item(id)
+                        .resourceType("test.item")
+                        .version("v1")
+                        .metadata("{\"id\":\"" + id + "\"}")
+                        .observedAt(clock.instant())
+                        .build())
             .toList(),
         new Checkpoint(1, "{\"after\":\"" + ids[ids.length - 1] + "\"}"));
   }

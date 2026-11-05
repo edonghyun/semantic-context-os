@@ -6,7 +6,7 @@ import io.scos.spi.access.AccessDirectory;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.access.DomainPolicy;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.ContextUnit;
 import java.time.Instant;
 import java.util.ArrayList;

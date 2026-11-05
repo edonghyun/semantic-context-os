@@ -1,6 +1,6 @@
 package io.scos.collection.internal;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 
 /** 같은 소스의 live 점유가 있다 — 이번 수집은 시작하지 않는다(F6 "already running"). */
 public final class AlreadyRunningException extends RuntimeException {

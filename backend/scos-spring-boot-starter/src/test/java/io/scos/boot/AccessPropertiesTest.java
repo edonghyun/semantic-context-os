@@ -3,7 +3,7 @@ package io.scos.boot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,8 +84,8 @@ class AccessPropertiesTest {
                 "EXAMPLE.COM"));
 
     // then
-    assertThat(properties.domainPolicy().orgDomains()).containsExactly("example.com");
-    assertThat(properties.domainPolicy().instanceDomains())
+    assertThat(properties.domainPolicy(Map.of()).orgDomains()).containsExactly("example.com");
+    assertThat(properties.domainPolicy(Map.of()).instanceDomains())
         .containsExactlyEntriesOf(Map.of(new SourceInstanceId("drive-a"), "example.com"));
   }
 
@@ -130,7 +130,9 @@ class AccessPropertiesTest {
 
     // then
     assertThat(
-            properties.domainPolicy().admits("alice@example.com", new SourceInstanceId("drive-a")))
+            properties
+                .domainPolicy(Map.of())
+                .admits("alice@example.com", new SourceInstanceId("drive-a")))
         .isFalse();
   }
 

@@ -12,6 +12,7 @@ import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.PageSink;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
@@ -152,7 +153,8 @@ public final class MemoryAdapter implements SourceAdapter {
             Optional.of(modified.toString()),
             now,
             DocumentMetadata.of(documentId).toJson(),
-            Optional.of(content)));
+            Optional.of(content),
+            RawAcl.notObserved()));
   }
 
   private String textJson(String text) {

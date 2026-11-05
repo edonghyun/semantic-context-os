@@ -3,13 +3,16 @@ package io.scos.collection.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import io.scos.collection.internal.memory.MemoryAccessObservationStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.store.memory.MemoryIdentityStore;
+import io.scos.store.memory.MemorySourceAccessDirectory;
 import io.scos.support.ManualTaskScheduler;
 import java.time.Instant;
 import java.util.Optional;
@@ -24,6 +27,13 @@ class CollectionRuntimeStartFailureTest {
 
   /** start만 실패시키는 RunStore. */
   static final class FailingStartRunStore extends MemoryRunStore {
+    FailingStartRunStore(Records records, MemoryIdentityStore identities) {
+      super(
+          records,
+          identities,
+          new MemoryAccessObservationStore(new MemorySourceAccessDirectory(identities), records));
+    }
+
     @Override
     public synchronized CollectionRun start(RunId id, SourceInstanceId source, Instant startedAt) {
       throw new IllegalStateException("injected run start failure");
@@ -39,7 +49,11 @@ class CollectionRuntimeStartFailureTest {
   Throwable collectWithFailingRunStart() {
     sources.save(SourceInstances.noop(SOURCE, clock.instant()));
     CollectionRuntime runtime =
-        MemoryCollectionRuntime.over(clock, sources, claims, new FailingStartRunStore())
+        MemoryCollectionRuntime.over(
+                clock,
+                sources,
+                claims,
+                new FailingStartRunStore(new MemoryRunStore.Records(), new MemoryIdentityStore()))
             .heartbeats(scheduler)
             .build();
     return catchThrowable(

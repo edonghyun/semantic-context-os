@@ -9,7 +9,7 @@ import io.scos.connector.notion.internal.NotionFixtures;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallPolicy;
 import io.scos.engine.support.call.ProviderHttp;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.TestMetrics;
 import java.io.IOException;
 import java.io.UncheckedIOException;

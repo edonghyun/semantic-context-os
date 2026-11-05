@@ -10,15 +10,17 @@ import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.connector.SourceOrder;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -151,16 +153,16 @@ class TsRawViewsTest {
   @DisplayName("원본 뷰(ItemView)로 Java 원본과 TS 원본을 비교하면")
   class ItemViewComparison {
     static final RawItem JAVA =
-        new RawItem(
-            "msg-1",
-            "slack.message",
-            "v1",
-            Optional.of(new SourceOrder("slack.message-state.v1", "0001")),
-            Optional.of("2026-10-14T00:00:00.000Z"),
-            Optional.of("2026-10-14T00:00:01.000Z"),
-            Instant.parse("2026-10-14T00:00:02Z"),
-            "{\"a\":1}",
-            Optional.of(new RawContent.Inline("application/json", "{\"text\":\"hi\"}")));
+        RawItems.item("msg-1")
+            .resourceType("slack.message")
+            .version("v1")
+            .order(Optional.of(new SourceOrder("slack.message-state.v1", "0001")))
+            .sourceCreatedAt(Optional.of("2026-10-14T00:00:00.000Z"))
+            .sourceUpdatedAt(Optional.of("2026-10-14T00:00:01.000Z"))
+            .observedAt(Instant.parse("2026-10-14T00:00:02Z"))
+            .metadata("{\"a\":1}")
+            .content(new RawContent.Inline("application/json", "{\"text\":\"hi\"}"))
+            .build();
 
     /** JAVA와 같은 TS 원본 JSON의 필드들(바꿀 필드 하나를 덮어쓴다). */
     static String tsItem(String field, String json) {
@@ -246,7 +248,8 @@ class TsRawViewsTest {
               5,
               6,
               Optional.empty(),
-              Optional.empty());
+              Optional.empty(),
+              Set.of());
 
       // when
       TsRawViews.ReportView view = TsRawViews.ReportView.of(java);

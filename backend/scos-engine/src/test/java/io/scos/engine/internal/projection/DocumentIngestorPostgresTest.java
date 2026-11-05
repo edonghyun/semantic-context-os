@@ -21,6 +21,7 @@ import io.scos.store.postgres.PostgresTestAdapters;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -138,7 +139,7 @@ class DocumentIngestorPostgresTest {
   void sync(SourceDocument... docs) {
     Set<String> present =
         Arrays.stream(docs).map(SourceDocument::documentId).collect(Collectors.toSet());
-    ingestor.sync(S, SRC, List.of(docs), present);
+    ingestor.sync(S, SRC, List.of(docs), present, Map.of(), () -> {});
   }
 
   List<String> storedDocumentIds() {

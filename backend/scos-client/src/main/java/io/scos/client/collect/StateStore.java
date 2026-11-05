@@ -4,6 +4,7 @@ import io.scos.client.ClientJson;
 import io.scos.client.DocumentMetadata;
 import io.scos.spi.connector.Checkpoint;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
@@ -266,7 +267,8 @@ public final class StateStore implements AutoCloseable {
             Optional.ofNullable(rs.getString("source_updated_at")),
             Instant.parse(rs.getString("observed_at")),
             DocumentMetadata.of(rs.getString("document_id")).toJson(),
-            Optional.empty());
+            Optional.empty(),
+            RawAcl.notObserved());
     return bytes == null
         ? item
         : item.withContent(

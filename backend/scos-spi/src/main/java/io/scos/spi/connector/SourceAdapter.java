@@ -2,6 +2,7 @@ package io.scos.spi.connector;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * 소스 어댑터 포트(ADR-0018 §2). push 방식: 페이지를 만들 때마다 sink에 넘긴다 — sink가 커밋하고, 던지면 중단. 체크포인트 JSON 형식은 어댑터가
@@ -18,6 +19,11 @@ public interface SourceAdapter {
       SourceConfig config, CollectionMode mode, Optional<Checkpoint> checkpoint);
 
   void collect(CollectionInput input, PageSink sink);
+
+  /** 접근 지원·carrier·재관측·수집·문서 묶음 계약을 함께 선언한다. */
+  default AccessPolicy accessPolicy() {
+    return AccessPolicy.supported(Set.of(), Set.of());
+  }
 
   /** 전체 정리에 추가 검증이 필요한 범위. 런타임이 시작 시 별도로 캡처한다. */
   default Optional<SnapshotScope> snapshotVerification(SourceConfig config) {

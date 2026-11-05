@@ -89,6 +89,16 @@ public final class LeaseHeartbeat {
     }
   }
 
+  /** 갱신 실패의 비예외 조회. 저장 시점의 실제 점유 검사를 대신하지 않는다. */
+  public boolean healthy() {
+    return failure.get() == null;
+  }
+
+  /** 기록된 갱신 실패가 점유 상실인지 조회한다. 저장 시점의 실제 fencing을 대신하지 않는다. */
+  public boolean claimLost() {
+    return failure.get() instanceof ClaimLostException;
+  }
+
   public void assertHealthy() {
     RuntimeException f = failure.get();
     if (f != null) throw f;

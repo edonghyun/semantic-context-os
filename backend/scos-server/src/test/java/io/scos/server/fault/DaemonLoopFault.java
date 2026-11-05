@@ -3,7 +3,7 @@ package io.scos.server.fault;
 import io.scos.collection.internal.SourceInstance;
 import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +28,16 @@ public class DaemonLoopFault {
     AtomicInteger listings = new AtomicInteger();
     return new SourceInstanceStore() {
       @Override
+      public void recordOwnershipSkipped(SourceInstanceId source, int count) {
+        throw new LinkageError(MESSAGE);
+      }
+
+      @Override
+      public int ownershipSkipped(SourceInstanceId source) {
+        throw new LinkageError(MESSAGE);
+      }
+
+      @Override
       public void save(SourceInstance instance) {
         throw new LinkageError(MESSAGE);
       }
@@ -39,6 +49,11 @@ public class DaemonLoopFault {
 
       @Override
       public void requireCollectionConfiguration(SourceDescriptor expected) {
+        throw new LinkageError(MESSAGE);
+      }
+
+      @Override
+      public List<SourceInstance> listAll() {
         throw new LinkageError(MESSAGE);
       }
 

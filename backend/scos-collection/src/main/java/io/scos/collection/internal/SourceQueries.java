@@ -1,11 +1,15 @@
 package io.scos.collection.internal;
 
+import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RejectedItem;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
+import io.scos.spi.store.SpaceId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * 운영 조회 포트(읽기 전용). 조회 CLI(`source list|status|rejections`, `raw list|get`, `status`)가 쓴다. 순서·집계 의미는
@@ -17,6 +21,48 @@ public interface SourceQueries {
 
   /** 소스 상태. 없는 소스는 empty. now는 점유가 살아 있는지 판정하는 시각이다. */
   Optional<SourceStatus> status(SourceInstanceId source, Instant now);
+
+  /** 본문 결과와 독립된 최근 접근 결과와 활성 원본·실제 문서의 보충 상태. 없는 소스는 empty. */
+  Optional<AccessStatus> accessStatus(SourceInstanceId source);
+
+  record AccessStatus(
+      Optional<AccessResult> result,
+      Optional<Instant> finishedAt,
+      int rawUnknown,
+      int rawFailed,
+      int documentsMissingAcl,
+      int rawUnobserved,
+      int rawStale,
+      Optional<Instant> oldestObservedAt,
+      boolean running,
+      int consecutiveIncomplete,
+      Optional<Instant> lastCompleteAt,
+      int documentsHidden,
+      Set<String> unreadableFiles) {
+    public AccessStatus {
+      unreadableFiles = Set.copyOf(unreadableFiles);
+    }
+
+    public int aclUnreadable() {
+      return unreadableFiles.size();
+    }
+  }
+
+  /** 첫 소유와 저장된 ACL·carrier 관측만 읽는다. 없는 문서는 empty이며 소유를 만들지 않는다. */
+  Optional<AccessExplanation> accessExplanation(String documentId);
+
+  record RawAccess(String externalId, RawAcl acl) {}
+
+  record AccessExplanation(
+      String documentId,
+      SourceInstanceId source,
+      SpaceId space,
+      Optional<DocumentAcl> acl,
+      List<RawAccess> carriers) {
+    public AccessExplanation {
+      carriers = List.copyOf(carriers);
+    }
+  }
 
   /** 이 소스의 최근 거부 항목(captured_at 역순, 같으면 나중에 기록된 것 먼저). */
   List<RecentRejection> recentRejections(SourceInstanceId source, int limit);
@@ -50,7 +96,8 @@ public interface SourceQueries {
       Optional<Instant> lastSuccessAt,
       Optional<SnapshotGuardStore.Guarded> reconcileGuard,
       Optional<Instant> shrinkAcceptedAt,
-      SnapshotShrinkOverrides shrinkGuard) {}
+      SnapshotShrinkOverrides shrinkGuard,
+      int ownershipSkipped) {}
 
   /** 가장 최근 run(started_at, run_id 역순 첫 행). */
   record LastRun(

@@ -13,11 +13,13 @@ import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.connector.SnapshotScope;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +43,12 @@ public final class CollectionRuntime {
       int rejected,
       int errorCount,
       Optional<String> errorKind,
-      Optional<String> errorSummary) {
+      Optional<String> errorSummary,
+      Set<String> aclUnreadable) {
+    public Report {
+      aclUnreadable = Set.copyOf(aclUnreadable);
+    }
+
     static Report of(CollectionRun run) {
       return new Report(
           run.id(),
@@ -54,7 +61,8 @@ public final class CollectionRuntime {
           run.rejected(),
           run.errorCount(),
           run.errorKind(),
-          run.errorSummary());
+          run.errorSummary(),
+          run.aclUnreadable());
     }
   }
 
@@ -72,6 +80,8 @@ public final class CollectionRuntime {
   private final RunStore runs;
   private final PageCommit pageCommit;
   private final RunCompletion completion;
+  private final AccessCollection access;
+  private final AccessCompletion accessCompletion;
   private final OwnerId owner;
   private final LeaseHeartbeats heartbeats;
   private final Clock clock;
@@ -88,6 +98,8 @@ public final class CollectionRuntime {
       RunStore runs,
       PageCommit pageCommit,
       RunCompletion completion,
+      AccessCollection access,
+      AccessCompletion accessCompletion,
       OwnerId owner,
       LeaseHeartbeats heartbeats,
       Clock clock,
@@ -103,6 +115,8 @@ public final class CollectionRuntime {
     this.runs = runs;
     this.pageCommit = pageCommit;
     this.completion = completion;
+    this.access = access;
+    this.accessCompletion = accessCompletion;
     this.owner = owner;
     this.clock = clock;
     this.runIds = runIds;
@@ -204,7 +218,9 @@ public final class CollectionRuntime {
         RunOutcome.failed(RunStatus.FAILED, failure.kind(), failure.summary()),
         coverage,
         clock.instant(),
-        0);
+        0,
+        AccessResult.SKIPPED,
+        Optional.empty());
     metrics.runFinished(RunStatus.FAILED, Optional.of(failure.kind()));
   }
 
@@ -245,6 +261,44 @@ public final class CollectionRuntime {
         CollectionMode mode,
         CancellationToken cancel) {
       PageProgress progress = new PageProgress(stored.revision());
+      RunOutcome body = collectBody(adapter, source, mode, cancel, progress);
+      AccessCollection.Result collected =
+          access.collect(expectedSource, adapter, claim, runId, heartbeat, cancel);
+      AccessResult applied = finishAccess(collected);
+      Instant accessEnded = clock.instant();
+      CollectionRun done = completion.complete(input(body, applied, accessEnded));
+      if (body.status().isSuccess() && !done.status().isSuccess())
+        logRunEnded(
+            claim.source(),
+            runId,
+            done.status(),
+            new RunFailure(
+                done.errorKind().orElseThrow(),
+                done.errorSummary().orElse(""),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()));
+      metrics.runFinished(done.status(), done.errorKind());
+      reportReconciliation(done);
+      return Report.of(done);
+    }
+
+    private AccessResult finishAccess(AccessCollection.Result collected) {
+      if (!heartbeat.healthy()) {
+        if (collected.result() == AccessResult.SKIPPED) return collected.result();
+        if (heartbeat.claimLost()) return AccessResult.CLAIM_LOST;
+        if (collected.directory() == AccessMerge.COMPLETE)
+          collected = new AccessCollection.Result(AccessResult.INCOMPLETE, AccessMerge.INCOMPLETE);
+      }
+      return accessCompletion.finish(claim, runId, expectedSource, collected, clock.instant());
+    }
+
+    private RunOutcome collectBody(
+        SourceAdapter adapter,
+        SourceInstance source,
+        CollectionMode mode,
+        CancellationToken cancel,
+        PageProgress progress) {
       try {
         adapter.collect(
             new CollectionInput(
@@ -257,29 +311,14 @@ public final class CollectionRuntime {
                 completion.state(claim.source(), runId, verification)),
             progress);
         heartbeat.assertHealthy();
-        RunOutcome succeeded = RunOutcome.succeeded(progress.rejected);
-        CollectionRun done = completion.complete(input(succeeded));
-        // 성공한 run의 errorKind는 스냅샷 축소 보호(ADR-0028)만 붙인다
-        metrics.runFinished(succeeded.status(), done.errorKind());
-        reportReconciliation(done);
-        return Report.of(done);
+        return RunOutcome.succeeded(progress.rejected);
       } catch (RuntimeException error) {
         RunFailure failure = RunFailure.of(error);
         RunOutcome outcome =
             RunOutcome.interrupted(
                 cancel.isCancelled(), progress.pagesApplied, failure.kind(), failure.summary());
         logRunEnded(claim.source(), runId, outcome.status(), failure);
-        CollectionRun run;
-        try {
-          run = completion.complete(input(outcome));
-        } catch (RuntimeException finalization) {
-          throw new IllegalStateException(
-              "Run finalization failed after collection error: " + finalization.getMessage(),
-              error);
-        }
-        metrics.runFinished(outcome.status(), run.errorKind());
-        reportReconciliation(run);
-        return Report.of(run);
+        return outcome;
       }
     }
 
@@ -323,13 +362,16 @@ public final class CollectionRuntime {
           .log();
     }
 
-    private RunCompletion.Input input(RunOutcome outcome) {
+    private RunCompletion.Input input(
+        RunOutcome outcome, AccessResult result, Instant accessEnded) {
       return new RunCompletion.Input(
           claim,
           runId,
           outcome,
           coverage,
           clock.instant(),
+          result,
+          result == AccessResult.SKIPPED ? Optional.empty() : Optional.of(accessEnded),
           Optional.of(expectedSource),
           verification);
     }

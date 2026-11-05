@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionMode;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.CountedWorkers;
 import java.time.Clock;
 import java.time.Duration;
@@ -79,7 +79,9 @@ public abstract class SupervisorScheduleContract {
                 status, status == RunStatus.SUCCEEDED ? 0 : 1, Optional.empty(), Optional.empty()),
             CollectionCoverage.INCREMENTAL,
             STARTED.plusSeconds(1),
-            0);
+            0,
+            AccessResult.SKIPPED,
+            Optional.empty());
   }
 
   void givenSnapshotCompleted() {

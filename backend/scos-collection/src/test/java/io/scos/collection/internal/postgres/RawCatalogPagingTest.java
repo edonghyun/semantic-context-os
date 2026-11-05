@@ -6,9 +6,9 @@ import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.RawCatalogCursor;
 import io.scos.collection.internal.SourceQueries;
 import io.scos.collection.internal.SourceQueries.RawCatalogQuery;
-import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.connector.RawMutation;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +43,12 @@ class RawCatalogPagingTest {
           .apply(
               SOURCE,
               new RawMutation.Upsert(
-                  RawItem.minimal(
-                      "item-" + i, "v1", "{}", Instant.parse(SAME_MILLISECOND.get(i)))));
+                  RawItems.item("item-" + i)
+                      .resourceType("test.item")
+                      .version("v1")
+                      .metadata("{}")
+                      .observedAt(Instant.parse(SAME_MILLISECOND.get(i)))
+                      .build()));
 
     // when
     List<String> read = readOneByOne(adapters.queries());

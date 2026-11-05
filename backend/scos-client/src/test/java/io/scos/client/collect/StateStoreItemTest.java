@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
@@ -39,16 +40,14 @@ class StateStoreItemTest {
     // then
     assertThat(items)
         .containsExactly(
-            new RawItem(
-                "d/a.md",
-                "claude.memory.file",
-                "d351793cb4671277790a16177c7a7264d201f9192b9d269cffc83f08b06a1742",
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of("2026-10-27T10:00:00.000Z"),
-                Instant.parse("2026-10-28T00:00:00Z"),
-                "{\"documentId\":\"memory/d/a.md\"}",
-                Optional.of(new RawContent.Inline("application/json", "{\"text\":\"합성 메모\"}"))));
+            RawItems.item("d/a.md")
+                .resourceType("claude.memory.file")
+                .version("d351793cb4671277790a16177c7a7264d201f9192b9d269cffc83f08b06a1742")
+                .sourceUpdatedAt(Optional.of("2026-10-27T10:00:00.000Z"))
+                .observedAt(Instant.parse("2026-10-28T00:00:00Z"))
+                .metadata("{\"documentId\":\"memory/d/a.md\"}")
+                .content(new RawContent.Inline("application/json", "{\"text\":\"합성 메모\"}"))
+                .build());
   }
 
   @ParameterizedTest

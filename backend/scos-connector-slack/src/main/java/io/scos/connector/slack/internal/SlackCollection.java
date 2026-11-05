@@ -132,7 +132,13 @@ public final class SlackCollection {
   private CapturedMessages capture(
       String channelId, Optional<SlackTs> thread, SlackWebApiClient.MessagePage page) {
     return new MessageCapture(
-            json, clock, input.content(), channelId, thread, config.historySince())
+            json,
+            clock,
+            input.content(),
+            input.source().id(),
+            channelId,
+            thread,
+            config.historySince())
         .capture(page.messagesJson());
   }
 

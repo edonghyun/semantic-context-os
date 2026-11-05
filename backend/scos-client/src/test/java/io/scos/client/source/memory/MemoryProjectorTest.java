@@ -7,6 +7,7 @@ import io.scos.client.DocumentMetadata;
 import io.scos.client.collect.LocalContentCapture;
 import io.scos.client.source.CollectedPages;
 import io.scos.spi.connector.RawItem;
+import io.scos.spi.connector.RawItems;
 import io.scos.spi.projection.SourceDocument;
 import java.time.Instant;
 import java.util.List;
@@ -26,16 +27,14 @@ class MemoryProjectorTest {
 
   private static RawItem file(
       String externalId, String type, String textJson, Optional<String> sourceUpdatedAt) {
-    return new RawItem(
-        externalId,
-        type,
-        "v1",
-        Optional.empty(),
-        Optional.empty(),
-        sourceUpdatedAt,
-        Instant.parse("2026-10-28T00:00:00Z"),
-        DocumentMetadata.of("memory/" + externalId).toJson(),
-        Optional.of(new LocalContentCapture().json("application/json", textJson)));
+    return RawItems.item(externalId)
+        .resourceType(type)
+        .version("v1")
+        .sourceUpdatedAt(sourceUpdatedAt)
+        .observedAt(Instant.parse("2026-10-28T00:00:00Z"))
+        .metadata(DocumentMetadata.of("memory/" + externalId).toJson())
+        .content(new LocalContentCapture().json("application/json", textJson))
+        .build();
   }
 
   private Optional<SourceDocument> project(RawItem item) {

@@ -7,7 +7,7 @@ import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.tiro.TiroAssembly;
 import io.scos.connector.tiro.internal.FakeTiroServer;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.ChildJvm;
 import java.nio.file.Path;
 import java.time.Duration;

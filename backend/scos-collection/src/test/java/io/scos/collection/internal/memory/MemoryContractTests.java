@@ -1,11 +1,18 @@
 package io.scos.collection.internal.memory;
 
+import io.scos.collection.internal.AccessObservationScenario;
+import io.scos.collection.internal.AccessObservationStore;
+import io.scos.collection.internal.AccessObservationStoreContract;
 import io.scos.collection.internal.CheckpointContract;
 import io.scos.collection.internal.CheckpointPort;
+import io.scos.collection.internal.CommitContext;
 import io.scos.collection.internal.OutboxContract;
 import io.scos.collection.internal.OutboxPort;
+import io.scos.collection.internal.RawAclScenario;
+import io.scos.collection.internal.RawAclStoreContract;
 import io.scos.collection.internal.RawItemStore;
 import io.scos.collection.internal.RawItemStoreContract;
+import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.RunStore;
 import io.scos.collection.internal.RunStoreContract;
 import io.scos.collection.internal.SourceChangeLog;
@@ -23,6 +30,24 @@ import org.junit.jupiter.api.Nested;
 /** 메모리 참조 구현이 여덟 포트 계약을 통과한다 — 계약 자체의 일관성 검사이기도 하다. */
 @DisplayName("메모리 참조 구현은 포트 계약 여덟을 지킨다(TESTING §4)")
 class MemoryContractTests {
+  @Nested
+  @DisplayName("접근 관측은 run 전체성에 따라 그룹과 신원을 확정한다")
+  class AccessObservations extends AccessObservationStoreContract {
+    @Override
+    protected AccessObservationScenario newScenario() {
+      return AccessObservationScenario.memory();
+    }
+  }
+
+  @Nested
+  @DisplayName("원본 ACL은 단조 관측과 동일 시각의 권한 제한을 지킨다")
+  class RawAcls extends RawAclStoreContract {
+    @Override
+    protected RawAclScenario newScenario() {
+      return RawAclScenario.memory();
+    }
+  }
+
   @Nested
   @DisplayName("작업 점유는 소스마다 한 owner만 fencing token으로 가진다(불변식 5)")
   class WorkClaim extends WorkClaimContract {
@@ -63,11 +88,25 @@ class MemoryContractTests {
   @DisplayName("run 저장소는 run 기록·관측·스냅샷 완료를 소스별로 둔다")
   class Runs extends RunStoreContract {
     MemoryRunStore runs;
+    CommitContext.Memory context;
 
     @Override
     protected RunStore newStore() {
-      runs = new MemoryRunStore();
+      context = CommitContext.Memory.create();
+      runs = context.runs();
       return runs;
+    }
+
+    @Override
+    protected AccessObservationStore accessObservations() {
+      return context.accessObservations();
+    }
+
+    @Override
+    protected long accessObservationCount(RunId run) {
+      var snapshot =
+          ((MemoryAccessObservationStore) context.accessObservations()).staged(run).snapshot();
+      return (long) snapshot.groups().size() + snapshot.identities().size();
     }
 
     @Override
@@ -100,7 +139,7 @@ class MemoryContractTests {
     @Override
     protected Ports newPorts() {
       return new Ports(
-          new MemorySourceInstanceStore(), new MemoryRunStore(), new MemoryWorkClaimPort());
+          new MemorySourceInstanceStore(), MemoryRunStore.create(), new MemoryWorkClaimPort());
     }
   }
 

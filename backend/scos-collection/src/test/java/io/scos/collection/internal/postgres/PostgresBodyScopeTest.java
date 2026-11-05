@@ -1,5 +1,6 @@
 package io.scos.collection.internal.postgres;
 
+import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.BodyCompletionContract;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -13,6 +14,6 @@ class PostgresBodyScopeTest extends BodyCompletionContract {
     PostgresSupport.truncateAll();
     var jdbc = JdbcClient.create(PostgresSupport.dataSource());
     bodies = new PostgresBodyCompletionStore(jdbc);
-    raw = new PostgresRawItemStore(jdbc);
+    raw = PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource()).rawItems();
   }
 }

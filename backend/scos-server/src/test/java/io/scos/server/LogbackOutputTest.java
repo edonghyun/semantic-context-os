@@ -10,7 +10,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import io.scos.engine.EventLog;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -173,7 +173,7 @@ class LogbackOutputTest {
           "collector-2",
           () ->
               EventLog.error(log, "collection.run.failed")
-                  .source(new SourceInstanceId("kep-notion"))
+                  .source(new SourceInstanceId("team-notion"))
                   .run(RUN)
                   .detail("errorKind", "invalid_provider_response")
                   .cause(new IllegalStateException("boom"))
@@ -199,7 +199,7 @@ class LogbackOutputTest {
                           TIMESTAMP
                               + " ERROR \\d+ --- \\[scos\\] \\[    collector-2\\] "
                               + "io\\.scos\\.server\\.LogbackOutputTest {9}: "
-                              + "collection\\.run\\.failed source=kep-notion run=8dff121d "
+                              + "collection\\.run\\.failed source=team-notion run=8dff121d "
                               + "errorKind=invalid_provider_response"));
     }
 

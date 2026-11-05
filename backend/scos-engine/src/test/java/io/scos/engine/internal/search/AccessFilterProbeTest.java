@@ -8,8 +8,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import io.scos.collection.internal.RunHistoryFreshness;
-import io.scos.collection.internal.postgres.PostgresRunStore;
+import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.engine.EmbeddingGenerationCheck;
 import io.scos.engine.internal.projection.UnitImporter;
@@ -31,8 +30,8 @@ import io.scos.spi.access.AccessDirectory.Link;
 import io.scos.spi.access.AccessDirectory.User;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DomainPolicy;
-import io.scos.spi.connector.SourceInstanceId;
 import io.scos.spi.embedding.EmbeddingGeneration;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.AccessScope;
 import io.scos.spi.store.ContextUnit;
 import io.scos.spi.store.ContextUnits;
@@ -290,12 +289,10 @@ class AccessFilterProbeTest {
     private QuestionSearch search() {
       var units = PostgresTestAdapters.unitStore(pool);
       var maintenance = PostgresTestAdapters.unitMaintenance(pool);
-      var jdbc = JdbcClient.create(pool);
-      var tx = new TransactionTemplate(new DataSourceTransactionManager(pool));
       var freshness =
           new FreshnessReader(
               Optional.of(maintenance),
-              Optional.of(new RunHistoryFreshness(new PostgresRunStore(jdbc, tx))),
+              Optional.of(PostgresCollectionRuntime.sourceFreshness(pool)),
               CLOCK);
       return new QuestionSearch(
           new CandidateSource(

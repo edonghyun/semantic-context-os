@@ -20,6 +20,7 @@ dependencies {
     testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(testFixtures(project(":scos-engine")))
     testImplementation(testFixtures(project(":scos-store-postgres")))
+    testImplementation(project(":scos-store-postgres"))
     testImplementation(testFixtures(project(":scos-connector-slack")))
     testImplementation(testFixtures(project(":scos-connector-notion")))
     testImplementation(testFixtures(project(":scos-connector-jira")))
@@ -35,9 +36,10 @@ dependencies {
 
     // 수집 테스트 지원(메모리 포트·PostgreSQL 런타임·Testcontainers): 커넥터·엔진·서버 테스트가 쓴다
     testFixturesApi(project(":scos-spi"))
+    testFixturesApi(testFixtures(project(":scos-spi")))
     testFixturesApi(project(":scos-engine"))
     testFixturesApi(testFixtures(project(":scos-engine")))
-    testFixturesImplementation(project(":scos-store-memory"))
+    testFixturesApi(project(":scos-store-memory"))
     testFixturesImplementation(project(":scos-connector-slack"))
     testFixturesImplementation(project(":scos-spring-boot-starter"))
     testFixturesImplementation(project(":scos-test-support"))

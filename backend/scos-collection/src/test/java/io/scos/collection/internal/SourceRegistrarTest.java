@@ -7,7 +7,7 @@ import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;

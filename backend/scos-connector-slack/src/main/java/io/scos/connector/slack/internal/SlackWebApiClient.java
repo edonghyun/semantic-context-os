@@ -3,8 +3,10 @@ package io.scos.connector.slack.internal;
 import io.scos.engine.support.call.ProviderHttp;
 import io.scos.engine.support.call.RetryAfter;
 import io.scos.spi.connector.CallFailure.Violation;
+import io.scos.spi.source.SourceIdentityRecord;
 import java.net.URI;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,17 @@ public final class SlackWebApiClient {
   public record MessagePage(List<String> messagesJson, Optional<String> nextCursor) {}
 
   public record ChannelPage(List<String> channelIds, Optional<String> nextCursor) {}
+
+  public record MemberPage(List<String> members, Optional<String> nextCursor) {}
+
+  public record UserPage(List<User> users, Optional<String> nextCursor) {}
+
+  public record User(
+      String id, Optional<String> email, boolean verified, boolean guest, boolean deleted) {
+    SourceIdentityRecord observedAt(Instant at) {
+      return new SourceIdentityRecord(id, email, verified, guest, deleted, at);
+    }
+  }
 
   /** 유한하고 0 이상인 초(빈 값은 0초). */
   private static final RetryAfter RETRY_AFTER = RetryAfter.nonNegativeSeconds();
@@ -78,13 +91,31 @@ public final class SlackWebApiClient {
 
   public ChannelPage listJoinedChannels(
       String token, List<String> types, Optional<String> cursor, Duration timeout) {
+    return joinedChannels(token, types, true, cursor, timeout);
+  }
+
+  public ChannelPage listAccessChannels(String token, Optional<String> cursor, Duration timeout) {
+    return joinedChannels(
+        token, List.of("public_channel", "private_channel", "mpim", "im"), false, cursor, timeout);
+  }
+
+  private ChannelPage joinedChannels(
+      String token,
+      List<String> types,
+      boolean excludeArchived,
+      Optional<String> cursor,
+      Duration timeout) {
     UriComponentsBuilder b =
         UriComponentsBuilder.fromUriString(baseUrl + "/api/users.conversations")
             .queryParam("types", String.join(",", types))
-            .queryParam("exclude_archived", "true")
+            .queryParam("exclude_archived", String.valueOf(excludeArchived))
             .queryParam("limit", "200");
     cursor.ifPresent(c -> b.queryParam("cursor", c));
-    JsonNode body = get(b.build().toUri(), token, timeout);
+    // 본문 목록의 기존 오류 분류는 보존하고, 접근 목록은 HTTP 거부 자체를 우선한다.
+    JsonNode body =
+        excludeArchived
+            ? get(b.build().toUri(), token, timeout)
+            : accessGet(b.build().toUri(), token, timeout);
     JsonNode channels = body.get("channels");
     if (channels == null || !channels.isArray())
       throw SlackApiException.invalidResponse(SlackApiException.CHANNELS_NOT_ARRAY);
@@ -96,6 +127,105 @@ public final class SlackWebApiClient {
       ids.add(c.get("id").asString());
     }
     return new ChannelPage(ids, nextCursor(body));
+  }
+
+  public String teamId(String token, Duration timeout) {
+    return text(accessGet(URI.create(baseUrl + "/api/auth.test"), token, timeout), "team_id");
+  }
+
+  public boolean isPublicChannel(String token, String channelId, Duration timeout) {
+    JsonNode channel =
+        accessGet(endpoint("conversations.info", Map.of("channel", channelId)), token, timeout)
+            .path("channel");
+    if (!channelId.equals(text(channel, "id")))
+      throw SlackApiException.invalidResponse("channel_id_mismatch");
+    if (optionalFlag(channel, "is_im") || optionalFlag(channel, "is_mpim")) return false;
+    return !flag(channel, "is_private") && !flag(channel, "is_im") && !flag(channel, "is_mpim");
+  }
+
+  public MemberPage members(
+      String token, String channelId, Optional<String> cursor, Duration timeout) {
+    JsonNode body =
+        accessGet(
+            pagedEndpoint("conversations.members", Map.of("channel", channelId), cursor),
+            token,
+            timeout);
+    JsonNode members = array(body, "members");
+    List<String> ids = new ArrayList<>();
+    for (JsonNode member : members) {
+      if (!member.isString() || !member.asString().matches("[UW][A-Z0-9]+"))
+        throw SlackApiException.invalidResponse("member_id_shape");
+      ids.add(member.asString());
+    }
+    return new MemberPage(List.copyOf(ids), nextCursor(body));
+  }
+
+  public UserPage users(String token, String teamId, Optional<String> cursor, Duration timeout) {
+    JsonNode body = accessGet(pagedEndpoint("users.list", Map.of(), cursor), token, timeout);
+    List<User> users = new ArrayList<>();
+    for (JsonNode member : array(body, "members")) users.add(user(member, teamId));
+    return new UserPage(List.copyOf(users), nextCursor(body));
+  }
+
+  private static User user(JsonNode member, String teamId) {
+    String id = text(member, "id");
+    if (!id.matches("[UW][A-Z0-9]+")) throw SlackApiException.invalidResponse("user_id_shape");
+    boolean deleted = flag(member, "deleted");
+    boolean restricted =
+        deleted ? optionalFlag(member, "is_restricted") : flag(member, "is_restricted");
+    boolean ultraRestricted =
+        deleted ? optionalFlag(member, "is_ultra_restricted") : flag(member, "is_ultra_restricted");
+    boolean stranger = optionalFlag(member, "is_stranger");
+    boolean bot = deleted ? optionalFlag(member, "is_bot") : flag(member, "is_bot");
+    boolean otherTeam = !text(member, "team_id").equals(teamId);
+    JsonNode profile = member.path("profile");
+    if (!profile.isObject()) throw SlackApiException.invalidResponse("profile_shape");
+    JsonNode email = profile.get("email");
+    if (email != null && !email.isString()) throw SlackApiException.invalidResponse("email_shape");
+    Optional<String> address =
+        Optional.ofNullable(email).map(JsonNode::asString).filter(value -> !value.isBlank());
+    return new User(
+        id,
+        address,
+        optionalFlag(member, "is_email_confirmed"),
+        restricted || ultraRestricted || stranger || bot || otherTeam,
+        deleted);
+  }
+
+  private URI pagedEndpoint(String method, Map<String, String> params, Optional<String> cursor) {
+    UriComponentsBuilder builder =
+        UriComponentsBuilder.fromUri(endpoint(method, params)).queryParam("limit", "200");
+    cursor.ifPresent(value -> builder.queryParam("cursor", value));
+    return builder.build().toUri();
+  }
+
+  private URI endpoint(String method, Map<String, String> params) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl + "/api/" + method);
+    params.forEach(builder::queryParam);
+    return builder.build().toUri();
+  }
+
+  private static JsonNode array(JsonNode body, String field) {
+    JsonNode value = body.path(field);
+    if (!value.isArray()) throw SlackApiException.invalidResponse(field + "_not_array");
+    return value;
+  }
+
+  private static String text(JsonNode node, String field) {
+    JsonNode value = node.path(field);
+    if (!value.isString() || value.asString().isBlank())
+      throw SlackApiException.invalidResponse(field + "_shape");
+    return value.asString();
+  }
+
+  private static boolean flag(JsonNode node, String field) {
+    JsonNode value = node.path(field);
+    if (!value.isBoolean()) throw SlackApiException.invalidResponse(field + "_shape");
+    return value.asBoolean();
+  }
+
+  private static boolean optionalFlag(JsonNode node, String field) {
+    return node.has(field) && flag(node, field);
   }
 
   private MessagePage messages(JsonNode body) {
@@ -123,6 +253,18 @@ public final class SlackWebApiClient {
   private JsonNode get(URI uri, String token, Duration timeout) {
     ProviderHttp.Response response =
         http.get(uri, Map.of(HttpHeaders.AUTHORIZATION, "Bearer " + token), timeout);
+    return parseResponse(response);
+  }
+
+  private JsonNode accessGet(URI uri, String token, Duration timeout) {
+    ProviderHttp.Response response =
+        http.get(uri, Map.of(HttpHeaders.AUTHORIZATION, "Bearer " + token), timeout);
+    if (response.status() == 403 || response.status() == 404)
+      throw new SlackTransportException(response.status(), "access denied");
+    return parseResponse(response);
+  }
+
+  private JsonNode parseResponse(ProviderHttp.Response response) {
     String text = response.body();
     if (text.isBlank()) throw new SlackTransportException(response.status(), "empty body");
     JsonNode body;

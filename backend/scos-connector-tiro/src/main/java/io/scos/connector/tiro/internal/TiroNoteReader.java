@@ -11,6 +11,7 @@ import io.scos.connector.tiro.internal.TiroCollection.UnavailableNote;
 import io.scos.engine.support.text.JsJson;
 import io.scos.engine.support.text.Text;
 import io.scos.spi.connector.ContentCapture;
+import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.connector.RawMutation;
@@ -137,7 +138,8 @@ final class TiroNoteReader {
         Optional.of(latestUpdate(updated)),
         clock.instant(),
         json.writeValueAsString(metadata),
-        Optional.of(content));
+        Optional.of(content),
+        RawAcl.notObserved());
   }
 
   /** 자원 한 종류를 읽는다. 그 경로가 403·404면 비우고 unavailable에 종류를 더한다. */

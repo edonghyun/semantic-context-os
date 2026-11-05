@@ -1,15 +1,19 @@
 package io.scos.collection.internal.projection;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import io.scos.collection.internal.AccessCollection;
 import io.scos.collection.internal.CollectionMetrics;
 import io.scos.collection.internal.LeaseHeartbeats;
 import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.OwnerId;
 import io.scos.collection.internal.Progress;
 import io.scos.collection.internal.ProjectionRetryPolicy;
-import io.scos.collection.internal.RawItems;
+import io.scos.collection.internal.RawItemStore;
+import io.scos.collection.internal.SourceAdapters;
+import io.scos.collection.internal.SourceInstanceStore;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
+import io.scos.collection.internal.memory.MemoryRawAclStore;
 import io.scos.collection.internal.memory.MemoryRawItemStore;
 import io.scos.collection.internal.memory.MemorySourceInstanceStore;
 import io.scos.collection.internal.memory.MemoryWorkClaimPort;
@@ -18,17 +22,25 @@ import io.scos.engine.internal.projection.DocumentIngestor;
 import io.scos.engine.internal.projection.JtokkitTokenizer;
 import io.scos.engine.internal.projection.ingest.IngestPipeline;
 import io.scos.engine.support.time.MutableClock;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.connector.RawItems;
+import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.projection.Projector;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.ContextUnit;
+import io.scos.spi.store.EmbeddingCache;
 import io.scos.spi.store.SpaceId;
+import io.scos.store.memory.MemoryAclStore;
+import io.scos.store.memory.MemoryDocumentOwnership;
 import io.scos.store.memory.MemoryKeywordIndex;
 import io.scos.store.memory.MemorySpaceMeta;
 import io.scos.store.memory.MemoryUnitMaintenance;
 import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import io.scos.support.ManualTaskScheduler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,14 +66,93 @@ public final class MemoryProjection {
   public final MutableClock clock;
   public final MemorySourceInstanceStore sources;
   public final MemoryOutboxPort outbox = new MemoryOutboxPort();
-  public final MemoryRawItemStore rawItems = new MemoryRawItemStore();
-  public final MemoryWorkClaimPort claims;
-  public final MemoryUnitStore units = new MemoryUnitStore();
+  public final MemoryAclStore acls = new MemoryAclStore();
+  public final MemoryDocumentOwnership ownership = new MemoryDocumentOwnership();
+  public final MemoryUnitStore units = new MemoryUnitStore(acls, ownership);
+  public final MemorySpaceMeta meta = new MemorySpaceMeta();
   public final MemoryVectorIndex vectors = new MemoryVectorIndex();
   public final MemoryUnitMaintenance maintenance = new MemoryUnitMaintenance(units, vectors);
+  public final MemoryRawAclStore rawAcls = new MemoryRawAclStore(maintenance, acls);
+  public final MemoryRawItemStore rawItems =
+      new MemoryRawItemStore(rawAcls) {
+        private int pages;
+
+        @Override
+        public synchronized RawItemStore.Page listActive(
+            SourceInstanceId source, int limit, Optional<String> cursor) {
+          if (++pages > 10_000) throw new AssertionError("투영 원본 순회가 종료되지 않았다");
+          return super.listActive(source, limit, cursor);
+        }
+      };
+  public final MemoryWorkClaimPort claims;
   public final ManualTaskScheduler scheduler = new ManualTaskScheduler();
   public final Progress progress;
   private final List<Projector> projectors = new ArrayList<>(List.of(new SlackProjector(JSON)));
+
+  private TransactionOperations transactions = TransactionOperations.withoutTransaction();
+
+  public MemoryProjection transactions(TransactionOperations transactions) {
+    this.transactions = transactions;
+    return this;
+  }
+
+  private boolean collectAccess = false;
+  private SourceAdapters adapters = SourceAdapters.of(List.of());
+  private ProjectionRetryPolicy retry = ProjectionRetryPolicy.defaults();
+  private Runnable afterSync = () -> {};
+  private Runnable afterOwnershipSkipped = () -> {};
+  private Map<String, DocumentAcl> syncedAcls = Map.of();
+
+  public void withoutAccessCollection() {
+    collectAccess = false;
+  }
+
+  public MemoryProjection collectingAccess(SourceAdapter adapter) {
+    collectAccess = true;
+    adapters = SourceAdapters.of(List.of(adapter));
+    return this;
+  }
+
+  public MemoryProjection retryPolicy(ProjectionRetryPolicy retry) {
+    this.retry = retry;
+    return this;
+  }
+
+  public void afterNextSync(Runnable action) {
+    afterSync =
+        () -> {
+          afterSync = () -> {};
+          action.run();
+        };
+  }
+
+  public void afterOwnershipSkipped(Runnable action) {
+    afterOwnershipSkipped = action;
+  }
+
+  private SourceInstanceStore observedSources() {
+    return (SourceInstanceStore)
+        Proxy.newProxyInstance(
+            SourceInstanceStore.class.getClassLoader(),
+            new Class<?>[] {SourceInstanceStore.class},
+            (proxy, method, args) -> {
+              try {
+                var result = method.invoke(sources, args);
+                if (method.getName().equals("recordOwnershipSkipped")) {
+                  var action = afterOwnershipSkipped;
+                  afterOwnershipSkipped = () -> {};
+                  action.run();
+                }
+                return result;
+              } catch (InvocationTargetException failure) {
+                throw failure.getCause();
+              }
+            });
+  }
+
+  public Map<String, DocumentAcl> syncedAcls() {
+    return syncedAcls;
+  }
 
   public MemoryProjection(
       MutableClock clock, MemorySourceInstanceStore sources, MemoryWorkClaimPort claims) {
@@ -77,6 +168,13 @@ public final class MemoryProjection {
 
   /** Slack 투영기 말고도 이 kind의 투영기를 등록한다(커넥터 투영 테스트). */
   public MemoryProjection alsoProjecting(Projector projector) {
+    projectors.add(projector);
+    return this;
+  }
+
+  /** 같은 원천 투영기의 외부 렌더 경계에 고장을 주입한다. */
+  public MemoryProjection projector(Projector projector) {
+    projectors.removeIf(existing -> existing.kind().equals(projector.kind()));
     projectors.add(projector);
     return this;
   }
@@ -125,7 +223,7 @@ public final class MemoryProjection {
   /** 이 소스의 투영 점유가 지금 시각에 살아 있는가(점유 행이 없으면 given 준비 실패). */
   public boolean holdsActiveProjectionClaim(SourceInstanceId source) {
     return claims
-        .current(ProjectionRun.projectionKey(source))
+        .current(new SourceInstanceId("projection:" + source.value()))
         .orElseThrow(() -> new IllegalStateException("given 준비 실패: 투영 점유 행이 없다 — 투영이 점유하지 않았다"))
         .isActiveAt(clock.instant());
   }
@@ -138,27 +236,41 @@ public final class MemoryProjection {
   public ProjectionRun projection(Embedder embedder, MeterRegistry registry) {
     DocumentIngestor ingestor =
         new DocumentIngestor(
-            TransactionOperations.withoutTransaction(),
+            transactions,
             maintenance,
             new MemoryKeywordIndex(),
             vectors,
-            new MemorySpaceMeta(),
+            meta,
             embedder,
+            EmbeddingCache.NONE,
             new IngestPipeline(new JtokkitTokenizer()),
-            clock);
+            clock,
+            acls,
+            ownership);
     return new ProjectionRun(
         outbox,
-        sources,
+        observedSources(),
         rawItems,
         Projectors.of(projectors),
-        ingestor,
+        (space, source, documents, live, acls, guard) -> {
+          syncedAcls = acls;
+          var report = ingestor.sync(space, source, documents, live, acls, guard);
+          afterSync.run();
+          return report;
+        },
         new ProjectionSpaces(Map.of(), SPACE, JSON),
-        ProjectionRetryPolicy.defaults(),
+        retry,
         claims,
         new OwnerId("projection-test"),
         new LeaseHeartbeats(claims, LEASE_TTL, clock, scheduler, CollectionMetrics.of(registry)),
         clock,
         ProjectionMetrics.of(registry),
-        progress);
+        progress,
+        adapters,
+        collectAccess,
+        ownership,
+        rawAcls,
+        transactions,
+        AccessCollection.Options.DEFAULTS);
   }
 }

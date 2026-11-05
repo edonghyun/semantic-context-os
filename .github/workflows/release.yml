@@ -1,0 +1,39 @@
+# Release: on a version tag (v*), run the full check, build the server bundle and attach it to a GitHub Release.
+# The bundle (scos-server-<version>.tar.gz + .sha256) is what instances download and install (docs/operations/java-deploy.md).
+# Mutation testing (PIT) is not run here; it must pass before the tag is pushed.
+# Actions are pinned to commit SHAs, with the release tag in a comment (same pins as backend.yml).
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest # Docker for dbTest (Testcontainers)
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4.4.3
+      # The harness baseline tests (BaselineMainTest) run rg; ubuntu runners do not ship it
+      - name: ripgrep
+        run: sudo apt-get update -q && sudo apt-get install -y -q ripgrep
+      - name: check
+        working-directory: backend
+        run: ./gradlew --no-daemon check -x pitest
+      - name: bundle
+        run: tools/release/build-bundle.sh "${GITHUB_REF_NAME#v}" dist
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Server bundle for ${GITHUB_REF_NAME}. Verify with: sha256sum -c scos-server-${GITHUB_REF_NAME#v}.tar.gz.sha256"

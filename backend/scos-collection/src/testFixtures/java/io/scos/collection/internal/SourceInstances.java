@@ -10,7 +10,7 @@ import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceDescriptor;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -137,6 +137,16 @@ public final class SourceInstances {
       SourceInstanceStore delegate, Supplier<List<SourceInstance>> listEnabled) {
     return new SourceInstanceStore() {
       @Override
+      public void recordOwnershipSkipped(SourceInstanceId source, int count) {
+        delegate.recordOwnershipSkipped(source, count);
+      }
+
+      @Override
+      public int ownershipSkipped(SourceInstanceId source) {
+        return delegate.ownershipSkipped(source);
+      }
+
+      @Override
       public void save(SourceInstance instance) {
         delegate.save(instance);
       }
@@ -149,6 +159,11 @@ public final class SourceInstances {
       @Override
       public void requireCollectionConfiguration(SourceDescriptor expected) {
         delegate.requireCollectionConfiguration(expected);
+      }
+
+      @Override
+      public List<SourceInstance> listAll() {
+        return delegate.listAll();
       }
 
       @Override

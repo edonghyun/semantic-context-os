@@ -51,8 +51,11 @@ public final class FakeTiroServer implements AutoCloseable {
     }
   }
 
-  /** 요청 상한 — 같은 커서를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(400)와 검사 실패로 끝낸다. 데이터셋 run은 백 개 안쪽이다. */
-  static final int MAX_REQUESTS = 2000;
+  /**
+   * 요청 상한 — 같은 커서를 끝없이 다시 묻는 결함(변이)을 비재시도 실패(400)와 검사 실패로 끝낸다. 정상 전체 노트 run은 26요청이다. 서버 생애의 누적
+   * 상한으로, 두 번 수집과 재시도 여유를 둔다.
+   */
+  static final int MAX_REQUESTS = 128;
 
   private static final String NOTES = "/v1/external/notes/";
   private static final List<String> RESOURCES = List.of("paragraphs", "summaries", "documents");

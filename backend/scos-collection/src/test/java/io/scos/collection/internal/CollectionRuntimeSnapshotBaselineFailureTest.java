@@ -16,7 +16,7 @@ import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
-import io.scos.spi.connector.SourceInstanceId;
+import io.scos.spi.source.SourceInstanceId;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.time.Instant;
@@ -35,7 +35,7 @@ class CollectionRuntimeSnapshotBaselineFailureTest {
   static final String BASELINE_FAILURE = "injected baseline failure";
 
   final MutableClock clock = new MutableClock(Instant.parse("2026-10-16T00:00:00Z"));
-  final MemoryRunStore runs = new MemoryRunStore();
+  final MemoryRunStore runs = MemoryRunStore.create();
 
   /** 완전 스냅샷을 걷는 noop 종류 어댑터(수집은 하지 않는다 — 시작 단계에서 끝난다). */
   static final SourceAdapter SNAPSHOT_ADAPTER =

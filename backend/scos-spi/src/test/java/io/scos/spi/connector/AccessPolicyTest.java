@@ -18,6 +18,15 @@ class AccessPolicyTest {
       AccessPolicy.supported(Set.of("slack.message"), Set.of(), item -> Optional.of("document"));
 
   @Test
+  @DisplayName("재관측 종류가 비면 carrier도 자동 재관측하지 않는다")
+  void carrierDoesNotRefreshWithoutDeclaration() {
+    // when
+    boolean refresh = policy.refreshes(first);
+    // then
+    assertThat(refresh).isFalse();
+  }
+
+  @Test
   @DisplayName("제한 carrier 누락은 해당 문서 위반이다")
   void omittedRestrictingCarrierInvalidatesDocument() {
     // when

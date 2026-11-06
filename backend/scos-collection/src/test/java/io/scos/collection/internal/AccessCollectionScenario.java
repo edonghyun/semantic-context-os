@@ -119,7 +119,25 @@ final class AccessCollectionScenario implements AutoCloseable {
       case "slack" -> SlackAssembly.adapter(LOCAL_URL, TOKEN, clock);
       case "tiro" -> TiroAssembly.adapter(LOCAL_URL, TOKEN, clock);
       case "notion" -> NotionAssembly.adapter(LOCAL_URL, TOKEN, clock);
-      case "custom-refresh" -> new RefreshAdapter();
+      case "custom-refresh" ->
+          new DeclaredAdapter(
+              "custom-refresh",
+              AccessPolicy.supported(Set.of("gdrive.file"), Set.of("gdrive.file")));
+      case "custom-local" ->
+          new DeclaredAdapter(
+              "custom-local",
+              AccessPolicy.supported(Set.of("gdrive.file"), Set.of())
+                  .collecting(
+                      (input, sink) -> {},
+                      (source, id, at) ->
+                          Optional.of(
+                              RawAcl.observed(
+                                  Status.OK,
+                                  Set.of(AccessKey.parse("group:" + source.id() + ":G1")),
+                                  at))));
+      case "custom-nonrefresh" ->
+          new DeclaredAdapter(
+              "custom-nonrefresh", AccessPolicy.supported(Set.of("gdrive.file"), Set.of()));
       default -> throw new IllegalArgumentException(kind);
     };
   }
@@ -465,7 +483,7 @@ final class AccessCollectionScenario implements AutoCloseable {
     heartbeat.stop();
   }
 
-  /** 원천 선언은 실제 어댑터가 소유하고, 아직 구현 전인 접근 I/O만 이 대역이 맡는다. */
+  /** 원천 선언·로컬 해석은 실제 어댑터가 소유하고, 접근 I/O만 이 대역이 맡는다. */
   private static final class AccessAdapter implements SourceAdapter {
     private final SourceAdapter declaration;
     private AccessPolicy access;
@@ -513,9 +531,7 @@ final class AccessCollectionScenario implements AutoCloseable {
       resolutions++;
       duringResolution.run();
       if (unobservedResolution) return Optional.of(RawAcl.notObserved());
-      if (!kind().equals("slack")) return Optional.empty();
-      return Optional.of(
-          RawAcl.observed(Status.OK, Set.of(AccessKey.parse("group:" + source.id() + ":C1")), at));
+      return declaration.accessPolicy().localAcl(source, id, at);
     }
 
     @Override
@@ -533,15 +549,23 @@ final class AccessCollectionScenario implements AutoCloseable {
     }
   }
 
-  private static final class RefreshAdapter implements SourceAdapter {
+  private static final class DeclaredAdapter implements SourceAdapter {
+    private final String kind;
+    private final AccessPolicy policy;
+
+    DeclaredAdapter(String kind, AccessPolicy policy) {
+      this.kind = kind;
+      this.policy = policy;
+    }
+
     @Override
     public String kind() {
-      return "custom-refresh";
+      return kind;
     }
 
     @Override
     public AccessPolicy accessPolicy() {
-      return AccessPolicy.supported(Set.of("gdrive.file"), Set.of("gdrive.file"));
+      return policy;
     }
 
     @Override

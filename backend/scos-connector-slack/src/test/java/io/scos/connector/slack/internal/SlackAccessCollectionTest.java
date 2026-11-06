@@ -249,21 +249,16 @@ class SlackAccessCollectionTest {
   }
 
   @Test
-  @DisplayName("로컬 ACL 보충은 HTTP 호출 없이 채널 키를 계산한다")
-  void localAclNeedsNoApi() {
+  @DisplayName("채널 거부를 반영하도록 저장 carrier의 ACL은 수집 단계에서 확정한다")
+  void storedAclRequiresChannelObservation() {
     var acl = s.localAcl(SlackAccessScenario.MESSAGE);
     // then
-    assertThat(acl)
-        .isEqualTo(
-            RawAcl.observed(
-                DocumentAcl.Status.OK,
-                Set.of(AccessKey.parse("group:slack-synthetic:C1")),
-                SlackAccessScenario.NOW));
+    assertThat(acl).isEmpty();
     assertThat(s.requests()).isEmpty();
   }
 
   @ParameterizedTest(name = "채널 거부 {0}")
-  @ValueSource(strings = {"not_in_channel", "channel_not_found", "missing_scope"})
+  @ValueSource(strings = {"not_in_channel", "missing_scope"})
   @DisplayName("채널 조회를 거부하면 빈 그룹을 남기고 미완료로 끝낸다")
   void deniedChannelIsRevokedAndIncomplete(String code) {
     s.failNext("/api/conversations.members", FakeSlackServer.Fault.apiError(code));

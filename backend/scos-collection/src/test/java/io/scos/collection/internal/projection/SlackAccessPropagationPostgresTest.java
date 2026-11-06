@@ -4,14 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.AccessResult;
+import io.scos.collection.internal.AclCommit;
+import io.scos.connector.slack.internal.FakeSlackServer.Fault;
 import io.scos.engine.DocumentNotFoundException;
+import io.scos.spi.access.AccessFailureReason;
+import io.scos.spi.access.DocumentAcl;
+import io.scos.support.LogCapture;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+@Isolated
 @Tag("db")
 @DisplayName("Slack 권한 변경은 본문과 독립적으로 제한 엔진에 전파된다(접근 설계 §5.2–5.5)")
 class SlackAccessPropagationPostgresTest {
@@ -138,6 +148,92 @@ class SlackAccessPropagationPostgresTest {
       assertThat(scenario.hasIdentity("U9")).isFalse();
       assertThat(result.accessResult()).isEqualTo(AccessResult.INCOMPLETE);
     }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {"info", "members"})
+  @DisplayName("첫 run에서 채널 하나가 없어도 정상 그룹과 신원은 PG에 확정된다")
+  void unreadableChannelStillCommitsHealthyDirectory(String method) {
+    // given
+    scenario.healthySecondChannel();
+    scenario.failChannel(method, Fault.apiError("channel_not_found"));
+    // when
+    var run = scenario.collectAndProject();
+    // then
+    assertThat(run.accessResult()).isEqualTo(AccessResult.COMPLETE);
+    assertThat(scenario.channelKeys("U1")).containsExactly("group:slack-a:C2");
+    assertThat(scenario.hasIdentity("U1")).isTrue();
+  }
+
+  @Test
+  @DisplayName("기존 채널이 사라지면 본문 변경 없이 문서 ACL을 빈 키로 닫는다")
+  void unreadableChannelClosesExistingDocumentAcl() {
+    // given
+    scenario.givenPublicDocument();
+    scenario.channelRemainsUnreadable();
+    // when
+    scenario.collectAndProject();
+    // then
+    assertThat(scenario.documentAcl())
+        .extracting(DocumentAcl::status, DocumentAcl::keys, DocumentAcl::reason)
+        .containsExactly(DocumentAcl.Status.FAILED, Set.of(), AccessFailureReason.ACL_UNREADABLE);
+    assertThat(scenario.search("U2").hits()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("연속 거부의 두 번째 run은 ACL 의미 변경이나 중복 닫기 경고를 만들지 않는다")
+  void repeatedDenialDoesNotReopenCarrier() {
+    // given
+    scenario.givenUnreadableDocument();
+    scenario.failChannel("info", Fault.apiError("channel_not_found"));
+    try (var logs = LogCapture.of(AclCommit.class)) {
+      // when
+      var run = scenario.collect();
+      // then
+      assertThat(run.accessResult()).isEqualTo(AccessResult.COMPLETE);
+      assertThat(scenario.projectionRequested()).isFalse();
+      assertThat(logs.events("collection.acl.closed")).isEmpty();
+    }
+  }
+
+  @Test
+  @DisplayName("닫힌 채널 수와 ID는 접근 상태에 노출된다")
+  void unreadableChannelAppearsInAccessStatus() {
+    // given
+    scenario.healthySecondChannel();
+    scenario.failChannel("info", Fault.apiError("channel_not_found"));
+    // when
+    scenario.collectAndProject();
+    // then
+    assertThat(scenario.accessStatus().aclUnreadable()).isEqualTo(1);
+    assertThat(scenario.accessStatus().unreadableFiles()).containsExactly("C1");
+  }
+
+  @Test
+  @DisplayName("다음 run에서 읽히면 채널 그룹과 문서 권한이 복구된다")
+  void readableChannelRecoversOnNextRun() {
+    // given
+    scenario.givenUnreadableDocument();
+    // when
+    var run = scenario.collectAndProject();
+    // then
+    assertThat(run.accessResult()).isEqualTo(AccessResult.COMPLETE);
+    assertThat(scenario.search("U1").hits()).hasSize(1);
+    assertThat(scenario.accessStatus().unreadableFiles()).isEmpty();
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {"info", "members"})
+  @DisplayName("채널의 일시적 HTTP 장애는 여전히 INCOMPLETE이며 새 그룹을 열지 않는다")
+  void channelHttpFailureKeepsDirectoryIncomplete(String method) {
+    // given
+    scenario.healthySecondChannel();
+    scenario.failChannel(method, Fault.http(403, "channel_not_found"));
+    // when
+    var run = scenario.collectAndProject();
+    // then
+    assertThat(run.accessResult()).isEqualTo(AccessResult.INCOMPLETE);
+    assertThat(scenario.channelKeys("U1")).isEmpty();
   }
 
   @Test

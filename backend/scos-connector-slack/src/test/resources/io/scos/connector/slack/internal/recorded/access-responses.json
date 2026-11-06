@@ -65,5 +65,9 @@
     "response_metadata": {
       "next_cursor": ""
     }
+  },
+  "channelNotFound": {
+    "ok": false,
+    "error": "channel_not_found"
   }
 }

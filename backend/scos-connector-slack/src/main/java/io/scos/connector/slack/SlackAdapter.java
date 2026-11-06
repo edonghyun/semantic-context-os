@@ -46,12 +46,7 @@ public final class SlackAdapter implements SourceAdapter {
     this.json = json;
     this.clock = clock;
     SlackAccessCollection collection = new SlackAccessCollection(credentials, client, clock);
-    this.access =
-        new SlackProjector(json)
-            .accessPolicy()
-            .collecting(
-                collection::collect,
-                (source, id, at) -> Optional.of(collection.aclFromExternalId(source, id, at)));
+    this.access = new SlackProjector(json).accessPolicy().collecting(collection::collect);
   }
 
   @Override

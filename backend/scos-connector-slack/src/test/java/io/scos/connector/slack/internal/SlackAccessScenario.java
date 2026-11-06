@@ -32,10 +32,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
@@ -53,12 +56,15 @@ final class SlackAccessScenario implements AutoCloseable {
   private final CancellationToken cancel = new CancellationToken();
   private String failSinkGroup = "";
   private boolean trailingSlash;
+  private boolean cancelOnRetry;
+  private Duration pageDuration = Duration.ZERO;
   private final ProviderCallExecutor calls =
       new ProviderCallExecutor(
           ProviderCallPolicy.defaults(() -> 0.0),
           clock,
           (delay, cancel) -> {
             waits.add(delay);
+            if (cancelOnRetry) cancel.cancel();
             return cancel.isCancelled();
           },
           TestMetrics.providerCalls());
@@ -132,6 +138,19 @@ final class SlackAccessScenario implements AutoCloseable {
     }
   }
 
+  void unreadableChannel(String method, boolean recorded) {
+    String body = "{\"ok\":false,\"error\":\"channel_not_found\"}";
+    if (recorded) {
+      try (var stream = getClass().getResourceAsStream("recorded/access-responses.json")) {
+        if (stream == null) throw new IllegalStateException("given 준비 실패: Slack 기록 표본 없음");
+        body = JSON.readTree(stream).path("channelNotFound").toString();
+      } catch (IOException error) {
+        throw new UncheckedIOException(error);
+      }
+    }
+    failNext("/api/conversations." + method, FakeSlackServer.Fault.http(200, body));
+  }
+
   void baseUrlHasTrailingSlash() {
     trailingSlash = true;
   }
@@ -187,6 +206,10 @@ final class SlackAccessScenario implements AutoCloseable {
         });
   }
 
+  void cancelOnRetry() {
+    cancelOnRetry = true;
+  }
+
   void cancel() {
     cancel.cancel();
   }
@@ -199,8 +222,24 @@ final class SlackAccessScenario implements AutoCloseable {
     server.repeatCursor(path);
   }
 
+  void failAttempts(String path, FakeSlackServer.Fault fault) {
+    server.failNext(path, 5, fault);
+  }
+
   void failNext(String path, FakeSlackServer.Fault fault) {
     server.failNext(path, 1, fault);
+  }
+
+  Outcome collectMessages(int count) {
+    String[] ids =
+        IntStream.range(0, count)
+            .mapToObj(index -> "C1:1700000000." + String.format(Locale.ROOT, "%06d", index))
+            .toArray(String[]::new);
+    return collect(ids);
+  }
+
+  void advanceClockBetweenPages() {
+    pageDuration = Duration.ofSeconds(1);
   }
 
   Outcome collect(String... externalIds) {
@@ -219,6 +258,7 @@ final class SlackAccessScenario implements AutoCloseable {
                 if (page.groups().stream().anyMatch(group -> group.groupId().equals(failSinkGroup)))
                   throw new IllegalStateException("injected ACL sink failure");
                 out.pages.add(page);
+                clock.advance(pageDuration);
               });
     } catch (RuntimeException e) {
       out.failure = Optional.of(e);
@@ -226,11 +266,10 @@ final class SlackAccessScenario implements AutoCloseable {
     return out;
   }
 
-  RawAcl localAcl(String externalId) {
+  Optional<RawAcl> localAcl(String externalId) {
     return SlackAssembly.adapter(baseUrl(), server.token(), clock)
         .accessPolicy()
-        .localAcl(SlackAssembly.instance("{}", NOW).descriptor(), externalId, NOW)
-        .orElseThrow();
+        .localAcl(SlackAssembly.instance("{}", NOW).descriptor(), externalId, NOW);
   }
 
   RawAcl bodyAcl() {
@@ -304,6 +343,23 @@ final class SlackAccessScenario implements AutoCloseable {
       Map<String, RawAcl> acls = new LinkedHashMap<>();
       pages.forEach(page -> acls.putAll(page.acls()));
       return acls;
+    }
+
+    List<RawAcl> observationsOf(String id) {
+      return pages.stream()
+          .filter(page -> page.acls().containsKey(id))
+          .map(page -> page.acls().get(id))
+          .toList();
+    }
+
+    int largestAclPage() {
+      return pages.stream().mapToInt(page -> page.acls().size()).max().orElse(0);
+    }
+
+    Set<String> unreadableChannels() {
+      return pages.stream()
+          .flatMap(page -> page.aclUnreadable().stream())
+          .collect(Collectors.toSet());
     }
 
     Set<String> mergedOldChannelMembers() {

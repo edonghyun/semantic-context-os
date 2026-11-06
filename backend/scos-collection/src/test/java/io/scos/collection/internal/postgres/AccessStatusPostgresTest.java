@@ -54,8 +54,8 @@ class AccessStatusPostgresTest {
   }
 
   @Test
-  @DisplayName("재관측하지 않는 Slack carrier는 오래되어도 stale이 아니다")
-  void slackCarriersAreNotStale() {
+  @DisplayName("재관측 대상 Slack carrier가 관측 상한에 닿으면 stale로 집계한다")
+  void slackCarriersBecomeStale() {
     scenario.givenSlackCarrier();
     var status =
         scenario
@@ -63,7 +63,7 @@ class AccessStatusPostgresTest {
             .accessStatus(new SourceInstanceId("slack-a"))
             .orElseThrow();
     // then
-    assertThat(status.rawStale()).isZero();
+    assertThat(status.rawStale()).isEqualTo(1);
   }
 
   @Test

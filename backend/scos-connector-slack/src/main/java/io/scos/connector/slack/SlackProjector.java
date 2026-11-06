@@ -41,7 +41,8 @@ public final class SlackProjector implements Projector {
 
   public SlackProjector(ObjectMapper json) {
     this.json = json;
-    this.access = AccessPolicy.supported(Set.of(RESOURCE_TYPE), Set.of(), this::documentId);
+    this.access =
+        AccessPolicy.supported(Set.of(RESOURCE_TYPE), Set.of(RESOURCE_TYPE), this::documentId);
   }
 
   private Optional<String> meta(RawItem item, String field) {

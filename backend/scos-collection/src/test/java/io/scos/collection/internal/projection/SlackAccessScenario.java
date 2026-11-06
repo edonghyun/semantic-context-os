@@ -5,6 +5,7 @@ import io.scos.boot.PostgresIndexConfiguration;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.OutboxPort;
 import io.scos.collection.internal.SourceInstances;
+import io.scos.collection.internal.SourceQueries;
 import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
 import io.scos.collection.internal.postgres.PostgresSupport;
 import io.scos.connector.slack.SlackAssembly;
@@ -16,6 +17,7 @@ import io.scos.engine.ReadRequest;
 import io.scos.engine.SearchQuery;
 import io.scos.engine.SearchResult;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.connector.AccessInput;
 import io.scos.spi.connector.AccessPolicy;
@@ -176,6 +178,37 @@ final class SlackAccessScenario implements AutoCloseable {
     adapter.omitIdentity = "U9";
   }
 
+  void givenUnreadableDocument() {
+    givenPublicDocument();
+    failChannel("info", Fault.apiError("channel_not_found"));
+    collectAndProject();
+    if (documentAcl().status() != DocumentAcl.Status.FAILED || !search("U1").hits().isEmpty())
+      throw new IllegalStateException("given 준비 실패: 채널 거부가 문서를 닫아야 한다");
+  }
+
+  void healthySecondChannel() {
+    server.addAccessChannel("C2", Set.of("U1"));
+  }
+
+  void failChannel(String method, Fault fault) {
+    server.failNext("/api/conversations." + method, 1, fault);
+  }
+
+  void channelRemainsUnreadable() {
+    server.changeAccess(access -> ((ObjectNode) access.path("conversations")).remove("C1"));
+  }
+
+  SourceQueries.AccessStatus accessStatus() {
+    return stores.queries().accessStatus(SOURCE).orElseThrow();
+  }
+
+  DocumentAcl documentAcl() {
+    return new PostgresIndexConfiguration()
+        .newAclStore(PostgresSupport.dataSource())
+        .get(SPACE, List.of(DOC))
+        .get(DOC);
+  }
+
   void unlistAllChannels() {
     server.clearChannels();
   }
@@ -190,10 +223,14 @@ final class SlackAccessScenario implements AutoCloseable {
     return run;
   }
 
-  private CollectionRun collect() {
+  CollectionRun collect() {
     clock.advance(Duration.ofSeconds(1));
     collection.build().collect(SOURCE, CollectionMode.INCREMENTAL, CancellationToken.none());
     return stores.runs().latest(SOURCE).orElseThrow();
+  }
+
+  boolean projectionRequested() {
+    return stores.outbox().request(SOURCE).isPresent();
   }
 
   private void project() {
@@ -273,7 +310,7 @@ final class SlackAccessScenario implements AutoCloseable {
   }
 
   /** 관측 신원 하나만 누락시켜 저장소의 COMPLETE 전제 검사를 통과하게 하지 않는다. */
-  private static final class ObservedSlack implements SourceAdapter {
+  private final class ObservedSlack implements SourceAdapter {
     private final SourceAdapter delegate;
     private String omitIdentity = "";
     private boolean returnedNormally;
@@ -314,14 +351,17 @@ final class SlackAccessScenario implements AutoCloseable {
           .accessPolicy()
           .collect(
               input,
-              page ->
-                  sink.accept(
-                      new AclPage(
-                          page.acls(),
-                          page.groups(),
-                          page.identities().stream()
-                              .filter(identity -> !identity.sourceUserId().equals(omitIdentity))
-                              .toList())));
+              page -> {
+                clock.advance(Duration.ofSeconds(1));
+                sink.accept(
+                    new AclPage(
+                        page.acls(),
+                        page.groups(),
+                        page.identities().stream()
+                            .filter(identity -> !identity.sourceUserId().equals(omitIdentity))
+                            .toList(),
+                        page.aclUnreadable()));
+              });
       returnedNormally = true;
     }
   }

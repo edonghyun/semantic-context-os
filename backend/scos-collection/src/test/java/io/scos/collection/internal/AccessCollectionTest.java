@@ -3,6 +3,7 @@ package io.scos.collection.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl.Status;
 import io.scos.spi.connector.AclPage;
@@ -213,6 +214,26 @@ class AccessCollectionTest {
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.active("C1:1700000000.000002", "slack.message");
     scenario.active("C1:1700000000.000003", "slack.message");
+    scenario.pages(
+        new AclPage(
+            Map.of(
+                "C1:1700000000.000001",
+                    RawAcl.observed(
+                        Status.OK,
+                        Set.of(AccessKey.parse("group:access-source:C1")),
+                        AccessCollectionScenario.T1),
+                "C1:1700000000.000002",
+                    RawAcl.observed(
+                        Status.OK,
+                        Set.of(AccessKey.parse("group:access-source:C1")),
+                        AccessCollectionScenario.T1),
+                "C1:1700000000.000003",
+                    RawAcl.observed(
+                        Status.OK,
+                        Set.of(AccessKey.parse("group:access-source:C1")),
+                        AccessCollectionScenario.T1)),
+            List.of(),
+            List.of()));
     // when
     scenario.collect();
     // then
@@ -222,7 +243,8 @@ class AccessCollectionTest {
         .allSatisfy(
             (id, acl) ->
                 assertThat(acl.keys()).containsExactly(AccessKey.parse("group:access-source:C1")));
-    assertThat(scenario.targets()).isEmpty();
+    assertThat(scenario.targets())
+        .containsExactly("C1:1700000000.000001", "C1:1700000000.000002", "C1:1700000000.000003");
   }
 
   @Test
@@ -431,16 +453,24 @@ class AccessCollectionTest {
   }
 
   @Test
-  @DisplayName("Slack의 기존 OK 메시지는 불필요하게 다시 보충하지 않는다")
-  void unchangedSlackOkIsNotBackfilled() {
+  @DisplayName("Slack의 기존 OK 메시지도 채널 거부를 반영하도록 재관측한다")
+  void previouslyOkSlackIsReobserved() {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.withAcl("C1:1700000000.000001", Status.OK);
+    scenario.pages(
+        new AclPage(
+            Map.of(
+                "C1:1700000000.000001",
+                RawAcl.failed(AccessFailureReason.ACL_UNREADABLE, AccessCollectionScenario.T1)),
+            List.of(),
+            List.of()));
     // when
     scenario.collect();
     // then
-    assertThat(scenario.acls("C1:1700000000.000001").get("C1:1700000000.000001").observedAt())
-        .isEqualTo(AccessCollectionScenario.T0);
+    assertThat(scenario.targets()).containsExactly("C1:1700000000.000001");
+    assertThat(scenario.acls("C1:1700000000.000001").get("C1:1700000000.000001"))
+        .isEqualTo(RawAcl.failed(AccessFailureReason.ACL_UNREADABLE, AccessCollectionScenario.T1));
   }
 
   @Test
@@ -450,11 +480,26 @@ class AccessCollectionTest {
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.withAcl("C1:1700000000.000001", Status.OK);
     scenario.bodyObserved("C1:1700000000.000001");
+    scenario.pages(
+        new AclPage(
+            Map.of(
+                "C1:1700000000.000001",
+                RawAcl.observed(
+                    Status.OK,
+                    Set.of(AccessKey.parse("group:access-source:C1")),
+                    AccessCollectionScenario.T1)),
+            List.of(),
+            List.of()));
     // when
     scenario.collect();
     // then
-    assertThat(scenario.acls("C1:1700000000.000001").get("C1:1700000000.000001").observedAt())
-        .isEqualTo(AccessCollectionScenario.T1);
+    assertThat(scenario.targets()).containsExactly("C1:1700000000.000001");
+    assertThat(scenario.acls("C1:1700000000.000001").get("C1:1700000000.000001"))
+        .isEqualTo(
+            RawAcl.observed(
+                Status.OK,
+                Set.of(AccessKey.parse("group:access-source:C1")),
+                AccessCollectionScenario.T1));
   }
 
   @ParameterizedTest
@@ -464,9 +509,20 @@ class AccessCollectionTest {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.withAcl("C1:1700000000.000001", Status.valueOf(status));
+    scenario.pages(
+        new AclPage(
+            Map.of(
+                "C1:1700000000.000001",
+                RawAcl.observed(
+                    Status.OK,
+                    Set.of(AccessKey.parse("group:access-source:C1")),
+                    AccessCollectionScenario.T1)),
+            List.of(),
+            List.of()));
     // when
     scenario.collect();
     // then
+    assertThat(scenario.targets()).containsExactly("C1:1700000000.000001");
     assertThat(scenario.acls("C1:1700000000.000001").get("C1:1700000000.000001").status())
         .isEqualTo(Status.OK);
   }
@@ -514,6 +570,16 @@ class AccessCollectionTest {
   void backfillRequestsProjection() {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
+    scenario.pages(
+        new AclPage(
+            Map.of(
+                "C1:1700000000.000001",
+                RawAcl.observed(
+                    Status.OK,
+                    Set.of(AccessKey.parse("group:access-source:C1")),
+                    AccessCollectionScenario.T1)),
+            List.of(),
+            List.of()));
     // when
     scenario.collect();
     // then
@@ -541,13 +607,14 @@ class AccessCollectionTest {
   @DisplayName("로컬 비관측은 결정을 대신하지 않으며 누락 대상은 FAILED다")
   void localNotObservedDoesNotCompleteTarget() {
     // given
-    scenario.active("C1:1700000000.000001", "slack.message");
+    scenario.close();
+    scenario = new AccessCollectionScenario("custom-nonrefresh");
+    scenario.active("file:F1", "gdrive.file");
     scenario.unobservedResolution();
     // when
     scenario.collect();
     // then
-    assertThat(scenario.acls("C1:1700000000.000001").get("C1:1700000000.000001").status())
-        .isEqualTo(Status.FAILED);
+    assertThat(scenario.acls("file:F1").get("file:F1").status()).isEqualTo(Status.FAILED);
   }
 
   @ParameterizedTest
@@ -716,9 +783,20 @@ class AccessCollectionTest {
 
   @Test
   @DisplayName("Slack의 변경 없는 메시지는 정상 run에서 나이로 닫지 않는다")
-  void localSlackCarrierDoesNotExpire() {
+  void refreshedSlackCarrierDoesNotExpire() {
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.observedAt("C1:1700000000.000001", AccessCollectionScenario.T1.minusSeconds(86400));
+    scenario.pages(
+        new AclPage(
+            Map.of(
+                "C1:1700000000.000001",
+                RawAcl.observed(
+                    Status.OK,
+                    Set.of(AccessKey.parse("group:access-source:C1")),
+                    AccessCollectionScenario.T1)),
+            List.of(),
+            List.of()));
+    // when
     scenario.collect();
     // then
     assertThat(

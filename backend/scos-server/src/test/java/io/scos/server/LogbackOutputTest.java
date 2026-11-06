@@ -44,8 +44,9 @@ import tools.jackson.databind.json.JsonMapper;
 @DisplayName("logback 설정은 프로필마다 정한 곳에 정한 모양으로 쓴다")
 class LogbackOutputTest {
   static final String ESC = "\u001B[";
+  // 오프셋은 Spring Boot 기본(XXX)이라 UTC에서는 Z로 찍힌다
   static final String TIMESTAMP =
-      "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}[+-]\\d{2}:\\d{2}";
+      "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}(?:Z|[+-]\\d{2}:\\d{2})";
 
   final Logger log = LoggerFactory.getLogger(LogbackOutputTest.class);
   final ByteArrayOutputStream stderr = new ByteArrayOutputStream();

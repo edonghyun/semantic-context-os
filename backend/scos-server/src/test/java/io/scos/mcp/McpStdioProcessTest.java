@@ -146,7 +146,7 @@ class McpStdioProcessTest {
       // then
       assertThat(stderr)
           .containsPattern(
-              "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}[+-]\\d{2}:\\d{2}  INFO \\d+ --- "
+              "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}(?:Z|[+-]\\d{2}:\\d{2})  INFO \\d+ --- "
                   + "\\[scos\\] \\[.{15}\\] .{40} : MCP 서버 시작");
     }
 

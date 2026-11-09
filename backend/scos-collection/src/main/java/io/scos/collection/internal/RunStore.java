@@ -1,5 +1,6 @@
 package io.scos.collection.internal;
 
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.source.SourceInstanceId;
@@ -19,6 +20,9 @@ public interface RunStore {
 
   /** 호출자 트랜잭션 안에서 행을 잠그고 running·소스 일치를 확인한다. 아니면 {@link RunStateException}. */
   CollectionRun requireRunning(RunId id, SourceInstanceId source);
+
+  /** 호출자 트랜잭션에서 아직 running인 run의 비용만 쓴다. 아니면 {@link RunStateException}. */
+  void recordAccessCost(RunId id, AccessCost cost, Instant recordedAt);
 
   void addPage(RunId id, int upserted, int deleted, int unchanged, int rejected);
 

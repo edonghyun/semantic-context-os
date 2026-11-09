@@ -8,6 +8,7 @@ import io.scos.collection.internal.AccessRunCompletionTest;
 import io.scos.collection.internal.AccessRunScenario;
 import io.scos.collection.internal.ClaimLostException;
 import io.scos.collection.internal.CollectionRun;
+import io.scos.collection.internal.IdentityAfterRunTest;
 import io.scos.collection.internal.RunStatus;
 import io.scos.spi.access.DocumentAcl.Status;
 import io.scos.spi.connector.RawAcl;
@@ -16,12 +17,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("db")
 @DisplayName("PostgreSQL 접근 병합은 점유 상실과 실패에도 run을 마감한다")
 class AccessRunCompletionPostgresTest extends AccessRunCompletionTest {
+  @Nested
+  @DisplayName("실제 DB에서 run 마감 뒤 신원 연결을 실행하면")
+  class IdentityAfterRun extends IdentityAfterRunTest {
+    @Override
+    protected Scenario newScenario() {
+      PostgresSupport.truncateAll();
+      return Scenario.postgres(PostgresSupport.dataSource());
+    }
+  }
+
   @Override
   protected AccessRunScenario newScenario() {
     PostgresSupport.truncateAll();

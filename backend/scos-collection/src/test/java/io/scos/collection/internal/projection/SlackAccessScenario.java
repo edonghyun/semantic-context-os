@@ -30,6 +30,7 @@ import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.RawItems;
+import io.scos.spi.connector.RecordedAclSink;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.source.SourceInstanceId;
@@ -351,17 +352,18 @@ final class SlackAccessScenario implements AutoCloseable {
           .accessPolicy()
           .collect(
               input,
-              page -> {
-                clock.advance(Duration.ofSeconds(1));
-                sink.accept(
-                    new AclPage(
-                        page.acls(),
-                        page.groups(),
-                        page.identities().stream()
-                            .filter(identity -> !identity.sourceUserId().equals(omitIdentity))
-                            .toList(),
-                        page.aclUnreadable()));
-              });
+              new RecordedAclSink(
+                  page -> {
+                    clock.advance(Duration.ofSeconds(1));
+                    sink.accept(
+                        new AclPage(
+                            page.acls(),
+                            page.groups(),
+                            page.identities().stream()
+                                .filter(identity -> !identity.sourceUserId().equals(omitIdentity))
+                                .toList(),
+                            page.aclUnreadable()));
+                  }));
       returnedNormally = true;
     }
   }

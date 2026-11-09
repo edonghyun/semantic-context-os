@@ -145,7 +145,7 @@ public final class CommitContext {
           new MemorySourceChangeLog(),
           rawAcls,
           runs.accessObservations(),
-          new MemorySourceInstanceStore(),
+          new MemorySourceInstanceStore(runs.identities()),
           new MemorySnapshotGuardStore());
     }
 

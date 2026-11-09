@@ -54,6 +54,10 @@ final class PrincipalBearerFilter implements Filter {
       hash = TokenHash.of(authorization.substring(BEARER_PREFIX.length()));
       principal = tokens.authenticate(hash);
     } catch (Throwable failure) {
+      if (AdminHttpErrors.owns(request)) {
+        AdminHttpErrors.writeInternal((HttpServletResponse) response, failure);
+        return;
+      }
       String ref = UUID.randomUUID().toString().substring(0, REFERENCE_LENGTH);
       EventLog.error(LOG, "http.authentication.failed").detail("ref", ref).cause(failure).log();
       internal((HttpServletResponse) response, ref);

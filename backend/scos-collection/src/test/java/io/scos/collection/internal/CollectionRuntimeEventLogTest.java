@@ -220,6 +220,7 @@ class CollectionRuntimeEventLogTest {
 
     // then
     assertThat(log.events())
+        .filteredOn(e -> e.get("event").asString().startsWith("collection.run."))
         .extracting(e -> e.get("event").asString() + "/" + e.get("level").asString())
         .containsExactly("collection.run.cancelled/info");
   }

@@ -17,6 +17,7 @@ import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.connector.AclPage;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.source.SourceInstanceId;
 import io.scos.support.FakeHttpServer.Recorded;
@@ -128,9 +129,14 @@ final class AccessDisabledScenario implements AutoCloseable {
 
       @Override
       public AccessMerge merge(
-          RunId run, SourceInstanceId source, AccessMerge mode, Instant at, Runnable guard) {
+          RunId run,
+          SourceInstanceId source,
+          AccessMerge mode,
+          IdentityCoverage identityCoverage,
+          Instant at,
+          Runnable guard) {
         merged++;
-        return delegate.merge(run, source, mode, at, guard);
+        return delegate.merge(run, source, mode, identityCoverage, at, guard);
       }
 
       @Override

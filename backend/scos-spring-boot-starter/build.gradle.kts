@@ -29,6 +29,9 @@ dependencies {
     implementation("io.micrometer:micrometer-core")
 
     testImplementation(testFixtures(project(":scos-spi")))
+    testImplementation(testFixtures(project(":scos-engine")))
+    testImplementation(testFixtures(project(":scos-store-postgres")))
+    testImplementation(testFixtures(project(":scos-store-memory")))
     testImplementation(testFixtures(project(":scos-collection")))
     testImplementation(project(":scos-store-memory"))
     testImplementation(project(":scos-test-support"))

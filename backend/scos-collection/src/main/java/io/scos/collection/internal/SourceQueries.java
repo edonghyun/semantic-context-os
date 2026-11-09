@@ -1,6 +1,7 @@
 package io.scos.collection.internal;
 
 import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.source.SourceInstanceId;
@@ -38,7 +39,8 @@ public interface SourceQueries {
       int consecutiveIncomplete,
       Optional<Instant> lastCompleteAt,
       int documentsHidden,
-      Set<String> unreadableFiles) {
+      Set<String> unreadableFiles,
+      Optional<RunCost> cost) {
     public AccessStatus {
       unreadableFiles = Set.copyOf(unreadableFiles);
     }
@@ -47,6 +49,9 @@ public interface SourceQueries {
       return unreadableFiles.size();
     }
   }
+
+  /** 현재 접근 결과와 같은 run에 기록된 비용. 미측정 호출 수는 AccessCost가 명시한다. */
+  record RunCost(RunId runId, Instant recordedAt, AccessCost cost) {}
 
   /** 첫 소유와 저장된 ACL·carrier 관측만 읽는다. 없는 문서는 empty이며 소유를 만들지 않는다. */
   Optional<AccessExplanation> accessExplanation(String documentId);

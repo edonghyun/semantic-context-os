@@ -1,6 +1,7 @@
 package io.scos.server;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.scos.boot.AdminConfiguration;
 import io.scos.collection.internal.CollectionRun;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.Maintenance;
@@ -18,11 +19,13 @@ import io.scos.collection.internal.memory.MemoryWorkClaimPort;
 import io.scos.collection.internal.projection.MemoryProjection;
 import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.source.SourceInstanceId;
+import io.scos.store.memory.MemoryAdminScenario;
 import io.scos.support.BackgroundThread;
 import io.scos.support.CountedWorkers;
 import io.scos.support.Eventually;
@@ -32,6 +35,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -122,6 +126,11 @@ final class DaemonScenario implements AutoCloseable {
   private Duration poll = ONE_CYCLE_POLL;
   private Duration shutdownTimeout = SHUTDOWN_TIMEOUT;
   private volatile Thread loopThread;
+  private IdentityLinkMaintenance identityMaintenance =
+      new IdentityLinkMaintenance(
+          AdminConfiguration.newIdentityReconciler(
+              new MemoryAdminScenario().store(), clock, new DomainPolicy(Set.of(), Map.of())),
+          clock);
   private CollectionDaemon daemon;
   private CollectionRuntime runtime;
 
@@ -177,6 +186,11 @@ final class DaemonScenario implements AutoCloseable {
   /** 정비 정리(sweep)가 매번 실패한다 — 데몬에는 운영과 같은 DaemonMaintenance(실패를 로그로 삼킴)로 붙는다. */
   DaemonScenario maintenanceSweepFails() {
     this.maintenanceSweepFails = true;
+    return this;
+  }
+
+  DaemonScenario identityMaintenance(IdentityLinkMaintenance maintenance) {
+    this.identityMaintenance = maintenance;
     return this;
   }
 
@@ -436,6 +450,7 @@ final class DaemonScenario implements AutoCloseable {
             ? new DaemonMaintenance(this::failMaintenanceSweep)
             : maintenanceRuns::incrementAndGet,
         cancel -> expiryRuns.incrementAndGet(),
+        identityMaintenance,
         new CollectionDaemon.Options(poll, MAINTENANCE_INTERVAL, shutdownTimeout),
         workers,
         clock,

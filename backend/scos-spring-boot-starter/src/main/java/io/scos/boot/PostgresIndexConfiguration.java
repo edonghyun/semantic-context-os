@@ -1,6 +1,7 @@
 package io.scos.boot;
 
 import io.scos.spi.access.AclStore;
+import io.scos.spi.access.AdminStore;
 import io.scos.spi.access.IdentityStore;
 import io.scos.spi.access.UserTokens;
 import io.scos.spi.source.SourceAccessDirectory;
@@ -12,6 +13,7 @@ import io.scos.spi.store.UnitMaintenance;
 import io.scos.spi.store.UnitStore;
 import io.scos.spi.store.VectorIndex;
 import io.scos.store.postgres.PostgresAclStore;
+import io.scos.store.postgres.PostgresAdminStore;
 import io.scos.store.postgres.PostgresDocumentOwnership;
 import io.scos.store.postgres.PostgresEmbeddingCache;
 import io.scos.store.postgres.PostgresIdentityStore;
@@ -114,6 +116,10 @@ public class PostgresIndexConfiguration {
   @Bean
   public IdentityStore newIdentityStore(DataSource dataSource) {
     return new PostgresIdentityStore(JdbcClient.create(dataSource));
+  }
+
+  public AdminStore newAdminStore(DataSource dataSource) {
+    return new PostgresAdminStore(dataSource);
   }
 
   public UserTokens newUserTokens(DataSource read, DataSource write) {

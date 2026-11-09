@@ -127,12 +127,13 @@ public abstract class IdentityStoreContract {
         .containsExactlyInAnyOrder("user:slack-a:U1", "user:slack-b:U1");
   }
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(strings = {"auto", "admin"})
   @DisplayName("게스트 신원은 user·group 키를 주지 않는다")
-  void guestIdentityDoesNotGiveKeys() {
+  void guestIdentityDoesNotGiveKeys(String method) {
     seed(
         activeMember()
-            .withLink(LINK)
+            .withLink(new Link(SLACK, "U1", MEMBER_ID, method))
             .withIdentity(new Identity(SLACK, "U1", true, false))
             .withGroup(new Group(SLACK, "C1", Set.of("U1"))));
 

@@ -19,6 +19,7 @@ import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.collection.internal.projection.Projectors;
 import io.scos.engine.EmbeddingGenerationCheck;
+import io.scos.engine.admin.IdentityReconciler;
 import io.scos.engine.internal.search.FreshnessReader;
 import io.scos.spi.connector.CredentialResolver;
 import io.scos.spi.embedding.Embedder;
@@ -196,6 +197,11 @@ public class DaemonConfiguration {
   }
 
   @Bean
+  IdentityLinkMaintenance identityLinkMaintenance(IdentityReconciler reconciler, Clock clock) {
+    return new IdentityLinkMaintenance(reconciler, clock);
+  }
+
+  @Bean
   CollectionDaemon collectionDaemon(
       SourceSupervisor supervisor,
       ProjectionRun projection,
@@ -205,6 +211,7 @@ public class DaemonConfiguration {
       DaemonObserver observer,
       Maintenance maintenance,
       AccessExpiry accessExpiry,
+      IdentityLinkMaintenance identityMaintenance,
       Progress progress) {
     return new CollectionDaemon(
         supervisor,
@@ -214,6 +221,7 @@ public class DaemonConfiguration {
                 maintenance.run(
                     GracePeriod.ofDays(props.maintenanceGraceDays()), SweepMode.DELETE)),
         accessExpiry::sweep,
+        identityMaintenance,
         new CollectionDaemon.Options(
             props.poll(), props.maintenanceInterval(), props.shutdownTimeout()),
         collectionWorkers,

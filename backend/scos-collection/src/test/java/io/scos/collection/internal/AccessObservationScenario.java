@@ -7,14 +7,17 @@ import static io.scos.collection.internal.AccessObservationStoreContract.T2;
 import io.scos.boot.PostgresCollectionConfiguration;
 import io.scos.collection.internal.memory.MemoryAccessObservationStore;
 import io.scos.collection.internal.memory.MemoryRunStore;
+import io.scos.spi.access.AccessDirectory;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.IdentityStore;
 import io.scos.spi.connector.AclPage;
 import io.scos.spi.connector.CollectionCoverage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceAccessDirectory;
 import io.scos.spi.source.SourceIdentityRecord;
 import io.scos.spi.source.SourceInstanceId;
+import io.scos.store.memory.MemoryIdentitySeed;
 import io.scos.store.memory.MemoryIdentityStore;
 import io.scos.store.postgres.PostgresIdentityStore;
 import java.sql.Timestamp;
@@ -46,13 +49,14 @@ public abstract class AccessObservationScenario {
   public static AccessObservationScenario memory() {
     var runs = MemoryRunStore.create();
     var reader = runs.identities();
-    reader.replace(
-        new MemoryIdentityStore.Directory(
-            List.of(new MemoryIdentityStore.User("local-user", "local@example.com", true)),
-            List.of(),
-            List.of(new MemoryIdentityStore.Link(SOURCE, "U2", "local-user")),
-            List.of(),
-            Set.of()));
+    new MemoryIdentitySeed(reader)
+        .seed(
+            new AccessDirectory(
+                List.of(new AccessDirectory.User("local-user", "local@example.com", true)),
+                List.of(),
+                List.of(new AccessDirectory.Link(SOURCE, "U2", "local-user", "admin")),
+                List.of(),
+                Set.of()));
     var scenario = new MemoryScenario(runs, reader);
     scenario.start();
     return scenario;
@@ -207,7 +211,7 @@ public abstract class AccessObservationScenario {
             List.of(
                 AccessObservationStoreContract.identity("U9", at),
                 new SourceIdentityRecord("U2", Optional.empty(), false, false, true, at))));
-    store.merge(other, foreign, AccessMerge.COMPLETE, at, () -> {});
+    store.merge(other, foreign, AccessMerge.COMPLETE, IdentityCoverage.PARTIAL, at, () -> {});
   }
 
   void stage(GroupSnapshot... groups) {
@@ -244,7 +248,39 @@ public abstract class AccessObservationScenario {
   }
 
   AccessMerge merge(AccessMerge mode, Runnable guard) {
-    return store.merge(run, SOURCE, mode, T2, guard);
+    return store.merge(run, SOURCE, mode, IdentityCoverage.PARTIAL, T2, guard);
+  }
+
+  void existingRoster() {
+    stage(
+        AccessObservationStoreContract.identity("U1", T0),
+        new SourceIdentityRecord("U2", Optional.of("u2@example.com"), true, false, false, T0));
+    merge(AccessMerge.COMPLETE);
+    if (!keys().contains("user:access-source:U2"))
+      throw new IllegalStateException("given 준비 실패: U2 읽기 키가 있어야 한다");
+    nextRun();
+  }
+
+  void observeVerifiedIdentity(String id, Instant at) {
+    stage(new SourceIdentityRecord(id, Optional.of("u2@example.com"), true, false, false, at));
+    merge(AccessMerge.COMPLETE);
+    nextRun();
+  }
+
+  AccessMerge merge(AccessMerge mode, IdentityCoverage coverage, Instant at) {
+    return store.merge(run, SOURCE, mode, coverage, at, () -> {});
+  }
+
+  void mergeFullRosterWithLostClaim() {
+    store.merge(
+        run,
+        SOURCE,
+        AccessMerge.COMPLETE,
+        IdentityCoverage.FULL,
+        T2,
+        () -> {
+          throw new ClaimLostException("injected lost roster claim");
+        });
   }
 
   void discard() {

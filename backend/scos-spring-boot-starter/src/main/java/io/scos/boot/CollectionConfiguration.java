@@ -30,6 +30,7 @@ import io.scos.collection.internal.credentials.SchemeCredentialResolver;
 import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.connector.slack.SlackAdapter;
 import io.scos.connector.slack.internal.SlackWebApiClient;
+import io.scos.engine.admin.IdentityReconciler;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderHttp;
@@ -48,6 +49,7 @@ import java.net.http.HttpClient;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
+import javax.sql.DataSource;
 import org.hibernate.validator.constraints.time.DurationMin;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -201,6 +203,12 @@ public class CollectionConfiguration {
   }
 
   @Bean
+  IdentityReconciler identityReconciler(DataSource dataSource, Clock clock, DomainPolicy domains) {
+    return AdminConfiguration.newIdentityReconciler(
+        new PostgresIndexConfiguration().newAdminStore(dataSource), clock, domains);
+  }
+
+  @Bean
   CollectionRuntime collectionRuntime(
       SourceInstanceStore sources,
       SourceAdapters adapters,
@@ -219,7 +227,8 @@ public class CollectionConfiguration {
       LeaseHeartbeats heartbeats,
       Clock clock,
       CollectionMetrics metrics,
-      OwnerId owner) {
+      OwnerId owner,
+      IdentityReconciler identityReconciler) {
     return new CollectionRuntime(
         sources,
         adapters,
@@ -237,7 +246,8 @@ public class CollectionConfiguration {
         heartbeats,
         clock,
         RunId::random,
-        metrics);
+        metrics,
+        identityReconciler);
   }
 
   /** owner = 호스트:pid — 수집·투영 점유가 이 빈 하나(같은 주체)를 쓴다. */

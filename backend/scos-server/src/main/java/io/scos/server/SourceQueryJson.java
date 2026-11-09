@@ -196,7 +196,18 @@ final class SourceQueryJson {
     out.put("rawUnobserved", status.rawUnobserved());
     out.put("rawStale", status.rawStale());
     status.oldestObservedAt().ifPresent(at -> out.put("oldestObservedAt", iso(at)));
+    status.cost().ifPresent(cost -> accessCost(out.putObject("cost"), cost));
     return out;
+  }
+
+  private static void accessCost(ObjectNode out, SourceQueries.RunCost run) {
+    out.put("runId", run.runId().value());
+    out.put("recordedAt", iso(run.recordedAt()));
+    var cost = run.cost();
+    out.put("targetCount", cost.targetCount());
+    cost.callCount()
+        .ifPresentOrElse(value -> out.put("callCount", value), () -> out.putNull("callCount"));
+    out.put("elapsedMs", cost.elapsedMs());
   }
 
   ObjectNode status(SourceQueries.SourceStatus s) {

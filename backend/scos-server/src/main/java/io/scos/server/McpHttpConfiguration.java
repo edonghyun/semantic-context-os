@@ -289,13 +289,11 @@ class McpHttpConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(prefix = "scos.access", name = "mode", havingValue = "multi-user")
   UserTokens mcpHttpUserTokens(ReadResources resources, DataSource write) {
     return new PostgresIndexConfiguration().newUserTokens(resources.read(), write);
   }
 
   @Bean
-  @ConditionalOnProperty(prefix = "scos.access", name = "mode", havingValue = "multi-user")
   ThreadPoolTaskScheduler mcpTokenUsageScheduler() {
     var scheduler = new ThreadPoolTaskScheduler();
     scheduler.setPoolSize(1);
@@ -308,7 +306,6 @@ class McpHttpConfiguration {
   }
 
   @Bean(destroyMethod = "close")
-  @ConditionalOnProperty(prefix = "scos.access", name = "mode", havingValue = "multi-user")
   TokenUsageRecorder mcpTokenUsage(
       @Qualifier("mcpHttpUserTokens") UserTokens tokens,
       @Qualifier("mcpTokenUsageScheduler") TaskScheduler scheduler) {

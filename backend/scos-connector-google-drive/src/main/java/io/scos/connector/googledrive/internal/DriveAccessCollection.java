@@ -4,6 +4,7 @@ import io.scos.engine.EventLog;
 import io.scos.engine.support.call.CursorTrail;
 import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.AccessInput;
 import io.scos.spi.connector.AclPage;
 import io.scos.spi.connector.AclSink;
@@ -19,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,10 @@ public final class DriveAccessCollection {
         requireActive(input);
         if (!failures.isEmpty()) throw failures.getFirst();
       } finally {
+        // 벽시계 역행도 원래 실패나 실제 전송 수 보고를 가리지 않는다.
+        long elapsedMs = Math.max(0, Duration.between(started, clock.instant()).toMillis());
+        sink.cost(
+            new AccessCost(targets.size(), OptionalLong.of(session.dataRequests()), elapsedMs));
         EventLog.info(log, "collection.drive_access.finished")
             .source(input.source().id())
             .detail(
@@ -86,7 +92,7 @@ public final class DriveAccessCollection {
                 "permissionCalls",
                 session.dataRequests(),
                 "elapsedMs",
-                Duration.between(started, clock.instant()).toMillis())
+                elapsedMs)
             .log();
       }
     }

@@ -1,6 +1,8 @@
 package io.scos.server;
 
 import io.scos.boot.AccessProperties;
+import io.scos.boot.AdminConfiguration;
+import io.scos.boot.PostgresIndexConfiguration;
 import io.scos.collection.internal.CollectionRuntime;
 import io.scos.collection.internal.Maintenance;
 import io.scos.collection.internal.SnapshotShrinkGuard;
@@ -11,6 +13,7 @@ import io.scos.collection.internal.SourceRegistrar;
 import io.scos.collection.internal.projection.ProjectionRun;
 import io.scos.collection.internal.projection.ProjectionSpaces;
 import io.scos.engine.EmbeddingGenerationCheck;
+import io.scos.engine.admin.AdminPort;
 import io.scos.engine.internal.projection.SpaceReembedding;
 import io.scos.engine.internal.projection.UnitImporter;
 import io.scos.engine.internal.search.FreshnessReader;
@@ -35,6 +38,28 @@ import tools.jackson.databind.ObjectMapper;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(OpsConfiguration.DatabaseProperties.class)
 public class OpsConfiguration {
+  @Bean
+  AdminPort adminPort(
+      DataSource dataSource,
+      SourceQueries queries,
+      IdentityStore identities,
+      DomainPolicy domains,
+      Clock clock) {
+    var store = new PostgresIndexConfiguration().newAdminStore(dataSource);
+    var diagnostics =
+        new AdminAccessQueries(
+            queries, new AccessExplainer(queries, identities, domains), store, clock);
+    return AdminConfiguration.newAdminPort(store, clock, domains, diagnostics);
+  }
+
+  @Bean
+  AdminCommands adminCommands(DataSource dataSource, Clock clock) {
+    return new AdminCommands(
+        AdminConfiguration.newAdminBootstrap(
+            new PostgresIndexConfiguration().newAdminStore(dataSource), clock),
+        CommandOutput.stderr());
+  }
+
   /** 기동 시 DB 버전 검사의 기대값(ADR-0027). 빈 값은 바인딩에서 거부한다. */
   @Validated
   @ConfigurationProperties("scos.database")
@@ -74,7 +99,8 @@ public class OpsConfiguration {
       QueryCommands queries,
       SnapshotShrinkGuard shrinkGuard,
       SourceAdapters adapters,
-      Clock clock) {
+      Clock clock,
+      AdminCommands admin) {
     return new Commands(
         importer,
         registrar,
@@ -88,7 +114,8 @@ public class OpsConfiguration {
         shrinkGuard,
         adapters,
         clock,
-        CommandOutput.stderr());
+        CommandOutput.stderr(),
+        admin);
   }
 
   @Bean

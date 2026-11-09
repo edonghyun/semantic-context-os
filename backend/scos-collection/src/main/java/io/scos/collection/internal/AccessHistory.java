@@ -5,14 +5,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/** 최근 run부터 읽은 접근 이력. 본문 성공·실행 중·미시도는 접근 완료와 구분한다. */
+/** 최근 run부터 읽은 접근 이력. 비용은 현재 결과 run에만 속하며 본문 성공·실행 중·미시도는 접근 완료와 구분한다. */
 public record AccessHistory(
     Optional<AccessResult> result,
     Optional<Instant> finishedAt,
     boolean running,
     int consecutiveIncomplete,
     Optional<Instant> lastCompleteAt,
-    Set<String> unreadableFiles) {
+    Set<String> unreadableFiles,
+    Optional<SourceQueries.RunCost> cost) {
   public AccessHistory {
     unreadableFiles = Set.copyOf(unreadableFiles);
   }
@@ -40,6 +41,12 @@ public record AccessHistory(
             .filter(run -> run.accessFinishedAt().isPresent())
             .findFirst()
             .map(CollectionRun::aclUnreadable)
-            .orElse(Set.of()));
+            .orElse(Set.of()),
+        latest.flatMap(
+            run ->
+                run.accessCost()
+                    .map(
+                        cost ->
+                            new SourceQueries.RunCost(run.id(), cost.recordedAt(), cost.cost()))));
   }
 }

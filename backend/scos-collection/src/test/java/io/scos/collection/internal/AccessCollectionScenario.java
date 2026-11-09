@@ -8,6 +8,7 @@ import io.scos.connector.googledrive.GoogleDriveAssembly;
 import io.scos.connector.jira.JiraAssembly;
 import io.scos.connector.notion.NotionAssembly;
 import io.scos.connector.slack.SlackAssembly;
+import io.scos.connector.slack.internal.FakeSlackServer;
 import io.scos.connector.tiro.TiroAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.time.MutableClock;
@@ -40,9 +41,11 @@ import io.scos.store.memory.MemoryUnitStore;
 import io.scos.store.memory.MemoryVectorIndex;
 import io.scos.support.ManualTaskScheduler;
 import io.scos.support.TestMetrics;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -409,17 +412,34 @@ final class AccessCollectionScenario implements AutoCloseable {
   }
 
   AccessResult collect() {
+    return collectResult().result();
+  }
+
+  AccessCollection.Result collectResult() {
+    return collect(adapter);
+  }
+
+  AccessCollection.Result collectSlack() throws IOException {
+    try (var server =
+        new FakeSlackServer(
+            Path.of(
+                "scos-collection/src/test/resources/io/scos/collection/internal/slack-access-dataset.json"))) {
+      return collect(SlackAssembly.adapter(server.baseUrl(), server.token(), clock));
+    }
+  }
+
+  private AccessCollection.Result collect(SourceAdapter selected) {
     var stage =
         new AccessCollection(
             readBoundaries(),
-            SourceAdapters.of(List.of(adapter)),
+            SourceAdapters.of(List.of(selected)),
             calls,
             domains,
             boundedClock(),
             enabled,
             new ProjectionSpaces(Map.of(), new SpaceId("legacy"), new ObjectMapper()),
             AccessCollection.Options.DEFAULTS);
-    return stage.collect(source, adapter, claim, run, heartbeat, cancel).result();
+    return stage.collect(source, selected, claim, run, heartbeat, cancel);
   }
 
   // 커서 종료 변이가 무한히 돌아도 PIT timeout 대신 즉시 단언 실패로 드러낸다.

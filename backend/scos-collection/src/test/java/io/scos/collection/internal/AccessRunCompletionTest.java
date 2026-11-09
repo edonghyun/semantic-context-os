@@ -42,6 +42,51 @@ public class AccessRunCompletionTest {
   }
 
   @Test
+  @DisplayName("전체 목록을 선언한 어댑터의 완료는 누락 신원의 읽기 키를 회수한다")
+  protected void fullRosterCompletionRevokesMissingIdentity() {
+    scenario.fullIdentityRoster();
+    scenario.directory("U2");
+    // when
+    scenario.collect();
+    // then
+    assertThat(scenario.keys()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("부분 목록 어댑터의 완료는 누락 신원의 user 키를 유지한다")
+  protected void partialRosterCompletionKeepsMissingIdentity() {
+    scenario.directory("U2");
+    // when
+    scenario.collect();
+    // then
+    assertThat(scenario.keys()).containsExactly("user:access-source:U1");
+  }
+
+  @Test
+  @DisplayName("전체 목록 어댑터가 중간에 실패하면 누락 신원의 user 키를 유지한다")
+  protected void incompleteFullRosterKeepsMissingIdentity() {
+    scenario.fullIdentityRoster();
+    scenario.directory("U2");
+    scenario.incompleteAccess();
+    // when
+    scenario.collect();
+    // then
+    assertThat(scenario.keys()).containsExactly("user:access-source:U1");
+  }
+
+  @Test
+  @DisplayName("전체 목록 어댑터의 수집 전 취소는 누락 신원의 키를 유지한다")
+  protected void cancelledFullRosterKeepsMissingIdentity() {
+    scenario.fullIdentityRoster();
+    scenario.cancelled();
+    // when
+    scenario.collect();
+    // then
+    assertThat(scenario.keys())
+        .containsExactlyInAnyOrder("user:access-source:U1", "group:access-source:C1");
+  }
+
+  @Test
   @DisplayName("거부 항목이 있는 정상 본문은 거부 포함 성공으로 마감한다")
   protected void bodyRejectionIsReflectedInTerminalStatus() {
     scenario.bodyPageWithRejection();

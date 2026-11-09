@@ -8,6 +8,7 @@ import io.scos.collection.internal.ClaimLostException;
 import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SourceInstances;
 import io.scos.spi.connector.AclPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceInstanceId;
 import java.lang.reflect.InvocationTargetException;
@@ -52,6 +53,7 @@ final class AccessMergeLockScenario implements AutoCloseable {
         RUN,
         SOURCE,
         AccessMerge.COMPLETE,
+        IdentityCoverage.PARTIAL,
         AT,
         () -> {
           throw lost;
@@ -77,7 +79,7 @@ final class AccessMergeLockScenario implements AutoCloseable {
     var preparing = PostgresCollectionConfiguration.adapters(pool).accessObservations();
     preparing.stage(
         RUN, new AclPage(Map.of(), List.of(new GroupSnapshot("C1", Set.of(), AT)), List.of()));
-    preparing.merge(RUN, SOURCE, AccessMerge.COMPLETE, AT, () -> {});
+    preparing.merge(RUN, SOURCE, AccessMerge.COMPLETE, IdentityCoverage.PARTIAL, AT, () -> {});
     preparing.discard(RUN);
     JdbcClient.create(pool)
         .sql(
@@ -96,7 +98,7 @@ final class AccessMergeLockScenario implements AutoCloseable {
   }
 
   AccessMerge mergeEmptyIncomplete() {
-    return store.merge(RUN, SOURCE, AccessMerge.INCOMPLETE, AT, () -> {});
+    return store.merge(RUN, SOURCE, AccessMerge.INCOMPLETE, IdentityCoverage.PARTIAL, AT, () -> {});
   }
 
   private final class UnlockFailureDataSource extends AbstractDataSource {

@@ -14,8 +14,10 @@ import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawMutation;
+import io.scos.spi.connector.RecordedAclSink;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceAccessDirectory.Snapshot;
 import io.scos.spi.source.SourceIdentityRecord;
@@ -254,16 +256,24 @@ final class SlackAccessScenario implements AutoCloseable {
                   calls,
                   cancel,
                   new DomainPolicy(Set.of(), Map.of())),
-              page -> {
-                if (page.groups().stream().anyMatch(group -> group.groupId().equals(failSinkGroup)))
-                  throw new IllegalStateException("injected ACL sink failure");
-                out.pages.add(page);
-                clock.advance(pageDuration);
-              });
+              new RecordedAclSink(
+                  page -> {
+                    if (page.groups().stream()
+                        .anyMatch(group -> group.groupId().equals(failSinkGroup)))
+                      throw new IllegalStateException("injected ACL sink failure");
+                    out.pages.add(page);
+                    clock.advance(pageDuration);
+                  }));
     } catch (RuntimeException e) {
       out.failure = Optional.of(e);
     }
     return out;
+  }
+
+  IdentityCoverage identityCoverage() {
+    return SlackAssembly.adapter(baseUrl(), server.token(), clock)
+        .accessPolicy()
+        .identityCoverage();
   }
 
   Optional<RawAcl> localAcl(String externalId) {
@@ -371,6 +381,7 @@ final class SlackAccessScenario implements AutoCloseable {
               Map.of("COLD", new GroupSnapshot("COLD", Set.of("U1"), NOW.minusSeconds(1))));
       return AccessMergePolicy.merge(
               failure.isEmpty() ? AccessMerge.COMPLETE : AccessMerge.INCOMPLETE,
+              IdentityCoverage.FULL,
               current,
               observations.snapshot(),
               NOW)

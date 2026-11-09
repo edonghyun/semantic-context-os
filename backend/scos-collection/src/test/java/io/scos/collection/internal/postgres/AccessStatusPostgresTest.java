@@ -68,7 +68,7 @@ class AccessStatusPostgresTest {
 
   @Test
   @DisplayName("실행 중 run은 연속 미완료 수를 늘리지 않는다")
-  void runningRunDoesNotIncreaseIncompleteStreak() {
+  void incompleteTrendIsVisibleWhileAnotherRunIsRunning() {
     scenario.givenAccessHistory();
     var status = scenario.adapters.queries().accessStatus(SOURCE).orElseThrow();
     // then
@@ -174,6 +174,19 @@ class AccessStatusPostgresTest {
         .containsExactly(0, 0, Optional.empty());
   }
 
+  @Test
+  @DisplayName("정리된 소유 행은 실제 문서의 숨김과 누락 집계에서 빠진다")
+  void hiddenCountsExcludePrunedOwnerRows() {
+    // given
+    scenario.givenHiddenDocumentsWithPrunedOwner();
+    // when
+    var status = scenario.adapters.queries().accessStatus(SOURCE).orElseThrow();
+    // then
+    assertThat(status)
+        .extracting(AccessStatus::documentsHidden, AccessStatus::documentsMissingAcl)
+        .containsExactly(2, 0);
+  }
+
   static final class StatusScenario {
     final PostgresCollectionConfiguration.Adapters adapters =
         PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource());
@@ -245,6 +258,20 @@ class AccessStatusPostgresTest {
               List.of(
                   new DocumentAcl("failed", Status.FAILED, Set.of(), T0),
                   new DocumentAcl("unknown", Status.UNKNOWN, Set.of(), T0)));
+    }
+
+    void givenHiddenDocumentsWithPrunedOwner() {
+      givenHiddenDocuments();
+      var jdbc = JdbcClient.create(PostgresSupport.dataSource());
+      PostgresTestAdapters.unitMaintenance(PostgresSupport.dataSource())
+          .deleteByDocument(SpaceId.LEGACY, SOURCE.value(), "missing", List.of());
+      new PostgresIndexConfiguration()
+          .newDocumentOwnership(PostgresSupport.dataSource())
+          .claim(SpaceId.LEGACY, SOURCE.value(), "missing");
+      if (jdbc.sql("SELECT count(*) FROM document_spaces WHERE document_id = 'missing'")
+              .query(Integer.class)
+              .single()
+          != 1) throw new IllegalStateException("given 준비 실패: 정리된 문서의 소유 행 없음");
     }
 
     void givenIncompleteAccess() {

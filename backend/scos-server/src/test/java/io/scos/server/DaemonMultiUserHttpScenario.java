@@ -58,7 +58,7 @@ final class DaemonMultiUserHttpScenario implements AutoCloseable {
     }
   }
 
-  private int availablePort() throws IOException {
+  static int availablePort() throws IOException {
     try (var socket = new ServerSocket(0, 0, InetAddress.getLoopbackAddress())) {
       return socket.getLocalPort();
     }
@@ -169,13 +169,24 @@ final class DaemonMultiUserHttpScenario implements AutoCloseable {
   }
 
   private HttpReply post(String host, String token) {
+    return request(http, daemon.port(), host, token, "POST", McpHttpConfiguration.PATH, SEARCH);
+  }
+
+  static HttpReply request(
+      HttpClient http,
+      int port,
+      String host,
+      String token,
+      String method,
+      String path,
+      String body) {
     var request =
-        HttpRequest.newBuilder(
-                URI.create("http://" + host + ":" + daemon.port() + McpHttpConfiguration.PATH))
+        HttpRequest.newBuilder(URI.create("http://" + host + ":" + port + path))
             .timeout(REQUEST_LIMIT)
             .header("Content-Type", "application/json")
             .header("Accept", "application/json, text/event-stream")
-            .POST(BodyPublishers.ofString(SEARCH));
+            .method(
+                method, body.isEmpty() ? BodyPublishers.noBody() : BodyPublishers.ofString(body));
     if (!token.isEmpty()) request.header("Authorization", "Bearer " + token);
     try {
       HttpResponse<String> reply = http.send(request.build(), BodyHandlers.ofString());

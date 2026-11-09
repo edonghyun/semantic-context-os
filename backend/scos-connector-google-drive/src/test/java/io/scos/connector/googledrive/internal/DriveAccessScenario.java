@@ -5,10 +5,12 @@ import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallPolicy;
 import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.access.DomainPolicy;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.AccessInput;
 import io.scos.spi.connector.AclPage;
 import io.scos.spi.connector.CancellationToken;
 import io.scos.spi.connector.RawAcl;
+import io.scos.spi.connector.RecordedAclSink;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.source.SourceIdentityRecord;
@@ -142,6 +144,16 @@ final class DriveAccessScenario implements AutoCloseable {
         request -> FakeHttpServer.ok("{\"access_token\":\"invalid\\ntoken\",\"expires_in\":3600}"));
   }
 
+  void clockMovesBackDuringPermission() {
+    server.on(
+        "GET",
+        path("F1"),
+        request -> {
+          clock.advance(Duration.ofSeconds(-1));
+          return FakeHttpServer.ok("{\"permissions\":[" + permission + "]}");
+        });
+  }
+
   void retryThenPages() {
     AtomicInteger attempts = new AtomicInteger();
     server.on(
@@ -201,19 +213,21 @@ final class DriveAccessScenario implements AutoCloseable {
             "Drive",
             new SourceConfig(1, config),
             GoogleDriveAssembly.CREDENTIAL_REF);
+    var sink =
+        new RecordedAclSink(
+            page -> {
+              if (failSink) throw new IllegalStateException("injected access sink failure");
+              outcome.pages.add(page);
+              if (cancelAfterPage) cancel.cancel();
+            });
     try {
       adapter
           .accessPolicy()
-          .collect(
-              new AccessInput(source, List.of(ids), calls, cancel, domains),
-              page -> {
-                if (failSink) throw new IllegalStateException("injected access sink failure");
-                outcome.pages.add(page);
-                if (cancelAfterPage) cancel.cancel();
-              });
+          .collect(new AccessInput(source, List.of(ids), calls, cancel, domains), sink);
     } catch (RuntimeException failure) {
       outcome.failure = Optional.of(failure);
     }
+    outcome.costs = sink.costs();
     return outcome;
   }
 
@@ -233,11 +247,16 @@ final class DriveAccessScenario implements AutoCloseable {
   static final class Outcome {
     private final List<AclPage> pages = new ArrayList<>();
     private Optional<RuntimeException> failure = Optional.empty();
+    private List<AccessCost> costs = List.of();
 
     Set<String> aclUnreadable() {
       return pages.stream()
           .flatMap(page -> page.aclUnreadable().stream())
           .collect(Collectors.toSet());
+    }
+
+    List<AccessCost> costs() {
+      return costs;
     }
 
     Optional<RuntimeException> failure() {

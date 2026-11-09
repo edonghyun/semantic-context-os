@@ -9,6 +9,7 @@ import io.scos.collection.internal.RunOutcome;
 import io.scos.collection.internal.RunStateException;
 import io.scos.collection.internal.RunStatus;
 import io.scos.collection.internal.RunStore;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.RejectedItem;
 import io.scos.spi.source.SourceInstanceId;
@@ -25,13 +26,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public final class PostgresRunStore implements RunStore {
   static final String COLUMNS =
-      "run_id, source_instance_id, status, started_at, finished_at, pages_applied, upserted, deleted, unchanged, rejected, error_count, error_kind, error_summary, coverage, access_result, access_finished_at, acl_unreadable";
+      "run_id, source_instance_id, status, started_at, finished_at, pages_applied, upserted, deleted, unchanged, rejected, error_count, error_kind, error_summary, coverage, access_result, access_finished_at, acl_unreadable, access_target_count, access_call_count, access_elapsed_ms, access_cost_recorded_at";
 
   /** 최근 run부터. 같은 시각이면 run id 코드 유닛 역순 — 감독·조회가 같은 run을 최신으로 본다. */
   static final String NEWEST_FIRST = " ORDER BY started_at DESC, run_id COLLATE \"C\" DESC";
@@ -180,6 +182,27 @@ public final class PostgresRunStore implements RunStore {
               + ", not "
               + source.value());
     return run;
+  }
+
+  @Override
+  public void recordAccessCost(RunId id, AccessCost cost, Instant recordedAt) {
+    int updated =
+        jdbc.sql(
+                """
+        UPDATE collection_runs SET access_target_count = :targets, access_call_count = :calls,
+          access_elapsed_ms = :elapsed, access_cost_recorded_at = :at
+        WHERE run_id = :id AND status = 'running'
+        """)
+            .param("targets", cost.targetCount())
+            .param(
+                "calls",
+                cost.callCount().isPresent() ? cost.callCount().getAsLong() : null,
+                Types.BIGINT)
+            .param("elapsed", cost.elapsedMs())
+            .param("at", Timestamp.from(recordedAt))
+            .param("id", id.value())
+            .update();
+    if (updated != 1) throw new RunStateException("Sync run is not running: " + id.value());
   }
 
   @Override
@@ -387,6 +410,19 @@ public final class PostgresRunStore implements RunStore {
         ContentColumns.QUARANTINED.read(rs));
   }
 
+  private static Optional<CollectionRun.RecordedAccessCost> accessCost(ResultSet rs)
+      throws SQLException {
+    Timestamp at = rs.getTimestamp("access_cost_recorded_at");
+    if (at == null) return Optional.empty();
+    long count = rs.getLong("access_call_count");
+    OptionalLong calls = rs.wasNull() ? OptionalLong.empty() : OptionalLong.of(count);
+    return Optional.of(
+        new CollectionRun.RecordedAccessCost(
+            new AccessCost(
+                rs.getLong("access_target_count"), calls, rs.getLong("access_elapsed_ms")),
+            at.toInstant()));
+  }
+
   static CollectionRun map(ResultSet rs, int i) throws SQLException {
     Timestamp finished = rs.getTimestamp("finished_at");
     return new CollectionRun(
@@ -406,6 +442,7 @@ public final class PostgresRunStore implements RunStore {
         Optional.ofNullable(rs.getString("coverage")).map(CollectionCoverage::fromWire),
         AccessResult.valueOf(rs.getString("access_result").toUpperCase(Locale.ROOT)),
         Optional.ofNullable(rs.getTimestamp("access_finished_at")).map(Timestamp::toInstant),
-        Set.of((String[]) rs.getArray("acl_unreadable").getArray()));
+        Set.of((String[]) rs.getArray("acl_unreadable").getArray()),
+        accessCost(rs));
   }
 }

@@ -4,6 +4,7 @@ import io.scos.connector.slack.internal.SlackMrkdwnCleaner;
 import io.scos.connector.slack.internal.SlackTs;
 import io.scos.engine.support.text.Text;
 import io.scos.spi.connector.AccessPolicy;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.RawItem;
 import io.scos.spi.projection.Projector;
 import io.scos.spi.projection.SourceDocument;
@@ -42,7 +43,8 @@ public final class SlackProjector implements Projector {
   public SlackProjector(ObjectMapper json) {
     this.json = json;
     this.access =
-        AccessPolicy.supported(Set.of(RESOURCE_TYPE), Set.of(RESOURCE_TYPE), this::documentId);
+        AccessPolicy.supported(Set.of(RESOURCE_TYPE), Set.of(RESOURCE_TYPE), this::documentId)
+            .withIdentityCoverage(IdentityCoverage.FULL);
   }
 
   private Optional<String> meta(RawItem item, String field) {

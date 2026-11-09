@@ -2,12 +2,16 @@ package io.scos.collection.internal;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.scos.collection.internal.memory.MemoryAccessObservationStore;
+import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.postgres.PostgresCollectionRuntime;
+import io.scos.connector.googledrive.GoogleDriveAssembly;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.AccessDirectory;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl.Status;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.IdentityStore;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.AccessInput;
 import io.scos.spi.connector.AccessPolicy;
 import io.scos.spi.connector.AclPage;
@@ -20,6 +24,7 @@ import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawItems;
@@ -29,9 +34,13 @@ import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceIdentityRecord;
 import io.scos.spi.source.SourceInstanceId;
+import io.scos.store.memory.MemoryIdentitySeed;
 import io.scos.store.memory.MemoryIdentityStore;
 import io.scos.store.postgres.PostgresIdentityStore;
+import io.scos.support.FakeHttpServer;
 import io.scos.support.ManualTaskScheduler;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -82,6 +91,7 @@ public final class AccessRunScenario implements AutoCloseable {
   private int accessCalls;
   private boolean collectAccess = true;
   private boolean unsupported;
+  private IdentityCoverage identityCoverage = IdentityCoverage.PARTIAL;
   private final ManualTaskScheduler scheduler = new ManualTaskScheduler();
   private boolean failRenew;
   private Runnable afterClaimCheck = () -> {};
@@ -91,6 +101,194 @@ public final class AccessRunScenario implements AutoCloseable {
   private Set<String> omittedAcls = Set.of();
   private Runnable afterStagedPage = () -> {};
   private List<String> targetIds = List.of();
+  private WorkClaim costClaim;
+  private boolean rejectCost;
+  private FakeHttpServer driveServer;
+  private AccessPolicy remoteAccess;
+  private String sourceKind = "google-drive";
+
+  public void scopedUnsupportedAccess() {
+    sourceKind = "notion";
+    remoteAccess = AccessPolicy.scoped("notion");
+    stores.sources().orElseThrow().save(SourceInstances.of(SOURCE, "notion", "{}", "env:FAKE", T0));
+  }
+
+  public void localAclStorageFailsDuringSelection() {
+    remoteAccess =
+        AccessPolicy.supported(Set.of("gdrive.file"), Set.of("gdrive.file"))
+            .collecting(
+                adapter::collectAccess,
+                (source, id, at) -> Optional.of(RawAcl.observed(Status.OK, Set.of(), at)));
+    afterStagedPage =
+        () -> {
+          throw new CannotGetJdbcConnectionException("injected local ACL storage failure");
+        };
+  }
+
+  public void realDrivePermissionFailure() {
+    try {
+      driveServer = new FakeHttpServer();
+    } catch (IOException error) {
+      throw new UncheckedIOException(error);
+    }
+    driveServer.on(
+        "POST",
+        "/_oauth/token",
+        request ->
+            FakeHttpServer.ok("{\"access_token\":\"synthetic-access\",\"expires_in\":3600}"));
+    driveServer.on(
+        "GET",
+        "/_drive/drive/v3/files/F1/permissions",
+        request ->
+            FakeHttpServer.ok(
+                request.params().containsKey("pageToken")
+                    ? "{\"permissions\":[]}"
+                    : "{\"permissions\":[],\"nextPageToken\":\"p2\"}"));
+    driveServer.on(
+        "GET",
+        "/_drive/drive/v3/files/F2/permissions",
+        request -> FakeHttpServer.status(400, "{}"));
+    driveServer.limitRequests(5, FakeHttpServer.status(400, "{}"));
+    connectDriveAccess();
+    stores.rawItems().apply(SOURCE, RawItems.item("file:F2").resourceType("gdrive.file").upsert());
+  }
+
+  private void connectDriveAccess() {
+    remoteAccess =
+        GoogleDriveAssembly.adapter(
+                driveServer.baseUrl(), GoogleDriveAssembly.CREDENTIAL_JSON, clock)
+            .accessPolicy();
+    stores
+        .sources()
+        .orElseThrow()
+        .save(
+            SourceInstances.of(
+                SOURCE,
+                "google-drive",
+                "{\"accountEmail\":\"reader@example.com\",\"permissionVisibility\":\"VERIFIED_FULL\"}",
+                GoogleDriveAssembly.CREDENTIAL_REF,
+                T0));
+  }
+
+  public void emptyCostTargets() {
+    stores.rawItems().tombstoneSelected(SOURCE, Set.of("file:F1"), T0);
+  }
+
+  public void invalidStoredCost(String assignments) {
+    jdbc.sql("UPDATE collection_runs SET " + assignments + " WHERE run_id = 'access-run'").update();
+  }
+
+  public void traceCostWrites() {
+    jdbc.sql("CREATE TABLE cost_write_trace (seq bigserial, xid bigint, event text)").update();
+    jdbc.sql(
+            """
+        CREATE FUNCTION trace_cost_write() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN
+          IF TG_TABLE_NAME = 'source_groups' THEN
+            INSERT INTO cost_write_trace(xid, event) VALUES (txid_current(), 'merge');
+          ELSE
+            INSERT INTO cost_write_trace(xid, event) VALUES (txid_current(),
+              CASE WHEN NEW.status <> 'running' THEN 'terminal' ELSE 'cost' END);
+          END IF;
+          RETURN NULL;
+        END $$
+        """)
+        .update();
+    jdbc.sql(
+            "CREATE TRIGGER trace_cost_write AFTER UPDATE OF access_target_count, status ON collection_runs FOR EACH ROW EXECUTE FUNCTION trace_cost_write()")
+        .update();
+    jdbc.sql(
+            "CREATE TRIGGER trace_cost_write AFTER INSERT OR UPDATE ON source_groups FOR EACH ROW EXECUTE FUNCTION trace_cost_write()")
+        .update();
+  }
+
+  public List<String> costWriteOrder() {
+    return jdbc.sql("SELECT event FROM cost_write_trace ORDER BY seq").query(String.class).list();
+  }
+
+  public int costWriteTransactions() {
+    return jdbc.sql("SELECT count(DISTINCT xid) FROM cost_write_trace")
+        .query(Integer.class)
+        .single();
+  }
+
+  public void stopTracingCostWrites() {
+    jdbc.sql("DROP TRIGGER trace_cost_write ON source_groups").update();
+    jdbc.sql("DROP TRIGGER trace_cost_write ON collection_runs").update();
+    jdbc.sql("DROP FUNCTION trace_cost_write()").update();
+    jdbc.sql("DROP TABLE cost_write_trace").update();
+  }
+
+  public CollectionRun seedRun() {
+    return stores.runs().get(new RunId("seed-run")).orElseThrow();
+  }
+
+  public void startCostRun() {
+    costClaim =
+        stores
+            .claims()
+            .tryClaim(SOURCE, new OwnerId("cost-worker"), TTL, clock.instant())
+            .orElseThrow();
+    stores.runs().start(RUN, SOURCE, clock.instant());
+  }
+
+  public CollectionRun costRun() {
+    return stores.runs().get(RUN).orElseThrow();
+  }
+
+  public void recordCost(AccessCost cost) {
+    new AccessCompletion(stores, clock)
+        .recordCost(
+            costClaim,
+            RUN,
+            stores.sources().orElseThrow().get(SOURCE).orElseThrow().descriptor(),
+            cost);
+  }
+
+  public void storeCost(AccessCost cost) {
+    stores
+        .tx()
+        .executeWithoutResult(status -> stores.runs().recordAccessCost(RUN, cost, clock.instant()));
+  }
+
+  public void givenRunCost(AccessCost cost) {
+    storeCost(cost);
+    if (costRun().accessCost().isEmpty()) throw new IllegalStateException("given 준비 실패: 기존 비용 없음");
+  }
+
+  public void finishCostRun() {
+    stores
+        .runs()
+        .finish(
+            RUN,
+            RunOutcome.succeeded(0),
+            CollectionCoverage.INCREMENTAL,
+            clock.instant(),
+            0,
+            AccessResult.COMPLETE,
+            Optional.of(clock.instant()));
+  }
+
+  public void rollbackCost(AccessCost cost) {
+    stores
+        .tx()
+        .executeWithoutResult(
+            status -> {
+              stores.runs().recordAccessCost(RUN, cost, clock.instant());
+              throw new IllegalStateException("injected cost transaction failure");
+            });
+  }
+
+  public void costStorageFails() {
+    rejectCost = true;
+    if (jdbc == null) {
+      ((MemoryRunStore) stores.runs()).failAccessCostWrites();
+    } else {
+      jdbc.sql(
+              "ALTER TABLE collection_runs ADD CONSTRAINT reject_access_cost CHECK (access_target_count IS NULL)")
+          .update();
+    }
+  }
 
   private AccessRunScenario(CommitContext.Memory memory) {
     stores = memory.ports().stores();
@@ -110,12 +308,12 @@ public final class AccessRunScenario implements AutoCloseable {
                 .collectAccess(collectAccess)
                 .runIds(() -> RUN)
                 .build();
-    ((MemoryIdentityStore) identities)
-        .replace(
-            new MemoryIdentityStore.Directory(
-                List.of(new MemoryIdentityStore.User("local-user", "local@example.com", true)),
+    new MemoryIdentitySeed((MemoryIdentityStore) identities)
+        .seed(
+            new AccessDirectory(
+                List.of(new AccessDirectory.User("local-user", "local@example.com", true)),
                 List.of(),
-                List.of(new MemoryIdentityStore.Link(SOURCE, "U1", "local-user")),
+                List.of(new AccessDirectory.Link(SOURCE, "U1", "local-user", "admin")),
                 List.of(),
                 Set.of()));
     seed();
@@ -181,7 +379,9 @@ public final class AccessRunScenario implements AutoCloseable {
                 Map.of(),
                 List.of(new GroupSnapshot("C1", Set.of("U1", "U2"), T0)),
                 List.of(identity("U1", T0), identity("U2", T0))));
-    stores.accessObservations().merge(seed, SOURCE, AccessMerge.COMPLETE, T0, () -> {});
+    stores
+        .accessObservations()
+        .merge(seed, SOURCE, AccessMerge.COMPLETE, IdentityCoverage.PARTIAL, T0, () -> {});
     stores.accessObservations().discard(seed);
     stores
         .runs()
@@ -353,7 +553,12 @@ public final class AccessRunScenario implements AutoCloseable {
 
       @Override
       public AccessMerge merge(
-          RunId run, SourceInstanceId source, AccessMerge mode, Instant at, Runnable guard) {
+          RunId run,
+          SourceInstanceId source,
+          AccessMerge mode,
+          IdentityCoverage identityCoverage,
+          Instant at,
+          Runnable guard) {
         beforeMerge.run();
         int[] attempts = {0};
         AccessMerge merged =
@@ -361,6 +566,7 @@ public final class AccessRunScenario implements AutoCloseable {
                 run,
                 source,
                 mode,
+                identityCoverage,
                 at,
                 () -> {
                   if (++attempts[0] == 2) beforeFallback.run();
@@ -398,6 +604,12 @@ public final class AccessRunScenario implements AutoCloseable {
 
   @Override
   public void close() {
+    if (rejectCost && jdbc != null)
+      jdbc.sql("ALTER TABLE collection_runs DROP CONSTRAINT reject_access_cost").update();
+    if (driveServer != null) {
+      driveServer.assertNoUnmatched();
+      driveServer.close();
+    }
     registry.close();
   }
 
@@ -419,11 +631,28 @@ public final class AccessRunScenario implements AutoCloseable {
     afterBody = cancel::cancel;
   }
 
+  public void clockMovesBackDuringAccess() {
+    afterAccess = () -> clock.advance(Duration.ofSeconds(-2));
+  }
+
+  public void cancellationDuringAccess() {
+    afterAccess =
+        () -> {
+          throw new CallFailureException(
+              "access.collect",
+              CallFailure.of(CallFailure.Kind.CANCELLED, "injected access cancellation"));
+        };
+  }
+
   public void incompleteAccess() {
     afterAccess =
         () -> {
           throw new IllegalStateException("directory unavailable");
         };
+  }
+
+  public void fullIdentityRoster() {
+    identityCoverage = IdentityCoverage.FULL;
   }
 
   public void disabled() {
@@ -744,15 +973,17 @@ public final class AccessRunScenario implements AutoCloseable {
   private final class ScriptedAdapter implements SourceAdapter {
     @Override
     public AccessPolicy accessPolicy() {
+      if (remoteAccess != null) return remoteAccess;
       return (unsupported
               ? AccessPolicy.unsupported()
               : AccessPolicy.supported(Set.of("gdrive.file"), Set.of("gdrive.file")))
+          .withIdentityCoverage(identityCoverage)
           .collecting(this::collectAccess);
     }
 
     @Override
     public String kind() {
-      return "google-drive";
+      return sourceKind;
     }
 
     @Override

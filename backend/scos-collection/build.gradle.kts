@@ -18,6 +18,7 @@ dependencies {
     compileOnly("org.postgresql:postgresql")
 
     testImplementation(testFixtures(project(":scos-spi")))
+    testImplementation(testFixtures(project(":scos-store-memory")))
     testImplementation(testFixtures(project(":scos-engine")))
     testImplementation(testFixtures(project(":scos-store-postgres")))
     testImplementation(project(":scos-store-postgres"))

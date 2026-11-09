@@ -1,6 +1,8 @@
 package io.scos.collection.internal;
 
 import io.scos.engine.EventLog;
+import io.scos.engine.admin.IdentityReconciler;
+import io.scos.engine.admin.IdentityReconciler.ReconcileReport;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.logging.EventValues;
 import io.scos.spi.connector.CancellationToken;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
@@ -87,6 +90,7 @@ public final class CollectionRuntime {
   private final Clock clock;
   private final Supplier<RunId> runIds;
   private final CollectionMetrics metrics;
+  private final IdentityReconciler identityReconciler;
 
   public CollectionRuntime(
       SourceInstanceStore sources,
@@ -104,7 +108,9 @@ public final class CollectionRuntime {
       LeaseHeartbeats heartbeats,
       Clock clock,
       Supplier<RunId> runIds,
-      CollectionMetrics metrics) {
+      CollectionMetrics metrics,
+      IdentityReconciler identityReconciler) {
+    this.identityReconciler = identityReconciler;
     this.metrics = metrics;
     this.sources = sources;
     this.adapters = adapters;
@@ -129,12 +135,42 @@ public final class CollectionRuntime {
     adapter.validateConfig(source.config());
     WorkClaim claim = claim(id);
     StartedRun run = start(claim, source, adapter, mode);
+    Report report;
     try {
-      return run.collectWith(adapter, source, mode, cancel);
+      report = run.collectWith(adapter, source, mode, cancel);
     } finally {
       run.heartbeat().stop();
       claims.release(claim, clock.instant());
+      reconcileIdentities(id);
     }
+    return report;
+  }
+
+  private void reconcileIdentities(SourceInstanceId source) {
+    ReconcileReport report;
+    try {
+      report = identityReconciler.reconcile(source);
+    } catch (RuntimeException failure) {
+      // 저장소 예외의 이메일·권한 키를 로그에 복사하지 않는다.
+      report = new ReconcileReport(0, 0, 0, 1);
+    }
+    var event =
+        report.failedSources() == 0
+            ? EventLog.info(log, "admin.identity_reconcile.completed")
+            : EventLog.warn(log, "admin.identity_reconcile.failed");
+    event
+        .source(source)
+        .detail(
+            EventValues.detail(
+                "linked",
+                report.linked(),
+                "unlinked",
+                report.unlinked(),
+                "unchanged",
+                report.unchanged(),
+                "failedSources",
+                report.failedSources()))
+        .log();
   }
 
   private SourceInstance enabledSource(SourceInstanceId id) {
@@ -195,17 +231,29 @@ public final class CollectionRuntime {
       return new StartedRun(
           claim, runId, stored, coverage, heartbeat, source.descriptor(), verification);
     } catch (RuntimeException e) {
-      try {
-        // 둘은 함께 정해진다(사이에 던질 수 있는 호출이 없다)
-        if (startedRun != null && startedCoverage != null)
-          failStartedRun(id, startedRun, startedCoverage, e);
-      } catch (RuntimeException finishing) {
-        e.addSuppressed(finishing);
-      } finally {
-        claims.release(claim, clock.instant());
-      }
+      abortStart(claim, startedRun, startedCoverage, e);
       throw e;
     }
+  }
+
+  private void abortStart(
+      WorkClaim claim,
+      @Nullable RunId run,
+      @Nullable CollectionCoverage coverage,
+      RuntimeException error) {
+    boolean terminal = false;
+    try {
+      // 둘은 함께 정해진다(사이에 던질 수 있는 호출이 없다).
+      if (run != null && coverage != null) {
+        failStartedRun(claim.source(), run, coverage, error);
+        terminal = true;
+      }
+    } catch (RuntimeException finishing) {
+      error.addSuppressed(finishing);
+    } finally {
+      claims.release(claim, clock.instant());
+    }
+    if (terminal) reconcileIdentities(claim.source());
   }
 
   /** 페이지 없이 끝난 run(heartbeat 등록 실패)을 failed로 마감한다. 관측·투영 요청이 없으므로 RunCompletion을 거치지 않는다. */
@@ -266,6 +314,9 @@ public final class CollectionRuntime {
           access.collect(expectedSource, adapter, claim, runId, heartbeat, cancel);
       AccessResult applied = finishAccess(collected);
       Instant accessEnded = clock.instant();
+      collected
+          .cost()
+          .ifPresent(cost -> accessCompletion.recordCost(claim, runId, expectedSource, cost));
       CollectionRun done = completion.complete(input(body, applied, accessEnded));
       if (body.status().isSuccess() && !done.status().isSuccess())
         logRunEnded(
@@ -288,7 +339,12 @@ public final class CollectionRuntime {
         if (collected.result() == AccessResult.SKIPPED) return collected.result();
         if (heartbeat.claimLost()) return AccessResult.CLAIM_LOST;
         if (collected.directory() == AccessMerge.COMPLETE)
-          collected = new AccessCollection.Result(AccessResult.INCOMPLETE, AccessMerge.INCOMPLETE);
+          collected =
+              new AccessCollection.Result(
+                  AccessResult.INCOMPLETE,
+                  AccessMerge.INCOMPLETE,
+                  collected.identityCoverage(),
+                  collected.cost());
       }
       return accessCompletion.finish(claim, runId, expectedSource, collected, clock.instant());
     }

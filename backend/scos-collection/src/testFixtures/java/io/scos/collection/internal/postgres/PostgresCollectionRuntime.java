@@ -1,6 +1,8 @@
 package io.scos.collection.internal.postgres;
 
+import io.scos.boot.AdminConfiguration;
 import io.scos.boot.PostgresCollectionConfiguration;
+import io.scos.boot.PostgresIndexConfiguration;
 import io.scos.collection.internal.AccessCollection;
 import io.scos.collection.internal.AccessCompletion;
 import io.scos.collection.internal.AccessObservationStore;
@@ -21,6 +23,7 @@ import io.scos.collection.internal.SnapshotShrinkLimits;
 import io.scos.collection.internal.SourceAdapters;
 import io.scos.collection.internal.WorkClaimPort;
 import io.scos.collection.internal.projection.ProjectionSpaces;
+import io.scos.engine.admin.IdentityReconciler;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
@@ -65,6 +68,7 @@ public final class PostgresCollectionRuntime {
   private final DataSource dataSource;
   private final Clock clock;
   private boolean collectAccess;
+  private IdentityReconciler identityReconciler;
   private DomainPolicy domains = new DomainPolicy(Set.of(), Map.of());
   private AccessObservationStore accessObservations;
   private WorkClaimPort claims;
@@ -173,6 +177,18 @@ public final class PostgresCollectionRuntime {
     return this;
   }
 
+  public PostgresCollectionRuntime identityReconciler(IdentityReconciler reconciler) {
+    this.identityReconciler = reconciler;
+    return this;
+  }
+
+  private IdentityReconciler reconciler() {
+    return identityReconciler != null
+        ? identityReconciler
+        : AdminConfiguration.newIdentityReconciler(
+            new PostgresIndexConfiguration().newAdminStore(dataSource), clock, domains);
+  }
+
   public CollectionRuntime build() {
     if (adapter == null) throw new IllegalStateException("adapter가 없다");
     var adapters = PostgresCollectionConfiguration.adapters(dataSource);
@@ -235,6 +251,7 @@ public final class PostgresCollectionRuntime {
         new LeaseHeartbeats(stores.claims(), leaseTtl, clock, heartbeats, metrics),
         clock,
         runIds == null ? () -> new RunId(runOwner + "-run-" + counter.incrementAndGet()) : runIds,
-        metrics);
+        metrics,
+        reconciler());
   }
 }

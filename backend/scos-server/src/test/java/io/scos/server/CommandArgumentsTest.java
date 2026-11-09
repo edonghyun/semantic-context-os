@@ -9,6 +9,7 @@ import java.util.Locale;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.DefaultApplicationArguments;
 
@@ -19,6 +20,62 @@ class CommandArgumentsTest {
 
   static CommandArguments args(String... args) {
     return new CommandArguments(new DefaultApplicationArguments(args));
+  }
+
+  @Test
+  @DisplayName("bootstrap의 공백 옵션은 이메일과 파일 값을 보존한다")
+  void bootstrapAcceptsSeparatedOptions() {
+    var parsed =
+        args("admin", "bootstrap", "--email", "admin@example.com", "--token-file", "token");
+    // when
+    parsed.requireBootstrapOptions();
+    // then
+    assertThat(parsed.required("email")).isEqualTo("admin@example.com");
+    assertThat(parsed.required("token-file")).isEqualTo("token");
+  }
+
+  @Test
+  @DisplayName("bootstrap의 등호 옵션은 마지막 파일 값도 보존한다")
+  void bootstrapAcceptsEqualsOptions() {
+    var parsed = args("admin", "bootstrap", "--email=admin@example.com", "--token-file=token");
+    // when
+    parsed.requireBootstrapOptions();
+    // then
+    assertThat(parsed.required("email")).isEqualTo("admin@example.com");
+    assertThat(parsed.required("token-file")).isEqualTo("token");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"--email", "--token-file"})
+  @DisplayName("bootstrap 마지막 옵션에 값이 없으면 거부한다")
+  void bootstrapRejectsTrailingEmptyOption(String option) {
+    // when·then
+    assertThatThrownBy(() -> args("admin", "bootstrap", option).requireBootstrapOptions())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("bootstrap");
+  }
+
+  @Test
+  @DisplayName("bootstrap은 다음 옵션을 이메일 값으로 삼지 않는다")
+  void bootstrapDoesNotConsumeNextOption() {
+    // when·then
+    assertThatThrownBy(
+            () ->
+                args("admin", "bootstrap", "--email", "--token-file=token")
+                    .requireBootstrapOptions())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("bootstrap");
+  }
+
+  @ParameterizedTest
+  @CsvSource({"source,bootstrap", "admin,status"})
+  @DisplayName("bootstrap 이외의 명령은 공백 옵션을 새로 해석하지 않는다")
+  void unrelatedCommandsKeepOptionGrammar(String command, String subcommand) {
+    var parsed = args(command, subcommand, "--email", "admin@example.com");
+    // when·then
+    assertThatThrownBy(() -> parsed.option("email"))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("--email needs a value");
   }
 
   @Test

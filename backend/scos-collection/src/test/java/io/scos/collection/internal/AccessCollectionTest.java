@@ -8,8 +8,10 @@ import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl.Status;
 import io.scos.spi.connector.AclPage;
 import io.scos.spi.connector.Checkpoint;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.RawAcl;
 import io.scos.support.LogCapture;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +33,83 @@ class AccessCollectionTest {
   @AfterEach
   void close() {
     scenario.close();
+  }
+
+  @Test
+  @DisplayName("접근 수집이 꺼져도 어댑터의 신원 목록 선언을 전달한다")
+  void skippedCollectionPreservesIdentityCoverage() {
+    // given
+    scenario.disabled();
+    // when
+    var result = scenario.collectResult();
+    // then
+    assertThat(result)
+        .extracting(AccessCollection.Result::result, AccessCollection.Result::identityCoverage)
+        .containsExactly(AccessResult.SKIPPED, IdentityCoverage.FULL);
+  }
+
+  @Test
+  @DisplayName("수집 전에 취소돼도 어댑터의 신원 목록 선언을 전달한다")
+  void cancelledCollectionPreservesIdentityCoverage() {
+    // given
+    scenario.cancel.cancel();
+    // when
+    var result = scenario.collectResult();
+    // then
+    assertThat(result)
+        .extracting(AccessCollection.Result::result, AccessCollection.Result::identityCoverage)
+        .containsExactly(AccessResult.INCOMPLETE, IdentityCoverage.FULL);
+  }
+
+  @Test
+  @DisplayName("접근 수집이 실패해도 어댑터의 신원 목록 선언을 전달한다")
+  void incompleteCollectionPreservesIdentityCoverage() {
+    // given
+    scenario.failAfterPages();
+    // when
+    var result = scenario.collectResult();
+    // then
+    assertThat(result)
+        .extracting(AccessCollection.Result::result, AccessCollection.Result::identityCoverage)
+        .containsExactly(AccessResult.INCOMPLETE, IdentityCoverage.FULL);
+  }
+
+  @Test
+  @DisplayName("점유를 잃어도 어댑터의 신원 목록 선언을 전달한다")
+  void lostClaimPreservesIdentityCoverage() {
+    // given
+    scenario.takeover();
+    // when
+    var result = scenario.collectResult();
+    // then
+    assertThat(result)
+        .extracting(AccessCollection.Result::result, AccessCollection.Result::identityCoverage)
+        .containsExactly(AccessResult.CLAIM_LOST, IdentityCoverage.FULL);
+  }
+
+  @Test
+  @DisplayName("Slack 실제 수집 결과는 어댑터의 전체 신원 목록 선언을 전달한다")
+  void collectionResultCarriesAdapterIdentityCoverage() throws IOException {
+    // when
+    var result = scenario.collectSlack();
+    // then
+    assertThat(result)
+        .extracting(AccessCollection.Result::result, AccessCollection.Result::identityCoverage)
+        .containsExactly(AccessResult.COMPLETE, IdentityCoverage.FULL);
+  }
+
+  @Test
+  @DisplayName("Drive 수집 결과는 기본 부분 신원 목록 선언을 전달한다")
+  void driveDefaultsToPartialIdentityCoverage() {
+    // given
+    scenario.close();
+    scenario = new AccessCollectionScenario("google-drive");
+    // when
+    var result = scenario.collectResult();
+    // then
+    assertThat(result)
+        .extracting(AccessCollection.Result::result, AccessCollection.Result::identityCoverage)
+        .containsExactly(AccessResult.COMPLETE, IdentityCoverage.PARTIAL);
   }
 
   @Test

@@ -3,9 +3,13 @@ package io.scos.server;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.scos.collection.internal.AccessResult;
+import io.scos.collection.internal.RunId;
 import io.scos.collection.internal.SourceQueries.AccessStatus;
+import io.scos.collection.internal.SourceQueries.RunCost;
+import io.scos.spi.connector.AccessCost;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +37,8 @@ class SourceQueryJsonAccessTest {
             2,
             Optional.of(Instant.parse("2026-10-12T00:00:00Z")),
             3,
-            Set.of("file:F1"));
+            Set.of("file:F1"),
+            Optional.empty());
     // then
     assertThat(render.accessStatus(status))
         .isEqualTo(
@@ -66,9 +71,59 @@ class SourceQueryJsonAccessTest {
                     0,
                     Optional.empty(),
                     0,
-                    Set.of())))
+                    Set.of(),
+                    Optional.empty())))
         .isEqualTo(
             json.readTree(
                 "{\"rawUnknown\":0,\"rawFailed\":0,\"documentsMissingAcl\":0,\"rawUnobserved\":0,\"rawStale\":0,\"consecutiveIncomplete\":0,\"documentsHidden\":0,\"aclUnreadable\":0,\"aclUnreadableFiles\":[]}"));
+  }
+
+  @Test
+  @DisplayName("측정 비용은 결과 run 신원과 기록 시각을 JSON에 포함한다")
+  void accessJsonIncludesRunCostIdentity() {
+    // given
+    var status = measuredStatus(OptionalLong.of(4));
+    // when
+    var output = render.accessStatus(status).toString();
+    // then
+    assertThat(output)
+        .isEqualTo(
+            """
+        {"result":"complete","finishedAt":"2026-10-14T00:00:01.000Z","consecutiveIncomplete":0,"lastCompleteAt":"2026-10-14T00:00:01.000Z","documentsHidden":0,"aclUnreadable":0,"aclUnreadableFiles":[],"rawUnknown":0,"rawFailed":0,"documentsMissingAcl":0,"rawUnobserved":0,"rawStale":0,"cost":{"runId":"run-r1","recordedAt":"2026-10-14T00:00:01.000Z","targetCount":2,"callCount":4,"elapsedMs":1250}}\
+        """);
+  }
+
+  @Test
+  @DisplayName("호출 수 미측정은 JSON null로 구분한다")
+  void unknownCallCountRendersAsNull() {
+    // given
+    var status = measuredStatus(OptionalLong.empty());
+    // when
+    var output = render.accessStatus(status).path("cost").toString();
+    // then
+    assertThat(output)
+        .isEqualTo(
+            """
+        {"runId":"run-r1","recordedAt":"2026-10-14T00:00:01.000Z","targetCount":2,"callCount":null,"elapsedMs":1250}\
+        """);
+  }
+
+  private AccessStatus measuredStatus(OptionalLong calls) {
+    var at = Instant.parse("2026-10-14T00:00:01Z");
+    return new AccessStatus(
+        Optional.of(AccessResult.COMPLETE),
+        Optional.of(at),
+        0,
+        0,
+        0,
+        0,
+        0,
+        Optional.empty(),
+        false,
+        0,
+        Optional.of(at),
+        0,
+        Set.of(),
+        Optional.of(new RunCost(new RunId("run-r1"), at, new AccessCost(2, calls, 1250))));
   }
 }

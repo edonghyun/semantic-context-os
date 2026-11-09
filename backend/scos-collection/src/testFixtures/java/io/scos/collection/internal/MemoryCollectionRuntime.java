@@ -1,5 +1,6 @@
 package io.scos.collection.internal;
 
+import io.scos.boot.AdminConfiguration;
 import io.scos.collection.internal.memory.MemoryBodyCompletionStore;
 import io.scos.collection.internal.memory.MemoryCheckpointPort;
 import io.scos.collection.internal.memory.MemoryOutboxPort;
@@ -8,6 +9,7 @@ import io.scos.collection.internal.memory.MemoryRunStore;
 import io.scos.collection.internal.memory.MemorySnapshotGuardStore;
 import io.scos.collection.internal.memory.MemorySourceChangeLog;
 import io.scos.collection.internal.projection.ProjectionSpaces;
+import io.scos.engine.admin.IdentityReconciler;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.call.ProviderCallMetrics;
 import io.scos.engine.support.call.ProviderCallPolicy;
@@ -15,6 +17,9 @@ import io.scos.engine.support.time.MutableClock;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.connector.SourceAdapter;
 import io.scos.spi.store.SpaceId;
+import io.scos.store.memory.MemoryAdminStore;
+import io.scos.store.memory.MemorySourceAccessDirectory;
+import io.scos.store.memory.MemoryUserTokens;
 import io.scos.support.ManualTaskScheduler;
 import io.scos.support.TestMetrics;
 import java.time.Duration;
@@ -49,6 +54,7 @@ public final class MemoryCollectionRuntime {
   private Progress progress;
   private TaskScheduler heartbeats = new ManualTaskScheduler();
   private boolean collectAccess;
+  private IdentityReconciler identityReconciler;
   private AccessObservationStore accessObservations;
   private SourceAdapter adapter = SourceInstances.NOOP_ADAPTER;
   private ProviderCallExecutor calls; // 없으면 build()가 지표 레지스트리로 만든다
@@ -139,6 +145,23 @@ public final class MemoryCollectionRuntime {
     return this;
   }
 
+  public MemoryCollectionRuntime identityReconciler(IdentityReconciler reconciler) {
+    this.identityReconciler = reconciler;
+    return this;
+  }
+
+  private IdentityReconciler reconciler() {
+    if (identityReconciler != null) return identityReconciler;
+    var identities = runs.identities();
+    return AdminConfiguration.newIdentityReconciler(
+        new MemoryAdminStore(
+            identities,
+            new MemoryUserTokens(identities),
+            new MemorySourceAccessDirectory(identities)),
+        clock,
+        new DomainPolicy(Set.of(), Map.of()));
+  }
+
   public CollectionRuntime build() {
     var stores =
         new CollectionStores(
@@ -188,6 +211,7 @@ public final class MemoryCollectionRuntime {
         new LeaseHeartbeats(claims, LEASE_TTL, clock, heartbeats, metrics),
         clock,
         runIds,
-        metrics);
+        metrics,
+        reconciler());
   }
 }

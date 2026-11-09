@@ -12,4 +12,5 @@ dependencies {
     testImplementation(testFixtures(project(":scos-spi")))
     testFixturesImplementation(testFixtures(project(":scos-spi")))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("tools.jackson.core:jackson-databind")
 }

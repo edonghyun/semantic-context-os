@@ -14,8 +14,8 @@ public final class AccessPolicy {
   @FunctionalInterface
   public interface Collector {
     /**
-     * 대상이 비어도 그룹·신원 전체를 수집한다. 각 대상은 Observed를 내고 대상별 실패는 FAILED로 계속한다. 전체 디렉터리를 끝까지 낸 경우에만 정상 반환한다.
-     * sink 오류·취소·원천 전체 실패는 전파한다.
+     * 대상이 비어도 원천이 제공하는 범위의 그룹·신원을 수집한다. 각 대상은 Observed를 내고 대상별 실패는 FAILED로 계속한다. 선언한 범위를 끝까지 낸 경우에만
+     * 정상 반환한다. sink 오류·취소·원천 전체 실패는 전파한다.
      */
     void collect(AccessInput input, AclSink sink);
   }
@@ -37,6 +37,7 @@ public final class AccessPolicy {
   private final Function<RawItem, Optional<String>> document;
   private final Collector collector;
   private final LocalAcl localAcl;
+  private final IdentityCoverage identityCoverage;
 
   private AccessPolicy(
       AccessModel model,
@@ -45,7 +46,8 @@ public final class AccessPolicy {
       Set<String> refreshKinds,
       Function<RawItem, Optional<String>> document,
       Collector collector,
-      LocalAcl localAcl) {
+      LocalAcl localAcl,
+      IdentityCoverage identityCoverage) {
     this.model = model;
     this.scopeKind = scopeKind;
     this.carrierKinds = Set.copyOf(carrierKinds);
@@ -55,6 +57,7 @@ public final class AccessPolicy {
     this.document = document;
     this.collector = collector;
     this.localAcl = localAcl;
+    this.identityCoverage = identityCoverage;
   }
 
   /** 원본 하나가 자기 외부 id의 문서 하나를 제한한다. */
@@ -74,7 +77,8 @@ public final class AccessPolicy {
         refreshKinds,
         document,
         UNIMPLEMENTED,
-        (source, id, at) -> Optional.empty());
+        (source, id, at) -> Optional.empty(),
+        IdentityCoverage.PARTIAL);
   }
 
   /** 권한을 관측할 수 없는 원천은 기본적으로 누구에게도 공개하지 않는다. */
@@ -86,7 +90,8 @@ public final class AccessPolicy {
         Set.of(),
         item -> Optional.empty(),
         UNIMPLEMENTED,
-        (source, id, at) -> Optional.empty());
+        (source, id, at) -> Optional.empty(),
+        IdentityCoverage.PARTIAL);
   }
 
   /** 미지원 원천을 명시적인 인스턴스 지정으로만 공개한다. */
@@ -98,7 +103,8 @@ public final class AccessPolicy {
         Set.of(),
         item -> Optional.empty(),
         UNIMPLEMENTED,
-        (source, id, at) -> Optional.empty());
+        (source, id, at) -> Optional.empty(),
+        IdentityCoverage.PARTIAL);
   }
 
   public AccessPolicy collecting(Collector collection) {
@@ -107,7 +113,24 @@ public final class AccessPolicy {
 
   public AccessPolicy collecting(Collector collection, LocalAcl local) {
     return new AccessPolicy(
-        model, scopeKind, carrierKinds, refreshKinds, document, collection, local);
+        model,
+        scopeKind,
+        carrierKinds,
+        refreshKinds,
+        document,
+        collection,
+        local,
+        identityCoverage);
+  }
+
+  /** 정상 수집이 반환하는 신원 목록의 범위. FULL이어도 실패한 수집은 전체 확정의 근거가 아니다. */
+  public AccessPolicy withIdentityCoverage(IdentityCoverage coverage) {
+    return new AccessPolicy(
+        model, scopeKind, carrierKinds, refreshKinds, document, collector, localAcl, coverage);
+  }
+
+  public IdentityCoverage identityCoverage() {
+    return identityCoverage;
   }
 
   public AccessModel model() {

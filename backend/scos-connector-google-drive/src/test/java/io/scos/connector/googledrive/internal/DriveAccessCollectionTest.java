@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.source.SourceIdentityRecord;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +27,52 @@ class DriveAccessCollectionTest {
   @AfterEach
   void close() {
     scenario.close();
+  }
+
+  @Test
+  @DisplayName("시계가 역행해도 정상 권한 시도의 비용 보고는 실패하지 않는다")
+  void backwardClockKeepsSuccessfulCostReport() {
+    scenario.clockMovesBackDuringPermission();
+    // when
+    var result = scenario.collect("file:F1");
+    // then
+    assertThat(result.failure()).isEmpty();
+    assertThat(result.costs()).containsExactly(new AccessCost(1, OptionalLong.of(1), 0));
+  }
+
+  @Test
+  @DisplayName("시계 역행 뒤 파일 실패는 원래 실패와 실제 호출 수를 보존한다")
+  void backwardClockKeepsOriginalFailureAndCost() {
+    scenario.clockMovesBackDuringPermission();
+    scenario.forbidden("F2", 400);
+    // when
+    var result = scenario.collect("file:F1", "file:F2");
+    // then
+    assertThat(result.failure()).get().isInstanceOf(CallFailureException.class);
+    assertThat(result.costs()).containsExactly(new AccessCost(2, OptionalLong.of(2), 0));
+  }
+
+  @Test
+  @DisplayName("권한 페이지와 재시도는 OAuth를 제외한 실제 전송을 센다")
+  void permissionPagesAndRetriesCountActualRequests() {
+    scenario.retryThenPages();
+    scenario.retryTokenOnce();
+    // when
+    var result = scenario.collect("file:F1", "file:F2");
+    // then
+    assertThat(result.costs()).containsExactly(new AccessCost(2, OptionalLong.of(4), 40));
+  }
+
+  @Test
+  @DisplayName("두 번째 파일 실패도 이미 전송한 세 요청을 비용으로 남긴다")
+  void failedAttemptRetainsActualCallCount() {
+    scenario.pages("F1", "{\"permissions\":[],\"nextPageToken\":\"p2\"}", "{\"permissions\":[]}");
+    scenario.forbidden("F2", 400);
+    // when
+    var result = scenario.collect("file:F1", "file:F2");
+    // then
+    assertThat(result.failure()).isPresent();
+    assertThat(result.costs()).containsExactly(new AccessCost(2, OptionalLong.of(3), 0));
   }
 
   @Test

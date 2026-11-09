@@ -72,7 +72,7 @@ final class McpHttpPrincipalScenario implements AutoCloseable {
         directoryOf("alice")
             .withUser(user("bob"))
             .withIdentity(new Identity(SOURCE, "bob", false, false))
-            .withLink(new Link(SOURCE, "bob", "bob", "manual"));
+            .withLink(new Link(SOURCE, "bob", "bob", "admin"));
     new MemoryIdentitySeed(identities).seed(directory);
     tokens.store(TokenHash.of(ALICE_TOKEN), "alice", "alice", NOW);
     tokens.store(TokenHash.of(BOB_TOKEN), "bob", "bob", NOW);
@@ -100,7 +100,7 @@ final class McpHttpPrincipalScenario implements AutoCloseable {
     return AccessDirectory.empty()
         .withUser(user(id))
         .withIdentity(new Identity(SOURCE, id, false, false))
-        .withLink(new Link(SOURCE, id, id, "manual"));
+        .withLink(new Link(SOURCE, id, id, "admin"));
   }
 
   private User user(String id) {

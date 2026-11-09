@@ -30,12 +30,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Tag;
 import org.springframework.jdbc.core.JdbcTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * 실제 bootJar 데몬 프로세스 테스트의 연결을 소유한다(ADR-0020 §7): 가짜 Slack·Gemini, PostgreSQL 상태 조회, 자식 JVM 기동·신호,
@@ -76,11 +78,15 @@ final class DaemonProcessScenario implements AutoCloseable {
   private CountDownLatch historyArrived;
 
   DaemonProcessScenario(Path dir) throws IOException {
+    this(dir, JSON.readTree(Files.readString(FIXTURES.resolve("slack-dataset.json"))));
+  }
+
+  DaemonProcessScenario(Path dir, JsonNode slackDataset) throws IOException {
     this.dir = dir;
     PostgresSupport.truncateAll();
     adapters = PostgresCollectionConfiguration.adapters(PostgresSupport.dataSource());
     jdbc = new JdbcTemplate(PostgresSupport.dataSource());
-    slack = new FakeSlackServer(FIXTURES.resolve("slack-dataset.json"));
+    slack = new FakeSlackServer(slackDataset);
     gemini = new FakeHttpServer();
     gemini.on(
         "POST",
@@ -96,6 +102,21 @@ final class DaemonProcessScenario implements AutoCloseable {
   /** 관리 API가 생기기 전의 다중 사용자 종단 테스트용 접근·문서 시드. */
   void givenMultiUserAccess() {
     new DaemonAccessSeed(PostgresSupport.dataSource()).seed();
+  }
+
+  void changeSlackAccess(Consumer<ObjectNode> change) {
+    slack.changeAccess(change);
+  }
+
+  int command(String name, Settings settings, String... arguments) throws Exception {
+    Path console = dir.resolve(name + ".console.log");
+    var environment = env(settings);
+    environment.put("SCOS_LOG_DIR", dir.resolve(name + "-logs").toString());
+    var process = ChildJvm.startJar(JAR, console, environment, arguments);
+    started.add(process);
+    if (!process.waitFor(PROCESS_LIMIT.toSeconds(), TimeUnit.SECONDS))
+      throw new IllegalStateException("명령이 끝나지 않았다: " + name + "; console=" + console);
+    return process.exitValue();
   }
 
   /** 같은 데이터셋을 걷는 둘째 Slack 소스(id 순으로 기본 소스 뒤). */
@@ -184,6 +205,9 @@ final class DaemonProcessScenario implements AutoCloseable {
     private boolean loopFault;
     private String mcpHttpToken;
     private int multiUserPort;
+    private boolean singleUser;
+    private String organizationDomain;
+    private Map<String, String> collectionSchedule = Map.of();
 
     static Settings defaults() {
       return new Settings();
@@ -206,6 +230,31 @@ final class DaemonProcessScenario implements AutoCloseable {
 
     Settings multiUserHttp(int port) {
       multiUserPort = port;
+      return this;
+    }
+
+    Settings singleUserAdminHttp(int port) {
+      multiUserHttp(port);
+      singleUser = true;
+      mcpHttpToken = "synthetic-shared-token-for-local-journey";
+      return this;
+    }
+
+    /** 초기 run 뒤에는 CLI만 수집한다. 실패 run의 짧은 retry도 함께 유예한다. */
+    Settings manualCollectionsAfterInitialRun() {
+      collectionSchedule =
+          Map.of(
+              "SCOS_DAEMON_INTERVAL",
+              "24h",
+              "SCOS_DAEMON_RETRY_BASE",
+              "24h",
+              "SCOS_DAEMON_RETRY_MAX",
+              "24h");
+      return this;
+    }
+
+    Settings organizationDomain(String domain) {
+      organizationDomain = domain;
       return this;
     }
 
@@ -447,7 +496,7 @@ final class DaemonProcessScenario implements AutoCloseable {
 
   @Override
   public void close() {
-    for (Process p : started) if (p.isAlive()) p.destroyForcibly();
+    for (Process p : started) stop(p);
     if (historyGate != null) historyGate.countDown();
     try {
       slack.assertNoUnmatched();
@@ -455,6 +504,18 @@ final class DaemonProcessScenario implements AutoCloseable {
     } finally {
       slack.close();
       gemini.close();
+    }
+  }
+
+  private void stop(Process process) {
+    if (!process.isAlive()) return;
+    process.destroyForcibly();
+    try {
+      if (!process.waitFor(PROCESS_LIMIT.toSeconds(), TimeUnit.SECONDS))
+        throw new IllegalStateException("테스트 프로세스가 종료되지 않았다");
+    } catch (InterruptedException failure) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(failure);
     }
   }
 
@@ -483,12 +544,17 @@ final class DaemonProcessScenario implements AutoCloseable {
       env.put("SCOS_RERANK_PROVIDER", "none");
     }
     if (settings.multiUserPort != 0) {
-      env.put("SCOS_ACCESS_MODE", "multi-user");
+      env.put("SCOS_ACCESS_MODE", settings.singleUser ? "single-user" : "multi-user");
       env.put("SCOS_MCP_HTTP_ENABLED", "true");
       env.put("SCOS_DAEMON_PORT", String.valueOf(settings.multiUserPort));
       env.put("SCOS_MCP_HTTP_ALLOWED_HOSTS", "127.0.0.1:" + settings.multiUserPort);
       env.put("SCOS_RERANK_PROVIDER", "none");
     }
+    if (settings.organizationDomain != null) {
+      env.put("SCOS_ACCESS_ORGDOMAINS", settings.organizationDomain);
+      env.put("SCOS_ACCESS_COLLECT", "true");
+    }
+    env.putAll(settings.collectionSchedule);
     return env;
   }
 

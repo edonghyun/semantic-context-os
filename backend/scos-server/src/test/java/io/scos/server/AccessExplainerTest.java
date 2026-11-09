@@ -2,6 +2,7 @@ package io.scos.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.scos.spi.access.AccessFailureReason;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,28 @@ class AccessExplainerTest {
     var result = scenario.explain(Optional.empty()).orElseThrow();
     // then
     assertThat(result.user()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("누락된 접근 대상은 missing_target으로 설명한다")
+  void diagnosisSeparatesMissingTargetFromExpiredAcl() {
+    // given
+    scenario.failedFor(AccessFailureReason.MISSING_TARGET);
+    // when
+    var result = scenario.explain(Optional.empty()).orElseThrow();
+    // then
+    assertThat(result.document().acl().orElseThrow().reason().wire()).isEqualTo("missing_target");
+  }
+
+  @Test
+  @DisplayName("만료된 관측은 expired로 설명한다")
+  void diagnosisPreservesExpiredReason() {
+    // given
+    scenario.failedFor(AccessFailureReason.EXPIRED);
+    // when
+    var result = scenario.explain(Optional.empty()).orElseThrow();
+    // then
+    assertThat(result.document().acl().orElseThrow().reason().wire()).isEqualTo("expired");
   }
 
   @Test

@@ -51,7 +51,7 @@ public final class Commands implements ApplicationRunner, ExitCodeGenerator {
   private static final String CYCLE_FAILED = "command.cycle.failed";
 
   static final String USAGE =
-      "usage: import --file=<units.json> [--space=<id>] [--embedding-generation=<provider:model:dim:input-format>] | source add --id=<id> --kind=<kind> [--name=<name>] --config=<file> --credential-ref=<env:|file:|command:…> [--interval-seconds=<n>] [--snapshot-interval-seconds=<n>] [--snapshot-guard-min-active=<n>] [--snapshot-guard-max-delete-percent=<1-100>] | source accept-shrink <id> | source list | source status <id> | source access explain <documentId> [--user <id>] | source disable <id> | source enable <id> | source rejections <id> [--limit=<n>] | raw list [--limit=<n>] [--cursor=<c>] [--source=<id>] [--type=<type>] [--state=active|deleted] | raw get <source> <externalId> | status [--log=<serve.jsonl>] | collect --source=<id> [--mode=snapshot] | project | cycle | maintenance [--grace-days=<n>] [--dry-run] | reembed --space=<id> [--dry-run] | mcp | daemon";
+      "usage: admin bootstrap --email <email> --token-file <path> | import --file=<units.json> [--space=<id>] [--embedding-generation=<provider:model:dim:input-format>] | source add --id=<id> --kind=<kind> [--name=<name>] --config=<file> --credential-ref=<env:|file:|command:…> [--interval-seconds=<n>] [--snapshot-interval-seconds=<n>] [--snapshot-guard-min-active=<n>] [--snapshot-guard-max-delete-percent=<1-100>] | source accept-shrink <id> | source list | source status <id> | source access explain <documentId> [--user <id>] | source disable <id> | source enable <id> | source rejections <id> [--limit=<n>] | raw list [--limit=<n>] [--cursor=<c>] [--source=<id>] [--type=<type>] [--state=active|deleted] | raw get <source> <externalId> | status [--log=<serve.jsonl>] | collect --source=<id> [--mode=snapshot] | project | cycle | maintenance [--grace-days=<n>] [--dry-run] | reembed --space=<id> [--dry-run] | mcp | daemon";
 
   private final UnitJsonImport importer;
   private final SourceRegistrar registrar;
@@ -66,6 +66,7 @@ public final class Commands implements ApplicationRunner, ExitCodeGenerator {
   private final SourceAdapters adapters;
   private final Clock clock;
   private final CommandOutput usageErrors;
+  private final AdminCommands admin;
   private volatile int exitCode;
 
   public Commands(
@@ -81,7 +82,8 @@ public final class Commands implements ApplicationRunner, ExitCodeGenerator {
       SnapshotShrinkGuard shrinkGuard,
       SourceAdapters adapters,
       Clock clock,
-      CommandOutput usageErrors) {
+      CommandOutput usageErrors,
+      AdminCommands admin) {
     this.importer = importer;
     this.registrar = registrar;
     this.collection = collection;
@@ -95,6 +97,7 @@ public final class Commands implements ApplicationRunner, ExitCodeGenerator {
     this.adapters = adapters;
     this.clock = clock;
     this.usageErrors = usageErrors;
+    this.admin = admin;
   }
 
   @Override
@@ -106,6 +109,7 @@ public final class Commands implements ApplicationRunner, ExitCodeGenerator {
   public void run(ApplicationArguments arguments) throws Exception {
     CommandArguments args = new CommandArguments(arguments);
     switch (args.command()) {
+      case "admin" -> exitCode = admin.run(args);
       case "import" -> importUnits(args);
       case "source" -> source(args);
       case "raw" -> queries.raw(args.positional(1), args);

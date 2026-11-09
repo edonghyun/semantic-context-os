@@ -39,7 +39,8 @@ final class AccessGaugeScenario {
         2,
         Optional.of(NOW.minusSeconds(60)),
         4,
-        Set.of("file:F1"));
+        Set.of("file:F1"),
+        Optional.empty());
   }
 
   void changeStaleCount(int stale) {

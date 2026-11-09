@@ -37,5 +37,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
     testImplementation("ch.qos.logback:logback-classic")
     testFixturesImplementation(project(":scos-spi"))
+    testFixturesImplementation(project(":scos-test-support"))
     testFixturesImplementation("org.springframework.boot:spring-boot-starter-test")
 }

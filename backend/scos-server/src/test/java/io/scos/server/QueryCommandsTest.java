@@ -149,7 +149,8 @@ class QueryCommandsTest {
               Optional.empty(),
               AccessResult.SKIPPED,
               Optional.empty(),
-              Set.of()));
+              Set.of(),
+              Optional.empty()));
     return runs;
   }
 

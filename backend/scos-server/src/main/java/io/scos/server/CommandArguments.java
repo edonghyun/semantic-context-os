@@ -1,12 +1,16 @@
 package io.scos.server;
 
 import java.time.Duration;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.DefaultApplicationArguments;
 
 /**
  * 명령 인자 읽기: 위치 인자, 필수·선택 옵션, 범위가 있는 정수 옵션. 형식이 틀리면 그 옵션 이름을 밝힌 {@link IllegalArgumentException}
@@ -16,7 +20,35 @@ final class CommandArguments {
   private final ApplicationArguments args;
 
   CommandArguments(ApplicationArguments args) {
-    this.args = args;
+    this.args = normalizeBootstrap(args);
+  }
+
+  private ApplicationArguments normalizeBootstrap(ApplicationArguments original) {
+    var positional = original.getNonOptionArgs();
+    if (positional.size() < 2
+        || !positional.get(0).equals("admin")
+        || !positional.get(1).equals("bootstrap")) return original;
+    var normalized = new ArrayList<String>();
+    var remaining = new ArrayDeque<>(Arrays.asList(original.getSourceArgs()));
+    while (!remaining.isEmpty()) {
+      String value = remaining.removeFirst();
+      if (Set.of("--email", "--token-file").contains(value)
+          && !remaining.isEmpty()
+          && !remaining.getFirst().startsWith("--")) value += "=" + remaining.removeFirst();
+      normalized.add(value);
+    }
+    return new DefaultApplicationArguments(normalized.toArray(String[]::new));
+  }
+
+  void requireBootstrapOptions() {
+    if (!args.getNonOptionArgs().equals(List.of("admin", "bootstrap"))
+        || !Set.of("email", "token-file").containsAll(args.getOptionNames()))
+      throw new IllegalArgumentException("Invalid bootstrap arguments");
+    for (String name : List.of("email", "token-file")) {
+      var values = args.getOptionValues(name);
+      if (values == null || values.size() != 1 || values.getFirst().isBlank())
+        throw new IllegalArgumentException("Invalid bootstrap option");
+    }
   }
 
   /** index번째 위치 인자. 없으면 사용법과 함께 실패한다. */

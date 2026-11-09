@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.spi.connector.AclPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceAccessDirectory;
 import io.scos.spi.source.SourceIdentityRecord;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -65,6 +67,7 @@ public abstract class AccessObservationStoreContract {
                     scenario.run,
                     new SourceInstanceId("foreign"),
                     AccessMerge.COMPLETE,
+                    IdentityCoverage.PARTIAL,
                     T2,
                     () -> {}))
         .isInstanceOf(IllegalArgumentException.class);
@@ -684,6 +687,172 @@ public abstract class AccessObservationStoreContract {
     scenario.merge(AccessMerge.INCOMPLETE);
     // then
     assertThat(scenario.keys()).isEmpty();
+  }
+
+  @Nested
+  @DisplayName("U1과 검증된 U2가 관측된 상태에서")
+  class ExistingRoster {
+    @BeforeEach
+    void seedRoster() {
+      scenario.existingRoster();
+    }
+
+    @Test
+    @DisplayName("완료한 전체 목록에서 빠진 신원은 마감 시각에 삭제로 제한한다")
+    void fullRosterDeletesMissingIdentity() {
+      scenario.stage(identity("U1", T1));
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord("U2", Optional.of("u2@example.com"), true, false, true, T2));
+    }
+
+    @Test
+    @DisplayName("전체 목록에 있는 신원은 실제 관측 시각과 활성 상태를 보존한다")
+    void fullRosterKeepsObservedIdentity() {
+      scenario.stage(
+          new SourceIdentityRecord("U2", Optional.of("u2@example.com"), true, false, false, T1));
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord(
+                  "U2", Optional.of("u2@example.com"), true, false, false, T1));
+    }
+
+    @Test
+    @DisplayName("완료한 빈 전체 목록은 기존 신원을 모두 삭제로 제한한다")
+    void fullEmptyRosterDeletesAllIdentities() {
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.current().identities())
+          .containsExactlyInAnyOrderEntriesOf(
+              Map.of(
+                  "U1", new SourceIdentityRecord("U1", Optional.empty(), false, false, true, T2),
+                  "U2",
+                      new SourceIdentityRecord(
+                          "U2", Optional.of("u2@example.com"), true, false, true, T2)));
+    }
+
+    @Test
+    @DisplayName("부분 목록에서 빠진 신원은 기존 관측을 유지한다")
+    void partialRosterKeepsMissingIdentity() {
+      scenario.stage(identity("U1", T1));
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.PARTIAL, T2);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord(
+                  "U2", Optional.of("u2@example.com"), true, false, false, T0));
+    }
+
+    @Test
+    @DisplayName("미완료 전체 목록에서 빠진 신원은 기존 관측을 유지한다")
+    void incompleteFullRosterKeepsMissingIdentity() {
+      scenario.stage(identity("U1", T1));
+      // when
+      scenario.merge(AccessMerge.INCOMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord(
+                  "U2", Optional.of("u2@example.com"), true, false, false, T0));
+    }
+
+    @Test
+    @DisplayName("이전 마감의 전체 목록은 더 최신 신원을 삭제하지 않는다")
+    void olderRosterCannotDeleteNewerIdentity() {
+      scenario.observeVerifiedIdentity("U2", T2);
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T1);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord(
+                  "U2", Optional.of("u2@example.com"), true, false, false, T2));
+    }
+
+    @Test
+    @DisplayName("같은 시각의 전체 목록 누락도 기존 신원을 삭제로 제한한다")
+    void equalTimeRosterDeletesMissingIdentity() {
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T0);
+      // then
+      assertThat(scenario.identity("U2").deleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("전체성 fallback은 누락 신원의 기존 관측을 유지한다")
+    void fallbackIncompleteDoesNotDeleteMissingIdentity() {
+      scenario.stage(group("C1", T1, "U9"));
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord(
+                  "U2", Optional.of("u2@example.com"), true, false, false, T0));
+    }
+
+    @Test
+    @DisplayName("상충으로 미완료가 된 전체 목록은 누락 신원을 유지한다")
+    void conflictedFullRosterKeepsMissingIdentity() {
+      scenario.stage(identity("U1", T1));
+      scenario.stage(new SourceIdentityRecord("U1", Optional.empty(), false, true, false, T1));
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2").deleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("그룹 참조 위반으로 미완료가 된 전체 목록은 누락 신원을 유지한다")
+    void invalidReferenceKeepsMissingIdentity() {
+      scenario.stage(group("C1", T1, "C2"), group("C2", T1, "U1"), identity("U1", T1));
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2").deleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("점유를 잃은 전체 목록은 거부되고 누락 신원을 유지한다")
+    void lostClaimCannotDeleteMissingIdentity() {
+      // when·then
+      assertThatThrownBy(scenario::mergeFullRosterWithLostClaim)
+          .isInstanceOf(ClaimLostException.class)
+          .hasMessage("injected lost roster claim");
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord(
+                  "U2", Optional.of("u2@example.com"), true, false, false, T0));
+    }
+
+    @Test
+    @DisplayName("전체 목록의 누락 제한은 연결된 사용자의 읽기 키를 회수한다")
+    void fullRosterRevokesMissingIdentityKeys() {
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.keys()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("다른 소스의 최신 관측은 이 소스의 누락 제한을 막지 않는다")
+    void fullRosterDeletionIsSourceScoped() {
+      scenario.seedForeignAccess();
+      // when
+      scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2);
+      // then
+      assertThat(scenario.identity("U2"))
+          .isEqualTo(
+              new SourceIdentityRecord("U2", Optional.of("u2@example.com"), true, false, true, T2));
+    }
   }
 
   static GroupSnapshot group(String id, Instant at, String... members) {

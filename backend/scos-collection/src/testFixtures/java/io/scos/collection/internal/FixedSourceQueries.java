@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** 소스 목록 응답만 고정하는 읽기 경계 대역. 저장 동작은 없으며 다른 조회는 지원하지 않는다. */
+/** 등록 소스와 본문·접근 상태·문서 설명을 고정하는 읽기 응답. 저장 동작은 없다. */
 public final class FixedSourceQueries implements SourceQueries {
   private final List<SourceInstance> sources;
   private final Map<SourceInstanceId, AccessStatus> access;
   private final Map<String, AccessExplanation> explanations;
+  private final Map<SourceInstanceId, SourceStatus> statuses;
 
   public FixedSourceQueries(List<SourceInstance> sources) {
     this(sources, Map.of(), Map.of());
@@ -25,6 +26,15 @@ public final class FixedSourceQueries implements SourceQueries {
       List<SourceInstance> sources,
       Map<SourceInstanceId, AccessStatus> access,
       Map<String, AccessExplanation> explanations) {
+    this(sources, access, explanations, Map.of());
+  }
+
+  public FixedSourceQueries(
+      List<SourceInstance> sources,
+      Map<SourceInstanceId, AccessStatus> access,
+      Map<String, AccessExplanation> explanations,
+      Map<SourceInstanceId, SourceStatus> statuses) {
+    this.statuses = Map.copyOf(statuses);
     this.sources = List.copyOf(sources);
     this.access = Map.copyOf(access);
     this.explanations = Map.copyOf(explanations);
@@ -37,7 +47,7 @@ public final class FixedSourceQueries implements SourceQueries {
 
   @Override
   public Optional<SourceStatus> status(SourceInstanceId source, Instant now) {
-    throw new UnsupportedOperationException();
+    return Optional.ofNullable(statuses.get(source));
   }
 
   @Override

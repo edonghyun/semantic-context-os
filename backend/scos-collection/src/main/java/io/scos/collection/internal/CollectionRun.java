@@ -1,5 +1,6 @@
 package io.scos.collection.internal;
 
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.source.SourceInstanceId;
 import java.time.Instant;
@@ -24,7 +25,11 @@ public record CollectionRun(
     Optional<CollectionCoverage> coverage,
     AccessResult accessResult,
     Optional<Instant> accessFinishedAt,
-    Set<String> aclUnreadable) {
+    Set<String> aclUnreadable,
+    Optional<RecordedAccessCost> accessCost) {
+  /** 비용과 측정 저장 시각은 함께 존재한다. run 신원은 바깥 기록이 소유한다. */
+  public record RecordedAccessCost(AccessCost cost, Instant recordedAt) {}
+
   public CollectionRun {
     aclUnreadable = Set.copyOf(aclUnreadable);
   }
@@ -48,7 +53,8 @@ public record CollectionRun(
         Optional.empty(),
         AccessResult.SKIPPED,
         Optional.empty(),
-        Set.of());
+        Set.of(),
+        Optional.empty());
   }
 
   /** 페이지 하나를 더 반영했다. */
@@ -70,7 +76,8 @@ public record CollectionRun(
         coverage,
         accessResult,
         accessFinishedAt,
-        aclUnreadable);
+        aclUnreadable,
+        accessCost);
   }
 
   /** 이 결과로 마감했다. reconciled는 완료가 tombstone으로 바꾼 수(deleted에 더한다). */
@@ -98,7 +105,30 @@ public record CollectionRun(
         Optional.of(coverage),
         accessResult,
         accessFinishedAt,
-        aclUnreadable);
+        aclUnreadable,
+        accessCost);
+  }
+
+  public CollectionRun withAccessCost(AccessCost cost, Instant recordedAt) {
+    return new CollectionRun(
+        id,
+        source,
+        status,
+        startedAt,
+        finishedAt,
+        pagesApplied,
+        upserted,
+        deleted,
+        unchanged,
+        rejected,
+        errorCount,
+        errorKind,
+        errorSummary,
+        coverage,
+        accessResult,
+        accessFinishedAt,
+        aclUnreadable,
+        Optional.of(new RecordedAccessCost(cost, recordedAt)));
   }
 
   public CollectionRun withUnreadableAcls(Set<String> ids) {
@@ -119,7 +149,8 @@ public record CollectionRun(
         coverage,
         accessResult,
         accessFinishedAt,
-        ids);
+        ids,
+        accessCost);
   }
 
   /** 같은 소스에 새 run이 시작해 running으로 남았던 이 run을 stale_run으로 마감한다(죽은 프로세스의 run). */
@@ -141,6 +172,7 @@ public record CollectionRun(
         coverage,
         accessResult,
         accessFinishedAt,
-        aclUnreadable);
+        aclUnreadable,
+        accessCost);
   }
 }

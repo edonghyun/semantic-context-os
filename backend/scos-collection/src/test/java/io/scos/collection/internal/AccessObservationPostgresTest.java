@@ -1,18 +1,23 @@
 package io.scos.collection.internal;
 
+import static io.scos.collection.internal.AccessObservationStoreContract.T0;
 import static io.scos.collection.internal.AccessObservationStoreContract.T1;
+import static io.scos.collection.internal.AccessObservationStoreContract.T2;
 import static io.scos.collection.internal.AccessObservationStoreContract.group;
 import static io.scos.collection.internal.AccessObservationStoreContract.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.scos.collection.internal.postgres.PostgresSupport;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.source.SourceAccessDirectory;
+import io.scos.spi.source.SourceIdentityRecord;
 import io.scos.support.Eventually;
 import io.scos.support.PgLocks;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -83,6 +88,26 @@ class AccessObservationPostgresTest {
     }
     // then
     assertThat(scenario.current()).isEqualTo(SourceAccessDirectory.Snapshot.empty());
+  }
+
+  @Test
+  @DisplayName("전체 목록 누락의 삭제 제한은 그룹 저장 장애와 함께 롤백한다")
+  void fullRosterDeletionRollsBackWithDirectoryFailure() {
+    scenario.existingRoster();
+    scenario.stage(group("C1", T1, "U1"), identity("U1", T1));
+    rejectGroups();
+    try {
+      // when·then
+      assertThatThrownBy(() -> scenario.merge(AccessMerge.COMPLETE, IdentityCoverage.FULL, T2))
+          .isInstanceOf(DataAccessException.class)
+          .hasMessageContaining("access_test_failure");
+    } finally {
+      allowGroups();
+    }
+    // then
+    assertThat(scenario.identity("U2"))
+        .isEqualTo(
+            new SourceIdentityRecord("U2", Optional.of("u2@example.com"), true, false, false, T0));
   }
 
   @Test

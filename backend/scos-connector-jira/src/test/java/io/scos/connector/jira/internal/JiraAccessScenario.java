@@ -16,6 +16,7 @@ import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawMutation;
+import io.scos.spi.connector.RecordedAclSink;
 import io.scos.spi.connector.SourceConfig;
 import io.scos.spi.connector.SourceDescriptor;
 import io.scos.spi.source.SourceInstanceId;
@@ -436,10 +437,11 @@ final class JiraAccessScenario implements AutoCloseable {
         .accessPolicy()
         .collect(
             targets,
-            page -> {
-              pages.add(page);
-              afterPage.run();
-            });
+            new RecordedAclSink(
+                page -> {
+                  pages.add(page);
+                  afterPage.run();
+                }));
   }
 
   Set<String> observedIds() {
@@ -485,7 +487,9 @@ final class JiraAccessScenario implements AutoCloseable {
     List<String> result = new ArrayList<>();
     directory
         .readProject(id)
-        .emitTo(page -> page.groups().forEach(group -> result.add(group.groupId())));
+        .emitTo(
+            new RecordedAclSink(
+                page -> page.groups().forEach(group -> result.add(group.groupId()))));
     return List.copyOf(result);
   }
 

@@ -7,6 +7,7 @@ import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.source.SourceIdentityRecord;
 import java.time.Duration;
@@ -30,6 +31,15 @@ class SlackAccessCollectionTest {
   }
 
   private static final Duration RETRY_DELAY = Duration.ofSeconds(2);
+
+  @Test
+  @DisplayName("Slack 어댑터는 전체 신원 목록을 선언한다")
+  void slackDeclaresFullIdentityCoverage() {
+    // when
+    var coverage = s.identityCoverage();
+    // then
+    assertThat(coverage).isEqualTo(IdentityCoverage.FULL);
+  }
 
   @Test
   @DisplayName("API 기본 URL 끝의 슬래시는 요청 경로를 손상시키지 않는다")

@@ -6,9 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 @DisplayName("접근 정책은 문서를 제한하는 모든 carrier를 같은 묶음에 둔다")
 class AccessPolicyTest {
@@ -16,6 +19,75 @@ class AccessPolicyTest {
   private final RawItem second = RawItems.item("second").build();
   private final AccessPolicy policy =
       AccessPolicy.supported(Set.of("slack.message"), Set.of(), item -> Optional.of("document"));
+
+  @ParameterizedTest
+  @CsvSource({"-1,0,0", "0,-1,0", "0,0,-1"})
+  @DisplayName("음수 대상과 호출과 경과 시간은 비용으로 만들 수 없다")
+  void negativeCostIsRejected(long targets, long calls, long elapsed) {
+    // when·then
+    assertThatThrownBy(() -> new AccessCost(targets, OptionalLong.of(calls), elapsed))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Access cost must be non-negative");
+  }
+
+  @Test
+  @DisplayName("공용 sink는 접근 페이지와 비용을 함께 기록한다")
+  void recordedSinkPreservesPagesAndCost() {
+    var sink = new RecordedAclSink();
+    var page = new AclPage(Map.of(), List.of(), List.of());
+    sink.accept(page);
+    // when
+    sink.cost(new AccessCost(0, OptionalLong.empty(), 0));
+    // then
+    assertThat(sink.pages()).containsExactly(new AclPage(Map.of(), List.of(), List.of()));
+    assertThat(sink.costs()).containsExactly(new AccessCost(0, OptionalLong.empty(), 0));
+  }
+
+  @Test
+  @DisplayName("지원 원천의 신원 목록은 기본적으로 부분 목록이다")
+  void supportedDefaultsToPartialIdentityCoverage() {
+    // then
+    assertThat(policy.identityCoverage()).isEqualTo(IdentityCoverage.PARTIAL);
+  }
+
+  @Test
+  @DisplayName("미지원 원천의 신원 목록은 부분 목록이다")
+  void unsupportedDefaultsToPartialIdentityCoverage() {
+    // when
+    var coverage = AccessPolicy.unsupported().identityCoverage();
+    // then
+    assertThat(coverage).isEqualTo(IdentityCoverage.PARTIAL);
+  }
+
+  @Test
+  @DisplayName("지정 원천의 신원 목록은 부분 목록이다")
+  void scopedDefaultsToPartialIdentityCoverage() {
+    // when
+    var coverage = AccessPolicy.scoped("notion").identityCoverage();
+    // then
+    assertThat(coverage).isEqualTo(IdentityCoverage.PARTIAL);
+  }
+
+  @Test
+  @DisplayName("전체 목록 선언은 기존 정책을 바꾸지 않는다")
+  void identityCoverageDeclarationIsImmutable() {
+    // when
+    var full = policy.withIdentityCoverage(IdentityCoverage.FULL);
+    // then
+    assertThat(full.identityCoverage()).isEqualTo(IdentityCoverage.FULL);
+    assertThat(policy.identityCoverage()).isEqualTo(IdentityCoverage.PARTIAL);
+  }
+
+  @Test
+  @DisplayName("수집기를 연결해도 전체 목록 선언을 보존한다")
+  void collectingPreservesIdentityCoverage() {
+    // given
+    var full = policy.withIdentityCoverage(IdentityCoverage.FULL);
+    // when
+    var collecting = full.collecting((input, sink) -> {});
+    // then
+    assertThat(collecting.identityCoverage()).isEqualTo(IdentityCoverage.FULL);
+  }
 
   @Test
   @DisplayName("재관측 종류가 비면 carrier도 자동 재관측하지 않는다")
@@ -90,7 +162,7 @@ class AccessPolicyTest {
   void unsupportedDeclarationRejectsCollection() {
     var input = new AccessInputScenario().input(List.of());
     // when·then
-    assertThatThrownBy(() -> AccessPolicy.unsupported().collect(input, page -> {}))
+    assertThatThrownBy(() -> AccessPolicy.unsupported().collect(input, new RecordedAclSink()))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -99,7 +171,7 @@ class AccessPolicyTest {
   void scopedDeclarationRejectsCollection() {
     var input = new AccessInputScenario().input(List.of());
     // when·then
-    assertThatThrownBy(() -> AccessPolicy.scoped("notion").collect(input, page -> {}))
+    assertThatThrownBy(() -> AccessPolicy.scoped("notion").collect(input, new RecordedAclSink()))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 }

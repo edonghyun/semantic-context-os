@@ -7,6 +7,7 @@ import io.scos.collection.internal.AccessObservationStore;
 import io.scos.collection.internal.RunId;
 import io.scos.spi.access.AccessKeyInstances;
 import io.scos.spi.connector.AclPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceAccessDirectory;
 import io.scos.spi.source.SourceAccessDirectory.Snapshot;
@@ -107,18 +108,28 @@ public final class PostgresAccessObservationStore implements AccessObservationSt
 
   @Override
   public AccessMerge merge(
-      RunId run, SourceInstanceId source, AccessMerge requested, Instant at, Runnable guard) {
+      RunId run,
+      SourceInstanceId source,
+      AccessMerge requested,
+      IdentityCoverage identityCoverage,
+      Instant at,
+      Runnable guard) {
     if (!new AccessKeyInstances().admits(source))
       throw new IllegalArgumentException("Invalid access source instance");
     try {
-      return mergeOnce(run, source, requested, at, guard);
+      return mergeOnce(run, source, requested, identityCoverage, at, guard);
     } catch (AccessMergePolicy.IncompleteSnapshotException incomplete) {
-      return mergeOnce(run, source, AccessMerge.INCOMPLETE, at, guard);
+      return mergeOnce(run, source, AccessMerge.INCOMPLETE, identityCoverage, at, guard);
     }
   }
 
   private AccessMerge mergeOnce(
-      RunId run, SourceInstanceId source, AccessMerge requested, Instant at, Runnable guard) {
+      RunId run,
+      SourceInstanceId source,
+      AccessMerge requested,
+      IdentityCoverage identityCoverage,
+      Instant at,
+      Runnable guard) {
     return Objects.requireNonNull(
         merging.execute(
             status -> {
@@ -136,7 +147,8 @@ public final class PostgresAccessObservationStore implements AccessObservationSt
                   .query(String.class)
                   .single();
               var next =
-                  AccessMergePolicy.merge(mode, directory.current(source), observed.snapshot(), at);
+                  AccessMergePolicy.merge(
+                      mode, identityCoverage, directory.current(source), observed.snapshot(), at);
               directory.save(source, next.snapshot());
               return next.mode();
             }));

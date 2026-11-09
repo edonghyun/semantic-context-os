@@ -91,6 +91,9 @@ class PublicBoundaryRulesTest {
           .arePublic()
           .and()
           .areDeclaredInClassesThat()
-          .resideInAnyPackage("io.scos.engine", "io.scos.spi..")
+          .resideInAnyPackage("io.scos.engine..", "io.scos.spi..")
+          .and()
+          .areDeclaredInClassesThat()
+          .resideOutsideOfPackages("io.scos..internal..", "io.scos..support..")
           .should(notReferenceTypesInSignatureFrom("io.scos..internal..", "io.scos..support.."));
 }

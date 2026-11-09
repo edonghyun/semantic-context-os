@@ -2,6 +2,7 @@ package io.scos.collection.internal;
 
 import io.scos.engine.support.PureFunctions;
 import io.scos.spi.connector.AclPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.source.GroupSnapshot;
 import io.scos.spi.source.SourceAccessDirectory.Snapshot;
 import io.scos.spi.source.SourceIdentityRecord;
@@ -59,17 +60,24 @@ public final class AccessMergePolicy {
 
   public record Merged(Snapshot snapshot, AccessMerge mode) {}
 
-  public static Merged merge(AccessMerge mode, Snapshot current, Snapshot observed, Instant at) {
+  public static Merged merge(
+      AccessMerge mode,
+      IdentityCoverage identityCoverage,
+      Snapshot current,
+      Snapshot observed,
+      Instant at) {
     validateGroups(observed, mode == AccessMerge.COMPLETE);
     Set<String> invalidGroups =
         observed.groups().values().stream()
             .filter(g -> g.members().stream().anyMatch(m -> invalidReference(g, m, observed)))
             .map(GroupSnapshot::groupId)
             .collect(Collectors.toSet());
+    var identities = mergeIdentities(mode, current, observed);
+    if (mode == AccessMerge.COMPLETE
+        && identityCoverage == IdentityCoverage.FULL
+        && invalidGroups.isEmpty()) restrictMissingIdentities(identities, observed, micros(at));
     return new Merged(
-        new Snapshot(
-            mergeIdentities(mode, current, observed),
-            mergeGroups(mode, current, observed, at, invalidGroups)),
+        new Snapshot(identities, mergeGroups(mode, current, observed, at, invalidGroups)),
         invalidGroups.isEmpty() ? mode : AccessMerge.INCOMPLETE);
   }
 
@@ -89,6 +97,16 @@ public final class AccessMergePolicy {
       identities.put(incoming.sourceUserId(), next);
     }
     return identities;
+  }
+
+  private static void restrictMissingIdentities(
+      Map<String, SourceIdentityRecord> identities, Snapshot observed, Instant at) {
+    identities.replaceAll(
+        (id, old) -> {
+          if (observed.identities().containsKey(id) || at.isBefore(old.observedAt())) return old;
+          return new SourceIdentityRecord(
+              id, old.email(), old.emailVerified(), old.guest(), true, at);
+        });
   }
 
   private static Map<String, GroupSnapshot> mergeGroups(

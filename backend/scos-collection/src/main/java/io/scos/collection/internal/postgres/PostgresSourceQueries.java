@@ -114,7 +114,8 @@ public final class PostgresSourceQueries implements SourceQueries {
         history.consecutiveIncomplete(),
         history.lastCompleteAt(),
         documentsHidden(source),
-        history.unreadableFiles());
+        history.unreadableFiles(),
+        history.cost());
   }
 
   private int documentsHidden(SourceInstance source) {

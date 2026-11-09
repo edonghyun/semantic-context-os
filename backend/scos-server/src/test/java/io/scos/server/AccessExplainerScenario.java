@@ -2,6 +2,7 @@ package io.scos.server;
 
 import io.scos.collection.internal.FixedSourceQueries;
 import io.scos.collection.internal.SourceQueries.AccessExplanation;
+import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl;
 import io.scos.spi.access.DomainPolicy;
@@ -48,6 +49,10 @@ final class AccessExplainerScenario {
 
   void failedWithKeys() {
     acl = Optional.of(new DocumentAcl("doc", DocumentAcl.Status.FAILED, Set.of(KEY), NOW));
+  }
+
+  void failedFor(AccessFailureReason reason) {
+    acl = Optional.of(new DocumentAcl("doc", DocumentAcl.Status.FAILED, Set.of(), NOW, reason));
   }
 
   void disjointKeys() {

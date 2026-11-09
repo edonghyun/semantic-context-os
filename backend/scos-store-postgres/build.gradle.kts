@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":scos-spi"))
     implementation(project(":scos-engine"))
     implementation("org.springframework:spring-jdbc")
+    implementation("tools.jackson.core:jackson-databind")
 
     testImplementation(testFixtures(project(":scos-spi")))
     testImplementation(testFixtures(project(":scos-collection")))

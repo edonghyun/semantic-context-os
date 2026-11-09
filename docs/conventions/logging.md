@@ -174,6 +174,8 @@
 - **허용**: 공급자·SCOS의 id(소스·run·페이지·블록·채널·파일 id), 종류·상태 값, 수, 공급자 오류 코드(`object_not_found`), 호스트와 경로(쿼리 문자열 없이).
 - **[MUST]** 불투명 커서(공급자가 준 다음 페이지 토큰)는 그대로 쓰지 않는다. **sha256 앞 8자(소문자 16진수) 지문**으로 쓴다. 첫 페이지(커서 없음)는 `-`다.
   같은 커서는 늘 같은 지문이라 순환과 반복을 알아볼 수 있고, 커서 안에 든 값은 새지 않는다. 지문을 만드는 곳은 `CursorTrail` 하나다.
+- 관리 REST 실패는 참조 ID·예외 클래스·고정 사유만 남긴다. Authorization, 요청/발급 응답 body, 예외 메시지와 cause/suppressed는 토큰을 포함할 수 있으므로 기록하지 않는다. 관리 인증 장애도 이 경계를 따른다.
+- 관리 REST의 미지원 Content-Type·Accept·HTTP 메서드는 고정 400 `invalid_request`로 거부한다. 예상한 입력 오류이므로 `admin.http.failed`를 남기지 않는다.
 - 걸러 넣는 책임은 이벤트를 쓰는 쪽에 있다. `EventLog`와 인코더는 값을 검사하지 않는다.
 - 비밀을 담는 record는 `toString`을 재정의해 값을 가린다(CG-10).
 
@@ -220,7 +222,7 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 - `detail(k1, v1, k2, v2, …)`로 키와 값을 바로 싣거나 `detail(Map)`으로 객체를 싣는다. 순서가 출력 순서다. 중첩 객체를 만드는 내부 코드는 `EventValues.detail(…)`을 쓴다.
 - 이름은 문자열 리터럴이나 같은 파일의 `static final String` 상수로 넘긴다. 이어 붙이거나 다른 클래스의 상수로 넘기면 게이트가 이름을 읽지 못해 실패한다.
 - `EventLog`는 `EventLog.warn(…)`처럼 타입 이름으로 부른다. 멤버를 static import(`import static …EventLog.warn;`)하지 않는다. 게이트가 `EventLog.<수준>(` 모양으로 호출을 찾기 때문이다 — 자동 검사: `EventNameRulesTest.noStaticImportsOfEventLog`
-- 이벤트 하나는 호출 지점 하나에서 쓴다. 같은 이름을 여러 곳에서 쓰면 카탈로그의 "위치"가 흐려진다. 예외는 `daemon.cycle.completed`와 `command.collect.failed`·`command.cycle.failed`다(§2.1).
+- 이벤트 하나는 호출 지점 하나에서 쓴다. 같은 이름을 여러 곳에서 쓰면 카탈로그의 "위치"가 흐려진다. 예외는 `daemon.cycle.completed`와 `command.collect.failed`·`command.cycle.failed`다(§2.1). `admin.identity_reconcile.completed`·`admin.identity_reconcile.failed`도 run 마감과 일일 정비가 같은 집계 스키마를 공유하므로 두 실행 경계에서 쓴다(§9).
 
 ---
 
@@ -259,6 +261,10 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 | `mcp.tool.rejected` | warn | `scos-mcp` `McpToolSpecs`(MASKED 문서 부재·인자 검증 오류) | — | `tool`·`ref` (+ `error`) | `McpErrorExposureTest` |
 | `http.token_usage.failed` | error | `scos-server` `TokenUsageRecorder`(주기·종료 사용 기록 반영 실패) | — | — (+ `error`) | `McpHttpUsageTest`, `TokenUsageShutdownTest` |
 | `http.authentication.failed` | error | `scos-server` `PrincipalBearerFilter`(토큰 저장소 조회 장애) | — | `ref` (+ `error`) | `PrincipalBearerFilterTest` |
+| `admin.http.failed` | error | `scos-server` `AdminHttpErrors`(관리 처리·인증 실패) | — | `ref`(12자)·`errorType`·`reason`(`internal`); 예외 메시지·원인·요청·토큰 제외 | `AdminHttpTest.exceptionMessageCannotLeakIssuedTokenToLog`, `AdminHttpErrorsTest` |
+| `admin.identity_reconcile.completed` | info | `scos-collection` `CollectionRuntime` / `scos-server` `IdentityLinkMaintenance`(run 정리 뒤 / 첫 tick·24h) | 소스(run 후만) | `linked`·`unlinked`·`unchanged`·`failedSources` | `IdentityAfterRunTest`, `IdentityLinkMaintenanceTest` |
+| `admin.identity_reconcile.source_failed` | warn | `scos-engine` `AutomaticIdentityLinks`(run 후·일일 정비 공통의 소스별 롤백) | 실패 소스 | `errorType`(예외 클래스 단순 이름)·`ref`(12자리 참조); 메시지·cause·이메일·권한 키 제외 | `AutomaticIdentityLinksContract.dailyFailureIdentifiesSourceAndErrorWithoutPrivateMessage` |
+| `admin.identity_reconcile.failed` | warn | `scos-collection` `CollectionRuntime` / `scos-server` `IdentityLinkMaintenance`(실패 격리·다음 24h로 전진) | 소스(run 후만) | `linked`·`unlinked`·`unchanged`·`failedSources`; 예외 원문·이메일·권한 키 제외 | `IdentityAfterRunTest`, `IdentityLinkMaintenanceTest` |
 | `collection.run.failed` | error | `scos-collection` `CollectionRuntime`(run 마감 직전) | 소스·run | `status`·`errorKind`·`errorSummary`, 공급자 호출 실패면 `operation`, 응답 검사 위반이 알려졌으면 `violation`(검사 이름)·`itemIndex`(항목 검사일 때), 커넥터가 실패한 작업의 위치를 붙였으면 `providerLocator` | `CollectionRuntimeEventLogTest`, `CollectionRuntimeHeartbeatStartFailureTest`, `NotionAdapterFixtureTest`, `NotionApiClientTest`, `SlackAdapterFixtureTest` |
 | `collection.run.cancelled` | info | `scos-collection` `CollectionRuntime`(run 마감 직전) | 소스·run | `status`·`errorKind`·`errorSummary` | `CollectionRuntimeEventLogTest`, `DaemonProcessTest` |
 | `access.domain.unavailable` | warn | `scos-spring-boot-starter` `AccessDomainConfiguration`(기동 시 유효 Drive 도메인 정책 없음) | 소스 | `reason`(`missing_instance_domain`·`outside_org_domains`) | `AccessCollectionConfigurationTest` |
@@ -270,6 +276,7 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 | `projection.access.closed` | warn | `scos-engine` `DocumentIngestor` | 소스 | `reason`·`documentRef`(sha256) | `ProjectionAclMemoryTest` |
 | `collection.access.expiry_failed` | warn | `scos-collection` `AccessExpiry`(만료 저장 실패 격리) | 소스 | — (+ `error`) | `AccessExpiryTest` |
 | `collection.access.incomplete` | warn | `scos-collection` `AccessCollection`(접근 단계 예외 격리) | 소스·run | — (+ `error`) | `AccessCollectionTest` |
+| `collection.access.cost_failed` | warn | `scos-collection` `AccessCompletion`(독립 비용 tx 실패 격리) | 소스·run | `ref`(`access_cost_storage`); 예외 메시지·원문 제외 | `AccessRunCostContract.costFailureDoesNotExposeStorageMessage` |
 | `collection.access.restricted` | warn | `scos-collection` `AccessCompletion`(참조 위반·전체성·상충으로 병합 제한) | 소스·run | — | `AccessRunCompletionTest.restrictedMergeLogsWarning` |
 | `collection.access.future_observation` | warn | `scos-collection` `AclCommit`(미래 수집 관측 시각 보정) | 소스 | `kind`·`observedAt`·`cappedAt` | `AclCommitTest.futureObservationLogsWarning` |
 | `collection.acl.skipped` | warn | `scos-collection` `AclCommit`(비정규 instance ACL 생략) | 소스 | `reason` | `PageAclCommitContract.nonCanonicalInstanceLogsSkippedAcl` |
@@ -358,3 +365,45 @@ EventLog.error(log, "collection.run.failed")   // 수준과 이름
 신원 이메일·본문·권한 키를 로그에 추가하지 않는다. `source access explain`은 운영자 전용
 읽기 출력으로, 해석 키를 포함할 수 있어 공개 로그로 복사하지 않는다. 이번 T-b19에는 새 제품
 이벤트가 없으며 기존 이벤트 카탈로그를 그대로 대조한다.
+
+## 13. 관리 감사와 진단 (0.2-c)
+
+`audit_events`는 운영 로그와 별개의 **트랜잭션 감사 원장**이다. 관리 변경과 같은 쓰기
+트랜잭션으로 저장하며 감사 실패는 변경도 롤백한다. 무변경 재시도와 조회는 새 감사 행을
+만들지 않는다. 비활성화 때 전 토큰 폐기는 user.deactivate와 한 트랜잭션이고 개별 token.revoke
+행을 토큰 수만큼 만들지 않는다. system 자동 연결도 같은 원자성·중복 방지 규칙을 따른다.
+
+| action | targetType·targetId | detail 허용 필드 |
+| --- | --- | --- |
+| `user.create` | user·사용자 UUID | role (admin/member) |
+| `user.deactivate` / `user.activate` | user·사용자 UUID | 없음 |
+| `user.role` | user·사용자 UUID | old, new (역할) |
+| `token.issue` / `token.revoke` | token·비밀 아닌 tokenId UUID | 없음 |
+| `identity.link` / `identity.unlink` | identity·source:sourceUserId | userId, method (auto/admin) |
+| `scope.designate` / `scope.revoke` | scope·Notion 인스턴스 id | 없음 |
+
+행에는 id·at·actor·action·targetType·targetId·detail이 있다. 사람 작업의 actor는 userId,
+bootstrap의 user.create/token.issue와 자동 연결/해제의 actor는 `system`이다.
+감사 actor를 actor_user_id라는 DB 열로 가정하지 않는다(실제 열은 actor).
+감사 detail에 이메일·도메인·권한 키·본문·토큰 원문·해시·인증 헤더를 추가하지 않는다.
+감사 조회의 REST 필터 이름은 `actor`이며 값은 userId 또는 system이다. 운영 로그의
+이벤트 카탈로그(§9)에 이 action을 EventLog 이벤트로 중복 등록하지 않는다.
+
+소스별 실패 원인은 `admin.identity_reconcile.source_failed`의 sourceInstanceId·errorType·ref로 추적한다.
+일일 정비도 실패 소스마다 이 이벤트를 남겨 집계 실패를 식별한다. 예외 메시지와 cause는 기록하지 않는다.
+운영자는 `admin.identity_reconcile.completed/failed`의 linked·unlinked·unchanged·
+failedSources로 실행 결과를 보고, 개별 변경은 관리자 전용 audit 조회로 확인한다.
+실패 소스는 롤백되며 성공으로 집계하지 않는다. run 마감/일일 정비의 집계 로그에 신원
+이메일·키·예외 원문을 덧붙이지 않는다. 토큰 발급 응답과 bootstrap 보호 파일은 로그가 아니며
+원문 전달은 각 성공 응답/파일 한 번뿐이다. 원문·잘린 원문·요청/응답 body를 access 로그,
+프레임워크 DEBUG 로그, 셸 trace, 보고서에 남기지 않는다.
+
+관리 REST의 `admin.http.failed`는 §9대로 ref·errorType·reason만 기록한다. 인증 저장소 장애도
+관리 경계에서는 같은 비밀 보호를 적용하며 일반 MCP의 http.authentication.failed와 원인
+스택 정책을 혼동하지 않는다. 400/401/403/404/409는 고정 계약 오류이며 500과 분리한다.
+
+run 비용은 로그만으로 합산하지 않는다. 관리 sourceAccess/상태 조회의 같은 runId·recordedAt·
+대상 수·호출 수·소요 시간을 확인한다. 호출 수는 페이지·재시도 포함 실제 전송 수(OAuth 제외),
+null은 미측정이다. 저장 실패는 §9의 collection.access.cost_failed이며 이전 run 비용이나
+0으로 채우지 않는다. 진단 출력·원인/참조를 포함하는 운영 복구는
+[관리 런북](../operations/multi-user.md)과 [접근 릴리스 절차](../operations/access-release.md)를 따른다.

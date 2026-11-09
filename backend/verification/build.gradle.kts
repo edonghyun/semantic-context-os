@@ -164,6 +164,10 @@ pitest {
         "io.scos.boot.NotionCollectionConfiguration*", "io.scos.boot.NotionProjectionConfiguration*",
         "io.scos.boot.GoogleDriveCollectionConfiguration*", "io.scos.boot.GoogleDriveProjectionConfiguration*",
         "io.scos.boot.TiroCollectionConfiguration*", "io.scos.boot.TiroProjectionConfiguration*",
+        // 관리 HTTP 빈·필터 URL 배선: 실제 HTTP+PG 계약과 인증·single-user Host 등록 제거 수동 변형으로 검증한다(c12).
+        "io.scos.server.AdminHttpConfiguration*",
+        // bootstrap CLI 실행·안내: 실제 JAR/PG·파일/출력 계약과 command 분기 제거 수동 변형으로 검증한다(c13).
+        "io.scos.server.AdminCommands*",
         "io.scos.server.McpHttpConfiguration*", "io.scos.server.McpRuntimeConfiguration*", "io.scos.server.OpsConfiguration*",
         // record 구성요소에 TYPE_USE 어노테이션(@Nullable·@NotBlank·@Pattern 등)이 붙은 record: JDK 21의 RedefineClasses 결함
         // JDK-8376185(구성요소 type annotation을 일반 annotation 파서로 상수 풀 재작성 — 25.0.4·26.0.2·27 수정, 21u 미수정) 때문에

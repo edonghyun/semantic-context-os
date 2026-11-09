@@ -5,13 +5,16 @@ import io.scos.engine.EventLog;
 import io.scos.spi.access.AccessKeyInstances;
 import io.scos.spi.access.DocumentAcl.Status;
 import io.scos.spi.access.DomainPolicy;
+import io.scos.spi.connector.AccessCost;
 import io.scos.spi.connector.AccessInput;
 import io.scos.spi.connector.AccessModel;
 import io.scos.spi.connector.AclPage;
+import io.scos.spi.connector.AclSink;
 import io.scos.spi.connector.CallExecutor;
 import io.scos.spi.connector.CallFailure;
 import io.scos.spi.connector.CallFailureException;
 import io.scos.spi.connector.CancellationToken;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawContent;
 import io.scos.spi.connector.RawItem;
@@ -28,14 +31,19 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** 같은 수집 점유 안에서 본문과 독립적으로 접근 대상을 보충한다. 병합과 결과 저장은 마감 단계가 맡는다. */
 public final class AccessCollection {
-  /** 대상 관측 결과와 디렉터리 자체의 전체성은 독립이다. */
-  public record Result(AccessResult result, AccessMerge directory) {}
+  /** 대상 관측 결과·디렉터리 수집 완료·선언된 신원 목록 범위는 서로 독립이다. */
+  public record Result(
+      AccessResult result,
+      AccessMerge directory,
+      IdentityCoverage identityCoverage,
+      Optional<AccessCost> cost) {}
 
   private static final Logger log = LoggerFactory.getLogger(AccessCollection.class);
   // 원본 스캔과 API 없는 보충의 저장 배치를 제한한다. 공급자 API 페이지 크기와는 무관하다.
@@ -92,17 +100,21 @@ public final class AccessCollection {
       RunId run,
       LeaseHeartbeat heartbeat,
       CancellationToken cancel) {
-    if (!collectAccess) return new Result(AccessResult.SKIPPED, AccessMerge.INCOMPLETE);
+    var coverage = adapter.accessPolicy().identityCoverage();
+    if (!collectAccess)
+      return new Result(AccessResult.SKIPPED, AccessMerge.INCOMPLETE, coverage, Optional.empty());
     if (cancel.isCancelled() || !instances.admits(source.id()))
-      return new Result(AccessResult.INCOMPLETE, AccessMerge.INCOMPLETE);
+      return new Result(
+          AccessResult.INCOMPLETE, AccessMerge.INCOMPLETE, coverage, Optional.empty());
     if (adapter.accessPolicy().model() == AccessModel.UNSUPPORTED
         && !adapter.accessPolicy().permitsScope(source))
-      return new Result(AccessResult.UNSUPPORTED, AccessMerge.INCOMPLETE);
+      return new Result(
+          AccessResult.UNSUPPORTED, AccessMerge.INCOMPLETE, coverage, Optional.empty());
     return new Attempt(source, adapter, claim, run, heartbeat, cancel).collect();
   }
 
   /** 한 접근 시도의 점유·취소·대상 선정과 페이지 저장을 함께 소유한다. */
-  private final class Attempt {
+  private final class Attempt implements AclSink {
     private final SourceDescriptor source;
     private final SourceAdapter adapter;
     private final WorkClaim claim;
@@ -111,6 +123,10 @@ public final class AccessCollection {
     private final CancellationToken cancel;
     private final Set<String> pending = new LinkedHashSet<>();
     private boolean directoryComplete;
+    private boolean cancelled;
+    private final Instant started = clock.instant();
+    private OptionalLong targetCount = OptionalLong.empty();
+    private OptionalLong callCount = OptionalLong.empty();
 
     Attempt(
         SourceDescriptor source,
@@ -132,19 +148,22 @@ public final class AccessCollection {
         requireActive();
         if (adapter.accessPolicy().model() == AccessModel.UNSUPPORTED) {
           if (adapter.accessPolicy().permitsScope(source)) requestMissingAclBackfill();
-          return new Result(AccessResult.UNSUPPORTED, AccessMerge.INCOMPLETE);
+          return result(AccessResult.UNSUPPORTED, AccessMerge.INCOMPLETE);
         }
         boolean allTargetsObserved = collectTargets();
-        return new Result(
+        return result(
             allTargetsObserved ? AccessResult.COMPLETE : AccessResult.INCOMPLETE,
             AccessMerge.COMPLETE);
       } catch (ClaimLostException lost) {
-        return new Result(AccessResult.CLAIM_LOST, AccessMerge.INCOMPLETE);
+        return result(AccessResult.CLAIM_LOST, AccessMerge.INCOMPLETE);
       } catch (RuntimeException incomplete) {
+        cancelled =
+            incomplete instanceof CallFailureException failure
+                && failure.failure().kind() == CallFailure.Kind.CANCELLED;
         try {
           expireUnrefreshed();
         } catch (ClaimLostException lost) {
-          return new Result(AccessResult.CLAIM_LOST, AccessMerge.INCOMPLETE);
+          return result(AccessResult.CLAIM_LOST, AccessMerge.INCOMPLETE);
         } catch (RuntimeException expirationFailure) {
           if (!expirationFailure.equals(incomplete)) incomplete.addSuppressed(expirationFailure);
         }
@@ -153,10 +172,28 @@ public final class AccessCollection {
             .run(run.value())
             .cause(incomplete)
             .log();
-        return new Result(
+        return result(
             AccessResult.INCOMPLETE,
             directoryComplete ? AccessMerge.COMPLETE : AccessMerge.INCOMPLETE);
       }
+    }
+
+    private Result result(AccessResult result, AccessMerge directory) {
+      Optional<AccessCost> cost =
+          targetCount.isEmpty() || cancelled || cancel.isCancelled()
+              ? Optional.empty()
+              : Optional.of(
+                  new AccessCost(
+                      targetCount.getAsLong(),
+                      callCount,
+                      // 벽시계 보정이 본문 마감을 중단시키지 않게 음수 경과 시간을 제한한다.
+                      Math.max(0, Duration.between(started, clock.instant()).toMillis())));
+      return new Result(result, directory, adapter.accessPolicy().identityCoverage(), cost);
+    }
+
+    @Override
+    public void cost(AccessCost cost) {
+      callCount = cost.callCount();
     }
 
     private void requestMissingAclBackfill() {
@@ -180,7 +217,7 @@ public final class AccessCollection {
       var input = new AccessInput(source, targets(), calls, cancel, domains, this::storedContent);
       pending.addAll(input.externalIds());
       requireActive();
-      adapter.accessPolicy().collect(input, this::commit);
+      adapter.accessPolicy().collect(input, this);
       // 정상 디렉터리 반환 뒤의 대상 닫기 실패가 이미 관측한 전체성을 지우지 않는다.
       directoryComplete = true;
       expireUnrefreshed();
@@ -267,7 +304,9 @@ public final class AccessCollection {
         cursor = page.nextCursor();
       } while (cursor.isPresent());
       selected.sort(Comparator.comparing(this::lastObservedAt).thenComparing(RawItem::externalId));
-      return resolveTargets(selected);
+      var remote = resolveTargets(selected);
+      targetCount = OptionalLong.of(selected.size());
+      return remote;
     }
 
     private Instant lastObservedAt(RawItem item) {
@@ -286,7 +325,7 @@ public final class AccessCollection {
             local.put(item.externalId(), observation);
           else remote.add(item.externalId());
         }
-        if (!local.isEmpty()) commit(new AclPage(local, List.of(), List.of()));
+        if (!local.isEmpty()) accept(new AclPage(local, List.of(), List.of()));
       }
       return remote;
     }
@@ -299,7 +338,8 @@ public final class AccessCollection {
           || acl.status() == Status.FAILED;
     }
 
-    private void commit(AclPage page) {
+    @Override
+    public void accept(AclPage page) {
       requireActive();
       acls.commit(claim, run, source, page);
       page.acls()

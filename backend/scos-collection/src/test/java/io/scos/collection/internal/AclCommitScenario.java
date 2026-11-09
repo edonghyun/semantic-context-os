@@ -14,6 +14,7 @@ import io.scos.spi.connector.CollectionCoverage;
 import io.scos.spi.connector.CollectionInput;
 import io.scos.spi.connector.CollectionMode;
 import io.scos.spi.connector.CollectionPage;
+import io.scos.spi.connector.IdentityCoverage;
 import io.scos.spi.connector.PageSink;
 import io.scos.spi.connector.RawAcl;
 import io.scos.spi.connector.RawItems;
@@ -205,7 +206,8 @@ public final class AclCommitScenario implements AutoCloseable {
   public AccessMerge mergeAccess() {
     return ports
         .accessObservations()
-        .merge(RUN, SOURCE, AccessMerge.COMPLETE, clock.instant(), () -> {});
+        .merge(
+            RUN, SOURCE, AccessMerge.COMPLETE, IdentityCoverage.PARTIAL, clock.instant(), () -> {});
   }
 
   public void failOutbox() {

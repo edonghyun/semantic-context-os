@@ -49,7 +49,7 @@ final class AccessInputScenario {
   }
 
   void collectWithDefault() {
-    adapter.accessPolicy().collect(input(List.of()), page -> {});
+    adapter.accessPolicy().collect(input(List.of()), new RecordedAclSink());
   }
 
   AccessModel defaultAccessModel() {

@@ -287,32 +287,14 @@ class AccessCollectionTest {
   }
 
   @Test
-  @DisplayName("Slack 과거 메시지 세 개를 본문 API 없이 보충한다")
-  void slackBackfillUsesNoMessageApi() {
+  @DisplayName("Slack 과거 메시지 세 개를 접근 수집 대상으로 넘기고 관측을 저장한다")
+  void slackBackfillPassesTargetsAndStoresObservations() {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.active("C1:1700000000.000002", "slack.message");
     scenario.active("C1:1700000000.000003", "slack.message");
-    scenario.pages(
-        new AclPage(
-            Map.of(
-                "C1:1700000000.000001",
-                    RawAcl.observed(
-                        Status.OK,
-                        Set.of(AccessKey.parse("group:access-source:C1")),
-                        AccessCollectionScenario.T1),
-                "C1:1700000000.000002",
-                    RawAcl.observed(
-                        Status.OK,
-                        Set.of(AccessKey.parse("group:access-source:C1")),
-                        AccessCollectionScenario.T1),
-                "C1:1700000000.000003",
-                    RawAcl.observed(
-                        Status.OK,
-                        Set.of(AccessKey.parse("group:access-source:C1")),
-                        AccessCollectionScenario.T1)),
-            List.of(),
-            List.of()));
+    scenario.slackChannelObserved(
+        "C1:1700000000.000001", "C1:1700000000.000002", "C1:1700000000.000003");
     // when
     scenario.collect();
     // then
@@ -537,13 +519,7 @@ class AccessCollectionTest {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.withAcl("C1:1700000000.000001", Status.OK);
-    scenario.pages(
-        new AclPage(
-            Map.of(
-                "C1:1700000000.000001",
-                RawAcl.failed(AccessFailureReason.ACL_UNREADABLE, AccessCollectionScenario.T1)),
-            List.of(),
-            List.of()));
+    scenario.slackChannelUnreadable("C1:1700000000.000001");
     // when
     scenario.collect();
     // then
@@ -559,16 +535,7 @@ class AccessCollectionTest {
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.withAcl("C1:1700000000.000001", Status.OK);
     scenario.bodyObserved("C1:1700000000.000001");
-    scenario.pages(
-        new AclPage(
-            Map.of(
-                "C1:1700000000.000001",
-                RawAcl.observed(
-                    Status.OK,
-                    Set.of(AccessKey.parse("group:access-source:C1")),
-                    AccessCollectionScenario.T1)),
-            List.of(),
-            List.of()));
+    scenario.slackChannelObserved("C1:1700000000.000001");
     // when
     scenario.collect();
     // then
@@ -588,16 +555,7 @@ class AccessCollectionTest {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.withAcl("C1:1700000000.000001", Status.valueOf(status));
-    scenario.pages(
-        new AclPage(
-            Map.of(
-                "C1:1700000000.000001",
-                RawAcl.observed(
-                    Status.OK,
-                    Set.of(AccessKey.parse("group:access-source:C1")),
-                    AccessCollectionScenario.T1)),
-            List.of(),
-            List.of()));
+    scenario.slackChannelObserved("C1:1700000000.000001");
     // when
     scenario.collect();
     // then
@@ -649,16 +607,7 @@ class AccessCollectionTest {
   void backfillRequestsProjection() {
     // given
     scenario.active("C1:1700000000.000001", "slack.message");
-    scenario.pages(
-        new AclPage(
-            Map.of(
-                "C1:1700000000.000001",
-                RawAcl.observed(
-                    Status.OK,
-                    Set.of(AccessKey.parse("group:access-source:C1")),
-                    AccessCollectionScenario.T1)),
-            List.of(),
-            List.of()));
+    scenario.slackChannelObserved("C1:1700000000.000001");
     // when
     scenario.collect();
     // then
@@ -865,16 +814,7 @@ class AccessCollectionTest {
   void refreshedSlackCarrierDoesNotExpire() {
     scenario.active("C1:1700000000.000001", "slack.message");
     scenario.observedAt("C1:1700000000.000001", AccessCollectionScenario.T1.minusSeconds(86400));
-    scenario.pages(
-        new AclPage(
-            Map.of(
-                "C1:1700000000.000001",
-                RawAcl.observed(
-                    Status.OK,
-                    Set.of(AccessKey.parse("group:access-source:C1")),
-                    AccessCollectionScenario.T1)),
-            List.of(),
-            List.of()));
+    scenario.slackChannelObserved("C1:1700000000.000001");
     // when
     scenario.collect();
     // then

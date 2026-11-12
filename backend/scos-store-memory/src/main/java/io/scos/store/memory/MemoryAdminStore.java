@@ -106,15 +106,6 @@ public final class MemoryAdminStore implements AdminStore {
     }
 
     @Override
-    public int activeAdministratorCount() {
-      requireOpen();
-      return (int)
-          identities.snapshot().users().stream()
-              .filter(u -> u.role() == Role.ADMIN && u.active())
-              .count();
-    }
-
-    @Override
     public int tokenHoldingAdministratorCount() {
       requireOpen();
       var holders =

@@ -458,7 +458,6 @@ public abstract class AdminStoreContract {
   private static Stream<Named<Consumer<AdminStore.Session>>> sessionReads() {
     return Stream.of(
         operation("admin count", AdminStore.Session::administratorCount),
-        operation("active admin count", AdminStore.Session::activeAdministratorCount),
         operation("token holding admin count", AdminStore.Session::tokenHoldingAdministratorCount),
         operation("user", s -> s.user("alice")),
         operation("email", s -> s.userByEmail("alice@example.com")),
@@ -1120,41 +1119,6 @@ public abstract class AdminStoreContract {
     assertThat(first.items()).extracting(event -> event.action()).containsExactly("user.create");
     assertThat(second.items()).extracting(event -> event.action()).containsExactly("user.activate");
     assertThat(second.nextCursor()).isEmpty();
-  }
-
-  @Test
-  @DisplayName("토큰 없는 활성 관리자도 역할을 구분해 정확히 센다")
-  void activeAdministratorCountIncludesTokenlessAdministrators() {
-    // given
-    givenAlice();
-    store.transact(
-        session -> {
-          session.insertUser(BOB);
-          session.insertUser(
-              new UserAccount(
-                  "7e7a7a52-532b-46f1-9e75-18298151c1db",
-                  "charlie@example.com",
-                  true,
-                  Role.ADMIN,
-                  AT));
-          return true;
-        });
-    // when
-    int count = store.transact(AdminStore.Session::activeAdministratorCount);
-    // then
-    assertThat(count).isEqualTo(2);
-  }
-
-  @Test
-  @DisplayName("비활성 관리자는 활성 관리자 수에서 빠진다")
-  void activeAdministratorCountExcludesInactiveUsers() {
-    // given
-    givenAlice();
-    store.transact(session -> session.setActive("alice", false));
-    // when
-    int count = store.transact(AdminStore.Session::activeAdministratorCount);
-    // then
-    assertThat(count).isZero();
   }
 
   @Test

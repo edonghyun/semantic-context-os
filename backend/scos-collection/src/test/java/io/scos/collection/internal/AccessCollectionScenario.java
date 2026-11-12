@@ -12,6 +12,7 @@ import io.scos.connector.slack.internal.FakeSlackServer;
 import io.scos.connector.tiro.TiroAssembly;
 import io.scos.engine.support.call.ProviderCallExecutor;
 import io.scos.engine.support.time.MutableClock;
+import io.scos.spi.access.AccessFailureReason;
 import io.scos.spi.access.AccessKey;
 import io.scos.spi.access.DocumentAcl.Status;
 import io.scos.spi.access.DomainPolicy;
@@ -51,6 +52,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -272,6 +274,23 @@ final class AccessCollectionScenario implements AutoCloseable {
 
   void pages(AclPage... pages) {
     adapter.pages.addAll(List.of(pages));
+  }
+
+  void slackChannelObserved(String... ids) {
+    var acl =
+        RawAcl.observed(
+            Status.OK, Set.of(new AccessKey(AccessKey.Kind.GROUP, source.id(), "C1")), T1);
+    var acls = new LinkedHashMap<String, RawAcl>();
+    for (String id : ids) acls.put(id, acl);
+    pages(new AclPage(acls, List.of(), List.of()));
+  }
+
+  void slackChannelUnreadable(String id) {
+    pages(
+        new AclPage(
+            Map.of(id, RawAcl.failed(AccessFailureReason.ACL_UNREADABLE, T1)),
+            List.of(),
+            List.of()));
   }
 
   void duringAccess(Runnable action) {

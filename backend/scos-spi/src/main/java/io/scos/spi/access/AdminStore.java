@@ -32,8 +32,6 @@ public interface AdminStore {
     /** 비활성 사용자를 포함한 admin 수. bootstrap 재실행 방지에 쓴다. */
     int administratorCount();
 
-    int activeAdministratorCount();
-
     /** 폐기되지 않은 토큰을 하나 이상 가진 활성 관리자 수. 관리 잠금 아래 변경 후 가용성을 판정한다. */
     int tokenHoldingAdministratorCount();
 

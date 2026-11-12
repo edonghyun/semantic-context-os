@@ -94,14 +94,6 @@ public final class PostgresAdminStore implements AdminStore {
     }
 
     @Override
-    public int activeAdministratorCount() {
-      requireOpen();
-      return jdbc.sql("SELECT count(*) FROM users WHERE role='admin' AND active")
-          .query(Integer.class)
-          .single();
-    }
-
-    @Override
     public int tokenHoldingAdministratorCount() {
       requireOpen();
       return jdbc.sql(

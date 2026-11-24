@@ -24,23 +24,8 @@ public final class TiroCollection {
   static final int LIST_PAGE_SIZE = 20;
   private static final Pattern ID = Pattern.compile("^[A-Za-z0-9_-]+$");
 
-  /** 읽는 경로의 범위: 노트 아래 경로의 403·404만 "그 노트(또는 그 종류)를 읽을 수 없다"로 본다. */
-  enum Scope {
-    WORKSPACE,
-    NOTE
-  }
-
-  /** 노트 경로의 403·404 — 분류 대신 호출자에게 알린다(재시도·run 실패 아님). */
-  static final class UnavailableNote extends RuntimeException {
-    UnavailableNote() {
-      super("Tiro note resource unavailable", null, false, false);
-    }
-  }
-
-  private final CollectionInput input;
   private final TiroConfiguration config;
-  private final String token;
-  private final TiroApiClient client;
+  private final TiroReads reads;
   private final TiroNoteReader notes;
 
   public TiroCollection(
@@ -50,11 +35,9 @@ public final class TiroCollection {
       TiroApiClient client,
       ObjectMapper json,
       Clock clock) {
-    this.input = input;
     this.config = config;
-    this.token = token;
-    this.client = client;
-    this.notes = new TiroNoteReader(this, input.content(), config, json, clock);
+    this.reads = new TiroReads(input.calls(), input.cancel(), client, token);
+    this.notes = new TiroNoteReader(reads, input.content(), config, json, clock);
   }
 
   public void collect(PageSink sink) {
@@ -66,7 +49,8 @@ public final class TiroCollection {
       Map<String, String> query = walk.query(cursor);
       if (config.selection() instanceof TiroConfiguration.Selection.Folder folder)
         query.put("folderId", folder.folderId());
-      TiroCursorPage page = TiroCursorPage.read(read(listPath, query, Scope.WORKSPACE));
+      TiroCursorPage page =
+          TiroCursorPage.read(reads.read(listPath, query, TiroReads.Scope.WORKSPACE));
       walk.received(page.nextCursor());
       List<RawMutation> mutations = new ArrayList<>();
       for (ObjectNode listed : page.entries()) mutations.add(notes.read(guid(listed)));
@@ -76,27 +60,11 @@ public final class TiroCollection {
     } while (cursor.isPresent());
   }
 
-  private static String guid(ObjectNode listed) {
+  /** 목록 항목의 노트 guid(`[A-Za-z0-9_-]+`). 아니면 위반. */
+  static String guid(ObjectNode listed) {
     JsonNode guid = listed.get("guid");
     if (guid == null || !guid.isString() || !ID.matcher(guid.asString()).matches())
       throw invalid("Invalid Tiro note identity");
     return guid.asString();
-  }
-
-  /** 이 경로를 읽는다. 노트 범위의 403·404는 {@link UnavailableNote}, 그 밖의 실패는 {@link TiroErrors} 분류다. */
-  JsonNode read(String path, Map<String, String> query, Scope scope) {
-    return input
-        .calls()
-        .execute(
-            "tiro.read",
-            timeout -> client.get(token, path, query, timeout),
-            error -> {
-              if (scope == Scope.NOTE
-                  && error instanceof TiroApiException api
-                  && (api.status() == TiroErrors.FORBIDDEN || api.status() == TiroErrors.NOT_FOUND))
-                throw new UnavailableNote();
-              return TiroErrors.classify(error);
-            },
-            input.cancel());
   }
 }

@@ -7,26 +7,34 @@ import java.util.regex.Pattern;
 /**
  * ArchUnit 가져오기 범위: 제품 코드와 테스트 코드를 클래스 파일 위치로 가른다. ArchUnit 기본
  * 옵션(DoNotIncludeTests·OnlyIncludeTests)은 testFixtures
- * 디렉터리·`*-test-fixtures.jar`·`scos-test-support`를 제품 쪽으로 센다(단계 4 Review Focus 3).
+ * 디렉터리·`*-test-fixtures.jar`·`scos-test-support`·`*-testkit`을 제품 쪽으로 센다(단계 4 Review Focus 3).
  */
 final class TestLocations {
-  /** 제품 클래스 디렉터리(main·harness 소스셋). scos-test-support의 main은 테스트 코드다. */
+  /** 제품 클래스 디렉터리(main·harness 소스셋). 테스트 지원 모듈의 main은 테스트 코드다. */
   static final Pattern PRODUCT_DIR = Pattern.compile("/build/classes/java/(main|harness)/");
 
   /** 테스트 클래스 디렉터리(test·testFixtures 소스셋). */
   static final Pattern TEST_DIR = Pattern.compile("/build/classes/java/(test|testFixtures)/");
 
+  // Testkit modules use this suffix in both source-tree and class-location classification.
+  private static final String TEST_SUPPORT_MODULE = "(?:scos-test-support|scos-[a-z-]+-testkit)";
+
   static final Pattern TEST_SUPPORT_DIR =
-      Pattern.compile("/scos-test-support/build/classes/java/main/");
+      Pattern.compile("/" + TEST_SUPPORT_MODULE + "/build/classes/java/main/");
 
   /** 제품 jar 이름(server는 classifier가 없다). testFixtures jar는 뺀다. */
-  static final Pattern PRODUCT_JAR = Pattern.compile("^scos-(?!test-support)[a-z-]+\\.jar$");
+  static final Pattern PRODUCT_JAR = Pattern.compile("^scos-[a-z-]+\\.jar$");
 
-  static final Pattern TEST_SUPPORT_JAR = Pattern.compile("^scos-test-support[a-z-]*\\.jar$");
+  static final Pattern TEST_SUPPORT_JAR =
+      Pattern.compile("^" + TEST_SUPPORT_MODULE + "(-[0-9A-Za-z._-]+)?\\.jar$");
 
   static final String TEST_FIXTURES_JAR_SUFFIX = "-test-fixtures.jar";
 
   private TestLocations() {}
+
+  static boolean isTestSupportModule(String module) {
+    return module.matches(TEST_SUPPORT_MODULE);
+  }
 
   /** 제품 코드: main·harness 클래스 디렉터리이거나 제품 jar. */
   static final class ProductCode implements ImportOption {
@@ -35,12 +43,14 @@ final class TestLocations {
       String uri = location.asURI().toString();
       String jar = jarName(uri);
       if (jar != null)
-        return PRODUCT_JAR.matcher(jar).matches() && !jar.endsWith(TEST_FIXTURES_JAR_SUFFIX);
+        return PRODUCT_JAR.matcher(jar).matches()
+            && !TEST_SUPPORT_JAR.matcher(jar).matches()
+            && !jar.endsWith(TEST_FIXTURES_JAR_SUFFIX);
       return PRODUCT_DIR.matcher(uri).find() && !TEST_SUPPORT_DIR.matcher(uri).find();
     }
   }
 
-  /** 제품 main 코드: 제품 jar이거나 main 클래스 디렉터리(harness 소스셋과 scos-test-support는 뺀다) — 코딩 규약 규칙의 대상. */
+  /** 제품 main 코드: 제품 jar이거나 main 클래스 디렉터리(harness 소스셋과 테스트 지원 모듈은 뺀다) — 코딩 규약 규칙의 대상. */
   static final class ProductMainCode implements ImportOption {
     @Override
     public boolean includes(Location location) {
@@ -49,7 +59,7 @@ final class TestLocations {
     }
   }
 
-  /** 테스트 코드: test·testFixtures 클래스 디렉터리, testFixtures jar, scos-test-support(jar나 그 main 디렉터리). */
+  /** 테스트 코드: test·testFixtures 클래스 디렉터리, testFixtures jar, 테스트 지원 모듈(jar나 그 main 디렉터리). */
   static final class TestCode implements ImportOption {
     @Override
     public boolean includes(Location location) {

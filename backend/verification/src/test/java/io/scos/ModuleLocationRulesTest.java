@@ -24,6 +24,7 @@ class ModuleLocationRulesTest {
   static final Map<String, Integer> MIN_CLASSES =
       Map.ofEntries(
           Map.entry("scos-spi", 48),
+          Map.entry("scos-board-archive", 36),
           Map.entry("scos-engine", 66),
           Map.entry("scos-store-memory", 5),
           Map.entry("scos-store-postgres", 7),

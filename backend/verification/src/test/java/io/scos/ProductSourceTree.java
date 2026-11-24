@@ -23,7 +23,7 @@ final class ProductSourceTree {
     try (Stream<Path> modules = Files.list(Path.of("."))) {
       modules
           .map(m -> m.getFileName().toString())
-          .filter(m -> m.startsWith("scos-") && !m.equals("scos-test-support"))
+          .filter(m -> m.startsWith("scos-") && !TestLocations.isTestSupportModule(m))
           .filter(m -> Files.isDirectory(Path.of(m, "src/main/java")))
           .forEach(found::add);
     }

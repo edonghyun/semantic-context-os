@@ -10,6 +10,8 @@ plugins {
 // starter의 store-memory는 runtimeOnly다(운영 jar에 남기고, 임베드 체험 경로의 자리) — 표는 구성을 가리지 않는다.
 val allowedMainDependencies: Map<String, Set<String>> = mapOf(
     "scos-spi" to setOf(),
+    "scos-board-archive" to setOf("scos-spi"),
+    "scos-board-archive-testkit" to setOf("scos-board-archive"),
     "scos-engine" to setOf("scos-spi"),
     "scos-store-memory" to setOf("scos-spi", "scos-engine"),
     "scos-store-postgres" to setOf("scos-spi", "scos-engine"),
@@ -33,6 +35,9 @@ val allowedMainDependencies: Map<String, Set<String>> = mapOf(
     "scos-test-support" to setOf("scos-collection", "scos-engine", "scos-spi"),
     "verification" to setOf(),
 )
+check(ScosModules.products.all { product ->
+    allowedMainDependencies.getValue(product).intersect(ScosModules.testkits.toSet()).isEmpty()
+}) { "제품 모듈은 테스트 키트에 의존할 수 없다" }
 val bootAssemblers = setOf("scos-spring-boot-starter", "scos-server")
 // 선언은 두 클래스패스의 allDependencies에서 모은다 — api·implementation·compileOnly·runtimeOnly와, 사용자 구성을 extendsFrom으로 끼운 우회까지
 val mainClasspaths = listOf("compileClasspath", "runtimeClasspath")
@@ -41,7 +46,7 @@ val checkModuleGraph = tasks.register<CheckModuleGraph>("checkModuleGraph") {
     description = "모듈 사이 의존이 허용 표와 같고, spi는 JDK만, starter·server 밖 제품 모듈은 Spring Boot 없이 컴파일되는지 확인한다"
     group = "verification"
     allowed.set(allowedMainDependencies.mapValues { it.value.toList() })
-    modules.set(ScosModules.products + ScosModules.support)
+    modules.set(ScosModules.products + ScosModules.testkits + ScosModules.support)
     included.set(subprojects.map { it.name })
 }
 tasks.check { dependsOn(checkModuleGraph) }

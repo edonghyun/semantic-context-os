@@ -1,5 +1,6 @@
 package io.scos.connector.tiro;
 
+import io.scos.connector.tiro.internal.TiroAccessCollection;
 import io.scos.connector.tiro.internal.TiroApiClient;
 import io.scos.connector.tiro.internal.TiroCheckpoint;
 import io.scos.connector.tiro.internal.TiroCollection;
@@ -21,7 +22,7 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * Tiro 회의록 어댑터(ADR-0022): 워크스페이스 노트 목록(폴더 또는 전체) → 노트마다 상세·전사 문단(전 페이지)·요약·회의 문서를 모두 읽은 뒤
  * `note:<guid>` 원본 하나(`tiro.note`)로 저장한다. 음성·공유 링크는 받지 않는다. 실제 걷기는 run 하나가 소유하는 {@link
- * TiroCollection}이 한다.
+ * TiroCollection}이 한다. 노트 ACL은 접근 단계 수집기({@link TiroAccessCollection})가 매 run 다시 낸다.
  *
  * <ul>
  *   <li>항상 complete_snapshot: 매 실행이 목록 첫 페이지부터 끝까지 걷고(저장된 커서로 재개하지 않는다), 성공하면 이번에 보지 못한 노트를 런타임이
@@ -40,6 +41,7 @@ public final class TiroAdapter implements SourceAdapter {
   private final TiroApiClient client;
   private final ObjectMapper json;
   private final Clock clock;
+  private final AccessPolicy access;
 
   public TiroAdapter(
       CredentialResolver credentials, TiroApiClient client, ObjectMapper json, Clock clock) {
@@ -47,6 +49,9 @@ public final class TiroAdapter implements SourceAdapter {
     this.client = client;
     this.json = json;
     this.clock = clock;
+    access =
+        TiroProjector.ACCESS.collecting(
+            new TiroAccessCollection(credentials, client, json, clock)::collect);
   }
 
   @Override
@@ -56,7 +61,7 @@ public final class TiroAdapter implements SourceAdapter {
 
   @Override
   public AccessPolicy accessPolicy() {
-    return TiroProjector.ACCESS;
+    return access;
   }
 
   @Override

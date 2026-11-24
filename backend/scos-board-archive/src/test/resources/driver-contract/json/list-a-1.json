@@ -1,0 +1,8 @@
+{
+  "items": [
+    {"link": "/posts/a-14", "title": "Notice", "date": "2026.11.15", "pinned": true},
+    {"link": "/posts/a-12", "title": "First", "date": "2026.11.17", "pinned": false},
+    {"link": "/posts/a-11", "title": "Second", "date": "2026.11.16", "pinned": false}
+  ],
+  "next": "/list/a?offset=3"
+}

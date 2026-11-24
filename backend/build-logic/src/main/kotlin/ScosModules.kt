@@ -5,10 +5,13 @@
 object ScosModules {
     /** 제품 모듈(공개 배포 설계 §5.1). 모듈 사이 방향: spi ← engine ← {store·collection·connector·provider·mcp} ← starter ← server, {mcp·store-sqlite} ← client(단독 실행) */
     val products: List<String> = listOf(
-        "scos-spi", "scos-engine", "scos-store-memory", "scos-store-postgres", "scos-store-sqlite", "scos-client", "scos-collection",
+        "scos-board-archive", "scos-spi", "scos-engine", "scos-store-memory", "scos-store-postgres", "scos-store-sqlite", "scos-client", "scos-collection",
         "scos-connector-slack", "scos-connector-notion", "scos-connector-jira", "scos-connector-google-drive", "scos-connector-tiro",
         "scos-provider-gemini", "scos-provider-openai-compatible", "scos-mcp", "scos-spring-boot-starter", "scos-server",
     )
+
+    /** 일반 JAR로 게시하지만 제품 main이 의존하지 않는 계약 테스트 키트. */
+    val testkits = listOf("scos-board-archive-testkit")
 
     /** 배포하지 않는 보조 프로젝트. */
     val support = listOf("scos-test-support", "verification")

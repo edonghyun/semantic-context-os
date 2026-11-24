@@ -6,8 +6,8 @@ import static io.scos.connector.tiro.internal.TiroJson.object;
 import static io.scos.connector.tiro.internal.TiroJson.present;
 import static io.scos.connector.tiro.internal.TiroProtocolException.invalid;
 
-import io.scos.connector.tiro.internal.TiroCollection.Scope;
-import io.scos.connector.tiro.internal.TiroCollection.UnavailableNote;
+import io.scos.connector.tiro.internal.TiroReads.Scope;
+import io.scos.connector.tiro.internal.TiroReads.UnavailableNote;
 import io.scos.engine.support.text.JsJson;
 import io.scos.engine.support.text.Text;
 import io.scos.spi.connector.ContentCapture;
@@ -54,14 +54,14 @@ final class TiroNoteReader {
     ArrayNode read();
   }
 
-  private final TiroCollection reads;
+  private final TiroReads reads;
   private final ContentCapture contents;
   private final TiroConfiguration config;
   private final ObjectMapper json;
   private final Clock clock;
 
   TiroNoteReader(
-      TiroCollection reads,
+      TiroReads reads,
       ContentCapture contents,
       TiroConfiguration config,
       ObjectMapper json,

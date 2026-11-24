@@ -24,6 +24,9 @@ import tools.jackson.databind.JsonNode;
 @DisplayName("가짜 Tiro는 데이터셋 규칙과 장애 각본대로 답한다(C7)")
 class FakeTiroServerTest {
   static final String LIST = "/v1/external/workspaces/ws-synthetic/notes";
+  static final String FOLDERS = "/v1/external/workspaces/ws-synthetic/folders";
+  static final String FOLDERS_BODY =
+      "[{\"id\":10,\"parentId\":null,\"sharingType\":\"ALL_MEMBER_VIEWER\"}]";
   static final String KEY = "Bearer tiro-synthetic-key";
 
   /** 요청 하나의 hang 방지 상한. */
@@ -81,13 +84,88 @@ class FakeTiroServerTest {
   }
 
   @Test
-  @DisplayName("데이터셋 폴더가 아니면 400이다")
-  void rejectsOtherFolder() throws Exception {
+  @DisplayName("선언하지 않은 폴더 목록은 다음 커서 없는 빈 목록이다")
+  void unknownFolderListsNothing() throws Exception {
     // when
-    int status = get(LIST + "?size=20&folderId=folder-2").statusCode();
+    HttpResponse<String> response = get(LIST + "?size=20&folderId=folder-2");
 
     // then
-    assertThat(status).isEqualTo(400);
+    assertThat(guids(response)).isEmpty();
+    assertThat(TiroAssembly.JSON.readTree(response.body()).get("nextCursor").isNull()).isTrue();
+  }
+
+  @Nested
+  @DisplayName("폴더 10에 노트 a·b·c를 선언하면")
+  class DeclaredFolder {
+    @Test
+    @DisplayName("size 2의 첫 쪽은 a·b와 다음 커서 page:2다")
+    void declaredFolderIsPagedBySize() throws Exception {
+      // given
+      server.folderNotes("10", List.of("a", "b", "c"));
+
+      // when
+      HttpResponse<String> response = get(LIST + "?size=2&folderId=10");
+
+      // then
+      assertThat(guids(response)).containsExactly("a", "b");
+      assertThat(TiroAssembly.JSON.readTree(response.body()).get("nextCursor").asString())
+          .isEqualTo("page:2");
+    }
+
+    @Test
+    @DisplayName("커서 page:2의 쪽은 c이고 마지막 쪽이다")
+    void declaredFolderLastPage() throws Exception {
+      // given
+      server.folderNotes("10", List.of("a", "b", "c"));
+
+      // when
+      HttpResponse<String> response = get(LIST + "?size=2&folderId=10&cursor=page:2");
+
+      // then
+      assertThat(guids(response)).containsExactly("c");
+      assertThat(TiroAssembly.JSON.readTree(response.body()).get("nextCursor").isNull()).isTrue();
+    }
+
+    @Test
+    @DisplayName("목록 커서 장애는 폴더 목록 쪽에도 걸린다")
+    void cursorFaultAppliesToFolderListing() throws Exception {
+      // given
+      server.folderNotes("10", List.of("a", "b", "c"));
+      server.failOnCursor(LIST, "page:2", 1, FakeTiroServer.Fault.status(500));
+
+      // when
+      int status = get(LIST + "?size=2&folderId=10&cursor=page:2").statusCode();
+
+      // then
+      assertThat(status).isEqualTo(500);
+    }
+  }
+
+  @Test
+  @DisplayName("폴더 목록 끝점은 선언한 본문으로 답한다")
+  void foldersEndpointAnswersDeclaredBody() throws Exception {
+    // given
+    server.folders(FOLDERS_BODY);
+
+    // when
+    HttpResponse<String> response = get(FOLDERS);
+
+    // then
+    assertThat(response.statusCode()).isEqualTo(200);
+    assertThat(response.body()).isEqualTo(FOLDERS_BODY);
+  }
+
+  @Test
+  @DisplayName("폴더 목록도 키가 다르면 401이다")
+  void foldersRequireToken() throws Exception {
+    // given
+    server.folders(FOLDERS_BODY);
+
+    // when
+    int status = get(FOLDERS, "Bearer other").statusCode();
+
+    // then
+    assertThat(status).isEqualTo(401);
   }
 
   @Test

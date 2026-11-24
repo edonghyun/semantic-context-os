@@ -23,8 +23,9 @@ import tools.jackson.databind.node.ObjectNode;
 /**
  * 가짜 Tiro REST API(합성 데이터). harness/fixtures/tiro/tiro-dataset.json을 TS make-tiro-fixture.ts의
  * fakeFetch와 같은 규칙으로 서빙한다: 커서 "page:<다음 인덱스>", 노트 자원의 `{status}`는 그 상태 응답, 목록에 있는데 데이터셋에 없는
- * 노트(n-gone)의 상세는 404, 폴더가 다르면 400. 공용 {@link FakeHttpServer} 위의 얇은 층이다: 이 클래스는 데이터셋이 가진 GET
- * 경로(목록·노트 상세·문단·요약 목록·상세·문서 목록·상세)의 응답, 키가 다를 때의 401, Tiro 형식의 고장 몸체만 정한다. 미등록 요청 기록·장애 각본
+ * 노트(n-gone)의 상세는 404. 접근 수집용으로 폴더 목록 끝점과 폴더별 노트 목록({@link #folders}·{@link #folderNotes})을 시험이
+ * 선언하고, 선언하지 않은 폴더는 빈 목록이다. 공용 {@link FakeHttpServer} 위의 얇은 층이다: 이 클래스는 데이터셋이 가진 GET 경로(목록·노트
+ * 상세·문단·요약 목록·상세·문서 목록·상세)와 선언한 폴더 경로의 응답, 키가 다를 때의 401, Tiro 형식의 고장 몸체만 정한다. 미등록 요청 기록·장애 각본
  * 횟수·게이트·요청 기록은 공용 기반의 것이다. 실제 Tiro로는 절대 나가지 않는다.
  */
 public final class FakeTiroServer implements AutoCloseable {
@@ -66,6 +67,7 @@ public final class FakeTiroServer implements AutoCloseable {
   private final Set<String> removed = ConcurrentHashMap.newKeySet();
   private final Map<String, Fault> cursorFaults = new ConcurrentHashMap<>();
   private final Map<String, AtomicInteger> cursorFaultBudget = new ConcurrentHashMap<>();
+  private final Map<String, List<String>> folderNotes = new ConcurrentHashMap<>();
 
   public FakeTiroServer(Path datasetFile) throws IOException {
     this.dataset = (ObjectNode) json.readTree(Files.readString(datasetFile));
@@ -166,6 +168,19 @@ public final class FakeTiroServer implements AutoCloseable {
     http.on("GET", path, r -> FakeHttpServer.ok(body));
   }
 
+  /** 워크스페이스 폴더 목록(`GET .../folders`, 쿼리·쪽 나눔 없음)이 이 본문으로 답한다. */
+  public void folders(String body) {
+    http.on("GET", workspacePath() + "/folders", r -> FakeHttpServer.ok(body));
+  }
+
+  /**
+   * 노트 목록의 `folderId=<folderId>`가 이 노트들(항목 `{"guid":...}`)을 요청 `size`로 잘라 준다. 하위 폴더까지의 재귀 결과는 시험이
+   * 직접 선언한다.
+   */
+  public void folderNotes(String folderId, List<String> guids) {
+    folderNotes.put(folderId, List.copyOf(guids));
+  }
+
   /** 목록에서 노트를 뺀다(상세는 그대로 — 폴더 이동·권한 회수와 같다). */
   public void removeFromListing(String guid) {
     removed.add(guid);
@@ -196,10 +211,12 @@ public final class FakeTiroServer implements AutoCloseable {
     http.gateOn(pathContains, latch, onArrive);
   }
 
+  private String workspacePath() {
+    return "/v1/external/workspaces/" + dataset.get("config").get("workspaceGuid").asString();
+  }
+
   private String listPath() {
-    return "/v1/external/workspaces/"
-        + dataset.get("config").get("workspaceGuid").asString()
-        + "/notes";
+    return workspacePath() + "/notes";
   }
 
   private Optional<Response> cursorFault(String path, Recorded r) {
@@ -209,19 +226,34 @@ public final class FakeTiroServer implements AutoCloseable {
     return Optional.of(cursorFaults.get(key).response());
   }
 
-  /** 폴더 없이 요청하면(allNotes) 데이터셋 전체가 그 워크스페이스의 노트다. */
+  /**
+   * 폴더 없이 요청하거나(allNotes) 데이터셋 폴더면 데이터셋 목록, {@link #folderNotes}로 선언한 폴더면 그 노트들, 그 밖의 폴더는 빈 목록이다(실제
+   * API는 폴더 guid·모르는 값에 오류 없이 0건을 준다, 2026-11-24 확인).
+   */
   private synchronized Response listing(Recorded r) {
     Optional<Response> fault = cursorFault(listPath(), r);
     if (fault.isPresent()) return fault.get();
     String folder = r.params().get("folderId");
     if (folder != null && !folder.equals(dataset.get("config").get("folderId").asString()))
-      return FakeHttpServer.status(400, "{}");
+      return folderListing(folderNotes.getOrDefault(folder, List.of()), r);
     JsonNode page = dataset.get("listPages").get(pageIndex(r.params().get("cursor")));
     ObjectNode body = json.createObjectNode();
     ArrayNode content = body.putArray("content");
     for (JsonNode n : page.get("content"))
       if (!removed.contains(n.get("guid").asString())) content.add(n.deepCopy());
     body.set("nextCursor", page.get("nextCursor").deepCopy());
+    return ok(body);
+  }
+
+  /** 선언한 노트를 요청 size만큼 자른 한 쪽. 커서는 `page:<다음 시작 인덱스>`. */
+  private Response folderListing(List<String> guids, Recorded r) {
+    int start = pageIndex(r.params().get("cursor"));
+    int end = Math.min(guids.size(), start + Integer.parseInt(r.params().get("size")));
+    ObjectNode body = json.createObjectNode();
+    ArrayNode content = body.putArray("content");
+    for (String guid : guids.subList(start, end)) content.addObject().put("guid", guid);
+    if (end < guids.size()) body.put("nextCursor", "page:" + end);
+    else body.putNull("nextCursor");
     return ok(body);
   }
 

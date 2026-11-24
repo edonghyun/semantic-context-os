@@ -184,13 +184,30 @@ final class AccessConfigurationScenario {
     return this;
   }
 
+  /** 접근 수집 대상 Tiro 원천 tiro-a 하나(계정 이메일이 없어 도메인 기본값이 없다). */
+  AccessConfigurationScenario tiroSource() {
+    domainSources =
+        List.of(
+            SourceInstances.of(
+                new SourceInstanceId("tiro-a"),
+                "tiro",
+                "{\"workspaceGuid\":\"ws\",\"allNotes\":true}",
+                "env:FAKE",
+                NOW));
+    return this;
+  }
+
   AccessConfigurationScenario organization(String domain) {
     orgDomains = List.of(domain);
     return this;
   }
 
   AccessConfigurationScenario overlay(String domain) {
-    instanceDomains = Map.of("drive-a", domain);
+    return overlay("drive-a", domain);
+  }
+
+  AccessConfigurationScenario overlay(String source, String domain) {
+    instanceDomains = Map.of(source, domain);
     return this;
   }
 

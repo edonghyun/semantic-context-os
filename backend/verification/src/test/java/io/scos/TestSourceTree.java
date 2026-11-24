@@ -21,6 +21,9 @@ final class TestSourceTree {
   static final Map<Path, Integer> MIN_FILES =
       Map.ofEntries(
           Map.entry(Path.of("scos-spi/src/test/java"), 2),
+          Map.entry(Path.of("scos-board-archive/src/test/java"), 14),
+          Map.entry(Path.of("scos-board-archive-testkit/src/main/java"), 6),
+          Map.entry(Path.of("scos-board-archive-testkit/src/test/java"), 2),
           Map.entry(Path.of("scos-spi/src/testFixtures/java"), 7),
           Map.entry(Path.of("scos-engine/src/test/java"), 44),
           Map.entry(Path.of("scos-engine/src/testFixtures/java"), 5),
@@ -53,7 +56,6 @@ final class TestSourceTree {
           Map.entry(Path.of("verification/src/test/java"), 17));
 
   private static final Set<String> PRODUCT_SOURCE_SETS = Set.of("main", "harness");
-  private static final String TEST_SUPPORT = "scos-test-support";
 
   private final List<Path> files;
 
@@ -96,7 +98,7 @@ final class TestSourceTree {
           sourceSets
               .filter(
                   d ->
-                      module.toString().equals(TEST_SUPPORT)
+                      TestLocations.isTestSupportModule(module.toString())
                           || !PRODUCT_SOURCE_SETS.contains(d.getFileName().toString()))
               .map(d -> d.resolve("java"))
               .filter(Files::isDirectory)

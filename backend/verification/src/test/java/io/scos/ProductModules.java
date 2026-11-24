@@ -12,6 +12,7 @@ final class ProductModules {
   static final Map<String, String> MODULE_OF_PACKAGE =
       Map.ofEntries(
           Map.entry("io.scos.spi", "scos-spi"),
+          Map.entry("io.scos.boardarchive", "scos-board-archive"),
           Map.entry("io.scos.engine", "scos-engine"),
           Map.entry("io.scos.store.memory", "scos-store-memory"),
           Map.entry("io.scos.store.postgres", "scos-store-postgres"),

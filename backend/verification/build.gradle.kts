@@ -19,6 +19,10 @@ dependencies {
     }
     testImplementation(project(":scos-test-support"))
     testImplementation(project(":scos-test-support", "testOutputElements"))
+    ScosModules.testkits.forEach {
+        testImplementation(project(":$it"))
+        testImplementation(project(":$it", "testOutputElements"))
+    }
     // ArchUnit 1.5.1(archunit.org getting-started) — 모듈 경계 규칙(PublicBoundaryRulesTest)과 제품 의존 규칙(ArchitectureRulesTest)
     testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -31,7 +35,9 @@ tasks.named<Test>("fastTest") {
     val backend = rootProject.layout.projectDirectory
     inputs.files(
         products.flatMap { listOf(fileTree(backend.dir("$it/src/test/java")), fileTree(backend.dir("$it/src/testFixtures/java"))) } +
-            listOf(fileTree(backend.dir("scos-test-support/src/main/java")), fileTree(backend.dir("scos-test-support/src/test/java")))
+            (ScosModules.testkits + "scos-test-support").flatMap {
+                listOf(fileTree(backend.dir("$it/src/main/java")), fileTree(backend.dir("$it/src/test/java")))
+            }
     ).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("moduleTestSources")
     // 메서드 길이 규칙(MethodLengthRulesTest)은 제품 main 소스를 직접 읽는다 — 주석·빈 줄만 바뀌어도 다시 돈다
     inputs.files(products.map { fileTree(backend.dir("$it/src/main/java")) }).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("productMainSources")

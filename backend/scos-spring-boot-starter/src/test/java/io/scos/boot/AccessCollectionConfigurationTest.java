@@ -108,6 +108,61 @@ class AccessCollectionConfigurationTest {
   }
 
   @Test
+  @DisplayName("Tiro 인스턴스 도메인이 없으면 그 원천에 누락 경고를 남긴다")
+  void tiroWithoutInstanceDomainWarns() {
+    try (var logs = LogCapture.of(AccessDomainConfiguration.class)) {
+      // when
+      AccessConfigurationScenario.multiUser()
+          .tiroSource()
+          .organization("example.com")
+          .run(scenario -> assertThat(scenario.context()).hasNotFailed());
+
+      // then
+      assertThat(logs.events("access.domain.unavailable"))
+          .extracting(
+              event -> event.path("sourceInstanceId").asString(),
+              event -> event.path("detail").path("reason").asString())
+          .containsExactly(tuple("tiro-a", "missing_instance_domain"));
+    }
+  }
+
+  @Test
+  @DisplayName("조직 안의 Tiro 인스턴스 도메인은 경고하지 않는다")
+  void tiroWithInstanceDomainDoesNotWarn() {
+    try (var logs = LogCapture.of(AccessDomainConfiguration.class)) {
+      // when
+      AccessConfigurationScenario.multiUser()
+          .tiroSource()
+          .organization("example.com")
+          .overlay("tiro-a", "example.com")
+          .run(scenario -> assertThat(scenario.context()).hasNotFailed());
+
+      // then
+      assertThat(logs.events("access.domain.unavailable")).isEmpty();
+    }
+  }
+
+  @Test
+  @DisplayName("조직 밖의 Tiro 인스턴스 도메인은 경고한다")
+  void tiroOutsideOrgDomainsWarns() {
+    try (var logs = LogCapture.of(AccessDomainConfiguration.class)) {
+      // when
+      AccessConfigurationScenario.multiUser()
+          .tiroSource()
+          .organization("example.com")
+          .overlay("tiro-a", "other.example")
+          .run(scenario -> assertThat(scenario.context()).hasNotFailed());
+
+      // then
+      assertThat(logs.events("access.domain.unavailable"))
+          .extracting(
+              event -> event.path("sourceInstanceId").asString(),
+              event -> event.path("detail").path("reason").asString())
+          .containsExactly(tuple("tiro-a", "outside_org_domains"));
+    }
+  }
+
+  @Test
   @DisplayName("다른 종류의 accountEmail은 Drive 도메인 기본값으로 쓰지 않는다")
   void otherSourceAccountIsIgnored() {
     // when·then

@@ -14,6 +14,8 @@ rootProject.name = "scos-backend"
 // 디렉터리 이름은 프로젝트 이름과 같다. 모듈 사이 방향: spi ← engine ← {store·collection·connector·provider·mcp} ← starter ← server, {mcp·store-sqlite} ← client(단독 실행)
 include(
     "scos-spi",
+    "scos-board-archive",
+    "scos-board-archive-testkit",
     "scos-engine",
     "scos-store-memory",
     "scos-store-postgres",

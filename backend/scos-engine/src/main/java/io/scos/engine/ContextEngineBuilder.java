@@ -27,11 +27,13 @@ import io.scos.engine.internal.search.rerank.LlmReranker;
 import io.scos.engine.internal.search.rerank.Reranker;
 import io.scos.engine.internal.search.signal.RecencySignal;
 import io.scos.engine.internal.search.signal.Scorer;
+import io.scos.engine.internal.search.signal.SourceSignal;
 import io.scos.spi.access.DomainPolicy;
 import io.scos.spi.access.IdentityStore;
 import io.scos.spi.access.SourceFreshness;
 import io.scos.spi.embedding.Embedder;
 import io.scos.spi.embedding.TextGenerator;
+import io.scos.spi.source.SourceInstanceId;
 import io.scos.spi.store.KeywordIndex;
 import io.scos.spi.store.SpaceId;
 import io.scos.spi.store.UnitMaintenance;
@@ -41,6 +43,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.jspecify.annotations.Nullable;
@@ -48,8 +51,8 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * {@link ContextEngine} 조립(단계 2 §1.1). 필수는 units·keywords와 접근 모드, 그리고 embedder 또는 keywordOnly다.
- * vectors는 embedder를 선택할 때만 필수다. build는 DB에 접근하지 않는다. 검색 값은 호출마다 강도 프리셋에서 정한다(튜닝 값은 공개하지 않는다). 시작점은
- * {@link ContextEngine#builder()}다.
+ * vectors는 embedder를 선택할 때만 필수다. build는 DB에 접근하지 않는다. 검색 값은 호출마다 강도 프리셋에서 정하고, 순위 값 일부(날짜 계수·문서당
+ * 상한·current 창·원천 별명)만 {@link #ranking}으로 인스턴스가 정한다. 시작점은 {@link ContextEngine#builder()}다.
  */
 public final class ContextEngineBuilder {
   /** 지정하지 않은 키워드 채널 실행기의 스레드 수 — stdio 요청은 한 번에 하나라 둘이면 남는다. */
@@ -57,6 +60,10 @@ public final class ContextEngineBuilder {
 
   private sealed interface AccessConfiguration {
     record Unrestricted() implements AccessConfiguration {}
+
+    /** 접근은 무제한, 최신성은 나열한 원천의 성공 수집 기록으로 낸다. */
+    record UnrestrictedByCollection(SourceFreshness freshness, Set<SourceInstanceId> sources)
+        implements AccessConfiguration {}
 
     record Restricted(IdentityStore identities, SourceFreshness freshness, DomainPolicy domains)
         implements AccessConfiguration {}
@@ -79,6 +86,7 @@ public final class ContextEngineBuilder {
   private Clock clock = Clock.systemUTC();
   private @Nullable MeterRegistry meterRegistry;
   private @Nullable Executor lexicalExecutor;
+  private RankingSettings ranking = RankingSettings.DEFAULT;
 
   public ContextEngineBuilder units(UnitStore units) {
     this.units = Objects.requireNonNull(units, "units");
@@ -90,6 +98,20 @@ public final class ContextEngineBuilder {
     requireUnsetMode();
     this.maintenance = Objects.requireNonNull(maintenance, "maintenance");
     this.access = new AccessConfiguration.Unrestricted();
+    return this;
+  }
+
+  /**
+   * 단일 사용자 모드. 최신성만 나열한 원천의 마지막 성공 수집 시각 중 가장 이른 값으로 계산한다(B9 제한 범위와 같은 규칙). 이 값은 엔진 전체에 하나이며 공간과
+   * 무관하다. 유닛 시각이 내용 시각이라 새 내용이 없는 동안에도 수집이 돌았는지 알려야 하는 원천(게시판 보관소 등)에 쓴다.
+   */
+  public ContextEngineBuilder unrestricted(
+      SourceFreshness freshness, Set<SourceInstanceId> sources) {
+    requireUnsetMode();
+    if (sources.isEmpty()) throw new IllegalArgumentException("sources must not be empty");
+    this.access =
+        new AccessConfiguration.UnrestrictedByCollection(
+            Objects.requireNonNull(freshness, "freshness"), Set.copyOf(sources));
     return this;
   }
 
@@ -164,6 +186,12 @@ public final class ContextEngineBuilder {
     return this;
   }
 
+  /** 검색 순위 값(CONTRACTS B13). 지정하지 않으면 {@link RankingSettings#DEFAULT}다. */
+  public ContextEngineBuilder ranking(RankingSettings ranking) {
+    this.ranking = Objects.requireNonNull(ranking, "ranking");
+    return this;
+  }
+
   /** 필수 포트가 없으면 {@code IllegalStateException("<name> is required")}. */
   public ContextEngine build() {
     if (access == null)
@@ -176,7 +204,7 @@ public final class ContextEngineBuilder {
         SearchMetrics.of(meterRegistry == null ? new SimpleMeterRegistry() : meterRegistry);
     VectorChannel vectorChannel = vectorChannel(choice, metrics);
     FreshnessReader freshness = freshness(access);
-    Scorer scorer = new Scorer(List.of(new RecencySignal()));
+    Scorer scorer = scorer(ranking);
     QuestionSearch search =
         new QuestionSearch(
             new CandidateSource(
@@ -194,7 +222,7 @@ public final class ContextEngineBuilder {
             metrics,
             freshness,
             scorer,
-            new Escalation(new PlanResolver()));
+            new Escalation(new PlanResolver(ranking)));
     return new DefaultContextEngine(
         defaultSpace,
         search,
@@ -203,8 +231,16 @@ public final class ContextEngineBuilder {
         new ContextAssembler(units, search, clock, scorer),
         freshness,
         clock,
-        new PlanResolver(),
-        scopes(access));
+        new PlanResolver(ranking),
+        scopes(access),
+        ranking.currentWindow());
+  }
+
+  /** 랭커 신호: 날짜 계수 → 원천 가산(CONTRACTS B8·B13). */
+  private static Scorer scorer(RankingSettings ranking) {
+    return new Scorer(
+        List.of(
+            new RecencySignal(ranking.recency()), new SourceSignal(ranking.sources().weight())));
   }
 
   private VectorChannel vectorChannel(VectorChannelChoice choice, SearchMetrics metrics) {
@@ -226,6 +262,7 @@ public final class ContextEngineBuilder {
   private AccessScopes scopes(AccessConfiguration access) {
     return switch (access) {
       case AccessConfiguration.Unrestricted ignored -> new UnrestrictedScopes();
+      case AccessConfiguration.UnrestrictedByCollection ignored -> new UnrestrictedScopes();
       case AccessConfiguration.Restricted restricted ->
           new ResolvedScopes(new AccessResolver(restricted.identities(), restricted.domains()));
     };
@@ -235,6 +272,8 @@ public final class ContextEngineBuilder {
     return switch (access) {
       case AccessConfiguration.Unrestricted ignored ->
           new FreshnessReader(require(maintenance, "maintenance"), clock);
+      case AccessConfiguration.UnrestrictedByCollection collected ->
+          FreshnessReader.byCollection(collected.freshness(), collected.sources(), clock);
       case AccessConfiguration.Restricted restricted ->
           new FreshnessReader(Optional.empty(), Optional.of(restricted.freshness()), clock);
     };

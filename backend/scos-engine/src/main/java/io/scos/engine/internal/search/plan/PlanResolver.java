@@ -3,6 +3,8 @@ package io.scos.engine.internal.search.plan;
 import io.scos.engine.Effort;
 import io.scos.engine.InvalidQueryException;
 import io.scos.engine.Profile;
+import io.scos.engine.RankingSettings;
+import io.scos.engine.RankingSettings.Recency.When;
 import io.scos.engine.support.text.Text;
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -10,7 +12,7 @@ import java.util.regex.Pattern;
 
 /**
  * (질의, 강도, 프로필, 시각)을 {@link RetrievalPlan}으로 옮긴다. 강도·프로필은 여기서만 해석한다. 최신성 표지 정규식은 기록된 계약과 같은 글자로
- * 둔다(NFKC·소문자 뒤 판정).
+ * 둔다(NFKC·소문자 뒤 판정). 인스턴스 순위 값(날짜 계수 적용 조건·문서당 상한·원천 별명)도 여기서 계획에 싣는다(CONTRACTS B13).
  */
 public final class PlanResolver {
   private static final Pattern PAST =
@@ -39,23 +41,36 @@ public final class PlanResolver {
               + WS
               + "+(?:report|metrics|status|update|meeting notes)\\b");
 
-  /** search: AUTO는 질의 문구가 날짜 가산을 정한다. */
+  private final RankingSettings ranking;
+
+  public PlanResolver() {
+    this(RankingSettings.DEFAULT);
+  }
+
+  public PlanResolver(RankingSettings ranking) {
+    this.ranking = ranking;
+  }
+
+  /** search: AUTO는 적용 조건이 MARKED면 질의 문구가, ALWAYS면 언제나 날짜 가산을 켠다. */
   public RetrievalPlan forSearch(String query, Effort effort, Profile profile, Instant now) {
-    return plan(effort, recency(profile, prefersRecent(Text.nfkcLower(query), now)));
+    boolean auto =
+        ranking.recency().when() == When.ALWAYS || prefersRecent(Text.nfkcLower(query), now);
+    return plan(effort, recency(profile, auto), Mentions.of(ranking.sources(), query));
   }
 
   /** assemble: AUTO도 날짜 가산을 항상 켠다. */
   public RetrievalPlan forAssemble(String query, Effort effort, Profile profile, Instant now) {
-    return plan(effort, recency(profile, true));
+    return plan(effort, recency(profile, true), Mentions.of(ranking.sources(), query));
   }
 
-  /** 상향: 계획이 정한 날짜 가산은 보존하고 강도 값만 {@code plan()}과 같은 방식으로 다시 푼다. */
+  /** 상향: 계획이 정한 날짜 가산·원천은 보존하고 강도 값만 {@code plan()}과 같은 방식으로 다시 푼다. */
   public RetrievalPlan escalate(RetrievalPlan plan, Effort to) {
-    return plan(to, plan.recencyBoost());
+    return plan(to, plan.recencyBoost(), plan.mentions());
   }
 
-  private static RetrievalPlan plan(Effort effort, boolean recency) {
-    return new RetrievalPlan(effort, Presets.of(effort), recency, Presets.rerank(effort));
+  private RetrievalPlan plan(Effort effort, boolean recency, Mentions mentions) {
+    SearchSettings settings = Presets.of(effort).withPerDocument(ranking.perDocument());
+    return new RetrievalPlan(effort, settings, recency, Presets.rerank(effort), mentions);
   }
 
   private static boolean recency(Profile profile, boolean autoRecency) {

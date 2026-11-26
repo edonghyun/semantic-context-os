@@ -34,7 +34,8 @@ public final class RelatedDocuments {
     BOTH
   }
 
-  public record Related(String documentId, String title, String uri, double score, Via via) {}
+  public record Related(
+      String documentId, String title, String uri, String sourceId, double score, Via via) {}
 
   static final int SEED_LIMIT = 5;
   static final int CANDIDATE_LIMIT = 50;
@@ -85,6 +86,7 @@ public final class RelatedDocuments {
               c.documentId(),
               info.map(UnitStore.DocumentInfo::title).orElse(""),
               info.map(UnitStore.DocumentInfo::uri).orElse(""),
+              info.map(UnitStore.DocumentInfo::sourceId).orElse(""),
               c.score(),
               c.via()));
     }

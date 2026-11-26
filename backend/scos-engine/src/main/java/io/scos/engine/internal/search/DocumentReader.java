@@ -19,7 +19,11 @@ public final class DocumentReader {
 
   /** nextOffset이 비어 있으면 마지막 페이지. */
   public record Page(
-      String title, String uri, List<UnitView> units, Optional<Integer> nextOffset) {}
+      String title,
+      String uri,
+      String sourceId,
+      List<UnitView> units,
+      Optional<Integer> nextOffset) {}
 
   private final UnitStore units;
 
@@ -39,6 +43,7 @@ public final class DocumentReader {
     return new Page(
         info.title(),
         info.uri(),
+        info.sourceId(),
         views,
         page.size() > limit ? Optional.of(offset + limit) : Optional.empty());
   }

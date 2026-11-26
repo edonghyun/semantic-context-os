@@ -34,4 +34,25 @@ public record SearchSettings(
           /* perDocument */ 2,
           /* tierPriority */ true,
           /* rerankTopK */ 30);
+
+  /** 문서당 상한만 바꾼 값. 같으면 자신이다. */
+  public SearchSettings withPerDocument(int cap) {
+    if (cap == perDocument) return this;
+    return new SearchSettings(
+        maxVariants,
+        variantWeight,
+        lexicalK,
+        vectorK,
+        vectorMinScore,
+        rrfK,
+        lexicalWeight,
+        vectorWeight,
+        archivedWeight,
+        linksEnabled,
+        linkRankShift,
+        linkParentWindow,
+        cap,
+        tierPriority,
+        rerankTopK);
+  }
 }

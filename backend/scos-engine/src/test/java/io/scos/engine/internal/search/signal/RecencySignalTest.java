@@ -4,7 +4,10 @@ import static io.scos.spi.store.ContextUnits.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
+import io.scos.engine.Effort;
 import io.scos.engine.internal.search.Candidate;
+import io.scos.engine.internal.search.plan.RetrievalPlan;
+import io.scos.engine.internal.search.plan.SearchSettings;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +16,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("최신성 신호는 수집 뒤 지난 일수로 1 + 0.1·0.99^days를 낸다(CONTRACTS F-7)")
 class RecencySignalTest {
   static final Instant NOW = Instant.parse("2026-10-13T00:00:00Z");
+  static final RetrievalPlan PLAN =
+      new RetrievalPlan(Effort.MEDIUM, SearchSettings.DEFAULT, true, true);
   final RecencySignal signal = new RecencySignal();
 
   static Candidate capturedAt(String capturedAt) {
@@ -26,7 +31,7 @@ class RecencySignalTest {
     Candidate today = capturedAt("2026-10-13T00:00:00.000Z");
 
     // when
-    double factor = signal.factor(today, NOW);
+    double factor = signal.factor(today, PLAN, NOW);
 
     // then
     assertThat(factor).isCloseTo(1.1, within(1e-12));
@@ -39,7 +44,7 @@ class RecencySignalTest {
     Candidate tenDaysAgo = capturedAt("2026-10-03T00:00:00.000Z");
 
     // when
-    double factor = signal.factor(tenDaysAgo, NOW);
+    double factor = signal.factor(tenDaysAgo, PLAN, NOW);
 
     // then
     assertThat(factor).isCloseTo(1 + 0.1 * Math.pow(0.99, 10), within(1e-12));
@@ -53,7 +58,7 @@ class RecencySignalTest {
     Candidate undated = capturedAt("not a date");
 
     // when
-    double factor = signal.factor(undated, NOW);
+    double factor = signal.factor(undated, PLAN, NOW);
 
     // then
     assertThat(factor).isEqualTo(1.0);
@@ -66,7 +71,7 @@ class RecencySignalTest {
     Candidate future = capturedAt("2027-01-01T00:00:00.000Z");
 
     // when
-    double factor = signal.factor(future, NOW);
+    double factor = signal.factor(future, PLAN, NOW);
 
     // then
     assertThat(factor).isCloseTo(1.1, within(1e-12));

@@ -13,7 +13,6 @@ public record ProjectionRow(
     String title,
     String text,
     Instant createdAt,
-    Instant fetchedAt,
     List<CommentData> comments) {
   public ProjectionRow {
     comments = List.copyOf(comments);

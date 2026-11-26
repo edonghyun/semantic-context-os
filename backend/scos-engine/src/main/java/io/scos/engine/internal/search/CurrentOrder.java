@@ -9,14 +9,12 @@ import java.util.List;
 /** 명시적 Current의 반환 순서. 관련도 점수와 유닛은 보존한다(CONTRACTS B12). */
 @PureFunctions
 public final class CurrentOrder {
-  /** 관련 상위 안에서만 최신순으로 고른다. MCP limit 상한 10에서 후보는 최대 20개다. */
-  private static final int RELEVANCE_WINDOW_MULTIPLIER = 2;
-
   private CurrentOrder() {}
 
-  public static List<Candidate> search(List<Candidate> candidates, int limit) {
+  /** 관련 상위 window×limit 안에서만 최신순으로 고른다(기본 window 2: MCP limit 상한 10에서 후보는 최대 20개). */
+  public static List<Candidate> search(List<Candidate> candidates, int limit, int window) {
     return candidates.stream()
-        .limit((long) RELEVANCE_WINDOW_MULTIPLIER * limit)
+        .limit((long) window * limit)
         .sorted(Comparator.comparing(c -> capturedAt(c.unit()), Comparator.reverseOrder()))
         .limit(limit)
         .toList();

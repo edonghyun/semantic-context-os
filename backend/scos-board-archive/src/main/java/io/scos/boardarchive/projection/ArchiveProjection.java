@@ -70,7 +70,7 @@ public final class ArchiveProjection {
         row.title(),
         body.toString(),
         row.createdAt().toString(),
-        row.fetchedAt().toString());
+        row.createdAt().toString());
   }
 
   private String hash(SourceDocument document) {

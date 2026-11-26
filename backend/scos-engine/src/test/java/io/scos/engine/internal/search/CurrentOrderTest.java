@@ -22,7 +22,7 @@ class CurrentOrderTest {
     // given
     var candidates = List.of(older, newer);
     // when
-    var result = CurrentOrder.search(candidates, 2);
+    var result = CurrentOrder.search(candidates, 2, 2);
     // then
     assertThat(result).containsExactly(newer, older);
   }

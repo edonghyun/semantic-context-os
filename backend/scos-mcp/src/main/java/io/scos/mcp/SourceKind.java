@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 
-/** provenance.uri → 출처 분류. 파싱 실패는 unknown. */
+/** provenance.uri → 출처 분류. 파싱 실패는 unknown. 응답의 source는 {@link SourceLabels}가 정한다. */
 enum SourceKind {
   SLACK,
   NOTION,

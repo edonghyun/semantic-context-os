@@ -43,6 +43,7 @@ final class DefaultContextEngine implements ContextEngine {
   private final Clock clock;
   private final PlanResolver plans;
   private final AccessScopes scopes;
+  private final int currentWindow;
 
   DefaultContextEngine(
       SpaceId defaultSpace,
@@ -53,7 +54,8 @@ final class DefaultContextEngine implements ContextEngine {
       FreshnessReader freshness,
       Clock clock,
       PlanResolver plans,
-      AccessScopes scopes) {
+      AccessScopes scopes,
+      int currentWindow) {
     this.defaultSpace = defaultSpace;
     this.search = search;
     this.reader = reader;
@@ -63,6 +65,7 @@ final class DefaultContextEngine implements ContextEngine {
     this.clock = clock;
     this.plans = plans;
     this.scopes = scopes;
+    this.currentWindow = currentWindow;
   }
 
   @Override
@@ -70,7 +73,7 @@ final class DefaultContextEngine implements ContextEngine {
     QuestionSearch.Result result = searchRecipe(principal, query);
     var candidates =
         query.profile() instanceof Profile.Current
-            ? CurrentOrder.search(result.candidates(), query.limit())
+            ? CurrentOrder.search(result.candidates(), query.limit(), currentWindow)
             : result.candidates();
     return new SearchResult(
         candidates.stream().limit(query.limit()).map(DefaultContextEngine::hit).toList(),
@@ -124,6 +127,7 @@ final class DefaultContextEngine implements ContextEngine {
         request.documentId(),
         page.title(),
         page.uri(),
+        page.sourceId(),
         page.units().stream().map(v -> new UnitView(v.unitId(), v.title(), v.content())).toList(),
         page.nextOffset().map(OptionalInt::of).orElse(OptionalInt.empty()));
   }
@@ -141,6 +145,7 @@ final class DefaultContextEngine implements ContextEngine {
                         r.documentId(),
                         r.title(),
                         r.uri(),
+                        r.sourceId(),
                         r.score(),
                         RelatedDocument.Via.valueOf(r.via().name())))
             .toList());
@@ -244,6 +249,7 @@ final class DefaultContextEngine implements ContextEngine {
         u.title(),
         u.content(),
         u.provenance().uri(),
+        u.provenance().sourceId(),
         u.provenance().capturedAt(),
         i.rankScore());
   }

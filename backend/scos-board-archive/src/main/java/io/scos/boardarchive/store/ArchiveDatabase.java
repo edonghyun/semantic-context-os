@@ -36,7 +36,8 @@ final class ArchiveDatabase implements AutoCloseable {
             "V3__terminal_reappearance.sql",
             "V4__run_failure.sql",
             "V5__gone_evidence.sql",
-            "V6__gone_since.sql");
+            "V6__gone_since.sql",
+            "V7__run_finished_at.sql");
     int version = query("PRAGMA user_version", rs -> rs.getInt(1)).getFirst();
     if (version > migrations.size())
       throw new IllegalStateException("Archive schema is newer than supported");

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import io.scos.boardarchive.driver.PostKey;
 import io.scos.boardarchive.testsupport.ArchiveScenario;
+import io.scos.spi.source.SourceInstanceId;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.io.TempDir;
 @DisplayName("보관소는 정규화 내용의 이력과 현재 상태를 보존한다")
 class ArchiveStoreTest {
   private static final Duration LATER = Duration.ofHours(25);
+  private static final SourceInstanceId SITE_INSTANCE = new SourceInstanceId("example-board");
   @TempDir Path dir;
   ArchiveScenario s;
 
@@ -149,6 +151,18 @@ class ArchiveStoreTest {
             r -> r.finished(), r -> r.requests(), r -> r.newPosts(), r -> r.permissionEvidence())
         .containsExactly(true, 2, 2, Optional.of("local permission record"));
     assertThat(s.store.completedRuns(ArchiveScenario.SITE)).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("V6 보관소의 끝난 실행은 시작 시각을 완료 시각으로 삼는다")
+  void migratesVersionSixRunWithStartAsFinish() throws Exception {
+    // given: 2026-11-18T00:00Z에 시작한 실행이 완료 시각 없이 기록됐다
+    s.completeLoggedRun();
+    s.reopenArchiveAt(6);
+    // when
+    var last = s.store.lastSucceeded(Set.of(SITE_INSTANCE));
+    // then
+    assertThat(last).isEqualTo(Map.of(SITE_INSTANCE, Instant.parse("2026-11-18T00:00:00Z")));
   }
 
   @Test

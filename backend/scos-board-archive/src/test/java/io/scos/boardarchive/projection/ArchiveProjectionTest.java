@@ -38,6 +38,19 @@ class ArchiveProjectionTest {
   }
 
   @Test
+  @DisplayName("문서 수정 시각은 수집 시각이 아니라 글 작성 시각이다")
+  void updatedAtIsPostCreationTime() {
+    // given: 11-17에 쓴 글을 11-18에 수집했다
+    s.givenPost();
+    // when
+    var p = s.project();
+    // then
+    assertThat(p.documents())
+        .extracting(SourceDocument::updatedAt)
+        .containsExactly("2026-11-17T00:00:00Z");
+  }
+
+  @Test
   @DisplayName("변경 없는 글은 전송하지 않고 현존 집합에 둔다")
   void unchangedPostIsNotResentButStaysLive() {
     // given

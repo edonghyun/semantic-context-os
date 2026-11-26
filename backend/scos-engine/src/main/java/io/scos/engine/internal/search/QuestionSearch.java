@@ -74,9 +74,20 @@ public final class QuestionSearch {
     this.escalation = escalation;
   }
 
-  /** search_context: 한 번 실행하고, LOW에서 limit개에 못 미치면 MEDIUM으로 한 번 더 실행한다. */
+  /**
+   * search_context: 한 번 실행하고, LOW에서 limit개에 못 미치면 MEDIUM으로 한 번 더 실행한다. 질의가 색인에 없는 원천만 말하면 레시피를 돌리지
+   * 않고 0건이다(CONTRACTS B13).
+   */
   public Result search(
       AccessScope access, SpaceId space, String query, RetrievalPlan plan, int limit) {
+    if (plan.mentions().onlyNotIndexed())
+      return new Result(
+          access,
+          List.of(),
+          freshness.read(access, space),
+          new RerankOutcome.Skipped("source not indexed"),
+          plan.effort(),
+          false);
     Result first = run(access, space, query, plan);
     return escalation
         .replan(plan, first.candidates().size(), limit)

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import io.scos.boardarchive.driver.*;
 import io.scos.boardarchive.store.*;
 import io.scos.boardarchive.testsupport.*;
+import io.scos.spi.source.SourceInstanceId;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
@@ -45,6 +46,20 @@ class CrawlRunnerTest {
     assertThat(stats.newPosts()).isEqualTo(5);
     assertThat(s.driver.fetched()).containsExactly("5", "4", "3", "2", "1");
     assertThat(s.archive.store.cursors(s.driver.site(), "a").backfillDone()).isTrue();
+  }
+
+  @Test
+  @DisplayName("성공한 실행은 끝난 시각을 사이트의 마지막 성공 수집 시각으로 남긴다")
+  void successfulRunRecordsFinishTime() {
+    // given
+    s.givenFivePosts();
+    var started = s.archive.clock.instant();
+    // when
+    s.run();
+    // then: 기록은 시작 시각이 아니라 실행이 끝난 뒤의 시계 값이다
+    var recorded =
+        s.archive.store.lastSucceeded(Set.of(new SourceInstanceId(s.driver.site()))).values();
+    assertThat(recorded).containsExactly(s.archive.clock.instant()).allMatch(started::isBefore);
   }
 
   @Test

@@ -63,11 +63,18 @@ public final class McpTools {
   private final ContextEngine engine;
   private final ObjectWriter json;
   private final QueryLog queryLog;
+  private final SourceLabels labels;
 
   public McpTools(ContextEngine engine, ObjectMapper mapper, QueryLog queryLog) {
+    this(engine, mapper, queryLog, SourceLabels.URI_ONLY);
+  }
+
+  public McpTools(
+      ContextEngine engine, ObjectMapper mapper, QueryLog queryLog, SourceLabels labels) {
     this.engine = engine;
     this.json = mapper.writerWithDefaultPrettyPrinter();
     this.queryLog = queryLog;
+    this.labels = labels;
   }
 
   public String assembleContext(Principal principal, Map<String, Object> rawArgs) {
@@ -91,7 +98,7 @@ public final class McpTools {
                 i ->
                     new Wire.AssembleUnit(
                         i.title(),
-                        SourceKind.of(i.uri()).wire(),
+                        labels.label(i.uri(), i.sourceId()),
                         i.documentId(),
                         i.capturedAt(),
                         i.content()))
@@ -123,7 +130,7 @@ public final class McpTools {
                     new Wire.SearchHit(
                         h.title(),
                         excerpt(h.content()),
-                        SourceKind.of(h.uri()).wire(),
+                        labels.label(h.uri(), h.sourceId()),
                         h.documentId(),
                         h.capturedAt(),
                         round3(h.score())))
@@ -150,7 +157,7 @@ public final class McpTools {
     return json.writeValueAsString(
         new Wire.ReadPage(
             page.title(),
-            SourceKind.of(page.uri()).wire(),
+            labels.label(page.uri(), page.sourceId()),
             page.uri(),
             units,
             page.nextOffset().isPresent() ? page.nextOffset().getAsInt() : null));
@@ -173,7 +180,7 @@ public final class McpTools {
                     new Wire.RelatedItem(
                         r.documentId(),
                         r.title(),
-                        SourceKind.of(r.uri()).wire(),
+                        labels.label(r.uri(), r.sourceId()),
                         round3(r.score()),
                         r.via().name().toLowerCase(Locale.ROOT)))
             .toList();

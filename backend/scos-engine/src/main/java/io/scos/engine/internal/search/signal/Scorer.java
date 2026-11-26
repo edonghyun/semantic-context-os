@@ -27,7 +27,7 @@ public final class Scorer {
       double product = 1.0;
       for (Signal s : signals) {
         if (s instanceof RecencySignal && !recency) continue;
-        product *= s.factor(c, now);
+        product *= s.factor(c, plan, now);
       }
       double tieBreak =
           recency && c.unit().tier() == Tier.COMPACTED ? c.baseScore() * COMPACTED_TIE_BREAK : 0;

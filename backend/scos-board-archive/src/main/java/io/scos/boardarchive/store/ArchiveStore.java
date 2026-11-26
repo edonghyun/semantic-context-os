@@ -2,6 +2,8 @@ package io.scos.boardarchive.store;
 
 import io.scos.boardarchive.driver.*;
 import io.scos.boardarchive.fetch.FetchLog;
+import io.scos.spi.access.SourceFreshness;
+import io.scos.spi.source.SourceInstanceId;
 import java.nio.file.Path;
 import java.sql.*;
 import java.time.Instant;
@@ -11,7 +13,7 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * A separate SQLite archive. Each content write is one transaction, including comments and moves.
  */
-public final class ArchiveStore implements AutoCloseable {
+public final class ArchiveStore implements AutoCloseable, SourceFreshness {
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private final ArchiveDatabase db;
 
@@ -384,20 +386,38 @@ public final class ArchiveStore implements AutoCloseable {
     return db.insertedId();
   }
 
-  public synchronized void finishRun(long runId, RunStats stats, FetchLog log) {
-    finishRun(runId, stats, log, Optional.empty());
-  }
-
   public synchronized void finishRun(
-      long runId, RunStats stats, FetchLog log, Optional<String> failureReason) {
+      long runId,
+      RunStats stats,
+      FetchLog log,
+      Optional<String> failureReason,
+      Instant finishedAt) {
     db.execute(
-        "UPDATE crawl_run SET finished=1,stats=?,requests=?,by_status=?,permission=?,failure_reason=? WHERE id=? AND finished=0",
+        "UPDATE crawl_run SET finished=1,finished_at=?,stats=?,requests=?,by_status=?,permission=?,failure_reason=? WHERE id=? AND finished=0",
+        finishedAt.toString(),
         JSON.writeValueAsString(stats),
         log.requests(),
         JSON.writeValueAsString(log.byStatus()),
         log.robotsExceptionUsed().map(JSON::writeValueAsString),
         failureReason,
         runId);
+  }
+
+  /** The site id is the source instance; a run without a failure reason is a success. */
+  @Override
+  public synchronized Map<SourceInstanceId, Instant> lastSucceeded(
+      Set<SourceInstanceId> instances) {
+    Map<SourceInstanceId, Instant> last = new HashMap<>();
+    for (SourceInstanceId instance : instances)
+      db
+          .query(
+              "SELECT finished_at FROM crawl_run WHERE site=? AND finished=1 AND failure_reason IS NULL",
+              r -> Instant.parse(r.getString(1)),
+              instance.value())
+          .stream()
+          .max(Instant::compareTo)
+          .ifPresent(at -> last.put(instance, at));
+    return Map.copyOf(last);
   }
 
   public synchronized int completedRuns(String site) {
@@ -516,7 +536,7 @@ public final class ArchiveStore implements AutoCloseable {
     return db
         .query(
             """
-   SELECT p.id,p.board_id,p.projected_hash,p.content_at,b.name,r.url,r.title,r.text,r.created_at
+   SELECT p.id,p.board_id,p.projected_hash,b.name,r.url,r.title,r.text,r.created_at
    FROM post p JOIN board b ON b.site=p.site AND b.id=p.board_id
    JOIN post_revision r ON r.id=(SELECT max(id) FROM post_revision WHERE site=p.site AND post_id=p.id)
    WHERE p.site=? AND p.status IN ('NORMAL','NEEDS_CHECK') ORDER BY p.id
@@ -559,7 +579,6 @@ public final class ArchiveStore implements AutoCloseable {
         r.getString("title"),
         r.getString("text"),
         Instant.parse(r.getString("created_at")),
-        Instant.parse(r.getString("content_at")),
         comments);
   }
 

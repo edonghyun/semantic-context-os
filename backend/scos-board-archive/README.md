@@ -20,6 +20,19 @@ store, driver, http, clock, settings, fetchLog, ingestor는 소비 앱이 구성
 
 실패한 문서를 반영 완료로 표시하면 안 된다. full=true는 전체 재전송과 명시적인 대량 축소를 허용한다. 기본 축소 상한은 20%이며 거부된 투영은 기존 반영 해시와 현존 수를 유지한다.
 
+문서의 createdAt·updatedAt은 둘 다 글 작성 시각이다. 보관소는 글 수정 시각을 모르고, 수집 시각을 넣으면 엔진의 최신순(capturedAt)이 수집 순서가 된다. 댓글 시각은 문서 시각에 넣지 않는다.
+
+ArchiveStore는 SourceFreshness다. 원천 인스턴스 id는 site id이고, 값은 실패 사유 없이 끝난 마지막 실행의 완료 시각(crawl_run.finished_at)이다. 새 글이 없는 날에도 수집이 돌았으면 stale가 아니게 하려면 단일 사용자 엔진을 이 기록으로 조립한다.
+
+    ContextEngine engine = ContextEngine.builder()
+        .unrestricted(store, Set.of(new SourceInstanceId(site)))
+        // units·keywords 등
+        .build();
+
+최신성 값은 엔진 전체에 하나이며 공간과 무관하다. 성공에는 시간 예산으로 중간에 멈춘 실행과 게시판 일부가 멈춘 실행도 포함한다(실패 사유가 남는 것은 실행을 끝낸 예외뿐이다). V7 이전에 끝난 실행은 완료 시각 대신 시작 시각을 쓴다. V7 보관소는 이전 버전이 열지 않으므로 되돌릴 일이 있으면 올리기 전에 백업한다.
+
+MCP 응답의 source는 uri로 출처를 정한다. 게시판 글의 https 주소는 분류되지 않아 기본값은 unknown이다. 사이트 id를 보이려면 `new McpTools(engine, mapper, queryLog, SourceLabels.SOURCE_ID_FALLBACK)`으로 만든다.
+
 ## 드라이버 계약
 
 - BoardDriver는 게시판과 최신순 목록을 읽고 글 상태를 판정한다. 분류·요약하지 않는다.

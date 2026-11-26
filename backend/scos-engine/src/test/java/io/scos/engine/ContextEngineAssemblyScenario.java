@@ -27,6 +27,7 @@ final class ContextEngineAssemblyScenario {
   static final String DOCUMENT = "settlement";
   static final SourceInstanceId SOURCE = new SourceInstanceId("drive-a");
   static final Instant CAPTURED = Instant.parse("2026-10-13T00:00:00Z");
+  static final SourceInstanceId BOARD = new SourceInstanceId("board-a");
   static final Clock CLOCK = Clock.fixed(CAPTURED, ZoneOffset.UTC);
   static final DomainPolicy DOMAINS =
       new DomainPolicy(Set.of("example.com"), Map.of(SOURCE, "example.com"));
@@ -109,6 +110,15 @@ final class ContextEngineAssemblyScenario {
 
   ContextEngine unrestricted() {
     return withoutMode().unrestricted(fixture.maintenance).build();
+  }
+
+  /** 단일 사용자 엔진이지만 최신성은 원천 board-a의 수집 기록으로 낸다. */
+  ContextEngine unrestrictedByCollection() {
+    return withoutMode().unrestricted(sources, Set.of(BOARD)).build();
+  }
+
+  void recordCollection(Instant finishedAt) {
+    sources.recordSuccess(BOARD, finishedAt);
   }
 
   ContextEngineBuilder restrictedBuilder() {

@@ -6,5 +6,6 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc")
     implementation("tools.jackson.core:jackson-databind")
     testImplementation(project(":scos-board-archive-testkit"))
+    testImplementation(testFixtures(project(":scos-spi")))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

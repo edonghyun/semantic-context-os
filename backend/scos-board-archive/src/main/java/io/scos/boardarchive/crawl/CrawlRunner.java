@@ -72,7 +72,7 @@ public final class CrawlRunner {
         failure = Optional.of(e.getClass().getSimpleName());
         throw e;
       } finally {
-        store.finishRun(id, stats(), requests.since(before), failure);
+        store.finishRun(id, stats(), requests.since(before), failure, clock.instant());
       }
     }
 

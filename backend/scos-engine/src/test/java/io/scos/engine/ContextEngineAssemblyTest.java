@@ -10,16 +10,22 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 import io.scos.engine.internal.search.QuestionSearch;
 import io.scos.spi.access.AccessKey;
+import io.scos.spi.access.RecordedSourceFreshness;
 import io.scos.spi.embedding.FixedEmbedder;
 import io.scos.spi.store.AccessScope;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @DisplayName("엔진은 명시한 접근 모드로 요청 범위를 정한다(설계 §4.5, A2)")
 class ContextEngineAssemblyTest {
+  static final Instant COLLECTED = Instant.parse("2026-10-12T12:00:00Z");
+
   @Test
   @DisplayName("벡터 포트 없는 키워드 전용 엔진도 문서를 검색한다")
   void keywordOnlySearchNeedsNoVectorPort() {
@@ -201,6 +207,65 @@ class ContextEngineAssemblyTest {
 
     // then
     assertThat(result.latestCapturedAt()).isPresent();
+  }
+
+  @Nested
+  @DisplayName("단일 사용자 엔진을 수집 기록으로 조립하면")
+  class UnrestrictedByCollection {
+    final ContextEngineAssemblyScenario scenario = new ContextEngineAssemblyScenario();
+
+    @Test
+    @DisplayName("최신성은 유닛 시각이 아니라 원천의 마지막 성공 수집 시각으로 판정한다")
+    void freshnessUsesCollectionHistory() {
+      // given: 유닛은 지금(10-13 00:00) 시각, 수집은 12시간 전에 끝났다
+      scenario.recordCollection(COLLECTED);
+      var engine = scenario.unrestrictedByCollection();
+
+      // when
+      var freshness = engine.freshness(ALICE, S);
+
+      // then
+      assertThat(freshness)
+          .isEqualTo(new Freshness(Optional.of("2026-10-12T12:00:00Z"), Optional.of(12.0), true));
+    }
+
+    @Test
+    @DisplayName("수집 기록이 없으면 최신성은 확인 불가다")
+    void missingCollectionIsUnavailable() {
+      // given
+      var engine = scenario.unrestrictedByCollection();
+
+      // when
+      var freshness = engine.freshness(ALICE, S);
+
+      // then
+      assertThat(freshness).isEqualTo(Freshness.UNAVAILABLE);
+    }
+
+    @Test
+    @DisplayName("검색은 키 없는 principal에게도 무제한이다")
+    void searchStaysUnrestricted() {
+      // given
+      var engine = scenario.unrestrictedByCollection();
+
+      // when
+      var result = engine.search(UNKNOWN, SearchQuery.of("정산"));
+
+      // then
+      assertThat(result.hits()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("원천 목록이 비면 조립을 거부한다")
+    void emptySourcesAreRejected() {
+      // given
+      var builder = scenario.withoutMode();
+
+      // when·then
+      assertThatThrownBy(() -> builder.unrestricted(new RecordedSourceFreshness(), Set.of()))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("sources must not be empty");
+    }
   }
 
   @Test

@@ -7,5 +7,6 @@ public record BundleItem(
     String title,
     String content,
     String uri,
+    String sourceId,
     String capturedAt,
     double rankScore) {}

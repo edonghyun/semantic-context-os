@@ -15,14 +15,15 @@ import java.util.*;
 public final class ArchiveScenario implements AutoCloseable {
   public static final String SITE = "example-board";
   public static final Instant CREATED = Instant.parse("2026-11-17T00:00:00Z");
-  // Undoes migrations V2 to V6, one column each, in version order.
+  // Undoes migrations V2 to V7, one column each, in version order.
   private static final List<String> UNDO_FROM_V2 =
       List.of(
           "ALTER TABLE sweep DROP COLUMN discard_reason",
           "ALTER TABLE post DROP COLUMN terminal_seen",
           "ALTER TABLE crawl_run DROP COLUMN failure_reason",
           "ALTER TABLE post DROP COLUMN gone_sweep",
-          "ALTER TABLE post DROP COLUMN gone_at");
+          "ALTER TABLE post DROP COLUMN gone_at",
+          "ALTER TABLE crawl_run DROP COLUMN finished_at");
   public ArchiveStore store;
   private final Path file;
   public final MutableClock clock = new MutableClock();
@@ -186,7 +187,8 @@ public final class ArchiveScenario implements AutoCloseable {
           new SitePolicy("archive-test", Duration.ofSeconds(3), 4, Optional.of(permission));
       var log = new FetchLog();
       new PoliteFetcher(client, clock, clock::advance, policy, log).get(site.uri("/post"));
-      store.finishRun(id, new RunStats(2, 1, 0, List.of(), false), log);
+      store.finishRun(
+          id, new RunStats(2, 1, 0, List.of(), false), log, Optional.empty(), clock.instant());
     }
   }
 }

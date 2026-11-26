@@ -28,4 +28,20 @@ class SourceKindTest {
     // then
     assertThat(actual).isEqualTo(wire);
   }
+
+  @ParameterizedTest(name = "{0} → {1}")
+  @DisplayName("Tiro 회의록은 웹 주소든 tiro 스킴이든 tiro다")
+  @CsvSource({
+    "https://tiro.ooo/n/1, tiro",
+    "tiro://note-1, tiro",
+    "http://tiro.ooo/n/1, unknown",
+    "https://nottiro.ooo/n/1, unknown"
+  })
+  void tiroKind(String uri, String wire) {
+    // when
+    String actual = SourceKind.of(uri).wire();
+
+    // then
+    assertThat(actual).isEqualTo(wire);
+  }
 }

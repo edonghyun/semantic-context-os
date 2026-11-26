@@ -14,6 +14,7 @@ enum SourceKind {
   MEMORY,
   DOCUMENT,
   GIT,
+  TIRO,
   UNKNOWN;
 
   private static final List<String> NOTION_HOSTS =
@@ -41,19 +42,21 @@ enum SourceKind {
       case "claude-memory" -> MEMORY;
       case "file" -> DOCUMENT;
       case "git" -> GIT;
+      case "tiro" -> TIRO;
       case "https" -> web(u, true);
       case "http" -> web(u, false);
       default -> UNKNOWN;
     };
   }
 
-  /** 웹 주소: Drive·Jira는 https만, Notion은 http도. */
+  /** 웹 주소: Drive·Jira·Tiro는 https만, Notion은 http도. */
   private static SourceKind web(URI u, boolean https) {
     String host = u.getHost() == null ? "" : u.getHost().toLowerCase(Locale.ROOT);
     String path = u.getPath() == null ? "" : u.getPath();
     if (https && (host.equals("drive.google.com") || host.equals("docs.google.com")))
       return GOOGLE_DRIVE;
     if (https && host.endsWith(".atlassian.net") && isJiraPath(path)) return JIRA;
+    if (https && host.equals("tiro.ooo")) return TIRO;
     if (NOTION_HOSTS.stream().anyMatch(d -> host.equals(d) || host.endsWith("." + d)))
       return NOTION;
     return UNKNOWN;
